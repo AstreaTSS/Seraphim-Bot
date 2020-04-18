@@ -1,4 +1,4 @@
-import discord, os
+import discord, os, asyncio
 from discord.ext import commands
 
 bot = commands.Bot(command_prefix='s!', fetch_offline_members=True)
@@ -8,7 +8,22 @@ bot.remove_command("help")
 @bot.event
 async def on_ready():
 
-    cogs_list = ["cogs.star"]
+    bot.config_file = {}
+    bot.mes_log = {}
+    bot.load_extension("cogs.update_config")
+
+    while bot.config_file == None:
+        await asyncio.sleep(0.1)
+
+    for server_id in bot.config_file.keys():
+        guild = await bot.fetch_guild(int(server_id))
+        starboard_channel = guild.get_channel(bot.config_file[server_id]["channel"])
+        bot.mes_log[server_id] = [
+            mes for mes in await starboard_channel.history(limit=None).flatten()
+            if mes.author.id == bot.user.id
+        ]
+
+    cogs_list = ["cogs.star", "cogs.deleted_mes"]
 
     for cog in cogs_list:
         bot.load_extension(cog)
@@ -23,10 +38,7 @@ async def on_ready():
     
 @bot.check
 async def block_dms(ctx):
-    if ctx.invoked_with == "dm_say":
-        return ctx.guild is None
-    else:
-        return ctx.guild is not None
+    return ctx.guild is not None
         
 @bot.event
 async def on_command_error(ctx, error):
