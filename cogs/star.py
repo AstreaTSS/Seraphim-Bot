@@ -11,9 +11,9 @@ class Star(commands.Cog):
             mes = reaction.message
             
             mes_log_messages = [v for v in self.bot.mes_log[str(mes.guild.id)].values()]
-            star_variant = [m for m in mes_log_messages if mes.id == m["mes"].id]
+            star_variant = [m["mes"] for m in mes_log_messages if mes.id == m["mes"].id]
             if star_variant == []:
-                star_variant = [m for m in mes_log_messages if str(mes.id) in m["mes"].content]            
+                star_variant = [m["mes"] for m in mes_log_messages if str(mes.id) in m["mes"].content]            
 
             if star_variant == []:
                 unique_stars = [
@@ -73,7 +73,6 @@ class Star(commands.Cog):
                     self.bot.mes_log[str(mes.guild.id)][starred.id] = {}
                     self.bot.mes_log[str(mes.guild.id)][starred.id]["mes"] = starred
                     self.bot.mes_log[str(mes.guild.id)][starred.id]["react"] = unique_stars
-                    print(self.bot.mes_log[str(mes.guild.id)])
 
             else:
                 check_for_mem = [u for u in self.bot.mes_log[str(mes.guild.id)][star_variant[0].id]["react"] if user.id == u.id]
@@ -93,9 +92,9 @@ class Star(commands.Cog):
             mes = reaction.message
 
             mes_log_messages = [v for v in self.bot.mes_log[str(mes.guild.id)].values()]
-            star_variant = [m for m in mes_log_messages if mes.id == m["mes"].id]
+            star_variant = [m["mes"] for m in mes_log_messages if mes.id == m["mes"].id]
             if star_variant == []:
-                star_variant = [m for m in mes_log_messages if str(mes.id) in m["mes"].content]     
+                star_variant = [m["mes"] for m in mes_log_messages if str(mes.id) in m["mes"].content]     
 
             if star_variant != []:
                 check_for_mem = [u for u in self.bot.mes_log[str(mes.guild.id)][star_variant[0].id]["react"] if user.id == u.id]
