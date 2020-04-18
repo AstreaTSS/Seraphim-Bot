@@ -12,18 +12,13 @@ async def on_ready():
     bot.mes_log = {}
     bot.load_extension("cogs.update_config")
 
-    while bot.config_file == None:
+    while bot.config_file == {}:
         await asyncio.sleep(0.1)
 
     for server_id in bot.config_file.keys():
-        guild = await bot.fetch_guild(int(server_id))
-        starboard_channel = guild.get_channel(bot.config_file[server_id]["channel"])
-        bot.mes_log[server_id] = [
-            mes for mes in await starboard_channel.history(limit=None).flatten()
-            if mes.author.id == bot.user.id
-        ]
+        bot.mes_log[server_id] = {}
 
-    cogs_list = ["cogs.star", "cogs.deleted_mes"]
+    cogs_list = ["cogs.star", "cogs.clear_events"]
 
     for cog in cogs_list:
         bot.load_extension(cog)
