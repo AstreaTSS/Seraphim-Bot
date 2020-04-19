@@ -1,5 +1,6 @@
 from discord.ext import commands
 import discord
+import cogs.interact_db as db
 
 class ClearEvents(commands.Cog):
     def __init__(self, bot):
@@ -7,56 +8,61 @@ class ClearEvents(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, mes):
-        mes_log_messages = [v for v in self.bot.mes_log[str(mes.guild.id)].values()]
-        star_variant = [m["mes"] for m in mes_log_messages if mes.id == m["mes"].id]
-        if star_variant == []:
-            star_variant = [m["mes"] for m in mes_log_messages if str(mes.id) in m["mes"].content] 
+        star_variant = db.run_command("SELECT * FROM starboard WHERE " +
+        f"(ori_mes_id = '{mes.id}' OR star_var_id = '{mes.id}') AND " +
+        f"star_var_id IS NOT NULL;")  
 
-        if star_variant != []:
-            self.bot.mes_log[str(mes.guild.id)].remove(mes.id)
+        if star_variant != ():
+            db.run_command(f"DELETE FROM starboard WHERE star_var_id = '{star_variant[0][2]}")
 
     @commands.Cog.listener()
     async def on_bulk_message_delete(self, messages):
         message_ids = [m.id for m in messages]
-
-        mes_log_messages = [v for v in self.bot.mes_log[str(messages[0].guild.id)].values()]
-        star_variants = [m["mes"] for m in mes_log_messages if m["mes"].id in message_ids]
+        star_variants = []
 
         for message_id in message_ids:
-            star_variants_append = [m["mes"] for m in mes_log_messages if str(message_id) in m["mes"].content]
+            star_variant = db.run_command("SELECT * FROM starboard WHERE " +
+            f"(ori_mes_id = '{message_id}' OR star_var_id = '{message_id}') AND " +
+            f"star_var_id IS NOT NULL;")
 
-            if star_variants_append != []:
-                star_variants.append(star_variants_append[0])
+            if star_variant != ():
+                star_variants.append(star_variant[0])
 
-        if star_variants != []:
+        if star_variants != ():
             for star_variant in star_variants:
-                del self.bot.mes_log[str(messages[0].guild.id)][star_variant["mes"].id]
+                db.run_command(f"DELETE FROM starboard WHERE star_var_id = '{star_variant[2]}")
 
     @commands.Cog.listener()
     async def on_reaction_clear(self, mes, reactions):
-        mes_log_messages = [v for v in self.bot.mes_log[str(mes.guild.id)].values()]
-        star_variant = [m["mes"] for m in mes_log_messages if mes.id == m["mes"].id]
-        if star_variant == []:
-            star_variant = [m["mes"] for m in mes_log_messages if str(mes.id) in m["mes"].content]
+        config_file = db.run_command(f"SELECT * FROM starboard_config WHERE server_id = {mes.guild.id}")
 
-        if star_variant != []:
-            await star_variant[0].delete()
-            del self.bot.mes_log[str(mes.guild.id)][star_variant[0].id]
+        star_variant = db.run_command("SELECT * FROM starboard WHERE " +
+            f"(ori_mes_id = '{mes.id}' OR star_var_id = '{mes.id}') AND " +
+            f"star_var_id IS NOT NULL;")
+
+        if star_variant != ():
+            star_var_chan = await self.bot.fetch_channel(config_file[0][0])
+            star_var_mes = await star_var_chan.fetch_message(star_variant[0][2])
+
+            await star_var_mes.delete()
+            db.run_command(f"DELETE FROM starboard WHERE star_var_id = '{star_variant[0][2]}")
 
     @commands.Cog.listener()
     async def on_reaction_clear_emoji(self, reaction):
         if str(reaction) == "⭐":
             mes = reaction.message
+            config_file = db.run_command(f"SELECT * FROM starboard_config WHERE server_id = {mes.guild.id}")
+            
+            star_variant = db.run_command("SELECT * FROM starboard WHERE " +
+            f"(ori_mes_id = '{mes.id}' OR star_var_id = '{mes.id}') AND " +
+            f"star_var_id IS NOT NULL;")
 
-            mes_log_messages = [v for v in self.bot.mes_log[str(mes.guild.id)].values()]
-            star_variant = [m["mes"] for m in mes_log_messages if mes.id == m["mes"].id]
-            if star_variant == []:
-                star_variant = [m["mes"] for m in mes_log_messages if str(mes.id) in m["mes"].content] 
+            if star_variant != ():
+                star_var_chan = await self.bot.fetch_channel(config_file[0][0])
+                star_var_mes = await star_var_chan.fetch_message(star_variant[0][2])
 
-            if star_variant != []:
-                await star_variant[0].delete()
-                del self.bot.mes_log[str(mes.guild.id)][star_variant[0].id]
-
+                await star_var_mes.delete()
+                db.run_command(f"DELETE FROM starboard WHERE star_var_id = '{star_variant[0][2]}")
 
 def setup(bot):
     bot.add_cog(ClearEvents(bot))

@@ -7,18 +7,7 @@ bot.remove_command("help")
 
 @bot.event
 async def on_ready():
-
-    bot.config_file = {}
-    bot.mes_log = {}
-    bot.load_extension("cogs.update_config")
-
-    while bot.config_file == {}:
-        await asyncio.sleep(0.1)
-
-    for server_id in bot.config_file.keys():
-        bot.mes_log[server_id] = {}
-
-    cogs_list = ["cogs.star", "cogs.clear_events"]
+    cogs_list = ["cogs.star_handling", "cogs.clear_events", "cogs.commands"]
 
     for cog in cogs_list:
         bot.load_extension(cog)

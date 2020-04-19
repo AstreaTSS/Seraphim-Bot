@@ -1,1 +1,2 @@
 discord
+git+https://github.com/dongweiming/aiomysql.git
