@@ -7,11 +7,11 @@ class Star(commands.Cog):
         self.bot = bot
 
     async def get_stars(self, mes, reactor_id, operation):
-        starboard_entry = db.run_command("SELECT * FROM starboard WHERE " +
+        starboard_entry = await db.run_command("SELECT * FROM starboard WHERE " +
             f"ori_mes_id = '{mes.id}' OR star_var_id = '{mes.id}';")
 
         if starboard_entry == ():
-            db.run_command("INSERT INTO starboard "+
+            await db.run_command("INSERT INTO starboard "+
             "(ori_mes_id, ori_chan_id, star_var_id, author_id, reactors) VALUES " +
             f"('{mes.id}', '{mes.channel.id}', NULL, '{mes.author.id}', '{reactor_id}');")
 
@@ -19,16 +19,16 @@ class Star(commands.Cog):
 
         if not str(reactor_id) in reactors and operation == "ADD":
             new_reactors = reactors.join(",") + f",{reactor_id}"
-            starboard_entry = db.run_command(f"UPDATE starboard SET reactors = `{new_reactors}` " +
+            starboard_entry = await db.run_command(f"UPDATE starboard SET reactors = `{new_reactors}` " +
             f"WHERE ori_mes_id = '{mes.id}' OR star_var_id = '{mes.id}';")
 
         elif str(reactor_id) in reactors and operation == "SUBTRACT":
             reactors.remove(str(reactor_id))
             new_reactors = reactors.join(",")
-            starboard_entry = db.run_command(f"UPDATE starboard SET reactors = `{new_reactors}` " +
+            starboard_entry = await db.run_command(f"UPDATE starboard SET reactors = `{new_reactors}` " +
             f"WHERE ori_mes_id = '{mes.id}' OR star_var_id = '{mes.id}';")
 
-        starboard_entry = db.run_command("SELECT * FROM starboard WHERE " +
+        starboard_entry = await db.run_command("SELECT * FROM starboard WHERE " +
             f"ori_mes_id = '{mes.id}' OR star_var_id = '{mes.id}';")
         reactors = starboard_entry[0][4].split(",")
         return len(reactors)
@@ -38,9 +38,9 @@ class Star(commands.Cog):
         if str(reaction) == "⭐" and not user.bot and reaction.message.author.id != user.id:
             mes = reaction.message
 
-            config_file = db.run_command(f"SELECT * FROM starboard_config WHERE server_id = {mes.guild.id}")
+            config_file = await db.run_command(f"SELECT * FROM starboard_config WHERE server_id = {mes.guild.id}")
 
-            star_variant = db.run_command("SELECT * FROM starboard WHERE " +
+            star_variant = await db.run_command("SELECT * FROM starboard WHERE " +
             f"(ori_mes_id = '{mes.id}' OR star_var_id = '{mes.id}') AND " +
             f"star_var_id IS NOT NULL;")
 
@@ -96,7 +96,7 @@ class Star(commands.Cog):
                         starred = await starboard.send(content=f"⭐ {len(unique_stars)} | {mes.channel.mention} | ID: {mes.id}", embed=send_embed, files=files_sent)
                         await starred.add_reaction("⭐")
                     
-                    db.run_command(f"UPDATE starboard SET star_var_id = {starred.id} WHERE ori_mes_id = '{mes.id}'")
+                    await db.run_command(f"UPDATE starboard SET star_var_id = {starred.id} WHERE ori_mes_id = '{mes.id}'")
 
             else:
                 unique_stars = await self.get_stars(mes, user.id, "ADD")
@@ -114,9 +114,9 @@ class Star(commands.Cog):
         if str(reaction) == "⭐" and not user.bot and reaction.message.author.id != user.id:
             mes = reaction.message
 
-            config_file = db.run_command(f"SELECT * FROM starboard_config WHERE server_id = {mes.guild.id}")
+            config_file = await db.run_command(f"SELECT * FROM starboard_config WHERE server_id = {mes.guild.id}")
 
-            star_variant = db.run_command("SELECT * FROM starboard WHERE " +
+            star_variant = await db.run_command("SELECT * FROM starboard WHERE " +
             f"(ori_mes_id = '{mes.id}' OR star_var_id = '{mes.id}') AND " +
             f"star_var_id IS NOT NULL;")  
 
@@ -133,7 +133,7 @@ class Star(commands.Cog):
                     await star_var_mes.edit(content=f"⭐ {len(unique_stars)} | {(parts)[1]} | {(parts)[2]}", embed=ori_starred)
                 else:
                     await star_var_mes.delete()
-                    db.run_command(f"UPDATE starboard SET star_var_id = NULL WHERE star_var_id = '{star_variant[0][2]}")
+                    await db.run_command(f"UPDATE starboard SET star_var_id = NULL WHERE star_var_id = '{star_variant[0][2]}")
         
 def setup(bot):
     bot.add_cog(Star(bot))
