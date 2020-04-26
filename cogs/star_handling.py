@@ -36,7 +36,7 @@ class Star(commands.Cog):
                     new_reactors = f"{reactor_id}"
                 starboard_entry["var_reactors"] = new_reactors
             else:
-                if var_reactors != [""]:
+                if ori_reactors != [""]:
                     new_reactors = ",".join(ori_reactors) + f",{reactor_id}"
                 else:
                     new_reactors = f"{reactor_id}"
@@ -55,7 +55,7 @@ class Star(commands.Cog):
             elif mes.id == starboard_entry["ori_mes_id_bac"] and str(reactor_id) in ori_reactors:
                 ori_reactors.remove(str(reactor_id))
 
-                if var_reactors != []:
+                if ori_reactors != []:
                     new_reactors = ",".join(ori_reactors)
                 else:
                     new_reactors = ""

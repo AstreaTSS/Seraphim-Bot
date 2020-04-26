@@ -26,10 +26,10 @@ class Commands(commands.Cog):
 
     @commands.command()
     async def help(self, ctx):
-        await ctx.send("There are four commands:\n\n`s!channel <channel mention>` - sets the starboard channel.\n" +
-        "`s!limit <limit, positive number>` - sets the minimum number of stars needed to appear on the starboard.\n" +
-        "`s!ping` - gets the ping of the bot. Not really something you need to use unless you're the bot maker.\n" +
-        "`s!help` - displays this message.")
+        await ctx.send("There are four commands:\n\n`s?channel <channel mention>` - sets the starboard channel.\n" +
+        "`s?limit <limit, positive number>` - sets the minimum number of stars needed to appear on the starboard.\n" +
+        "`s?ping` - gets the ping of the bot. Not really something you need to use unless you're the bot maker.\n" +
+        "`s?help` - displays this message.")
 
     @commands.command()
     async def ping(self, ctx):

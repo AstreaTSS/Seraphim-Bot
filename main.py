@@ -46,13 +46,18 @@ async def on_command_error(ctx, error):
             application = await ctx.bot.application_info()
             owner = application.owner
             await ctx.send(f"{owner.mention}: {original}")
-    elif isinstance(error, commands.ArgumentParsingError):
+    elif isinstance(error, (commands.ConversionError, commands.UserInputError)):
         await ctx.send(error)
+    elif isinstance(error, commands.CheckFailure):
+        if ctx.guild != None:
+            await ctx.send("You do not have the proper permissions to use that command.")
+    elif isinstance(error, commands.CommandNotFound):
+        ignore = True
     else:
-        print(error)
+        print(error.original)
         
         application = await ctx.bot.application_info()
         owner = application.owner
-        await ctx.send(f"{owner.mention}: {error}")
+        await ctx.send(f"{owner.mention}: {error.original}")
 
 bot.run(os.environ.get("MAIN_TOKEN"))
