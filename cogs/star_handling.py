@@ -42,8 +42,8 @@ class Star(commands.Cog):
                     new_reactors = f"{reactor_id}"
                 starboard_entry["ori_reactors"] = new_reactors
 
-        elif str(reactor_id) in reactors and operation == "SUBTRACT":
-            if mes.id == starboard_entry["star_var_id"]:
+        elif operation == "SUBTRACT":
+            if mes.id == starboard_entry["star_var_id"] and str(reactor_id) in var_reactors:
                 var_reactors.remove(str(reactor_id))
 
                 if var_reactors != []:
@@ -52,7 +52,7 @@ class Star(commands.Cog):
                     new_reactors = ""
 
                 starboard_entry["var_reactors"] = new_reactors
-            else:
+            elif mes.id == starboard_entry["ori_mes_id_bac"] and str(reactor_id) in ori_reactors:
                 ori_reactors.remove(str(reactor_id))
 
                 if var_reactors != []:
