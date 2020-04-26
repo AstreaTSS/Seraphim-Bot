@@ -96,18 +96,18 @@ class Star(commands.Cog):
                     else:
                         content = mes.content
 
-                        image_extensions = {".jpg", ".png", ".gif"}
+                        image_extensions = {".jpg", ".png"}
 
-                        if mes.attachments is not None:
+                        if mes.attachments != []:
                             if len(mes.attachments) == 1 and mes.attachments[0].filename.endswith(image_extensions):
                                 image_url = mes.attachments[0].url
                             else:
                                 if content != "":
-                                    content += "\n"
+                                    content += "\n\n"
                                 content += "*This message has attachments the bot cannot display. Pleae check out the original message to see them.*"
 
                         author = f"{mes.author.name}#{mes.author.discriminator} ({mes.author.display_name})"
-                        icon = mes.author.avatar_url
+                        icon = str(mes.author.avatar_url_as(format="jpg", size=128))
 
                         if content != "":
                             send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=content, timestamp=mes.created_at)
