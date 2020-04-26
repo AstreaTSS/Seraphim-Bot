@@ -1,7 +1,13 @@
 import discord, os, asyncio
 from discord.ext import commands
 
-bot = commands.Bot(command_prefix='s!', fetch_offline_members=True)
+async def _prefix(bot, msg):
+    bot_id = bot.user.id
+    mentioned = f"<@{bot_id}>"
+
+    return [mentioned, "s?"]
+
+bot = commands.Bot(command_prefix=_prefix, fetch_offline_members=True)
 
 bot.remove_command("help")
 

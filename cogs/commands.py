@@ -1,18 +1,22 @@
 from discord.ext import commands
 import discord, datetime
 
+async def proper_permissions(ctx):
+    permissions = ctx.author.guild_permissions
+    return (permissions.administrator or permissions.manage_messages)
+
 class Commands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command()
-    @commands.has_guild_permissions(manage_messages=True)
+    @commands.check(proper_permissions)
     async def channel(self, ctx, channel: discord.TextChannel):
         self.bot.star_config[ctx.guild.id]["starboard_id"] = channel.id
         await ctx.send(f"Set channel to {channel.mention}!")
 
     @commands.command()
-    @commands.has_guild_permissions(manage_messages=True)
+    @commands.check(proper_permissions)
     async def limit(self, ctx, limit):
         if limit.isdigit():
             self.bot.star_config[ctx.guild.id]["star_limit"] = int(limit)

@@ -94,21 +94,25 @@ class Star(commands.Cog):
                         send_embed.set_author(name=author, icon_url=icon)
                         send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
                     else:
+                        content = mes.content
+
                         image_extensions = {".jpg", ".png", ".gif"}
 
                         if mes.attachments is not None:
                             if len(mes.attachments) == 1 and mes.attachments[0].filename.endswith(image_extensions):
                                 image_url = mes.attachments[0].url
                             else:
-                                for a_file in mes.attachments:
-                                    to_file = await a_file.to_file()
-                                    files_sent.append(to_file)
+                                if content != "":
+                                    content += "\n"
+                                content += "*This message has attachments the bot cannot display. Pleae check out the original message to see them.*"
 
                         author = f"{mes.author.name}#{mes.author.discriminator} ({mes.author.display_name})"
                         icon = mes.author.avatar_url
-                        content = mes.content
 
-                        send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=content, timestamp=mes.created_at)
+                        if content != "":
+                            send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=content, timestamp=mes.created_at)
+                        else:
+                            send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=discord.Embed.Empty, timestamp=mes.created_at)
                         send_embed.set_author(name=author, icon_url=icon)
                         send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
 
