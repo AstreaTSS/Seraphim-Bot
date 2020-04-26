@@ -6,26 +6,27 @@ class ClearEvents(commands.Cog):
         self.bot = bot
 
     async def star_updater(self, payload, star_variant):
-        if payload.message_id == star_variant[0]["var_reactors"]:
+        if payload.message_id == star_variant[0]["star_var_id"]:
             star_variant[0]["var_reactors"] = ""
         else:
             star_variant[0]["ori_reactors"] = ""
 
-        ori_reactors = star_variant[0]["ori_reactors"].split(",")
-        var_reactors = star_variant[0]["var_reactors"].split(",")
-        reactors = [i for i in ori_reactors if i != ""] + [i for i in var_reactors if i != ""]
+        if star_variant[0] != None:
+            ori_reactors = star_variant[0]["ori_reactors"].split(",")
+            var_reactors = star_variant[0]["var_reactors"].split(",")
+            reactors = [i for i in ori_reactors if i != ""] + [i for i in var_reactors if i != ""]
 
-        star_var_chan = await self.bot.fetch_channel(self.bot.star_config[payload.guild_id]["starboard_id"])
-        star_var_mes = await star_var_chan.fetch_message(star_variant[0]["star_var_id"])
+            star_var_chan = await self.bot.fetch_channel(self.bot.star_config[payload.guild_id]["starboard_id"])
+            star_var_mes = await star_var_chan.fetch_message(star_variant[0]["star_var_id"])
 
-        if len(reactors) < self.bot.star_config[payload.guild_id]["star_limit"]:
-            await star_var_mes.delete()
-            star_variant[0]["star_var_id"] = None
-        else:
-            ori_starred = star_var_mes.embeds[0]
-            parts = star_var_mes.content.split(" | ")
-            
-            await star_var_mes.edit(content=f"⭐ {len(reactors)} | {(parts)[1]} | {(parts)[2]}", embed=ori_starred)
+            if len(reactors) < self.bot.star_config[payload.guild_id]["star_limit"]:
+                await star_var_mes.delete()
+                star_variant[0]["ori_chan_id"] = None
+            else:
+                ori_starred = star_var_mes.embeds[0]
+                parts = star_var_mes.content.split(" | ")
+                
+                await star_var_mes.edit(content=f"⭐ {len(reactors)} | {(parts)[1]} | {(parts)[2]}", embed=ori_starred)
 
         ori_mes_id = star_variant[0]["ori_mes_id_bac"]
         self.bot.starboard[ori_mes_id] = star_variant[0]
@@ -34,8 +35,7 @@ class ClearEvents(commands.Cog):
     async def on_raw_message_delete(self, payload):
         star_variant = [
             self.bot.starboard[int(k)] for k in self.bot.starboard.keys()
-            if (int(k) == payload.message_id or self.bot.starboard[int(k)]["star_var_id"] == payload.message_id)
-            and self.bot.starboard[int(k)]["star_var_id"] != None
+            if (int(k) == payload.message_id or self.bot.starboard[int(k)]["star_var_id"] == str(payload.message_id))
         ]
 
         if star_variant != []:
@@ -59,7 +59,6 @@ class ClearEvents(commands.Cog):
         star_variant = [
             self.bot.starboard[int(k)] for k in self.bot.starboard.keys()
             if (int(k) == payload.message_id or self.bot.starboard[int(k)]["star_var_id"] == payload.message_id)
-            and self.bot.starboard[int(k)]["star_var_id"] != None
         ]
 
         if star_variant != []:
@@ -71,7 +70,6 @@ class ClearEvents(commands.Cog):
             star_variant = [
                 self.bot.starboard[int(k)] for k in self.bot.starboard.keys()
                 if (int(k) == payload.message_id or self.bot.starboard[int(k)]["star_var_id"] == payload.message_id)
-                and self.bot.starboard[int(k)]["star_var_id"] != None
             ]
 
             if star_variant != []:

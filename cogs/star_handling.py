@@ -7,9 +7,8 @@ class Star(commands.Cog):
 
     async def get_stars(self, mes, reactor_id, operation):
         starboard_entry = [
-            self.bot.starboard[int(k)] for k in self.bot.starboard.keys()
-            if (int(k) == mes.id or self.bot.starboard[int(k)]["star_var_id"] == mes.id)
-            and self.bot.starboard[int(k)]["star_var_id"] != None
+            self.bot.starboard[k] for k in self.bot.starboard.keys()
+            if (k == mes.id or self.bot.starboard[k]["star_var_id"] == mes.id)
         ]
 
         if starboard_entry == []:
@@ -30,24 +29,41 @@ class Star(commands.Cog):
         reactors = ori_reactors + var_reactors
 
         if not str(reactor_id) in reactors and operation == "ADD":
-            if mes.channel.id == starboard_entry["var_reactors"]:
-                new_reactors = ",".join(var_reactors) + f",{reactor_id}"
+            if mes.id == starboard_entry["star_var_id"]:
+                if var_reactors != [""]:
+                    new_reactors = ",".join(var_reactors) + f",{reactor_id}"
+                else:
+                    new_reactors = f"{reactor_id}"
                 starboard_entry["var_reactors"] = new_reactors
             else:
-                new_reactors = ",".join(ori_reactors) + f",{reactor_id}"
+                if var_reactors != [""]:
+                    new_reactors = ",".join(ori_reactors) + f",{reactor_id}"
+                else:
+                    new_reactors = f"{reactor_id}"
                 starboard_entry["ori_reactors"] = new_reactors
 
         elif str(reactor_id) in reactors and operation == "SUBTRACT":
-            if mes.channel.id == starboard_entry["var_reactors"]:
+            if mes.id == starboard_entry["star_var_id"]:
                 var_reactors.remove(str(reactor_id))
-                new_reactors = ",".join(var_reactors)
+
+                if var_reactors != []:
+                    new_reactors = ",".join(var_reactors)
+                else:
+                    new_reactors = ""
+
                 starboard_entry["var_reactors"] = new_reactors
             else:
                 ori_reactors.remove(str(reactor_id))
-                new_reactors = ",".join(ori_reactors)
+
+                if var_reactors != []:
+                    new_reactors = ",".join(ori_reactors)
+                else:
+                    new_reactors = ""
+
                 starboard_entry["ori_reactors"] = new_reactors
 
-        self.bot.starboard[mes.id] = starboard_entry
+        ori_mes_id = starboard_entry["ori_mes_id_bac"]
+        self.bot.starboard[ori_mes_id] = starboard_entry
 
         ori_reactors = starboard_entry["ori_reactors"].split(",")
         var_reactors = starboard_entry["var_reactors"].split(",")
@@ -154,25 +170,25 @@ class Star(commands.Cog):
             star_variant = [
                 self.bot.starboard[int(k)] for k in self.bot.starboard.keys()
                 if (int(k) == mes.id or self.bot.starboard[int(k)]["star_var_id"] == mes.id)
-                and self.bot.starboard[int(k)]["star_var_id"] != None
             ]
 
             if star_variant != []:
                 unique_stars = await self.get_stars(mes, user.id, "SUBTRACT")
 
-                star_var_chan = await self.bot.fetch_channel(self.bot.star_config[mes.guild.id]["starboard_id"])
-                star_var_mes = await star_var_chan.fetch_message(star_variant[0]["star_var_id"])
+                if star_variant[0]["star_var_id"] != None:
+                    star_var_chan = await self.bot.fetch_channel(self.bot.star_config[mes.guild.id]["starboard_id"])
+                    star_var_mes = await star_var_chan.fetch_message(star_variant[0]["star_var_id"])
 
-                ori_starred = star_var_mes.embeds[0]
-                parts = star_var_mes.content.split(" | ")
+                    ori_starred = star_var_mes.embeds[0]
+                    parts = star_var_mes.content.split(" | ")
 
-                if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"]:
-                    await star_var_mes.edit(content=f"⭐ {unique_stars} | {(parts)[1]} | {(parts)[2]}", embed=ori_starred)
-                else:
-                    ori_mes_id = star_variant[0]["ori_mes_id_bac"]
-                    self.bot.starboard[ori_mes_id]["star_var_id"] = None
+                    if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"]:
+                        await star_var_mes.edit(content=f"⭐ {unique_stars} | {(parts)[1]} | {(parts)[2]}", embed=ori_starred)
+                    else:
+                        ori_mes_id = star_variant[0]["ori_mes_id_bac"]
+                        self.bot.starboard[ori_mes_id]["star_var_id"] = None
 
-                    await star_var_mes.delete()
+                        await star_var_mes.delete()
         
 def setup(bot):
     bot.add_cog(Star(bot))
