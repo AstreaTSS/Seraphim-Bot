@@ -7,6 +7,12 @@ bot.remove_command("help")
 
 @bot.event
 async def on_ready():
+    bot.starboard = {}
+    bot.star_config = {}
+    bot.load_extension("cogs.db_handler")
+    while bot.star_config == {} or bot.starboard == {}:
+        await asyncio.sleep(0.1)
+
     cogs_list = ["cogs.star_handling", "cogs.clear_events", "cogs.commands"]
 
     for cog in cogs_list:

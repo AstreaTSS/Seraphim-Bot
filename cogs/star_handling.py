@@ -1,53 +1,81 @@
 from discord.ext import commands
 import discord, re
-import cogs.interact_db as db
 
 class Star(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     async def get_stars(self, mes, reactor_id, operation):
-        starboard_entry = await db.run_command("SELECT * FROM starboard WHERE " +
-            f"ori_mes_id = '{mes.id}' OR star_var_id = '{mes.id}';")
+        starboard_entry = [
+            self.bot.starboard[int(k)] for k in self.bot.starboard.keys()
+            if (int(k) == mes.id or self.bot.starboard[int(k)]["star_var_id"] == mes.id)
+            and self.bot.starboard[int(k)]["star_var_id"] != None
+        ]
 
-        if starboard_entry == ():
-            await db.run_command("INSERT INTO starboard "+
-            "(ori_mes_id, ori_chan_id, star_var_id, author_id, reactors) VALUES " +
-            f"('{mes.id}', '{mes.channel.id}', NULL, '{mes.author.id}', '{reactor_id}');")
+        if starboard_entry == []:
+            self.bot.starboard[mes.id] = {
+                "ori_chan_id": mes.channel.id,
+                "star_var_id": None,
+                "author_id": mes.author.id,
+                "ori_reactors": str(reactor_id),
+                "var_reactors": "",
+                "ori_mes_id_bac": mes.id
+            }
+            starboard_entry = [self.bot.starboard[mes.id]]
 
-        reactors = starboard_entry[0][4].split(",")
+        starboard_entry = starboard_entry[0]
+
+        ori_reactors = starboard_entry["ori_reactors"].split(",")
+        var_reactors = starboard_entry["var_reactors"].split(",")
+        reactors = ori_reactors + var_reactors
 
         if not str(reactor_id) in reactors and operation == "ADD":
-            new_reactors = reactors.join(",") + f",{reactor_id}"
-            starboard_entry = await db.run_command(f"UPDATE starboard SET reactors = `{new_reactors}` " +
-            f"WHERE ori_mes_id = '{mes.id}' OR star_var_id = '{mes.id}';")
+            if mes.channel.id == starboard_entry["var_reactors"]:
+                new_reactors = ",".join(var_reactors) + f",{reactor_id}"
+                starboard_entry["var_reactors"] = new_reactors
+            else:
+                new_reactors = ",".join(ori_reactors) + f",{reactor_id}"
+                starboard_entry["ori_reactors"] = new_reactors
 
         elif str(reactor_id) in reactors and operation == "SUBTRACT":
-            reactors.remove(str(reactor_id))
-            new_reactors = reactors.join(",")
-            starboard_entry = await db.run_command(f"UPDATE starboard SET reactors = `{new_reactors}` " +
-            f"WHERE ori_mes_id = '{mes.id}' OR star_var_id = '{mes.id}';")
+            if mes.channel.id == starboard_entry["var_reactors"]:
+                var_reactors.remove(str(reactor_id))
+                new_reactors = ",".join(var_reactors)
+                starboard_entry["var_reactors"] = new_reactors
+            else:
+                ori_reactors.remove(str(reactor_id))
+                new_reactors = ",".join(ori_reactors)
+                starboard_entry["ori_reactors"] = new_reactors
 
-        starboard_entry = await db.run_command("SELECT * FROM starboard WHERE " +
-            f"ori_mes_id = '{mes.id}' OR star_var_id = '{mes.id}';")
-        reactors = starboard_entry[0][4].split(",")
-        return len(reactors)
+        self.bot.starboard[mes.id] = starboard_entry
+
+        ori_reactors = starboard_entry["ori_reactors"].split(",")
+        var_reactors = starboard_entry["var_reactors"].split(",")
+        reactors = [i for i in ori_reactors if i != ""] + [i for i in var_reactors if i != ""]
+
+        return len(reactors) if reactors != [] else 0
 
     @commands.Cog.listener()
-    async def on_reaction_add(self, reaction, user):
-        if str(reaction) == "⭐" and not user.bot and reaction.message.author.id != user.id:
-            mes = reaction.message
+    async def on_raw_reaction_add(self, payload):
 
-            config_file = await db.run_command(f"SELECT * FROM starboard_config WHERE server_id = {mes.guild.id}")
+        guild = await self.bot.fetch_guild(payload.guild_id)
+        user = await guild.fetch_member(payload.user_id)
 
-            star_variant = await db.run_command("SELECT * FROM starboard WHERE " +
-            f"(ori_mes_id = '{mes.id}' OR star_var_id = '{mes.id}') AND " +
-            f"star_var_id IS NOT NULL;")
+        channel = await self.bot.fetch_channel(payload.channel_id)
+        mes = await channel.fetch_message(payload.message_id)
 
-            if star_variant == ():
+        if str(payload.emoji) == "⭐" and not user.bot and mes.author.id != user.id:
+
+            star_variant = [
+                self.bot.starboard[k] for k in self.bot.starboard.keys()
+                if (k == mes.id or self.bot.starboard[k]["star_var_id"] == mes.id)
+                and self.bot.starboard[k]["star_var_id"] != None
+            ]
+
+            if star_variant == []:
                 unique_stars = await self.get_stars(mes, user.id, "ADD")
 
-                if unique_stars >= config_file[0][2]:
+                if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"]:
                     files_sent = []
                     image_url = ""
 
@@ -87,53 +115,60 @@ class Star(commands.Cog):
                         if image_url is not "":
                             send_embed.set_image(url=image_url)
                     
-                    starboard = mes.guild.get_channel(self.bot.config_file[str(mes.guild.id)]["channel"])
+                    starboard = mes.guild.get_channel(self.bot.star_config[mes.guild.id]["starboard_id"])
 
                     if files_sent == []:
-                        starred = await starboard.send(content=f"⭐ {len(unique_stars)} | {mes.channel.mention} | ID: {mes.id}", embed=send_embed)
+                        starred = await starboard.send(content=f"⭐ {unique_stars} | {mes.channel.mention} | ID: {mes.id}", embed=send_embed)
                         await starred.add_reaction("⭐")
                     else:
-                        starred = await starboard.send(content=f"⭐ {len(unique_stars)} | {mes.channel.mention} | ID: {mes.id}", embed=send_embed, files=files_sent)
+                        starred = await starboard.send(content=f"⭐ {unique_stars} | {mes.channel.mention} | ID: {mes.id}", embed=send_embed, files=files_sent)
                         await starred.add_reaction("⭐")
                     
-                    await db.run_command(f"UPDATE starboard SET star_var_id = {starred.id} WHERE ori_mes_id = '{mes.id}'")
+                    self.bot.starboard[mes.id]["star_var_id"] = starred.id
 
             else:
                 unique_stars = await self.get_stars(mes, user.id, "ADD")
 
-                star_var_chan = await self.bot.fetch_channel(config_file[0][0])
-                star_var_mes = await star_var_chan.fetch_message(star_variant[0][2])
+                star_var_chan = await self.bot.fetch_channel(self.bot.star_config[mes.guild.id]["starboard_id"])
+                star_var_mes = await star_var_chan.fetch_message(star_variant[0]["star_var_id"])
 
                 ori_starred = star_var_mes.embeds[0]
                 parts = star_var_mes.content.split(" | ")
                 
-                starred = await star_var_mes.edit(content=f"⭐ {len(unique_stars)} | {(parts)[1]} | {(parts)[2]}", embed=ori_starred)
+                await star_var_mes.edit(content=f"⭐ {unique_stars} | {(parts)[1]} | {(parts)[2]}", embed=ori_starred)
     
     @commands.Cog.listener()
-    async def on_reaction_remove(self, reaction, user):
-        if str(reaction) == "⭐" and not user.bot and reaction.message.author.id != user.id:
-            mes = reaction.message
+    async def on_raw_reaction_remove(self, payload):
+        guild = await self.bot.fetch_guild(payload.guild_id)
+        user = await guild.fetch_member(payload.user_id)
 
-            config_file = await db.run_command(f"SELECT * FROM starboard_config WHERE server_id = {mes.guild.id}")
+        channel = await self.bot.fetch_channel(payload.channel_id)
+        mes = await channel.fetch_message(payload.message_id)
 
-            star_variant = await db.run_command("SELECT * FROM starboard WHERE " +
-            f"(ori_mes_id = '{mes.id}' OR star_var_id = '{mes.id}') AND " +
-            f"star_var_id IS NOT NULL;")  
+        if str(payload.emoji) == "⭐" and not user.bot and mes.author.id != user.id:
 
-            if star_variant != ():
+            star_variant = [
+                self.bot.starboard[int(k)] for k in self.bot.starboard.keys()
+                if (int(k) == mes.id or self.bot.starboard[int(k)]["star_var_id"] == mes.id)
+                and self.bot.starboard[int(k)]["star_var_id"] != None
+            ]
+
+            if star_variant != []:
                 unique_stars = await self.get_stars(mes, user.id, "SUBTRACT")
 
-                star_var_chan = await self.bot.fetch_channel(config_file[0][0])
-                star_var_mes = await star_var_chan.fetch_message(star_variant[0][2])
+                star_var_chan = await self.bot.fetch_channel(self.bot.star_config[mes.guild.id]["starboard_id"])
+                star_var_mes = await star_var_chan.fetch_message(star_variant[0]["star_var_id"])
 
                 ori_starred = star_var_mes.embeds[0]
                 parts = star_var_mes.content.split(" | ")
 
-                if len(unique_stars) >= config_file[0][2]:
-                    await star_var_mes.edit(content=f"⭐ {len(unique_stars)} | {(parts)[1]} | {(parts)[2]}", embed=ori_starred)
+                if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"]:
+                    await star_var_mes.edit(content=f"⭐ {unique_stars} | {(parts)[1]} | {(parts)[2]}", embed=ori_starred)
                 else:
+                    ori_mes_id = star_variant[0]["ori_mes_id_bac"]
+                    self.bot.starboard[ori_mes_id]["star_var_id"] = None
+
                     await star_var_mes.delete()
-                    await db.run_command(f"UPDATE starboard SET star_var_id = NULL WHERE star_var_id = '{star_variant[0][2]}")
         
 def setup(bot):
     bot.add_cog(Star(bot))
