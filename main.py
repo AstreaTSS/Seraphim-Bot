@@ -3,9 +3,7 @@ from discord.ext import commands
 
 async def _prefix(bot, msg):
     bot_id = bot.user.id
-    mentioned = f"<@{bot_id}>"
-
-    return [mentioned, "s?"]
+    return [f"<@{bot_id}> ", f"<@!{bot_id}> ", "s?"]
 
 bot = commands.Bot(command_prefix=_prefix, fetch_offline_members=True)
 
