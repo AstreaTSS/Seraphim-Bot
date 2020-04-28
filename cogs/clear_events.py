@@ -26,7 +26,7 @@ class ClearEvents(commands.Cog):
                 ori_starred = star_var_mes.embeds[0]
                 parts = star_var_mes.content.split(" | ")
                 
-                await star_var_mes.edit(content=f"⭐ {len(reactors)} | {(parts)[1]} | {(parts)[2]}", embed=ori_starred)
+                await star_var_mes.edit(content=f"⭐ **{len(reactors)}** | {(parts)[1]}", embed=ori_starred)
 
         ori_mes_id = star_variant[0]["ori_mes_id_bac"]
         self.bot.starboard[ori_mes_id] = star_variant[0]

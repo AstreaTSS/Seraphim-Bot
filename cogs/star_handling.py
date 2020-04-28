@@ -92,7 +92,6 @@ class Star(commands.Cog):
                 unique_stars = await self.get_stars(mes, user.id, "ADD")
 
                 if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"]:
-                    files_sent = []
                     image_url = ""
 
                     if mes.author.id in [270904126974590976, 499383056822435840]:
@@ -100,7 +99,7 @@ class Star(commands.Cog):
 
                         basic_author = dank_embed.author.name.split("#")
                         member = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
-                        author = f"{member.name}#{member.discriminator} ({member.display_name})" if member is not None else basic_author
+                        author = f"{member.display_name} ({str(member)})" if member is not None else dank_embed.author.name
 
                         icon = dank_embed.author.icon_url
                         content = dank_embed.description
@@ -109,6 +108,7 @@ class Star(commands.Cog):
                         description=content, timestamp=mes.created_at)
                         send_embed.set_author(name=author, icon_url=icon)
                         send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
+                        send_embed.set_footer(text=f"ID: {mes.id}")
                     else:
                         content = mes.content
 
@@ -122,7 +122,7 @@ class Star(commands.Cog):
                                     content += "\n\n"
                                 content += "*This message has attachments the bot cannot display. Pleae check out the original message to see them.*"
 
-                        author = f"{mes.author.name}#{mes.author.discriminator} ({mes.author.display_name})"
+                        author = f"{mes.author.display_name} ({str(mes.author)})"
                         icon = str(mes.author.avatar_url_as(format="jpg", size=128))
 
                         if content != "":
@@ -131,18 +131,15 @@ class Star(commands.Cog):
                             send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=discord.Embed.Empty, timestamp=mes.created_at)
                         send_embed.set_author(name=author, icon_url=icon)
                         send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
+                        send_embed.set_footer(text=f"ID: {mes.id}")
 
                         if image_url is not "":
                             send_embed.set_image(url=image_url)
                     
                     starboard = mes.guild.get_channel(self.bot.star_config[mes.guild.id]["starboard_id"])
 
-                    if files_sent == []:
-                        starred = await starboard.send(content=f"⭐ {unique_stars} | {mes.channel.mention} | ID: {mes.id}", embed=send_embed)
-                        await starred.add_reaction("⭐")
-                    else:
-                        starred = await starboard.send(content=f"⭐ {unique_stars} | {mes.channel.mention} | ID: {mes.id}", embed=send_embed, files=files_sent)
-                        await starred.add_reaction("⭐")
+                    starred = await starboard.send(content=f"⭐ **{unique_stars}** | {mes.channel.mention}", embed=send_embed)
+                    await starred.add_reaction("⭐")
                     
                     self.bot.starboard[mes.id]["star_var_id"] = starred.id
 
@@ -155,7 +152,7 @@ class Star(commands.Cog):
                 ori_starred = star_var_mes.embeds[0]
                 parts = star_var_mes.content.split(" | ")
                 
-                await star_var_mes.edit(content=f"⭐ {unique_stars} | {(parts)[1]} | {(parts)[2]}", embed=ori_starred)
+                await star_var_mes.edit(content=f"⭐ **{unique_stars}** | {(parts)[1]}", embed=ori_starred)
     
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
@@ -183,7 +180,7 @@ class Star(commands.Cog):
                     parts = star_var_mes.content.split(" | ")
 
                     if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"]:
-                        await star_var_mes.edit(content=f"⭐ {unique_stars} | {(parts)[1]} | {(parts)[2]}", embed=ori_starred)
+                        await star_var_mes.edit(content=f"⭐ **{unique_stars}** | {(parts)[1]}", embed=ori_starred)
                     else:
                         ori_mes_id = star_variant[0]["ori_mes_id_bac"]
                         self.bot.starboard[ori_mes_id]["star_var_id"] = None
