@@ -84,19 +84,15 @@ class DBHandler(commands.Cog):
     async def run_command(self, command, a_list = False, commit = False):
         output = None
 
-        # host = os.environ.get("DB_HOST_URL")
-        # port = os.environ.get("DB_PORT")
-        # username = os.environ.get("DB_USERNAME")
-        # password = os.environ.get("DB_PASSWORD")
-        # db = os.environ.get("DB_NAME")
+        host = os.environ.get("DB_HOST_URL")
+        port = os.environ.get("DB_PORT")
+        username = os.environ.get("DB_USERNAME")
+        password = os.environ.get("DB_PASSWORD")
+        db = os.environ.get("DB_NAME")
 
-        # pool = await aiomysql.create_pool(host=host, port=int(port),
-        #                                   user=username, password=password,
-        #                                   db=db)
-
-        pool = await aiomysql.create_pool(host='db4free.net', port=3306,
-                                      user='sonic49', password='1Z1^JzI3&aLiC4h8',
-                                      db='sonic49_bot_db')
+        pool = await aiomysql.create_pool(host=host, port=int(port),
+                                          user=username, password=password,
+                                          db=db)
 
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:

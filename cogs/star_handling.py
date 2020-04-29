@@ -113,10 +113,10 @@ class Star(commands.Cog):
                         else:
                             content = mes.content
 
-                            image_extensions = {".jpg", ".png"}
+                            image_extensions = (".jpg", ".png")
 
                             if mes.attachments != []:
-                                if len(mes.attachments) == 1 and mes.attachments[0].filename.endswith(image_extensions):
+                                if len(mes.attachments) == 1 and mes.attachments[0].filename.endswith(tuple(image_extensions)):
                                     image_url = mes.attachments[0].url
                                 else:
                                     if content != "":
