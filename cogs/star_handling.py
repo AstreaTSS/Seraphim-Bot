@@ -88,7 +88,7 @@ class Star(commands.Cog):
                 and self.bot.starboard[k]["star_var_id"] != None
             ]
 
-            if star_variant == []:
+            if star_variant == [] and channel.id != self.bot.star_config[mes.guild.id]["starboard_id"]:
                 unique_stars = await self.get_stars(mes, user.id, "ADD")
 
                 if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"]:
@@ -145,14 +145,17 @@ class Star(commands.Cog):
 
             else:
                 unique_stars = await self.get_stars(mes, user.id, "ADD")
-
                 star_var_chan = await self.bot.fetch_channel(self.bot.star_config[mes.guild.id]["starboard_id"])
-                star_var_mes = await star_var_chan.fetch_message(star_variant[0]["star_var_id"])
 
-                ori_starred = star_var_mes.embeds[0]
-                parts = star_var_mes.content.split(" | ")
-                
-                await star_var_mes.edit(content=f"⭐ **{unique_stars}** | {(parts)[1]}", embed=ori_starred)
+                try:
+                    star_var_mes = await star_var_chan.fetch_message(star_variant[0]["star_var_id"])
+
+                    ori_starred = star_var_mes.embeds[0]
+                    parts = star_var_mes.content.split(" | ")
+                    
+                    await star_var_mes.edit(content=f"⭐ **{unique_stars}** | {(parts)[1]}", embed=ori_starred)
+                except discord.NotFound:
+                    do_nothing = True
     
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
@@ -174,18 +177,22 @@ class Star(commands.Cog):
 
                 if star_variant[0]["star_var_id"] != None:
                     star_var_chan = await self.bot.fetch_channel(self.bot.star_config[mes.guild.id]["starboard_id"])
-                    star_var_mes = await star_var_chan.fetch_message(star_variant[0]["star_var_id"])
 
-                    ori_starred = star_var_mes.embeds[0]
-                    parts = star_var_mes.content.split(" | ")
+                    try:
+                        star_var_mes = await star_var_chan.fetch_message(star_variant[0]["star_var_id"])
 
-                    if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"]:
-                        await star_var_mes.edit(content=f"⭐ **{unique_stars}** | {(parts)[1]}", embed=ori_starred)
-                    else:
-                        ori_mes_id = star_variant[0]["ori_mes_id_bac"]
-                        self.bot.starboard[ori_mes_id]["star_var_id"] = None
+                        ori_starred = star_var_mes.embeds[0]
+                        parts = star_var_mes.content.split(" | ")
 
-                        await star_var_mes.delete()
+                        if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"]:
+                            await star_var_mes.edit(content=f"⭐ **{unique_stars}** | {(parts)[1]}", embed=ori_starred)
+                        else:
+                            ori_mes_id = star_variant[0]["ori_mes_id_bac"]
+                            self.bot.starboard[ori_mes_id]["star_var_id"] = None
+
+                            await star_var_mes.delete()
+                    except discord.NotFound:
+                        do_nothing = True
         
 def setup(bot):
     bot.add_cog(Star(bot))
