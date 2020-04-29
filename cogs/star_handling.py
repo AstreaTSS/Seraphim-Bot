@@ -88,60 +88,61 @@ class Star(commands.Cog):
                 and self.bot.starboard[k]["star_var_id"] != None
             ]
 
-            if star_variant == [] and channel.id != self.bot.star_config[mes.guild.id]["starboard_id"]:
-                unique_stars = await self.get_stars(mes, user.id, "ADD")
+            if star_variant == [] :
+                if channel.id != self.bot.star_config[mes.guild.id]["starboard_id"]:
+                    unique_stars = await self.get_stars(mes, user.id, "ADD")
 
-                if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"]:
-                    image_url = ""
+                    if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"]:
+                        image_url = ""
 
-                    if mes.author.id in [270904126974590976, 499383056822435840]:
-                        dank_embed = mes.embeds[0]
+                        if mes.author.id in [270904126974590976, 499383056822435840]:
+                            dank_embed = mes.embeds[0]
 
-                        basic_author = dank_embed.author.name.split("#")
-                        member = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
-                        author = f"{member.display_name} ({str(member)})" if member is not None else dank_embed.author.name
+                            basic_author = dank_embed.author.name.split("#")
+                            member = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
+                            author = f"{member.display_name} ({str(member)})" if member is not None else dank_embed.author.name
 
-                        icon = dank_embed.author.icon_url
-                        content = dank_embed.description
+                            icon = dank_embed.author.icon_url
+                            content = dank_embed.description
 
-                        send_embed = discord.Embed(title="Sniped from Dank Memer:", colour=discord.Colour(0xcfca76), 
-                        description=content, timestamp=mes.created_at)
-                        send_embed.set_author(name=author, icon_url=icon)
-                        send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
-                        send_embed.set_footer(text=f"ID: {mes.id}")
-                    else:
-                        content = mes.content
-
-                        image_extensions = {".jpg", ".png"}
-
-                        if mes.attachments != []:
-                            if len(mes.attachments) == 1 and mes.attachments[0].filename.endswith(image_extensions):
-                                image_url = mes.attachments[0].url
-                            else:
-                                if content != "":
-                                    content += "\n\n"
-                                content += "*This message has attachments the bot cannot display. Pleae check out the original message to see them.*"
-
-                        author = f"{mes.author.display_name} ({str(mes.author)})"
-                        icon = str(mes.author.avatar_url_as(format="jpg", size=128))
-
-                        if content != "":
-                            send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=content, timestamp=mes.created_at)
+                            send_embed = discord.Embed(title="Sniped from Dank Memer:", colour=discord.Colour(0xcfca76), 
+                            description=content, timestamp=mes.created_at)
+                            send_embed.set_author(name=author, icon_url=icon)
+                            send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
+                            send_embed.set_footer(text=f"ID: {mes.id}")
                         else:
-                            send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=discord.Embed.Empty, timestamp=mes.created_at)
-                        send_embed.set_author(name=author, icon_url=icon)
-                        send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
-                        send_embed.set_footer(text=f"ID: {mes.id}")
+                            content = mes.content
 
-                        if image_url is not "":
-                            send_embed.set_image(url=image_url)
-                    
-                    starboard = mes.guild.get_channel(self.bot.star_config[mes.guild.id]["starboard_id"])
+                            image_extensions = {".jpg", ".png"}
 
-                    starred = await starboard.send(content=f"⭐ **{unique_stars}** | {mes.channel.mention}", embed=send_embed)
-                    await starred.add_reaction("⭐")
-                    
-                    self.bot.starboard[mes.id]["star_var_id"] = starred.id
+                            if mes.attachments != []:
+                                if len(mes.attachments) == 1 and mes.attachments[0].filename.endswith(image_extensions):
+                                    image_url = mes.attachments[0].url
+                                else:
+                                    if content != "":
+                                        content += "\n\n"
+                                    content += "*This message has attachments the bot cannot display. Pleae check out the original message to see them.*"
+
+                            author = f"{mes.author.display_name} ({str(mes.author)})"
+                            icon = str(mes.author.avatar_url_as(format="jpg", size=128))
+
+                            if content != "":
+                                send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=content, timestamp=mes.created_at)
+                            else:
+                                send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=discord.Embed.Empty, timestamp=mes.created_at)
+                            send_embed.set_author(name=author, icon_url=icon)
+                            send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
+                            send_embed.set_footer(text=f"ID: {mes.id}")
+
+                            if image_url is not "":
+                                send_embed.set_image(url=image_url)
+                        
+                        starboard = mes.guild.get_channel(self.bot.star_config[mes.guild.id]["starboard_id"])
+
+                        starred = await starboard.send(content=f"⭐ **{unique_stars}** | {mes.channel.mention}", embed=send_embed)
+                        await starred.add_reaction("⭐")
+                        
+                        self.bot.starboard[mes.id]["star_var_id"] = starred.id
 
             else:
                 unique_stars = await self.get_stars(mes, user.id, "ADD")
