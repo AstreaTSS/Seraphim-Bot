@@ -134,7 +134,7 @@ class Star(commands.Cog):
                             send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
                             send_embed.set_footer(text=f"ID: {mes.id}")
 
-                            if image_url is not "":
+                            if image_url != "":
                                 send_embed.set_image(url=image_url)
                         
                         starboard = mes.guild.get_channel(self.bot.star_config[mes.guild.id]["starboard_id"])
