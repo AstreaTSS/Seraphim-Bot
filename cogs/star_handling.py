@@ -145,7 +145,7 @@ class Star(commands.Cog):
                         
                         self.bot.starboard[mes.id]["star_var_id"] = starred.id
 
-            elif user.id != self.bot.starboard[mes.id]["author_id"]:
+            elif user.id != star_variant[0]["author_id"]:
                 unique_stars = await self.get_stars(mes, user.id, "ADD")
                 star_var_chan = await self.bot.fetch_channel(self.bot.star_config[mes.guild.id]["starboard_id"])
 
