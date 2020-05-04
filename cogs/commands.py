@@ -51,7 +51,7 @@ class Commands(commands.Cog):
 
         if not channel.id in channel_id_list:
             channel_id_list.append(channel.id)
-            self.bot.star_config[ctx.guild.id]["blacklist"] = ",".join(channel_id_list)
+            self.bot.star_config[ctx.guild.id]["blacklist"] = ",".join([str(c) for c in channel_id_list])
             await ctx.send(f"Addded {channel.mention} to the blacklist!")
         else:
             await ctx.send("That channel's already in the blacklist!")
@@ -62,17 +62,21 @@ class Commands(commands.Cog):
 
         if channel.id in channel_id_list:
             channel_id_list.remove(channel.id)
-            self.bot.star_config[ctx.guild.id]["blacklist"] = ",".join(channel_id_list)
+            self.bot.star_config[ctx.guild.id]["blacklist"] = ",".join([str(c) for c in channel_id_list])
             await ctx.send(f"Removed {channel.mention} from the blacklist!")
         else:
             await ctx.send("That channel's not in the blacklist!")
 
     @commands.command()
     async def help(self, ctx):
-        await ctx.send("There are four commands:\n\n`s?channel <channel mention>` - sets the starboard channel.\n" +
-        "`s?limit <limit, positive number>` - sets the minimum number of stars needed to appear on the starboard.\n" +
-        "`s?ping` - gets the ping of the bot. Not really something you need to use unless you're the bot maker.\n" +
-        "`s?help` - displays this message.")
+        await ctx.send("There are a couple of commands:\n\n`s!channel <channel mention>` - sets the starboard channel.\n" +
+        "`s!limit <limit - positive number>` - sets the minimum number of stars needed to appear on the starboard.\n" +
+        "`s!blacklist <optional: list, add, remove>` - allows for control over the blacklist that prevents " +
+        "messages from being starred in that channel. With no arguments or with `list`, the bot will just report " +
+        "the blacklisted channels. `add` and `remove` *require a channel mention* and allows you to add or remove " +
+        "a channel from the blacklist.\n\n"
+        "`s!ping` - gets the ping of the bot. Not really something you need to use unless you're the bot maker.\n" +
+        "`s!help` - displays this message.")
 
     @commands.command()
     async def ping(self, ctx):
