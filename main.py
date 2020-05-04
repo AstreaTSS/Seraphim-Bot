@@ -28,7 +28,7 @@ async def on_ready():
     print(bot.user.id)
     print('------\n')
 
-    activity = discord.Activity(name = 'for stars', type = discord.ActivityType.watching)
+    activity = discord.Activity(name = 'for stars!', type = discord.ActivityType.watching)
     await bot.change_presence(activity = activity)
     
 @bot.check

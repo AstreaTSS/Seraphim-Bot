@@ -80,7 +80,8 @@ class Star(commands.Cog):
         channel = await self.bot.fetch_channel(payload.channel_id)
         mes = await channel.fetch_message(payload.message_id)
 
-        if str(payload.emoji) == "⭐" and not user.bot and mes.author.id != user.id:
+        if (str(payload.emoji) == "⭐" and not user.bot and mes.author.id != user.id
+            and not str(channel.id) in self.bot.star_config[mes.guild.id]["blacklist"].split(",")):
 
             star_variant = [
                 self.bot.starboard[k] for k in self.bot.starboard.keys()
@@ -166,7 +167,8 @@ class Star(commands.Cog):
         channel = await self.bot.fetch_channel(payload.channel_id)
         mes = await channel.fetch_message(payload.message_id)
 
-        if str(payload.emoji) == "⭐" and not user.bot and mes.author.id != user.id:
+        if (str(payload.emoji) == "⭐" and not user.bot and mes.author.id != user.id
+            and not str(channel.id) in self.bot.star_config[mes.guild.id]["blacklist"].split(",")):
 
             star_variant = [
                 self.bot.starboard[int(k)] for k in self.bot.starboard.keys()

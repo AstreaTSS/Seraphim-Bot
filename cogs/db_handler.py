@@ -26,7 +26,8 @@ class DBHandler(commands.Cog):
         for row in star_config_db:
             star_config_dict[row[0]] = {
                 "starboard_id": row[1],
-                "star_limit": row[2]
+                "star_limit": row[2],
+                "blacklist": row[3] if row[3] != None else ""
             }
 
         self.bot.starboard = starboard_dict
@@ -65,8 +66,10 @@ class DBHandler(commands.Cog):
         for server in star_config.keys():
             if server in star_config_bac.keys():
                 if not star_config[server] == star_config_bac[server]:
+                    blacklist = f"'{star_config[server]['blacklist']}'" if star_config[server]['blacklist'] != "" else "NULL"
+
                     list_of_cmds.append(f"UPDATE starboard_config SET starboard_id = {star_config[server]['starboard_id']}, " + 
-                    f"star_limit = {star_config[server]['star_limit']} WHERE server_id = {server}")
+                    f"star_limit = {star_config[server]['star_limit']}, blacklist = {blacklist} WHERE server_id = {server}")
         self.bot.star_config_bac = copy.deepcopy(self.bot.star_config)
 
         if list_of_cmds != []:
