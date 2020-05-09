@@ -96,7 +96,7 @@ class Star(commands.Cog):
                     if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"]:
                         image_url = ""
 
-                        if mes.author.id in [270904126974590976, 499383056822435840]:
+                        if mes.author.id in [270904126974590976, 499383056822435840] and mes.embeds != []:
                             dank_embed = mes.embeds[0]
 
                             basic_author = dank_embed.author.name.split("#")
