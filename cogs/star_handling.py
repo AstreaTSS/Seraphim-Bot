@@ -4,6 +4,7 @@ import discord, re
 class Star(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.url_finder = re.compile("((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)")
 
     async def get_stars(self, mes, reactor_id, operation):
         starboard_entry = [
@@ -114,15 +115,22 @@ class Star(commands.Cog):
                         else:
                             content = mes.content
 
-                            image_extensions = (".jpg", ".png")
+                            image_endings = (".jpg", ".png")
+                            image_extensions = tuple(image_endings)
 
                             if mes.attachments != []:
-                                if len(mes.attachments) == 1 and mes.attachments[0].filename.endswith(tuple(image_extensions)):
+                                if len(mes.attachments) == 1 and mes.attachments[0].filename.endswith(image_extensions):
                                     image_url = mes.attachments[0].url
                                 else:
                                     if content != "":
                                         content += "\n\n"
                                     content += "*This message has attachments the bot cannot display. Pleae check out the original message to see them.*"
+
+                            urls = self.url_finder.findall(content.clean_content)
+                            if urls != None:
+                                images = [url[0] for url in urls if url[0].endswith(image_extensions)]
+                                if images != None:
+                                    image_url = images[0]
 
                             author = f"{mes.author.display_name} ({str(mes.author)})"
                             icon = str(mes.author.avatar_url_as(format="jpg", size=128))
