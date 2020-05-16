@@ -127,9 +127,9 @@ class Star(commands.Cog):
                                     content += "*This message has attachments the bot cannot display. Pleae check out the original message to see them.*"
 
                             urls = self.url_finder.findall(content)
-                            if urls != None:
+                            if urls != []:
                                 images = [url[0] for url in urls if url[0].endswith(image_extensions)]
-                                if images != None:
+                                if images != []:
                                     image_url = images[0]
 
                             author = f"{mes.author.display_name} ({str(mes.author)})"
