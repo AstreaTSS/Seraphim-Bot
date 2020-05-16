@@ -126,7 +126,7 @@ class Star(commands.Cog):
                                         content += "\n\n"
                                     content += "*This message has attachments the bot cannot display. Pleae check out the original message to see them.*"
 
-                            urls = self.url_finder.findall(content.clean_content)
+                            urls = self.url_finder.findall(content)
                             if urls != None:
                                 images = [url[0] for url in urls if url[0].endswith(image_extensions)]
                                 if images != None:
