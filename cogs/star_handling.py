@@ -102,9 +102,9 @@ class Star(commands.Cog):
 
                             basic_author = dank_embed.author.name.split("#")
                             member = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
-                            author = f"{member.display_name} ({str(member)})" if member is not None else dank_embed.author.name
+                            author = f"{member.display_name} ({str(member)})" if member != None else dank_embed.author.name
 
-                            icon = dank_embed.author.icon_url
+                            icon = dank_embed.author.icon_url if member == None else str(member.avatar_url_as(format="jpg", size=128))
                             content = dank_embed.description
 
                             send_embed = discord.Embed(title="Sniped from Dank Memer:", colour=discord.Colour(0xcfca76), 
@@ -115,8 +115,8 @@ class Star(commands.Cog):
                         else:
                             content = mes.content
 
-                            image_endings = (".jpg", ".png")
-                            image_extensions = tuple(image_endings)
+                            image_endings = (".jpg", ".png", ".gif")
+                            image_extensions = tuple(image_endings) # no idea why I have to do this
 
                             if mes.attachments != []:
                                 if len(mes.attachments) == 1 and mes.attachments[0].filename.endswith(image_extensions):
