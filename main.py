@@ -59,6 +59,6 @@ async def on_command_error(ctx, error):
         owner = application.owner
         await ctx.send(f"{owner.mention}: {error.original}")
 
-keep_alive.keep_alive()
+# keep_alive.keep_alive()
 
 bot.run(os.environ.get("MAIN_TOKEN"))
