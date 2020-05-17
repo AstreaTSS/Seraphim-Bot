@@ -47,6 +47,7 @@ class Star(commands.Cog):
                 print(f"{mes.id} {starboard_entry['star_var_id']}")
 
                 if mes.id == starboard_entry["star_var_id"]:
+                    print(var_reactors)
                     if var_reactors != [""]:
                         new_reactors = ",".join(var_reactors) + f",{reactor_id}"
                     else:
