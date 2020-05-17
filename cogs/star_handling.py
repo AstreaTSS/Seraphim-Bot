@@ -43,17 +43,14 @@ class Star(commands.Cog):
 
         if author_id != reactor_id:
             if not str(reactor_id) in reactors and operation == "ADD":
-                print(f"{reactor_id} {reactors}")
-                print(f"{mes.id} {starboard_entry['star_var_id']}")
-
                 if mes.id == starboard_entry["star_var_id"]:
-                    print(var_reactors)
-                    if var_reactors != [""]:
+                    if var_reactors != ['']:
                         new_reactors = ",".join(var_reactors) + f",{reactor_id}"
                     else:
                         new_reactors = f"{reactor_id}"
+                    starboard_entry["var_reactors"] = new_reactors
                 else:
-                    if ori_reactors != [""]:
+                    if ori_reactors != ['']:
                         new_reactors = ",".join(ori_reactors) + f",{reactor_id}"
                     else:
                         new_reactors = f"{reactor_id}"
@@ -69,6 +66,7 @@ class Star(commands.Cog):
                         new_reactors = ""
 
                     starboard_entry["var_reactors"] = new_reactors
+
                 elif mes.id == starboard_entry["ori_mes_id_bac"] and str(reactor_id) in ori_reactors:
                     ori_reactors.remove(str(reactor_id))
 
@@ -79,7 +77,6 @@ class Star(commands.Cog):
 
                     starboard_entry["ori_reactors"] = new_reactors
 
-            print(starboard_entry)
             ori_mes_id = starboard_entry["ori_mes_id_bac"]
             self.bot.starboard[ori_mes_id] = starboard_entry
 
