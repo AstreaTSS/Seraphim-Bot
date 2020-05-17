@@ -88,11 +88,15 @@ class Star(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
 
-        guild = await self.bot.fetch_guild(payload.guild_id)
-        user = await guild.fetch_member(payload.user_id)
+        try:
+            guild = await self.bot.fetch_guild(payload.guild_id)
+            user = await guild.fetch_member(payload.user_id)
 
-        channel = await self.bot.fetch_channel(payload.channel_id)
-        mes = await channel.fetch_message(payload.message_id)
+            channel = await self.bot.fetch_channel(payload.channel_id)
+            mes = await channel.fetch_message(payload.message_id)
+        except discord.HTTPException:
+            print(f"{payload.message_id}: could not find Message object. Channel: {payload.channel_id}")
+            return
 
         if (str(payload.emoji) == "⭐" and not user.bot and mes.author.id != user.id
             and not str(channel.id) in self.bot.star_config[mes.guild.id]["blacklist"].split(",")):
