@@ -43,6 +43,7 @@ class Star(commands.Cog):
 
         if author_id != reactor_id:
             if not str(reactor_id) in reactors and operation == "ADD":
+                print(f"{reactor_id} {reactors}")
 
                 if mes.id == starboard_entry["star_var_id"]:
                     if var_reactors != [""]:
@@ -174,7 +175,6 @@ class Star(commands.Cog):
                             
             elif user.id != star_variant[0]["author_id"]:
                 unique_stars = await self.get_stars(mes, user.id, "ADD")
-                print(unique_stars)
                 star_var_chan = await self.bot.fetch_channel(self.bot.star_config[mes.guild.id]["starboard_id"])
 
                 try:
