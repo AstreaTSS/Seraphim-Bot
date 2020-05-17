@@ -77,11 +77,13 @@ class Star(commands.Cog):
 
                     starboard_entry["ori_reactors"] = new_reactors
 
+            print(starboard_entry)
             ori_mes_id = starboard_entry["ori_mes_id_bac"]
             self.bot.starboard[ori_mes_id] = starboard_entry
 
-            ori_reactors = starboard_entry["ori_reactors"].split(",")
-            var_reactors = starboard_entry["var_reactors"].split(",")
+        ori_reactors = starboard_entry["ori_reactors"].split(",")
+        var_reactors = starboard_entry["var_reactors"].split(",")
+
         reactors = [i for i in ori_reactors if i != ""] + [i for i in var_reactors if i != ""]
 
         return len(reactors) if reactors != [] else 0
