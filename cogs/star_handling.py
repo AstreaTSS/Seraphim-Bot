@@ -13,61 +13,74 @@ class Star(commands.Cog):
         ]
 
         if starboard_entry == []:
+            author_id = None
+
+            if mes.author.id in [270904126974590976, 499383056822435840] and mes.embeds != []:
+                dank_embed = mes.embeds[0]
+                basic_author = dank_embed.author.name.split("#")
+                author = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
+                author_id = mes.author.id if author == None else author.id
+            else:
+                author_id = mes.author.id
+
             self.bot.starboard[mes.id] = {
                 "ori_chan_id": mes.channel.id,
                 "star_var_id": None,
-                "author_id": mes.author.id,
+                "author_id": author_id,
                 "ori_reactors": str(reactor_id),
                 "var_reactors": "",
-                "ori_mes_id_bac": mes.id
+                "ori_mes_id_bac": mes.id,
+                "passed_star_limit": False
             }
             starboard_entry = [self.bot.starboard[mes.id]]
 
         starboard_entry = starboard_entry[0]
+        author_id = starboard_entry["author_id"]
 
         ori_reactors = starboard_entry["ori_reactors"].split(",")
         var_reactors = starboard_entry["var_reactors"].split(",")
         reactors = ori_reactors + var_reactors
 
-        if not str(reactor_id) in reactors and operation == "ADD":
-            if mes.id == starboard_entry["star_var_id"]:
-                if var_reactors != [""]:
-                    new_reactors = ",".join(var_reactors) + f",{reactor_id}"
+        if author_id != reactor_id:
+            if not str(reactor_id) in reactors and operation == "ADD":
+
+                if mes.id == starboard_entry["star_var_id"]:
+                    if var_reactors != [""]:
+                        new_reactors = ",".join(var_reactors) + f",{reactor_id}"
+                    else:
+                        new_reactors = f"{reactor_id}"
                 else:
-                    new_reactors = f"{reactor_id}"
-                starboard_entry["var_reactors"] = new_reactors
-            else:
-                if ori_reactors != [""]:
-                    new_reactors = ",".join(ori_reactors) + f",{reactor_id}"
-                else:
-                    new_reactors = f"{reactor_id}"
-                starboard_entry["ori_reactors"] = new_reactors
+                    if ori_reactors != [""]:
+                        new_reactors = ",".join(ori_reactors) + f",{reactor_id}"
+                    else:
+                        new_reactors = f"{reactor_id}"
+                    starboard_entry["ori_reactors"] = new_reactors
 
-        elif operation == "SUBTRACT":
-            if mes.id == starboard_entry["star_var_id"] and str(reactor_id) in var_reactors:
-                var_reactors.remove(str(reactor_id))
+            elif operation == "SUBTRACT":
+                if mes.id == starboard_entry["star_var_id"] and str(reactor_id) in var_reactors:
+                    var_reactors.remove(str(reactor_id))
 
-                if var_reactors != []:
-                    new_reactors = ",".join(var_reactors)
-                else:
-                    new_reactors = ""
+                    if var_reactors != []:
+                        new_reactors = ",".join(var_reactors)
+                    else:
+                        new_reactors = ""
 
-                starboard_entry["var_reactors"] = new_reactors
-            elif mes.id == starboard_entry["ori_mes_id_bac"] and str(reactor_id) in ori_reactors:
-                ori_reactors.remove(str(reactor_id))
+                    starboard_entry["var_reactors"] = new_reactors
+                elif mes.id == starboard_entry["ori_mes_id_bac"] and str(reactor_id) in ori_reactors:
+                    ori_reactors.remove(str(reactor_id))
 
-                if ori_reactors != []:
-                    new_reactors = ",".join(ori_reactors)
-                else:
-                    new_reactors = ""
+                    if ori_reactors != []:
+                        new_reactors = ",".join(ori_reactors)
+                    else:
+                        new_reactors = ""
 
-                starboard_entry["ori_reactors"] = new_reactors
+                    starboard_entry["ori_reactors"] = new_reactors
 
-        ori_mes_id = starboard_entry["ori_mes_id_bac"]
-        self.bot.starboard[ori_mes_id] = starboard_entry
+            ori_mes_id = starboard_entry["ori_mes_id_bac"]
+            self.bot.starboard[ori_mes_id] = starboard_entry
 
-        ori_reactors = starboard_entry["ori_reactors"].split(",")
-        var_reactors = starboard_entry["var_reactors"].split(",")
+            ori_reactors = starboard_entry["ori_reactors"].split(",")
+            var_reactors = starboard_entry["var_reactors"].split(",")
         reactors = [i for i in ori_reactors if i != ""] + [i for i in var_reactors if i != ""]
 
         return len(reactors) if reactors != [] else 0
@@ -90,68 +103,70 @@ class Star(commands.Cog):
                 and self.bot.starboard[k]["star_var_id"] != None
             ]
 
-            if star_variant == [] :
+            if star_variant == []:
                 if channel.id != self.bot.star_config[mes.guild.id]["starboard_id"]:
                     unique_stars = await self.get_stars(mes, user.id, "ADD")
 
                     if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"]:
-                        image_url = ""
+                        if not self.bot.starboard[mes.id]["passed_star_limit"]:
+                            self.bot.starboard[mes.id]["passed_star_limit"] = True
+                            image_url = ""
 
-                        if mes.author.id in [270904126974590976, 499383056822435840] and mes.embeds != []:
-                            dank_embed = mes.embeds[0]
+                            if mes.author.id in [270904126974590976, 499383056822435840] and mes.embeds != []:
+                                dank_embed = mes.embeds[0]
 
-                            basic_author = dank_embed.author.name.split("#")
-                            member = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
-                            author = f"{member.display_name} ({str(member)})" if member != None else dank_embed.author.name
+                                basic_author = dank_embed.author.name.split("#")
+                                member = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
+                                author = f"{member.display_name} ({str(member)})" if member != None else dank_embed.author.name
 
-                            icon = dank_embed.author.icon_url if member == None else str(member.avatar_url_as(format="jpg", size=128))
-                            content = dank_embed.description
+                                icon = dank_embed.author.icon_url if member == None else str(member.avatar_url_as(format="jpg", size=128))
+                                content = dank_embed.description
 
-                            send_embed = discord.Embed(title="Sniped from Dank Memer:", colour=discord.Colour(0xcfca76), 
-                            description=content, timestamp=mes.created_at)
-                            send_embed.set_author(name=author, icon_url=icon)
-                            send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
-                            send_embed.set_footer(text=f"ID: {mes.id}")
-                        else:
-                            content = mes.content
-
-                            image_endings = (".jpg", ".png", ".gif")
-                            image_extensions = tuple(image_endings) # no idea why I have to do this
-
-                            if mes.attachments != []:
-                                if len(mes.attachments) == 1 and mes.attachments[0].filename.endswith(image_extensions):
-                                    image_url = mes.attachments[0].url
-                                else:
-                                    if content != "":
-                                        content += "\n\n"
-                                    content += "*This message has attachments the bot cannot display. Pleae check out the original message to see them.*"
-
-                            urls = self.url_finder.findall(content)
-                            if urls != []:
-                                images = [url[0] for url in urls if url[0].endswith(image_extensions)]
-                                if images != []:
-                                    image_url = images[0]
-
-                            author = f"{mes.author.display_name} ({str(mes.author)})"
-                            icon = str(mes.author.avatar_url_as(format="jpg", size=128))
-
-                            if content != "":
-                                send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=content, timestamp=mes.created_at)
+                                send_embed = discord.Embed(title="Sniped from Dank Memer:", colour=discord.Colour(0xcfca76), 
+                                description=content, timestamp=mes.created_at)
+                                send_embed.set_author(name=author, icon_url=icon)
+                                send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
+                                send_embed.set_footer(text=f"ID: {mes.id}")
                             else:
-                                send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=discord.Embed.Empty, timestamp=mes.created_at)
-                            send_embed.set_author(name=author, icon_url=icon)
-                            send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
-                            send_embed.set_footer(text=f"ID: {mes.id}")
+                                content = mes.content
 
-                            if image_url != "":
-                                send_embed.set_image(url=image_url)
-                        
-                        starboard = mes.guild.get_channel(self.bot.star_config[mes.guild.id]["starboard_id"])
+                                image_endings = (".jpg", ".png", ".gif")
+                                image_extensions = tuple(image_endings) # no idea why I have to do this
 
-                        starred = await starboard.send(content=f"⭐ **{unique_stars}** | {mes.channel.mention}", embed=send_embed)
-                        await starred.add_reaction("⭐")
-                        
-                        self.bot.starboard[mes.id]["star_var_id"] = starred.id
+                                if mes.attachments != []:
+                                    if len(mes.attachments) == 1 and mes.attachments[0].filename.endswith(image_extensions):
+                                        image_url = mes.attachments[0].url
+                                    else:
+                                        if content != "":
+                                            content += "\n\n"
+                                        content += "*This message has attachments the bot cannot display. Pleae check out the original message to see them.*"
+
+                                urls = self.url_finder.findall(content)
+                                if urls != []:
+                                    images = [url[0] for url in urls if url[0].endswith(image_extensions)]
+                                    if images != []:
+                                        image_url = images[0]
+
+                                author = f"{mes.author.display_name} ({str(mes.author)})"
+                                icon = str(mes.author.avatar_url_as(format="jpg", size=128))
+
+                                if content != "":
+                                    send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=content, timestamp=mes.created_at)
+                                else:
+                                    send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=discord.Embed.Empty, timestamp=mes.created_at)
+                                send_embed.set_author(name=author, icon_url=icon)
+                                send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
+                                send_embed.set_footer(text=f"ID: {mes.id}")
+
+                                if image_url != "":
+                                    send_embed.set_image(url=image_url)
+                            
+                            starboard = mes.guild.get_channel(self.bot.star_config[mes.guild.id]["starboard_id"])
+
+                            starred = await starboard.send(content=f"⭐ **{unique_stars}** | {mes.channel.mention}", embed=send_embed)
+                            await starred.add_reaction("⭐")
+                            
+                            self.bot.starboard[mes.id]["star_var_id"] = starred.id
 
             elif user.id != star_variant[0]["author_id"]:
                 unique_stars = await self.get_stars(mes, user.id, "ADD")

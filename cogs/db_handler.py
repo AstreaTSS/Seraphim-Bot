@@ -20,7 +20,8 @@ class DBHandler(commands.Cog):
                 "author_id": row[3],
                 "ori_reactors": row[4] if row[4] != None else "",
                 "var_reactors": row[5] if row[5] != None else "",
-                "ori_mes_id_bac": row[0]
+                "ori_mes_id_bac": row[0],
+                "passed_star_limit": False
             }
 
         for row in star_config_db:
