@@ -44,6 +44,7 @@ class Star(commands.Cog):
         if author_id != reactor_id:
             if not str(reactor_id) in reactors and operation == "ADD":
                 print(f"{reactor_id} {reactors}")
+                print(f"{mes.id} {starboard_entry['star_var_id']}")
 
                 if mes.id == starboard_entry["star_var_id"]:
                     if var_reactors != [""]:
