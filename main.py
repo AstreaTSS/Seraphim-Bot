@@ -29,7 +29,7 @@ async def error_handle(bot, error):
     owner = application.owner
     await owner.send(f"{error_str}")
 
-    logger.error(error_str)
+    bot.logger.error(error_str)
 
 @bot.event
 async def on_ready():
