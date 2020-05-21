@@ -1,3 +1,4 @@
+#!/usr/bin/env python3.7
 from discord.ext import commands
 import discord, re
 
@@ -97,7 +98,7 @@ class Star(commands.Cog):
             channel = await self.bot.fetch_channel(payload.channel_id)
             mes = await channel.fetch_message(payload.message_id)
         except discord.HTTPException:
-            print(f"{payload.message_id}: could not find Message object. Channel: {payload.channel_id}")
+            self.bot.logger.error(f"{payload.message_id}: could not find Message object. Channel: {payload.channel_id}")
             return
 
         if (str(payload.emoji) == "⭐" and not user.bot and mes.author.id != user.id

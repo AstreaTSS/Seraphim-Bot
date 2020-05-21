@@ -6,4 +6,4 @@ A starboard in Python! Supports a lot, from Dank Memer snipe command support to 
 
 However, this bot has been mostly been made for personal use. It has support for other people running it themselves, however, it requires a MySQL database, and requires you (for now) to manually add a row in starboard_config for every server it joins.
 
-Environment vars: MAIN_TOKEN, DB_HOST_URL, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME.
+Environment vars: MAIN_TOKEN, DB_HOST_URL, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME, LOG_PATH.

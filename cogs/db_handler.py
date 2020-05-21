@@ -1,3 +1,4 @@
+#!/usr/bin/env python3.7
 from discord.ext import commands, tasks
 import discord, os, asyncio, aiomysql, copy
 
