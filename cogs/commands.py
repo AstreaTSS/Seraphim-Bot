@@ -1,72 +1,11 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
 import discord, datetime
-
-async def proper_permissions(ctx):
-    permissions = ctx.author.guild_permissions
-    return (permissions.administrator or permissions.manage_messages)
+import cogs.star_universals as star_univ
 
 class Commands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    @commands.command()
-    @commands.check(proper_permissions)
-    async def channel(self, ctx, channel: discord.TextChannel):
-        self.bot.star_config[ctx.guild.id]["starboard_id"] = channel.id
-        await ctx.send(f"Set channel to {channel.mention}!")
-
-    @commands.command()
-    @commands.check(proper_permissions)
-    async def limit(self, ctx, limit):
-        if limit.isdigit():
-            self.bot.star_config[ctx.guild.id]["star_limit"] = int(limit)
-            await ctx.send(f"Set limit to {limit}!")
-        else:
-            await ctx.send("That doesn't seem like a valid number to me...")
-
-    @commands.group()
-    @commands.check(proper_permissions)
-    async def blacklist(self, ctx):
-        if ctx.invoked_subcommand == None:
-            list_cmd = self.bot.get_command("blacklist list")
-            await ctx.invoke(list_cmd)
-
-    @blacklist.command(name = "list")
-    async def _list(self, ctx):
-        channel_id_list = [int(c) for c in self.bot.star_config[ctx.guild.id]["blacklist"].split(",") if c != ""]
-        if channel_id_list != []:
-            channel_mentions = []
-
-            for channel_id in channel_id_list:
-                channel = await self.bot.fetch_channel(channel_id)
-                channel_mentions.append(channel.mention)
-
-            await ctx.send(f"Blacklisted channels: {', '.join(channel_mentions)}")
-        else:
-            await ctx.send("There's no blacklisted channels for this guild!")
-
-    @blacklist.command()
-    async def add(self, ctx, channel: discord.TextChannel):
-        channel_id_list = [int(c) for c in self.bot.star_config[ctx.guild.id]["blacklist"].split(",") if c != ""]
-
-        if not channel.id in channel_id_list:
-            channel_id_list.append(channel.id)
-            self.bot.star_config[ctx.guild.id]["blacklist"] = ",".join([str(c) for c in channel_id_list])
-            await ctx.send(f"Addded {channel.mention} to the blacklist!")
-        else:
-            await ctx.send("That channel's already in the blacklist!")
-
-    @blacklist.command()
-    async def remove(self, ctx, channel: discord.TextChannel):
-        channel_id_list = [int(c) for c in self.bot.star_config[ctx.guild.id]["blacklist"].split(",") if c != ""]
-
-        if channel.id in channel_id_list:
-            channel_id_list.remove(channel.id)
-            self.bot.star_config[ctx.guild.id]["blacklist"] = ",".join([str(c) for c in channel_id_list])
-            await ctx.send(f"Removed {channel.mention} from the blacklist!")
-        else:
-            await ctx.send("That channel's not in the blacklist!")
 
     @commands.command()
     async def help(self, ctx):
@@ -88,6 +27,38 @@ class Commands(commands.Cog):
         ping_personal = round((current_time - mes_time) * 1000, 2)
 
         await ctx.send(f"Pong!\n`{ping_discord}` ms from discord.\n`{ping_personal}` ms personally (not accurate)")
+
+    @commands.cooldown(1, 60, commands.BucketType.guild)
+    @commands.command()
+    async def top_starred(self, ctx):
+        def by_stars(elem):
+            return star_univ.get_num_stars(elem)
+
+        guild_entries = [e for e in self.bot.starboard if e["guild_id"] == ctx.guild.id]
+        if guild_entries != []:
+            top_embed = discord.Embed(title=f"Top starred messages in {ctx.guild.name}", colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow())
+            top_embed.set_author(name="Sonic's Starboard", icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}")
+            top_embed.set_footer(text="As of")
+
+            starboard_id = self.bot.star_config[ctx.guild.id]['starboard_id']
+
+            guild_entries.sort(reversed=True, key=by_stars)
+
+            for i in range(len(guild_entries)):
+                if i > 9:
+                    break
+
+                entry = guild_entries[i]
+                url = f"https://discordapp.com/channels/{ctx.guild.id}/{starboard_id}/{entry['ori_mes_id_bac']}"
+                num_stars = star_univ.get_num_stars(entry)
+                member = ctx.guild.get_member(entry["author_id"])
+                author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry['author_id']}"
+
+                top_embed.add_field(name=f"#{i+1}: {num_stars} ⭐ from {author_str}", value=f"[Message]({url})")
+
+            await ctx.send(embed=top_embed)
+        else:
+            await ctx.send("There are no starboard entries for this server!")
 
 def setup(bot):
     bot.add_cog(Commands(bot))

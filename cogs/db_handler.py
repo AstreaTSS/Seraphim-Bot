@@ -21,6 +21,9 @@ class DBHandler(commands.Cog):
                 "author_id": row[3],
                 "ori_reactors": row[4] if row[4] != None else "",
                 "var_reactors": row[5] if row[5] != None else "",
+                "guild_id": row[6],
+                "forced": row[7] if row[7] != None else False,
+
                 "ori_mes_id_bac": row[0],
                 "passed_star_limit": False
             }
@@ -29,7 +32,8 @@ class DBHandler(commands.Cog):
             star_config_dict[row[0]] = {
                 "starboard_id": row[1],
                 "star_limit": row[2],
-                "blacklist": row[3] if row[3] != None else ""
+                "blacklist": row[3] if row[3] != None else "",
+                "guild_id_bac": row[0]
             }
 
         self.bot.starboard = starboard_dict
