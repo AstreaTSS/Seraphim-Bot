@@ -2,6 +2,7 @@
 import discord, os, asyncio
 from discord.ext import commands
 import logging, time, traceback
+from datetime import datetime
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -44,9 +45,12 @@ async def on_ready():
     for cog in cogs_list:
         bot.load_extension(cog)
 
+    utcnow = datetime.utcnow()
+    time_format = utcnow.strftime("%x %X UTC")
+
     application = await bot.application_info()
     owner = application.owner
-    await owner.send("Logged in!")
+    await owner.send(f"Logged in at `{time_format}`!")
 
     activity = discord.Activity(name = 'for stars!', type = discord.ActivityType.watching)
     await bot.change_presence(activity = activity)
