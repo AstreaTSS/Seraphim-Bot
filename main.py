@@ -33,28 +33,34 @@ async def error_handle(bot, error):
 
 @bot.event
 async def on_ready():
-    bot.starboard = {}
-    bot.star_config = {}
-    bot.logger = logger
-    bot.load_extension("cogs.db_handler")
-    while bot.star_config == {} or bot.starboard == {}:
-        await asyncio.sleep(0.1)
 
-    cogs_list = ["cogs.star_handling", "cogs.clear_events", "cogs.commands"]
+    if bot.on_readies == 0:
+        bot.starboard = {}
+        bot.star_config = {}
+        bot.logger = logger
+        bot.load_extension("cogs.db_handler")
+        while bot.star_config == {} or bot.starboard == {}:
+            await asyncio.sleep(0.1)
 
-    for cog in cogs_list:
-        bot.load_extension(cog)
+        cogs_list = ["cogs.star_handling", "cogs.clear_events", "cogs.commands"]
+
+        for cog in cogs_list:
+            bot.load_extension(cog)
 
     utcnow = datetime.utcnow()
     time_format = utcnow.strftime("%x %X UTC")
 
     application = await bot.application_info()
     owner = application.owner
-    await owner.send(f"Logged in at `{time_format}`!")
 
+    connect_msg = f"Logged in at `{time_format}`!" if bot.on_readies == 0 else f"Reconnected at `{time_format}`!"
+
+    await owner.send(connect_msg)
     activity = discord.Activity(name = 'for stars!', type = discord.ActivityType.watching)
     await bot.change_presence(activity = activity)
-    
+
+    bot.on_readies += 1
+        
 @bot.check
 async def block_dms(ctx):
     return ctx.guild is not None
@@ -82,4 +88,5 @@ async def on_command_error(ctx, error):
     else:
         await error_handle(bot, error)
 
+bot.on_readies = 0
 bot.run(os.environ.get("MAIN_TOKEN"))
