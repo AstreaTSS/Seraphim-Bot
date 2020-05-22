@@ -2,7 +2,7 @@ from discord.ext import commands
 import discord
 import re
 
-class OwnerCMDs(commands.Cog):
+class SyncCMD(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -43,4 +43,4 @@ class OwnerCMDs(commands.Cog):
         await ctx.send("Sync done! You can now unload this cog.")
 
 def setup(bot):
-    bot.add_cog(OwnerCMDs(bot))
+    bot.add_cog(SyncCMD(bot))
