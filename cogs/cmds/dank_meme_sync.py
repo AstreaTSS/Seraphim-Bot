@@ -20,29 +20,30 @@ class OwnerCMDs(commands.Cog):
             entry = self.bot.starboard[key]
             if entry["author_id"] in [270904126974590976, 499383056822435840]:
                 guild = self.bot.get_guild(entry["guild_id"])
-                
-                if entry["star_var_id"] != None:
-                    starboard_id = self.bot.star_config[guild.id]['starboard_id']
-                    star_chan = guild.get_channel(starboard_id)
-                    if star_chan != None:
-                        try:
-                            star_mes = await star_chan.fetch_message(entry["star_var_id"])
-                            author_id = self.author_from_embed(star_mes)
-                            if author_id != None:
-                                self.bot.starboard[key]["author_id"] = author_id
-                        except discord.NotFound:
-                            do_nothing = True
 
-                else:
-                    ori_chan = guild.get_channel(entry['ori_chan_id'])
-                    if ori_chan != None:
-                        try:
-                            ori_mes = await ori_chan.fetch_message(key)
-                            author_id = self.author_from_embed(ori_mes)
-                            if author_id != None:
-                                self.bot.starboard[key]["author_id"] = author_id
-                        except discord.NotFound:
-                            do_nothing = True
+                if guild != None:
+                    if entry["star_var_id"] != None:
+                        starboard_id = self.bot.star_config[guild.id]['starboard_id']
+                        star_chan = guild.get_channel(starboard_id)
+                        if star_chan != None:
+                            try:
+                                star_mes = await star_chan.fetch_message(entry["star_var_id"])
+                                author_id = self.author_from_embed(star_mes)
+                                if author_id != None:
+                                    self.bot.starboard[key]["author_id"] = author_id
+                            except discord.NotFound:
+                                do_nothing = True
+
+                    else:
+                        ori_chan = guild.get_channel(entry['ori_chan_id'])
+                        if ori_chan != None:
+                            try:
+                                ori_mes = await ori_chan.fetch_message(key)
+                                author_id = self.author_from_embed(ori_mes)
+                                if author_id != None:
+                                    self.bot.starboard[key]["author_id"] = author_id
+                            except discord.NotFound:
+                                do_nothing = True
 
         await ctx.send("Sync done! You can now unload this cog.")
 
