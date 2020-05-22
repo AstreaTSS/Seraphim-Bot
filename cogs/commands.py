@@ -58,7 +58,7 @@ class Commands(commands.Cog):
                 member = ctx.guild.get_member(entry["author_id"])
                 author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry['author_id']}"
 
-                top_embed.add_field(name=f"#{i+1}: {num_stars} ⭐ from {author_str}", value=f"[Message]({url})")
+                top_embed.add_field(name=f"#{i+1}: {num_stars} ⭐ from {author_str}", value=f"[Message]({url})\n", inline=False)
 
             await ctx.send(embed=top_embed)
         else:
