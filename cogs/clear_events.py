@@ -18,7 +18,7 @@ class ClearEvents(commands.Cog):
         star_variant = star_univ.get_star_entry(self.bot, payload.message_id)
 
         if star_variant != []:
-            ori_mes_id = star_variant[0]["ori_mes_id_bac"]
+            ori_mes_id = star_variant["ori_mes_id_bac"]
             self.bot.starboard[ori_mes_id]["ori_chan_id"] = None
 
     @commands.Cog.listener()
@@ -30,7 +30,7 @@ class ClearEvents(commands.Cog):
 
         if star_variants != []:
             for star_variant in star_variants:
-                ori_mes_id = star_variant[0]["ori_mes_id_bac"]
+                ori_mes_id = star_variant["ori_mes_id_bac"]
                 self.bot.starboard[ori_mes_id]["ori_chan_id"] = None
 
     @commands.Cog.listener()

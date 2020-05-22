@@ -33,7 +33,7 @@ class Star(commands.Cog):
                     if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"] and not self.bot.starboard[mes.id]["passed_star_limit"]:
                         await star_mes.star_mes(self.bot, mes, unique_stars)
                             
-            elif user.id != star_variant[0]["author_id"]:
+            elif user.id != star_variant["author_id"]:
                 star_univ.modify_stars(self.bot, mes, payload.user_id, "ADD")
                 await star_univ.star_entry_refresh(self.bot, star_variant, mes.guild.id)
     
