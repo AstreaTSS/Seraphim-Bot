@@ -6,10 +6,13 @@ class OwnerCMDs(commands.Cog):
         self.bot = bot
 
     def author_from_embed(self, mes):
-        embed = mes.embeds[0]
-        basic_author = embed.author.name.split("#")
-        author = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
-        return mes.author.id if author == None else None
+        try:
+            embed = mes.embeds[0]
+            basic_author = embed.author.name.split("#")
+            author = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
+            return mes.author.id if author == None else None
+        except IndexError:
+            return None
 
     @commands.command()
     @commands.is_owner()
