@@ -22,19 +22,20 @@ class Star(commands.Cog):
             and not str(channel.id) in self.bot.star_config[mes.guild.id]["blacklist"].split(",")):
 
             star_variant = star_univ.get_star_entry(self.bot, mes.id, check_for_var=True)
-            univ.error_handle(self.bot, str(star_variant), string=True)
 
             if star_variant == []:
                 if channel.id != self.bot.star_config[mes.guild.id]["starboard_id"]:
                     star_univ.modify_stars(self.bot, mes, payload.user_id, "ADD")
-                    unique_stars = star_univ.get_num_stars(star_variant)
+
+                    star_entry = star_univ.get_star_entry(self.bot, mes.id)
+                    unique_stars = star_univ.get_num_stars(star_entry)
 
                     if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"] and not self.bot.starboard[mes.id]["passed_star_limit"]:
-                        star_mes.star_mes(self.bot, mes, unique_stars)
+                        await star_mes.star_mes(self.bot, mes, unique_stars)
                             
             elif user.id != star_variant[0]["author_id"]:
                 star_univ.modify_stars(self.bot, mes, payload.user_id, "ADD")
-                star_univ.star_entry_refresh(self.bot, star_variant, mes.guild.id)
+                await star_univ.star_entry_refresh(self.bot, star_variant, mes.guild.id)
     
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
@@ -49,7 +50,7 @@ class Star(commands.Cog):
                 star_univ.modify_stars(self.bot, mes, payload.user_id, "SUBTRACT")
 
                 if star_variant["star_var_id"] != None:
-                    star_univ.star_entry_refresh(self.bot, star_variant, mes.guild.id)
+                    await star_univ.star_entry_refresh(self.bot, star_variant, mes.guild.id)
         
 def setup(bot):
     bot.add_cog(Star(bot))

@@ -63,7 +63,7 @@ def modify_stars(bot, mes, reactor_id, operation):
             "ori_mes_id_bac": mes.id,
             "passed_star_limit": False
         }
-        starboard_entry = [bot.starboard[mes.id]]
+        starboard_entry = bot.starboard[mes.id]
 
     author_id = starboard_entry["author_id"]
     reactors = get_reactor_list(starboard_entry, return_extra=True)

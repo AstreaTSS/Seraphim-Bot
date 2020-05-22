@@ -31,7 +31,7 @@ async def on_ready():
         bot.star_config = {}
         bot.logger = logger
         bot.load_extension("cogs.db_handler")
-        while bot.star_config == {} or bot.starboard == {}:
+        while bot.star_config == {}:
             await asyncio.sleep(0.1)
 
         cogs_list = ["cogs.star_handling", "cogs.clear_events", "cogs.commands", "cogs.admin_cmds"]

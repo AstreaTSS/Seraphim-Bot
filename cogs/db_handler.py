@@ -63,9 +63,9 @@ class DBHandler(commands.Cog):
                         f"var_reactors = {var_reactors}, guild_id = {guild_id}, forced = {forced} WHERE ori_mes_id = {message}")
                 else:
                     list_of_cmds.append("INSERT INTO starboard "+
-                    "(ori_mes_id, ori_chan_id, star_var_id, author_id, ori_reactors, var_reactors) VALUES " +
+                    "(ori_mes_id, ori_chan_id, star_var_id, author_id, ori_reactors, var_reactors, guild_id, forced) VALUES " +
                     f"({message}, {starboard[message]['ori_chan_id']}, {star_var_id}, " +
-                    f"{starboard[message]['author_id']}, {ori_reactors}, {var_reactors});")
+                    f"{starboard[message]['author_id']}, {ori_reactors}, {var_reactors}, {guild_id}, {forced});")
         self.bot.starboard_bac = copy.deepcopy(self.bot.starboard)
 
         star_config = self.bot.star_config
