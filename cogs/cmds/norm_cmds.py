@@ -1,12 +1,14 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import discord, datetime
+import discord, datetime, importlib
 import star_utils.star_universals as star_univ
 import star_utils.universals as univ
 
 class NormCMDs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        importlib.reload(star_univ)
+        importlib.reload(univ)
 
     @commands.command()
     async def help(self, ctx):

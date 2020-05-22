@@ -1,12 +1,13 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import discord
+import discord, importlib
 
 import star_utils.star_universals as star_univ
 
 class ClearEvents(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        importlib.reload(star_univ)
 
     async def auto_clear_stars(self, bot, payload):
         star_variant = star_univ.get_star_entry(self.bot, payload.message_id)

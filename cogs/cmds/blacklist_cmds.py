@@ -1,11 +1,12 @@
 from discord.ext import commands
-import discord
+import discord, importlib
 
 import star_utils.universals as univ
 
 class BlacklistCMDs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        importlib.reload(univ)
 
     @commands.group()
     @commands.check(univ.proper_permissions)
