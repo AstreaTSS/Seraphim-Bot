@@ -73,48 +73,6 @@ class AdminCMDS(commands.Cog):
 
     @commands.command()
     @commands.check(proper_permissions)
-    async def sync_guild(self, ctx):
-        await ctx.send("Here we go. This might take a while. DO NOT RUN THIS AGAIN. THIS IS A ONE-TIME USE COMMAND.")
-
-        not_found = []
-
-        for msg_id in self.bot.starboard.keys():
-            entry = self.bot.starboard[msg_id]
-            if entry["guild_id"] == None:
-                if entry["star_var_id"] != None:
-                    for guild_id in self.bot.star_config.keys():
-                        guild_entry = self.bot.star_config[guild_id]
-                        try:
-                            guild = self.bot.get_guild(guild_entry["guild_id_bac"])
-                            star_var_chan = guild.get_channel(guild_entry["starboard_id"])
-                            mes = await star_var_chan.fetch_message(entry["star_var_id"])
-                            self.bot.starboard[entry["ori_mes_id_bac"]]["guild_id"] = mes.guild.id
-                            break
-                        except discord.NotFound:
-                            not_found.append(str(entry["ori_mes_id_bac"]))
-                        except AttributeError:
-                            not_found.append(str(entry["ori_mes_id_bac"]))
-
-                elif entry["ori_chan_id"] != None:
-                    for guild_id in self.bot.star_config.keys():
-                        guild_entry = self.bot.star_config[guild_id]
-                        try:
-                            guild = self.bot.get_guild(guild_entry["guild_id_bac"])
-                            star_var_chan = guild.get_channel(entry["ori_chan_id"])
-                            mes = await star_var_chan.fetch_message(entry["ori_mes_id_bac"])
-                            self.bot.starboard[entry["ori_mes_id_bac"]]["guild_id"] = mes.guild.id
-                            break
-                        except discord.NotFound:
-                            not_found.append(str(entry["ori_mes_id_bac"]))
-                        except AttributeError:
-                            not_found.append(str(entry["ori_mes_id_bac"]))
-        
-        
-        not_found_str = ",".join(not_found)
-        await ctx.send(f"Done! Message IDs not found:\n```\n{not_found_str}\n```")
-
-    @commands.command()
-    @commands.check(proper_permissions)
     async def force(self, ctx, mes_id):
         if not mes_id.isdigit():
             await ctx.send("Not a valid channel id!")

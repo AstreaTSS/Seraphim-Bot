@@ -34,7 +34,7 @@ class Commands(commands.Cog):
         def by_stars(elem):
             return star_univ.get_num_stars(elem)
 
-        guild_entries = [e for e in self.bot.starboard if e["guild_id"] == ctx.guild.id]
+        guild_entries = [self.bot.starboard[k] for k in self.bot.starboard.keys() if self.bot.starboard[k]["guild_id"] == ctx.guild.id]
         if guild_entries != []:
             top_embed = discord.Embed(title=f"Top starred messages in {ctx.guild.name}", colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow())
             top_embed.set_author(name="Sonic's Starboard", icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}")

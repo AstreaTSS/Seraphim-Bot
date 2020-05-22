@@ -22,6 +22,7 @@ class Star(commands.Cog):
             and not str(channel.id) in self.bot.star_config[mes.guild.id]["blacklist"].split(",")):
 
             star_variant = star_univ.get_star_entry(self.bot, mes.id, check_for_var=True)
+            univ.error_handle(self.bot, str(star_variant), string=True)
 
             if star_variant == []:
                 if channel.id != self.bot.star_config[mes.guild.id]["starboard_id"]:
