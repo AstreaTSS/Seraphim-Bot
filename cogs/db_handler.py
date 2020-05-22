@@ -61,7 +61,7 @@ class DBHandler(commands.Cog):
                     if not starboard[message] == star_bac[message]:
                         list_of_cmds.append(f"UPDATE starboard SET star_var_id = {star_var_id}, ori_reactors = {ori_reactors}, " +
                         f"var_reactors = {var_reactors}, guild_id = {guild_id}, forced = {forced}, " +
-                        f"author_id = {starboard[message]['author']} WHERE ori_mes_id = {message}")
+                        f"author_id = {starboard[message]['author_id']} WHERE ori_mes_id = {message}")
                 else:
                     list_of_cmds.append("INSERT INTO starboard "+
                     "(ori_mes_id, ori_chan_id, star_var_id, author_id, ori_reactors, var_reactors, guild_id, forced) VALUES " +
