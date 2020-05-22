@@ -9,14 +9,18 @@ class Commands(commands.Cog):
 
     @commands.command()
     async def help(self, ctx):
-        await ctx.send("There are a couple of commands:\n\n`s!channel <channel mention>` - sets the starboard channel.\n" +
-        "`s!limit <limit - positive number>` - sets the minimum number of stars needed to appear on the starboard.\n" +
-        "`s!blacklist <optional: list, add, remove>` - allows for control over the blacklist that prevents " +
-        "messages from being starred in that channel. With no arguments or with `list`, the bot will just report " +
-        "the blacklisted channels. `add` and `remove` *require a channel mention* and allows you to add or remove " +
-        "a channel from the blacklist.\n\n"
-        "`s!ping` - gets the ping of the bot. Not really something you need to use unless you're the bot maker.\n" +
-        "`s!help` - displays this message.")
+
+        help_embed = discord.Embed(
+            title = "To see the list of commands and how to use them, please use the below link:", 
+            colour = discord.Colour(0x4378fc), 
+            description = "https://tinyurl.com/SonicsStarboardHelp"
+        )
+        help_embed.set_author(
+            name="Sonic's Starboard", 
+            icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}"
+        )
+
+        await ctx.send(embed=help_embed)
 
     @commands.command()
     async def ping(self, ctx):
