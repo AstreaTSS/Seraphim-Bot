@@ -79,7 +79,7 @@ class AdminCMDS(commands.Cog):
             return
 
         try:
-            mes = ctx.channel.fetch_message(int(mes_id))
+            mes = await ctx.channel.fetch_message(int(mes_id))
         except discord.NotFound:
             await ctx.send("Message not found! Is this a valid message ID and are you running this command in the same channel as the message?")
             return
