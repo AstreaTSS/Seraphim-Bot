@@ -42,7 +42,7 @@ class Commands(commands.Cog):
 
             starboard_id = self.bot.star_config[ctx.guild.id]['starboard_id']
 
-            guild_entries.sort(reversed=True, key=by_stars)
+            guild_entries.sort(reverse=True, key=by_stars)
 
             for i in range(len(guild_entries)):
                 if i > 9:
