@@ -12,8 +12,12 @@ class OwnerCMDs(commands.Cog):
             self.bot.load_extension(extension)
         except commands.ExtensionNotFound:
             await ctx.send(f"Extension '{extension}' not found!")
+            return
         except commands.ExtensionAlreadyLoaded:
             await ctx.send(f"Extension '{extension}' is already loaded!")
+            return
+
+        await ctx.send(f"Extension '{extension}' loaded!")
 
     @commands.command()
     @commands.is_owner()
@@ -22,8 +26,12 @@ class OwnerCMDs(commands.Cog):
             self.bot.reload_extension(extension)
         except commands.ExtensionNotFound:
             await ctx.send(f"Extension '{extension}' not found!")
+            return
         except commands.ExtensionNotLoaded:
             await ctx.send(f"Extension '{extension}' is not loaded!")
+            return
+
+        await ctx.send(f"Extension '{extension}' reloaded!")
 
     @commands.command()
     @commands.is_owner()
@@ -32,17 +40,17 @@ class OwnerCMDs(commands.Cog):
             self.bot.unload_extension(extension)
         except commands.ExtensionNotLoaded:
             await ctx.send(f"Extension '{extension}' is not loaded!'")
+            return
+
+        await ctx.send(f"Extension '{extension}' unloaded!")
 
     @commands.command()
     @commands.is_owner()
     async def reload_all_extensions(self, ctx):
         for extension in self.bot.extensions.keys():
-            try:
-                self.bot.reload_extension(extension)
-            except commands.ExtensionNotFound:
-                await ctx.send(f"Extension '{extension}' not found!")
-            except commands.ExtensionNotLoaded:
-                await ctx.send(f"Extension '{extension}' is not loaded!")
+            self.bot.reload_extension(extension)
+
+        await ctx.send(f"All extensions reloaded!")
 
 def setup(bot):
     bot.add_cog(OwnerCMDs(bot))
