@@ -33,7 +33,7 @@ class Commands(commands.Cog):
         await ctx.send(f"Pong!\n`{ping_discord}` ms from discord.\n`{ping_personal}` ms personally (not accurate)")
 
     @commands.cooldown(1, 5, commands.BucketType.member)
-    @commands.command()
+    @commands.command(aliases = ["msgtop"])
     async def msg_top(self, ctx):
         def by_stars(elem):
             return star_univ.get_num_stars(elem)
