@@ -85,10 +85,11 @@ class DBHandler(commands.Cog):
 
     @commit_loop.before_loop
     async def before_commit_loop(self):
-        await self.get_dbs()
+        if self.bot.on_readies == 0:
+            await self.get_dbs()
 
-        while self.bot.star_config == {} or self.bot.starboard == {}:
-            await asyncio.sleep(0.1)
+            while self.bot.star_config == {} or self.bot.starboard == {}:
+                await asyncio.sleep(0.1)
 
         await asyncio.sleep(60)
 

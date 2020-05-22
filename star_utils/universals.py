@@ -1,6 +1,10 @@
 #!/usr/bin/env python3.7
 import traceback
 
+async def proper_permissions(ctx):
+    permissions = ctx.author.guild_permissions
+    return (permissions.administrator or permissions.manage_messages)
+
 async def fetch_needed(bot, payload):
     guild = await bot.fetch_guild(payload.guild_id)
     user = await guild.fetch_member(payload.user_id)

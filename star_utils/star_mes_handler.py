@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.7
 import discord, re
 
-async def star_mes(bot, mes, unique_stars, forced = False):
+async def send(bot, mes, unique_stars, forced = False):
     bot.starboard[mes.id]["passed_star_limit"] = True
     image_url = ""
 

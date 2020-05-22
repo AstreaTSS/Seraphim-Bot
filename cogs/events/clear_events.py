@@ -2,7 +2,7 @@
 from discord.ext import commands
 import discord
 
-import cogs.star_universals as star_univ
+import star_utils.star_universals as star_univ
 
 class ClearEvents(commands.Cog):
     def __init__(self, bot):

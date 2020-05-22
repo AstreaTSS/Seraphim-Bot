@@ -2,9 +2,9 @@
 from discord.ext import commands
 import discord
 
-import cogs.universals as univ
-import cogs.star_universals as star_univ
-import cogs.star_mes_handler as star_mes
+import star_utils.universals as univ
+import star_utils.star_universals as star_univ
+import star_utils.star_mes_handler as star_mes
 
 class Star(commands.Cog):
     def __init__(self, bot):
@@ -31,7 +31,7 @@ class Star(commands.Cog):
                     unique_stars = star_univ.get_num_stars(star_entry)
 
                     if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"] and not self.bot.starboard[mes.id]["passed_star_limit"]:
-                        await star_mes.star_mes(self.bot, mes, unique_stars)
+                        await star_mes.send(self.bot, mes, unique_stars)
                             
             elif user.id != star_variant["author_id"]:
                 star_univ.modify_stars(self.bot, mes, payload.user_id, "ADD")

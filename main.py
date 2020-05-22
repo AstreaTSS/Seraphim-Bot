@@ -3,7 +3,7 @@ import discord, os, asyncio
 from discord.ext import commands
 import logging, time, math
 from datetime import datetime
-import cogs.universals as univ
+import star_utils.universals as univ
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -34,7 +34,8 @@ async def on_ready():
         while bot.star_config == {}:
             await asyncio.sleep(0.1)
 
-        cogs_list = ["cogs.star_handling", "cogs.clear_events", "cogs.commands", "cogs.admin_cmds"]
+        cogs_list = ["cogs.events.star_handling", "cogs.events.clear_events", "cogs.cmds.norm_cmds", "cogs.cmds.admin_cmds",
+        "cogs.cmds.blacklist_cmds", "cogs.cmds.owner_cmds"]
 
         for cog in cogs_list:
             bot.load_extension(cog)

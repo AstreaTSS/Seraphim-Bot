@@ -1,9 +1,9 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
 import discord, datetime
-import cogs.star_universals as star_univ
+import star_utils.star_universals as star_univ
 
-class Commands(commands.Cog):
+class NormCMDs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -110,4 +110,4 @@ class Commands(commands.Cog):
             await ctx.send("There are no starboard entries for this server!")
 
 def setup(bot):
-    bot.add_cog(Commands(bot))
+    bot.add_cog(NormCMDs(bot))
