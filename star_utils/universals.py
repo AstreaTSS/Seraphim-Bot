@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.7
-import traceback
+import traceback, discord
 
 async def proper_permissions(ctx):
     permissions = ctx.author.guild_permissions
@@ -25,3 +25,13 @@ async def error_handle(bot, error, string = False):
     await owner.send(f"{error_str}")
 
     bot.logger.error(error_str)
+
+async def user_from_id(bot, guild, user_id):
+    user = guild.get_member(user_id)
+    if user == None:
+        try:
+            user = await bot.fetch_user(user_id)
+        except discord.NotFound:
+            user = None
+
+    return user
