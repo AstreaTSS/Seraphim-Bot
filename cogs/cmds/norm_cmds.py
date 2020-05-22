@@ -58,7 +58,7 @@ class NormCMDs(commands.Cog):
                 entry = guild_entries[i]
                 url = f"https://discordapp.com/channels/{ctx.guild.id}/{starboard_id}/{entry['ori_mes_id_bac']}"
                 num_stars = star_univ.get_num_stars(entry)
-                member = await univ.user_from_id(self.bot, ctx.guild.id, entry['author_id'])
+                member = await univ.user_from_id(self.bot, ctx.guild, entry['author_id'])
                 author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry['author_id']}"
 
                 top_embed.add_field(name=f"#{i+1}: {num_stars} ⭐ from {author_str}", value=f"[Message]({url})\n", inline=False)
@@ -95,7 +95,7 @@ class NormCMDs(commands.Cog):
                     break
                 entry = user_star_list[i]
 
-                member = await univ.user_from_id(self.bot, ctx.guild.id, entry[0])
+                member = await univ.user_from_id(self.bot, ctx.guild, entry[0])
                 num_stars = entry[1]
                 author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry[0]}"
 
