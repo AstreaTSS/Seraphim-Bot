@@ -10,7 +10,7 @@ load_dotenv()
 
 logger = logging.getLogger('discord')
 logger.setLevel(logging.ERROR)
-handler = logging.FileHandler(filename=os.environ.get("LOG_PATH"), encoding='utf-8', mode='w')
+handler = logging.FileHandler(filename=os.environ.get("LOG_FILE_PATH"), encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 handler.formatter.converter = time.gmtime
 logger.addHandler(handler)
