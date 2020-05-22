@@ -103,7 +103,7 @@ class Commands(commands.Cog):
                 author_index = user_star_list.index(author_entry[0])
                 top_embed.set_footer(text=f"Your position: #{author_index + 1}")
             else:
-                top_embed.set_footer(text="Your position: N/A - You haven't gotten any stars :(")
+                top_embed.set_footer(text="Your position: N/A - You don't have any stars :(")
 
             await ctx.send(embed=top_embed)
         else:
