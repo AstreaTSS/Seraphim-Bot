@@ -32,7 +32,7 @@ class Commands(commands.Cog):
 
         await ctx.send(f"Pong!\n`{ping_discord}` ms from discord.\n`{ping_personal}` ms personally (not accurate)")
 
-    @commands.cooldown(1, 5, commands.BucketType.guild)
+    @commands.cooldown(1, 5, commands.BucketType.member)
     @commands.command()
     async def msg_top(self, ctx):
         def by_stars(elem):
@@ -64,7 +64,7 @@ class Commands(commands.Cog):
         else:
             await ctx.send("There are no starboard entries for this server!")
 
-    @commands.cooldown(1, 10, commands.BucketType.guild)
+    @commands.cooldown(1, 5, commands.BucketType.member)
     @commands.command(name = "top", aliases = ["leaderboard", "lb"])
     async def top(self, ctx):
         def by_stars(elem):
@@ -77,7 +77,6 @@ class Commands(commands.Cog):
 
             top_embed = discord.Embed(title=f"Star Leaderboard for {ctx.guild.name}", colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow())
             top_embed.set_author(name="Sonic's Starboard", icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}")
-            top_embed.set_footer(text="As of")
 
             for entry in guild_entries:
                 if entry["author_id"] in user_star_dict.keys():
@@ -95,9 +94,16 @@ class Commands(commands.Cog):
 
                 member = ctx.guild.get_member(entry[0])
                 num_stars = entry[1]
-                author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry['author_id']}"
+                author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry[0]}"
 
                 top_embed.add_field(name=f"#{i+1}: {author_str}", value=f"{num_stars} ⭐\n", inline=False)
+
+            author_entry = [e for e in user_star_list if e[0] == ctx.author.id]
+            if author_entry != []:
+                author_index = user_star_list.index(author_entry[0])
+                top_embed.set_footer(text=f"Your position: #{author_index + 1}")
+            else:
+                top_embed.set_footer(text="Your position: N/A (You have no entry!)")
 
             await ctx.send(embed=top_embed)
         else:
