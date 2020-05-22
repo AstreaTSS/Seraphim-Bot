@@ -101,7 +101,7 @@ class Commands(commands.Cog):
             author_entry = [e for e in user_star_list if e[0] == ctx.author.id]
             if author_entry != []:
                 author_index = user_star_list.index(author_entry[0])
-                top_embed.set_footer(text=f"Your position: #{author_index + 1}")
+                top_embed.set_footer(text=f"Your position: #{author_index + 1} with {author_entry[0][1]} ⭐")
             else:
                 top_embed.set_footer(text="Your position: N/A - You don't have any stars :(")
 
