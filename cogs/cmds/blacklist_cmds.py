@@ -7,16 +7,15 @@ class BlacklistCMDs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def cog_check(self, ctx):
-        return univ.proper_permissions(ctx)
-
     @commands.group()
+    @commands.check(univ.proper_permissions)
     async def blacklist(self, ctx):
         if ctx.invoked_subcommand == None:
             list_cmd = self.bot.get_command("blacklist list")
             await ctx.invoke(list_cmd)
 
     @blacklist.command(name = "list")
+    @commands.check(univ.proper_permissions)
     async def _list(self, ctx):
         channel_id_list = [int(c) for c in self.bot.star_config[ctx.guild.id]["blacklist"].split(",") if c != ""]
         if channel_id_list != []:
@@ -31,6 +30,7 @@ class BlacklistCMDs(commands.Cog):
             await ctx.send("There's no blacklisted channels for this guild!")
 
     @blacklist.command()
+    @commands.check(univ.proper_permissions)
     async def add(self, ctx, channel: discord.TextChannel):
         channel_id_list = [int(c) for c in self.bot.star_config[ctx.guild.id]["blacklist"].split(",") if c != ""]
 
@@ -42,6 +42,7 @@ class BlacklistCMDs(commands.Cog):
             await ctx.send("That channel's already in the blacklist!")
 
     @blacklist.command()
+    @commands.check(univ.proper_permissions)
     async def remove(self, ctx, channel: discord.TextChannel):
         channel_id_list = [int(c) for c in self.bot.star_config[ctx.guild.id]["blacklist"].split(",") if c != ""]
 

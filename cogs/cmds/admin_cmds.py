@@ -10,15 +10,14 @@ class AdminCMDS(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def cog_check(self, ctx):
-        return univ.proper_permissions(ctx)
-
     @commands.command()
+    @commands.check(univ.proper_permissions)
     async def channel(self, ctx, channel: discord.TextChannel):
         self.bot.star_config[ctx.guild.id]["starboard_id"] = channel.id
         await ctx.send(f"Set channel to {channel.mention}!")
 
     @commands.command()
+    @commands.check(univ.proper_permissions)
     async def limit(self, ctx, limit):
         if limit.isdigit():
             self.bot.star_config[ctx.guild.id]["star_limit"] = int(limit)
@@ -27,6 +26,7 @@ class AdminCMDS(commands.Cog):
             await ctx.send("That doesn't seem like a valid number to me...")
 
     @commands.command()
+    @commands.check(univ.proper_permissions)
     async def force(self, ctx, mes_id):
         if not mes_id.isdigit():
             await ctx.send("Not a valid channel id!")
