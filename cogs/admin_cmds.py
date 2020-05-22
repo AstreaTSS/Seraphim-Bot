@@ -78,10 +78,12 @@ class AdminCMDS(commands.Cog):
 
         not_found = []
 
-        for entry in self.bot.starboard:
+        for msg_id in self.bot.starboard.keys():
+            entry = self.bot.starboard[msg_id]
             if entry["guild_id"] == None:
                 if entry["star_var_id"] != None:
-                    for guild_entry in self.bot.star_config:
+                    for guild_id in self.bot.star_config.keys():
+                        guild_entry = self.bot.star_config[guild_id]
                         try:
                             guild = self.bot.get_guild(guild_entry["guild_id_bac"])
                             star_var_chan = guild.get_channel(guild_entry["starboard_id"])
@@ -90,9 +92,12 @@ class AdminCMDS(commands.Cog):
                             break
                         except discord.NotFound:
                             not_found.append(str(entry["ori_mes_id_bac"]))
+                        except AttributeError:
+                            not_found.append(str(entry["ori_mes_id_bac"]))
 
                 elif entry["ori_chan_id"] != None:
-                    for guild_entry in self.bot.star_config:
+                    for guild_id in self.bot.star_config.keys():
+                        guild_entry = self.bot.star_config[guild_id]
                         try:
                             guild = self.bot.get_guild(guild_entry["guild_id_bac"])
                             star_var_chan = guild.get_channel(entry["ori_chan_id"])
@@ -100,6 +105,8 @@ class AdminCMDS(commands.Cog):
                             self.bot.starboard[entry["ori_mes_id_bac"]]["guild_id"] = mes.guild.id
                             break
                         except discord.NotFound:
+                            not_found.append(str(entry["ori_mes_id_bac"]))
+                        except AttributeError:
                             not_found.append(str(entry["ori_mes_id_bac"]))
         
         

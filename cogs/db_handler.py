@@ -52,13 +52,15 @@ class DBHandler(commands.Cog):
                 list_of_cmds.append(f"DELETE FROM starboard WHERE ori_mes_id = {message}")
             else:
                 star_var_id = starboard[message]["star_var_id"] if starboard[message]["star_var_id"] != None else "NULL"
+                guild_id = starboard[message]["guild_id"] if starboard[message]["guild_id"] != None else "NULL"
                 ori_reactors = f"'{starboard[message]['ori_reactors']}'" if starboard[message]['ori_reactors'] != "" else "NULL"
                 var_reactors = f"'{starboard[message]['var_reactors']}'" if starboard[message]['var_reactors'] != "" else "NULL"
+                forced = starboard[message]["forced"] if starboard[message]["forced"] != None else "NULL"
 
                 if message in star_bac.keys():
                     if not starboard[message] == star_bac[message]:
                         list_of_cmds.append(f"UPDATE starboard SET star_var_id = {star_var_id}, ori_reactors = {ori_reactors}, " +
-                        f"var_reactors = {var_reactors} WHERE ori_mes_id = {message}")
+                        f"var_reactors = {var_reactors}, guild_id = {guild_id}, forced = {forced} WHERE ori_mes_id = {message}")
                 else:
                     list_of_cmds.append("INSERT INTO starboard "+
                     "(ori_mes_id, ori_chan_id, star_var_id, author_id, ori_reactors, var_reactors) VALUES " +
