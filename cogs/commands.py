@@ -34,7 +34,7 @@ class Commands(commands.Cog):
 
     @commands.cooldown(1, 5, commands.BucketType.guild)
     @commands.command()
-    async def top_starred(self, ctx):
+    async def msg_top(self, ctx):
         def by_stars(elem):
             return star_univ.get_num_stars(elem)
 
