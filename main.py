@@ -40,19 +40,19 @@ async def on_ready():
         for cog in cogs_list:
             bot.load_extension(cog)
 
-        bot.init_load = False
-
     utcnow = datetime.utcnow()
     time_format = utcnow.strftime("%x %X UTC")
 
     application = await bot.application_info()
     owner = application.owner
 
-    connect_msg = f"Logged in at `{time_format}`!" if bot.on_readies == 0 else f"Reconnected at `{time_format}`!"
+    connect_msg = f"Logged in at `{time_format}`!" if bot.init_load == True else f"Reconnected at `{time_format}`!"
 
     await owner.send(connect_msg)
     activity = discord.Activity(name = 'for stars!', type = discord.ActivityType.watching)
     await bot.change_presence(activity = activity)
+
+    bot.init_load = False
         
 @bot.check
 async def block_dms(ctx):
