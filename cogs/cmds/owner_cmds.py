@@ -14,7 +14,7 @@ class OwnerCMDs(commands.Cog):
         utcnow = datetime.datetime.utcnow()
         time_format = utcnow.strftime("%x %X UTC")
 
-        univ.msg_to_owner(ctx.bot, f"`{time_format}`: {msg_str}")
+        await univ.msg_to_owner(ctx.bot, f"`{time_format}`: {msg_str}")
 
     @commands.command()
     @commands.is_owner()
