@@ -23,11 +23,13 @@ class CogControl(commands.Cog):
         try:
             self.bot.load_extension(extension)
         except commands.ExtensionNotFound:
-            await ctx.send(f"Extension '{extension}' not found!")
-            return
+            return await ctx.send(f"Extension '{extension}' not found!")
         except commands.ExtensionAlreadyLoaded:
-            await ctx.send(f"Extension '{extension}' is already loaded!")
-            return
+            return await ctx.send(f"Extension '{extension}' already loaded!")
+        except commands.NoEntryPointError:
+            return await ctx.send(f"There was no entry point for '{extension}'!")
+        except commands.ExtensionFailed:
+            raise
 
         await self.msg_handler(ctx, f"Extension '{extension}' loaded!")
 
@@ -37,11 +39,13 @@ class CogControl(commands.Cog):
         try:
             self.bot.reload_extension(extension)
         except commands.ExtensionNotFound:
-            await ctx.send(f"Extension '{extension}' not found!")
-            return
+            return await ctx.send(f"Extension '{extension}' not found!")
         except commands.ExtensionNotLoaded:
-            await ctx.send(f"Extension '{extension}' is not loaded!")
-            return
+            return await ctx.send(f"Extension '{extension}' not loaded!")
+        except commands.NoEntryPointError:
+            return await ctx.send(f"There was no entry point for '{extension}'!")
+        except commands.ExtensionFailed:
+            raise
 
         await self.msg_handler(ctx, f"Extension '{extension}' reloaded!")
 
@@ -51,8 +55,7 @@ class CogControl(commands.Cog):
         try:
             self.bot.unload_extension(extension)
         except commands.ExtensionNotLoaded:
-            await ctx.send(f"Extension '{extension}' is not loaded!'")
-            return
+            return await ctx.send(f"Extension '{extension}' is not loaded!'")
 
         await self.msg_handler(ctx, f"Extension '{extension}' unloaded!")
 
@@ -67,7 +70,7 @@ class CogControl(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def list_loaded_extensions(self, ctx):
-        exten_list = list(self.bot.extensions.keys())
+        exten_list = [f"`{k}`" for k in self.bot.extensions.keys()]
         exten_str = ", ".join(exten_list)
         await ctx.send(f"Extensions: {exten_str}")
 
@@ -93,11 +96,6 @@ class CogControl(commands.Cog):
 
         self.bot.init_load = False
         await self.msg_handler(ctx, f"Database reloaded!")
-
-    @commands.command()
-    @commands.is_owner()
-    async def error_out(self, ctx, test):
-        int(test)
 
 def setup(bot):
     bot.add_cog(CogControl(bot))
