@@ -130,8 +130,8 @@ class NormCMDs(commands.Cog):
         member = None
 
         if user_mention != None:
-            if re.search("[<@>]", member):
-                user_id = re.sub("[<@>]", "", member)
+            if re.search("[<@>]", user_mention):
+                user_id = re.sub("[<@>]", "", user_mention)
                 user_id = user_id.replace("!", "")
                 member = await univ.user_from_id(self.bot, ctx.guild, int(user_id))
         else:
