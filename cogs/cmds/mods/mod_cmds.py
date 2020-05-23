@@ -6,7 +6,7 @@ import star_utils.star_universals as star_univ
 import star_utils.universals as univ
 import star_utils.star_mes_handler as star_mes
 
-class AdminCMDS(commands.Cog):
+class ModCMDs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         importlib.reload(star_univ)
@@ -66,4 +66,4 @@ class AdminCMDS(commands.Cog):
         await star_mes.send(self.bot, mes, unique_stars, forced=True)
 
 def setup(bot):
-    bot.add_cog(AdminCMDS(bot))
+    bot.add_cog(ModCMDs(bot))

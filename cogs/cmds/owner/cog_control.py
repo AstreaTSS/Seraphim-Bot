@@ -1,12 +1,15 @@
+#!/usr/bin/env python3.7
 from discord.ext import commands
 import discord, datetime, importlib, asyncio
 
 import star_utils.universals as univ
 
-class OwnerCMDs(commands.Cog):
+class CogControl(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         importlib.reload(univ)
+
+        self.bot.unload_extension("cogs.cmds.owner_cmds")
 
     async def msg_handler(self, ctx, msg_str):
         await ctx.send(msg_str)
@@ -65,8 +68,15 @@ class OwnerCMDs(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
+    async def list_extensions(self, ctx):
+        exten_list = list(self.bot.extensions.keys())
+        exten_str = ",".join(exten_list)
+        await ctx.send(f"Extensions: {exten_str}")
+
+    @commands.command()
+    @commands.is_owner()
     async def reload_database(self, ctx):
-        extensions = list(self.bot.extensions.keys())
+        extensions = [ex for ex in self.bot.extensions.keys() if ex != "cogs.cmds.owner.cog_control"]
 
         for extension in extensions:
             self.bot.unload_extension(extension)
@@ -79,7 +89,7 @@ class OwnerCMDs(commands.Cog):
         while self.bot.star_config == {}:
             await asyncio.sleep(0.1)
 
-        for extension in extension:
+        for extension in extensions:
             if extension != "cogs.db_handler":
                 self.bot.load_extension(extension)
 
@@ -87,4 +97,4 @@ class OwnerCMDs(commands.Cog):
         await self.msg_handler(ctx, f"Database reloaded!")
 
 def setup(bot):
-    bot.add_cog(OwnerCMDs(bot))
+    bot.add_cog(CogControl(bot))

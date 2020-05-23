@@ -34,8 +34,16 @@ async def on_ready():
         while bot.star_config == {}:
             await asyncio.sleep(0.1)
 
-        cogs_list = ["cogs.events.on_errors", "cogs.events.star_handling", "cogs.events.clear_events", "cogs.cmds.norm_cmds",
-        "cogs.cmds.admin_cmds", "cogs.cmds.blacklist_cmds", "cogs.cmds.owner_cmds"]
+        cogs_list = [
+            "cogs.events.on_errors", 
+            "cogs.events.star_handling", 
+            "cogs.events.clear_events", 
+            "cogs.cmds.norm.norm_cmds",
+            "cogs.cmds.mods.mod_cmds", 
+            "cogs.cmds.mods.blacklist_cmds", 
+            "cogs.cmds.owner.cog_control",
+            "cogs.cmds.owner.eval_cmd"
+        ]
 
         for cog in cogs_list:
             bot.load_extension(cog)
