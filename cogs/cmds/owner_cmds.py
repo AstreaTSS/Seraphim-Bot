@@ -1,5 +1,5 @@
 from discord.ext import commands
-import discord, datetime, importlib
+import discord, datetime, importlib, asyncio
 
 import star_utils.universals as univ
 
@@ -62,6 +62,29 @@ class OwnerCMDs(commands.Cog):
             self.bot.reload_extension(extension)
 
         await self.msg_handler(ctx, f"All extensions reloaded!")
+
+    @commands.command()
+    @commands.is_owner()
+    async def reload_database(self, ctx):
+        extensions = list(self.bot.extensions.keys())
+
+        for extension in extensions:
+            self.bot.unload_extension(extension)
+
+        self.bot.init_load = True
+        self.bot.starboard = {}
+        self.bot.star_config = {}
+
+        self.bot.load_extension("cogs.db_handler")
+        while self.bot.star_config == {}:
+            await asyncio.sleep(0.1)
+
+        for extension in extension:
+            if extension != "cogs.db_handler":
+                self.bot.load_extension(extension)
+
+        self.bot.init_load = False
+        await self.msg_handler(ctx, f"Database reloaded!")
 
 def setup(bot):
     bot.add_cog(OwnerCMDs(bot))

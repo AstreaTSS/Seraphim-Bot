@@ -86,7 +86,7 @@ class DBHandler(commands.Cog):
 
     @commit_loop.before_loop
     async def before_commit_loop(self):
-        if self.bot.on_readies == 0:
+        if self.bot.init_load:
             await self.get_dbs()
 
             while self.bot.star_config == {} or self.bot.starboard == {}:
