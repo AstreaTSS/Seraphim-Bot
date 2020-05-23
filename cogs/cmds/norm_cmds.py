@@ -13,10 +13,11 @@ class NormCMDs(commands.Cog):
 
     def get_star_rankings(self, ctx):
         def by_stars(elem):
-            return star_univ.get_num_stars(elem)
+            return elem[1]
 
         user_star_dict = {}
-        guild_entries = [self.bot.starboard[k] for k in self.bot.starboard.keys() if self.bot.starboard[k]["guild_id"] == ctx.guild.id]
+        guild_entries = [self.bot.starboard[k] for k in self.bot.starboard.keys() 
+        if self.bot.starboard[k]["guild_id"] == ctx.guild.id]
 
         if guild_entries != []:
             for entry in guild_entries:
