@@ -145,7 +145,7 @@ class NormCMDs(commands.Cog):
 
                 place_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=placing, timestamp=datetime.datetime.utcnow())
                 place_embed.set_author(name="Sonic's Starboard", icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}")
-                place_embed.set_footer(text="Sent at:")
+                place_embed.set_footer(text="Sent")
 
                 await ctx.send(embed=place_embed)
             else:
