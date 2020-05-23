@@ -65,5 +65,7 @@ class ModCMDs(commands.Cog):
         unique_stars = star_univ.get_num_stars(starboard_entry)
         await star_mes.send(self.bot, mes, unique_stars, forced=True)
 
+        await ctx.send("Done!")
+
 def setup(bot):
     bot.add_cog(ModCMDs(bot))

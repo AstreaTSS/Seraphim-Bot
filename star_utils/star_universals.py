@@ -60,8 +60,7 @@ def modify_stars(bot, mes, reactor_id, operation):
             "guild_id": mes.guild.id,
             "forced": False,
 
-            "ori_mes_id_bac": mes.id,
-            "passed_star_limit": False
+            "ori_mes_id_bac": mes.id
         }
         starboard_entry = bot.starboard[mes.id]
 

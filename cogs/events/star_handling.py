@@ -33,7 +33,7 @@ class Star(commands.Cog):
                     star_entry = star_univ.get_star_entry(self.bot, mes.id)
                     unique_stars = star_univ.get_num_stars(star_entry)
 
-                    if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"] and not self.bot.starboard[mes.id]["passed_star_limit"]:
+                    if unique_stars >= self.bot.star_config[mes.guild.id]["star_limit"]:
                         await star_mes.send(self.bot, mes, unique_stars)
                             
             elif user.id != star_variant["author_id"]:

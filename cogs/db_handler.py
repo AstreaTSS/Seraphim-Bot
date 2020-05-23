@@ -24,8 +24,7 @@ class DBHandler(commands.Cog):
                 "guild_id": row[6],
                 "forced": bool(row[7]) if row[7] != None else False,
 
-                "ori_mes_id_bac": row[0],
-                "passed_star_limit": False
+                "ori_mes_id_bac": row[0]
             }
 
         for row in star_config_db:
@@ -50,6 +49,7 @@ class DBHandler(commands.Cog):
         for message in starboard.keys():
             if starboard[message]["ori_chan_id"] == None:
                 list_of_cmds.append(f"DELETE FROM starboard WHERE ori_mes_id = {message}")
+                del starboard[message]
             else:
                 star_var_id = starboard[message]["star_var_id"] if starboard[message]["star_var_id"] != None else "NULL"
                 guild_id = starboard[message]["guild_id"] if starboard[message]["guild_id"] != None else "NULL"

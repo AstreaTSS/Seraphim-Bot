@@ -21,7 +21,11 @@ class ClearEvents(commands.Cog):
 
         if star_variant != []:
             ori_mes_id = star_variant["ori_mes_id_bac"]
-            self.bot.starboard[ori_mes_id]["ori_chan_id"] = None
+            if star_variant["star_var_id"] != payload.message_id:
+                self.bot.starboard[ori_mes_id]["ori_chan_id"] = None
+            else:
+                self.bot.starboard[ori_mes_id]["star_var_id"] = None
+                self.bot.starboard[ori_mes_id]["forced"] = False
 
     @commands.Cog.listener()
     async def on_raw_bulk_message_delete(self, payload):
@@ -33,7 +37,11 @@ class ClearEvents(commands.Cog):
         if star_variants != []:
             for star_variant in star_variants:
                 ori_mes_id = star_variant["ori_mes_id_bac"]
-                self.bot.starboard[ori_mes_id]["ori_chan_id"] = None
+                if not star_variant["star_var_id"] in payload.message_ids:
+                    self.bot.starboard[ori_mes_id]["ori_chan_id"] = None
+                else:
+                    self.bot.starboard[ori_mes_id]["star_var_id"] = None
+                    self.bot.starboard[ori_mes_id]["forced"] = False
 
     @commands.Cog.listener()
     async def on_raw_reaction_clear(self, payload):
