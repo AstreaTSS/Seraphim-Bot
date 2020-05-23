@@ -37,9 +37,9 @@ class NormCMDs(commands.Cog):
         author_entry = [e for e in user_star_list if e[0] == author_id]
         if author_entry != []:
             author_index = user_star_list.index(author_entry[0])
-            return f"Your position: #{author_index + 1} with {author_entry[0][1]} ⭐"
+            return f"position: #{author_index + 1} with {author_entry[0][1]} ⭐"
         else:
-            return "Your position: N/A - You don't have any stars :("
+            return "position: N/A - no stars found!"
 
 
     @commands.command()
@@ -119,7 +119,7 @@ class NormCMDs(commands.Cog):
 
                 top_embed.add_field(name=f"#{i+1}: {author_str}", value=f"{num_stars} ⭐\n", inline=False)
 
-            top_embed.set_footer(text=self.get_user_placing(user_star_list, ctx.author.id))
+            top_embed.set_footer(text=f"Your {self.get_user_placing(user_star_list, ctx.author.id)}")
             await ctx.send(embed=top_embed)
         else:
             await ctx.send("There are no starboard entries for this server!")
@@ -141,7 +141,10 @@ class NormCMDs(commands.Cog):
             user_star_list = self.get_star_rankings(ctx)
 
             if user_star_list != None:
-                placing = self.get_user_placing(user_star_list, member.id)
+                if user_mention != None:
+                    placing = f"{member.display_name}'s {self.get_user_placing(user_star_list, member.id)}"
+                else:
+                    placing = f"Your {self.get_user_placing(user_star_list, member.id)}"
 
                 place_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=placing, timestamp=datetime.datetime.utcnow())
                 place_embed.set_author(name="Sonic's Starboard", icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}")
