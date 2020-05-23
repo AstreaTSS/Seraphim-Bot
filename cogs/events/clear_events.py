@@ -11,8 +11,9 @@ class ClearEvents(commands.Cog):
 
     async def auto_clear_stars(self, bot, payload):
         star_variant = star_univ.get_star_entry(self.bot, payload.message_id)
-        star_univ.clear_stars(self.bot, star_variant, payload.message_id)
-        await star_univ.star_entry_refresh(self.bot, star_variant, payload.guild_id)
+        if star_variant != []:
+            star_univ.clear_stars(self.bot, star_variant, payload.message_id)
+            await star_univ.star_entry_refresh(self.bot, star_variant, payload.guild_id)
 
     @commands.Cog.listener()
     async def on_raw_message_delete(self, payload):
