@@ -14,17 +14,16 @@ async def fetch_needed(bot, payload):
 
     return user, channel, mes
 
-async def error_handle(bot, error, string = False):
-    if not string:
-        error_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-    else:
-        error_str = error
+async def error_handle(bot, error):
+    error_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
 
+    await msg_to_owner(bot, error_str)
+    bot.logger.error(error_str)
+
+async def msg_to_owner(bot, string):
     application = await bot.application_info()
     owner = application.owner
-    await owner.send(f"{error_str}")
-
-    bot.logger.error(error_str)
+    await owner.send(f"{string}")
 
 async def user_from_id(bot, guild, user_id):
     user = guild.get_member(user_id)

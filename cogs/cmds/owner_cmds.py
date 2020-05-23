@@ -1,9 +1,20 @@
 from discord.ext import commands
-import discord
+import discord, datetime, importlib
+
+import star_utils.universals as univ
 
 class OwnerCMDs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        importlib.reload(univ)
+
+    async def msg_handler(self, ctx, msg_str):
+        await ctx.send(msg_str)
+
+        utcnow = datetime.datetime.utcnow()
+        time_format = utcnow.strftime("%x %X UTC")
+
+        univ.msg_to_owner(ctx.bot, f"`{time_format}`: {msg_str}")
 
     @commands.command()
     @commands.is_owner()
@@ -17,7 +28,7 @@ class OwnerCMDs(commands.Cog):
             await ctx.send(f"Extension '{extension}' is already loaded!")
             return
 
-        await ctx.send(f"Extension '{extension}' loaded!")
+        await self.msg_handler(ctx, f"Extension '{extension}' loaded!")
 
     @commands.command()
     @commands.is_owner()
@@ -31,7 +42,7 @@ class OwnerCMDs(commands.Cog):
             await ctx.send(f"Extension '{extension}' is not loaded!")
             return
 
-        await ctx.send(f"Extension '{extension}' reloaded!")
+        await self.msg_handler(ctx, f"Extension '{extension}' reloaded!")
 
     @commands.command()
     @commands.is_owner()
@@ -42,7 +53,7 @@ class OwnerCMDs(commands.Cog):
             await ctx.send(f"Extension '{extension}' is not loaded!'")
             return
 
-        await ctx.send(f"Extension '{extension}' unloaded!")
+        await self.msg_handler(ctx, f"Extension '{extension}' unloaded!")
 
     @commands.command()
     @commands.is_owner()
@@ -50,7 +61,7 @@ class OwnerCMDs(commands.Cog):
         for extension in self.bot.extensions.keys():
             self.bot.reload_extension(extension)
 
-        await ctx.send(f"All extensions reloaded!")
+        await self.msg_handler(ctx, f"All extensions reloaded!")
 
 def setup(bot):
     bot.add_cog(OwnerCMDs(bot))

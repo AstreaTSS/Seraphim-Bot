@@ -18,7 +18,7 @@ class Star(commands.Cog):
         try:
             user, channel, mes = await univ.fetch_needed(self.bot, payload)
         except discord.HTTPException:
-            univ.error_handle(self.bot, f"{payload.message_id}: could not find Message object. Channel: {payload.channel_id}", string=True)
+            univ.msg_to_owner(self.bot, f"{payload.message_id}: could not find Message object. Channel: {payload.channel_id}")
             return
 
         if (str(payload.emoji) == "⭐" and not user.bot and mes.author.id != user.id
