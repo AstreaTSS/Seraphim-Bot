@@ -113,7 +113,7 @@ async def star_entry_refresh(bot, starboard_entry, guild_id):
 
         unique_stars = get_num_stars(starboard_entry)
 
-        if unique_stars >= bot.star_config[guild_id]["star_limit"] or starboard_entry["forced"]:
+        if unique_stars >= bot.star_config[guild_id]["star_limit"] or bool(starboard_entry["forced"]):
             await star_var_mes.edit(content=f"⭐ **{unique_stars}** | {(parts)[1]}", embed=ori_starred)
         else:
             ori_mes_id = starboard_entry["ori_mes_id_bac"]

@@ -22,7 +22,7 @@ class DBHandler(commands.Cog):
                 "ori_reactors": row[4] if row[4] != None else "",
                 "var_reactors": row[5] if row[5] != None else "",
                 "guild_id": row[6],
-                "forced": row[7] if row[7] != None else False,
+                "forced": bool(row[7]) if row[7] != None else False,
 
                 "ori_mes_id_bac": row[0],
                 "passed_star_limit": False
