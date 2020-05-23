@@ -138,13 +138,17 @@ class NormCMDs(commands.Cog):
 
         if member != None:
             user_star_list = self.get_star_rankings(ctx)
-            placing = self.get_user_placing(user_star_list, member.id)
 
-            place_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=placing, timestamp=datetime.datetime.utcnow())
-            place_embed.set_author(name="Sonic's Starboard", icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}")
-            place_embed.set_footer(text="Sent at:")
+            if user_star_list != None:
+                placing = self.get_user_placing(user_star_list, member.id)
 
-            await ctx.send(embed=place_embed)
+                place_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=placing, timestamp=datetime.datetime.utcnow())
+                place_embed.set_author(name="Sonic's Starboard", icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}")
+                place_embed.set_footer(text="Sent at:")
+
+                await ctx.send(embed=place_embed)
+            else:
+                await ctx.send("There are no starboard entries for this server!")
         else:
             await ctx.send("I could not get the user you were trying to get. Please try again with a valid user.")
 
