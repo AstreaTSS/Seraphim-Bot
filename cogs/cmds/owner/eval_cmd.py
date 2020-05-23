@@ -11,7 +11,7 @@ from discord.ext import commands
 # eval command source - https://github.com/fourjr/eval-bot
 # i'm sadly not skilled enough to make one myself :(
 
-class Eval:
+class Eval(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 

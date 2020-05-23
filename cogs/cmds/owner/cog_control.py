@@ -94,5 +94,10 @@ class CogControl(commands.Cog):
         self.bot.init_load = False
         await self.msg_handler(ctx, f"Database reloaded!")
 
+    @commands.command()
+    @commands.is_owner()
+    async def error_out(self, ctx, test):
+        int(test)
+
 def setup(bot):
     bot.add_cog(CogControl(bot))
