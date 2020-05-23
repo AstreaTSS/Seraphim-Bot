@@ -9,8 +9,6 @@ class CogControl(commands.Cog):
         self.bot = bot
         importlib.reload(univ)
 
-        self.bot.unload_extension("cogs.cmds.owner_cmds")
-
     async def msg_handler(self, ctx, msg_str):
         await ctx.send(msg_str)
 
@@ -68,9 +66,9 @@ class CogControl(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def list_extensions(self, ctx):
+    async def list_loaded_extensions(self, ctx):
         exten_list = list(self.bot.extensions.keys())
-        exten_str = ",".join(exten_list)
+        exten_str = ", ".join(exten_list)
         await ctx.send(f"Extensions: {exten_str}")
 
     @commands.command()
