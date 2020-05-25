@@ -102,7 +102,7 @@ class CogControl(commands.Cog):
 
         exten_list = [f"`{k}`" for k in loaded_files]
         exten_str = ", ".join(exten_list)
-        await ctx.send(f"Refreshed: {exten_str}")
+        await self.msg_handler(ctx, f"Refreshed: {exten_str}")
 
     @commands.command()
     @commands.is_owner()
