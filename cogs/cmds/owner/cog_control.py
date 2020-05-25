@@ -18,11 +18,10 @@ class CogControl(commands.Cog):
 
         await univ.msg_to_owner(ctx.bot, f"`{time_format}`: {msg_str}")
 
-    def reload_or_load_extension(self, ext):
-        try:
-            self.bot.reload_extension(ext)
-        except commands.ExtensionNotLoaded:
-            self.bot.load_extension(ext)
+    def file_to_ext(self, str_path, start_path):
+        str_path = str_path.replace(start_path, "")
+        str_path = str_path.replace("/", ".")
+        return str_path.replace(".py", "")
 
 
     @commands.command()
@@ -78,7 +77,13 @@ class CogControl(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def refresh_extensions(self, ctx):
+        def ext_str(list_files):
+            exten_list = [f"`{k}`" for k in list_files]
+            return ", ".join(exten_list)
+
         ext_files = []
+        unloaded_files = []
+        reloaded_files = []
         loaded_files = []
 
         loc_split = __file__.split("cogs")
@@ -87,15 +92,21 @@ class CogControl(commands.Cog):
         pathlist = Path(f"{start_path}/cogs").glob('**/*.py')
         for path in pathlist:
             str_path = str(path.as_posix())
-            str_path = str_path.replace(start_path, "")
-            str_path = str_path.replace("/", ".")
-            str_path = str_path.replace(".py", "")
+            str_path = self.file_to_ext(str_path, start_path)
 
             ext_files.append(str_path)
+
+        to_unload = [e for e in self.bot.extensions.keys() if e not in ext_files]
+        for ext in to_unload:
+            self.bot.unload_extension(ext)
+            unloaded_files.append(ext)
         
         for ext in ext_files:
             try:
-                self.reload_or_load_extension(ext)
+                self.bot.reload_extension(ext)
+                reloaded_files.append(ext)
+            except commands.ExtensionNotLoaded:
+                self.bot.load_extension(ext)
                 loaded_files.append(ext)
             except commands.ExtensionNotFound as e:
                 await univ.error_handle(self.bot, e)
@@ -104,9 +115,16 @@ class CogControl(commands.Cog):
             except commands.ExtensionFailed as e:
                 await univ.error_handle(self.bot, e)
 
-        exten_list = [f"`{k}`" for k in loaded_files]
-        exten_str = ", ".join(exten_list)
-        await self.msg_handler(ctx, f"Refreshed: {exten_str}")
+        msg_content = ""
+
+        if unloaded_files != []:
+            msg_content += f"Unloaded: {ext_str(unloaded_files)}\n"
+        if loaded_files != []:
+            msg_content += f"Loaded: {ext_str(loaded_files)}\n"
+        if reloaded_files != []:
+            msg_content += f"Reloaded: {ext_str(reloaded_files)}\n"
+
+        await self.msg_handler(ctx, msg_content)
 
     @commands.command()
     @commands.is_owner()
@@ -118,7 +136,12 @@ class CogControl(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def reload_database(self, ctx):
-        extensions = [ex for ex in self.bot.extensions.keys() if ex != "cogs.cmds.owner.cog_control"]
+        loc_split = __file__.split("cogs")
+        start_path = loc_split[0]
+
+        this_cog = self.file_to_ext(__file__, start_path)
+        
+        extensions = [ex for ex in self.bot.extensions.keys() if ex != this_cog]
 
         for extension in extensions:
             self.bot.unload_extension(extension)
