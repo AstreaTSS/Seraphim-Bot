@@ -81,9 +81,13 @@ class CogControl(commands.Cog):
         ext_files = []
         loaded_files = []
 
-        pathlist = Path("cogs").glob('**/*.py')
+        loc_split = __file__.split("cogs")
+        start_path = loc_split[0]
+
+        pathlist = Path(f"{start_path}/cogs").glob('**/*.py')
         for path in pathlist:
             str_path = str(path.as_posix())
+            str_path = str_path.replace(start_path, "")
             str_path = str_path.replace("/", ".")
             str_path = str_path.replace(".py", "")
 
