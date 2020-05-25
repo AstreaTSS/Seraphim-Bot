@@ -31,7 +31,7 @@ class OnErrors(commands.Cog):
             time_to_wait = math.ceil(error.retry_after)
             await ctx.send(f"You're doing that command too fast! Try again after {time_to_wait} seconds.")
         elif isinstance(error, commands.CommandNotFound):
-            ignore = True
+            pass
         else:
             await univ.error_handle(self.bot, error)
 

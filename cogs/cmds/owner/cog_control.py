@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
 import discord, datetime, importlib, asyncio
+from pathlib import Path
 
 import star_utils.universals as univ
 
@@ -16,6 +17,13 @@ class CogControl(commands.Cog):
         time_format = utcnow.strftime("%x %X UTC")
 
         await univ.msg_to_owner(ctx.bot, f"`{time_format}`: {msg_str}")
+
+    def reload_or_load_extension(self, ext):
+        try:
+            self.bot.reload_extension(ext)
+        except commands.ExtensionNotLoaded:
+            self.bot.load_extension(ext)
+
 
     @commands.command()
     @commands.is_owner()
@@ -66,6 +74,35 @@ class CogControl(commands.Cog):
             self.bot.reload_extension(extension)
 
         await self.msg_handler(ctx, f"All extensions reloaded!")
+
+    @commands.command()
+    @commands.is_owner()
+    async def refresh_extensions(self, ctx):
+        ext_files = []
+        loaded_files = []
+
+        pathlist = Path("cogs").glob('**/*.py')
+        for path in pathlist:
+            str_path = str(path.as_posix())
+            str_path = str_path.replace("/", ".")
+            str_path = str_path.replace(".py", "")
+
+            ext_files.append(str_path)
+        
+        for ext in ext_files:
+            try:
+                self.reload_or_load_extension(ext)
+                loaded_files.append(ext)
+            except commands.ExtensionNotFound:
+                raise
+            except commands.NoEntryPointError:
+                pass
+            except commands.ExtensionFailed:
+                raise
+
+        exten_list = [f"`{k}`" for k in loaded_files]
+        exten_str = ", ".join(exten_list)
+        await ctx.send(f"Refreshed: {exten_str}")
 
     @commands.command()
     @commands.is_owner()

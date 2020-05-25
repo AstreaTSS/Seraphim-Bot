@@ -15,6 +15,9 @@ class Star(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
+        if payload.guild_id == None:
+            return
+
         try:
             user, channel, mes = await univ.fetch_needed(self.bot, payload)
         except discord.HTTPException:
@@ -42,6 +45,9 @@ class Star(commands.Cog):
     
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
+        if payload.guild_id == None:
+            return
+            
         user, channel, mes = await univ.fetch_needed(self.bot, payload)
 
         if (str(payload.emoji) == "⭐" and not user.bot and mes.author.id != user.id

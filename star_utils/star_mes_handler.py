@@ -34,7 +34,7 @@ async def send(bot, mes, unique_stars, forced = False):
                     content += "\n\n"
                 content += "*This message has attachments the bot cannot display. Pleae check out the original message to see them.*"
 
-        urls = re.findall("((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)", content)
+        urls = re.findall(r"((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)", content)
         if urls != []:
             images = [url[0] for url in urls if url[0].lower().endswith(image_extensions)]
             if images != []:
