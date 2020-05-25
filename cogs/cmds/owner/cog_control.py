@@ -97,12 +97,12 @@ class CogControl(commands.Cog):
             try:
                 self.reload_or_load_extension(ext)
                 loaded_files.append(ext)
-            except commands.ExtensionNotFound:
-                raise
+            except commands.ExtensionNotFound as e:
+                await univ.error_handle(self.bot, e)
             except commands.NoEntryPointError:
                 pass
-            except commands.ExtensionFailed:
-                raise
+            except commands.ExtensionFailed as e:
+                await univ.error_handle(self.bot, e)
 
         exten_list = [f"`{k}`" for k in loaded_files]
         exten_str = ", ".join(exten_list)
