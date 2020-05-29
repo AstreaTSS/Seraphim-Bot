@@ -55,7 +55,14 @@ async def on_ready():
     await bot.change_presence(activity = activity)
 
     bot.init_load = False
-        
+
+@bot.event
+async def on_error(event, *args, **kwargs):
+    try:
+        raise
+    except Exception as e:
+        await univ.error_handle(bot, e)
+
 @bot.check
 async def block_dms(ctx):
     return ctx.guild is not None

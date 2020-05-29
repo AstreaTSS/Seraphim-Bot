@@ -4,17 +4,10 @@ import discord, importlib, math
 
 import bot_utils.universals as univ
 
-class OnErrors(commands.Cog):
+class OnCMDError(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         importlib.reload(univ)
-
-    @commands.Cog.listener()
-    async def on_error(self, event, *args, **kwargs):
-        try:
-            raise
-        except Exception as e:
-            await univ.error_handle(self.bot, e)
             
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
@@ -36,4 +29,4 @@ class OnErrors(commands.Cog):
             await univ.error_handle(self.bot, error)
 
 def setup(bot):
-    bot.add_cog(OnErrors(bot))
+    bot.add_cog(OnCMDError(bot))
