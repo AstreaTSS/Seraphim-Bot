@@ -8,6 +8,9 @@ class BlacklistCMDs(commands.Cog):
         self.bot = bot
         importlib.reload(univ)
 
+    async def cog_check(self, ctx):
+        return self.bot.config[ctx.guild.id]["star_toggle"]
+
     @commands.group()
     @commands.check(univ.proper_permissions)
     async def blacklist(self, ctx):

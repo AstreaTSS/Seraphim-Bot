@@ -13,6 +13,9 @@ class ModCMDs(commands.Cog):
         importlib.reload(univ)
         importlib.reload(star_mes)
 
+    async def cog_check(self, ctx):
+        return self.bot.config[ctx.guild.id]["star_toggle"]
+
     @commands.group()
     @commands.check(univ.proper_permissions)
     async def star_settings(self, ctx):

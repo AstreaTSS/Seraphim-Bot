@@ -41,6 +41,9 @@ class StarNormCMDs(commands.Cog):
         else:
             return "position: N/A - no stars found!"
 
+    
+    async def cog_check(self, ctx):
+        return self.bot.config[ctx.guild.id]["star_toggle"]        
 
     @commands.cooldown(1, 5, commands.BucketType.member)
     @commands.command(aliases = ["msgtop"])

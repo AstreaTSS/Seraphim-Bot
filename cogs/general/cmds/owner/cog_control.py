@@ -17,9 +17,10 @@ class CogControl(commands.Cog):
 
         await univ.msg_to_owner(ctx.bot, f"`{time_format}`: {msg_str}")
 
+    async def cog_check(self, ctx):
+        return await self.bot.is_owner(ctx.author)
 
     @commands.command()
-    @commands.is_owner()
     async def load_extension(self, ctx, extension):
         try:
             self.bot.load_extension(extension)
@@ -35,7 +36,6 @@ class CogControl(commands.Cog):
         await self.msg_handler(ctx, f"Extension '{extension}' loaded!")
 
     @commands.command()
-    @commands.is_owner()
     async def reload_extension(self, ctx, extension):
         try:
             self.bot.reload_extension(extension)
@@ -51,7 +51,6 @@ class CogControl(commands.Cog):
         await self.msg_handler(ctx, f"Extension '{extension}' reloaded!")
 
     @commands.command()
-    @commands.is_owner()
     async def unload_extension(self, ctx, extension):
         try:
             self.bot.unload_extension(extension)
@@ -61,7 +60,6 @@ class CogControl(commands.Cog):
         await self.msg_handler(ctx, f"Extension '{extension}' unloaded!")
 
     @commands.command()
-    @commands.is_owner()
     async def reload_all_extensions(self, ctx):
         for extension in self.bot.extensions.keys():
             self.bot.reload_extension(extension)
@@ -69,7 +67,6 @@ class CogControl(commands.Cog):
         await self.msg_handler(ctx, f"All extensions reloaded!")
 
     @commands.command()
-    @commands.is_owner()
     async def refresh_extensions(self, ctx):
         def ext_str(list_files):
             exten_list = [f"`{k}`" for k in list_files]
@@ -112,14 +109,12 @@ class CogControl(commands.Cog):
         await self.msg_handler(ctx, msg_content)
 
     @commands.command()
-    @commands.is_owner()
     async def list_loaded_extensions(self, ctx):
         exten_list = [f"`{k}`" for k in self.bot.extensions.keys()]
         exten_str = ", ".join(exten_list)
         await ctx.send(f"Extensions: {exten_str}")
 
     @commands.command()
-    @commands.is_owner()
     async def reload_database(self, ctx):
         loc_split = __file__.split("cogs")
         start_path = loc_split[0]
