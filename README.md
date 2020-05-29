@@ -1,9 +1,7 @@
 # Sonic's Starboard
 
-![Sonic's Starboard Bot Logo](https://cdn.discordapp.com/avatars/700857077672706120/4c9a04b10f199039dd8975736d705888.png?size=256)
+![Serahil Logo](https://cdn.discordapp.com/avatars/700857077672706120/3436b2471afc77f3fdf6579ddd32deec.png?size=256)
 
-A starboard in Python! Supports a lot, from Dank Memer snipe command support to being able to set how many stars are needed to get on the starboard (believe it or not, some starboards don't have this feature).
-
-However, this bot has been mostly been made for personal use. It has support for other people running it themselves, however, it requires a MySQL database, and requires you (for now) to manually add a row in starboard_config for every server it joins.
+A personal bot made for server I mod in. Meant to be extremely versatile and changable and helping out those servers with tasks otherwise made more difficult with other bots.
 
 Environment vars: MAIN_TOKEN, DB_HOST_URL, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME, LOG_FILE_PATH.
