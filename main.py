@@ -5,6 +5,8 @@ from discord.ext import commands
 import logging, time
 from datetime import datetime
 
+import bot_utils.universals as univ
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -28,22 +30,13 @@ async def on_ready():
 
     if bot.init_load == True:
         bot.starboard = {}
-        bot.star_config = {}
+        bot.config = {}
         bot.logger = logger
         bot.load_extension("cogs.db_handler")
-        while bot.star_config == {}:
+        while bot.config == {}:
             await asyncio.sleep(0.1)
 
-        cogs_list = [
-            "cogs.events.on_errors", 
-            "cogs.events.star_handling", 
-            "cogs.events.clear_events", 
-            "cogs.cmds.norm.norm_cmds",
-            "cogs.cmds.mods.mod_cmds", 
-            "cogs.cmds.mods.blacklist_cmds", 
-            "cogs.cmds.owner.cog_control",
-            "cogs.cmds.owner.eval_cmd"
-        ]
+        cogs_list = univ.get_all_extensions(__file__)
 
         for cog in cogs_list:
             bot.load_extension(cog)

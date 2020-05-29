@@ -2,7 +2,7 @@
 from discord.ext import commands
 import discord, importlib, math
 
-import star_utils.universals as univ
+import bot_utils.universals as univ
 
 class OnErrors(commands.Cog):
     def __init__(self, bot):

@@ -1,9 +1,8 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
 import discord, datetime, importlib, asyncio
-from pathlib import Path
 
-import star_utils.universals as univ
+import bot_utils.universals as univ
 
 class CogControl(commands.Cog):
     def __init__(self, bot):
@@ -17,11 +16,6 @@ class CogControl(commands.Cog):
         time_format = utcnow.strftime("%x %X UTC")
 
         await univ.msg_to_owner(ctx.bot, f"`{time_format}`: {msg_str}")
-
-    def file_to_ext(self, str_path, start_path):
-        str_path = str_path.replace(start_path, "")
-        str_path = str_path.replace("/", ".")
-        return str_path.replace(".py", "")
 
 
     @commands.command()
@@ -81,20 +75,11 @@ class CogControl(commands.Cog):
             exten_list = [f"`{k}`" for k in list_files]
             return ", ".join(exten_list)
 
-        ext_files = []
         unloaded_files = []
         reloaded_files = []
         loaded_files = []
 
-        loc_split = __file__.split("cogs")
-        start_path = loc_split[0]
-
-        pathlist = Path(f"{start_path}/cogs").glob('**/*.py')
-        for path in pathlist:
-            str_path = str(path.as_posix())
-            str_path = self.file_to_ext(str_path, start_path)
-
-            ext_files.append(str_path)
+        ext_files = univ.get_all_extensions(__file__)
 
         to_unload = [e for e in self.bot.extensions.keys() if e not in ext_files]
         for ext in to_unload:
@@ -139,7 +124,7 @@ class CogControl(commands.Cog):
         loc_split = __file__.split("cogs")
         start_path = loc_split[0]
 
-        this_cog = self.file_to_ext(__file__, start_path)
+        this_cog = univ.file_to_ext(__file__, start_path)
         
         extensions = [ex for ex in self.bot.extensions.keys() if ex != this_cog]
 
@@ -148,10 +133,10 @@ class CogControl(commands.Cog):
 
         self.bot.init_load = True
         self.bot.starboard = {}
-        self.bot.star_config = {}
+        self.bot.config = {}
 
         self.bot.load_extension("cogs.db_handler")
-        while self.bot.star_config == {}:
+        while self.bot.config == {}:
             await asyncio.sleep(0.1)
 
         for extension in extensions:

@@ -54,7 +54,7 @@ async def send(bot, mes, unique_stars, forced = False):
         if image_url != "":
             send_embed.set_image(url=image_url)
     
-    starboard = mes.guild.get_channel(bot.star_config[mes.guild.id]["starboard_id"])
+    starboard = mes.guild.get_channel(bot.config[mes.guild.id]["starboard_id"])
 
     if not forced:
         starred = await starboard.send(content=f"⭐ **{unique_stars}** | {mes.channel.mention}", embed=send_embed)

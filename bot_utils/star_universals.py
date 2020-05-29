@@ -102,7 +102,7 @@ def modify_stars(bot, mes, reactor_id, operation):
         bot.starboard[ori_mes_id] = starboard_entry
 
 async def star_entry_refresh(bot, starboard_entry, guild_id):
-    star_var_chan = await bot.fetch_channel(bot.star_config[guild_id]["starboard_id"])
+    star_var_chan = await bot.fetch_channel(bot.config[guild_id]["starboard_id"])
 
     try:
         star_var_mes = await star_var_chan.fetch_message(starboard_entry["star_var_id"])
@@ -112,7 +112,7 @@ async def star_entry_refresh(bot, starboard_entry, guild_id):
 
         unique_stars = get_num_stars(starboard_entry)
 
-        if unique_stars >= bot.star_config[guild_id]["star_limit"] or bool(starboard_entry["forced"]):
+        if unique_stars >= bot.config[guild_id]["star_limit"] or bool(starboard_entry["forced"]):
             await star_var_mes.edit(content=f"⭐ **{unique_stars}** | {(parts)[1]}", embed=ori_starred)
         else:
             ori_mes_id = starboard_entry["ori_mes_id_bac"]
@@ -120,4 +120,7 @@ async def star_entry_refresh(bot, starboard_entry, guild_id):
 
             await star_var_mes.delete()
     except discord.NotFound:
-        do_nothing = True
+        pass
+
+def star_check(bot, payload):
+    return payload.guild_id != None and bot.config["star_toggle"]

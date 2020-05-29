@@ -9,10 +9,10 @@ class DBHandler(commands.Cog):
 
     async def get_dbs(self):
         starboard_db = await self.run_command("SELECT * FROM starboard")
-        star_config_db = await self.run_command("SELECT * FROM starboard_config")
+        config_db = await self.run_command("SELECT * FROM bot_config")
 
         starboard_dict = {}
-        star_config_dict = {}
+        config_dict = {}
 
         for row in starboard_db:
             starboard_dict[row[0]] = {
@@ -27,18 +27,20 @@ class DBHandler(commands.Cog):
                 "ori_mes_id_bac": row[0]
             }
 
-        for row in star_config_db:
-            star_config_dict[row[0]] = {
+        for row in config_db:
+            config_dict[row[0]] = {
                 "starboard_id": row[1],
                 "star_limit": row[2],
-                "blacklist": row[3] if row[3] != None else "",
+                "star_blacklist": row[3] if row[3] != None else "",
+                "star_toggle": bool(row[4]) if row[4] != None else False,
+
                 "guild_id_bac": row[0]
             }
 
         self.bot.starboard = starboard_dict
-        self.bot.star_config = star_config_dict
+        self.bot.config = config_dict
         self.bot.starboard_bac = copy.deepcopy(starboard_dict)
-        self.bot.star_config_bac = copy.deepcopy(star_config_dict)
+        self.bot.config_bac = copy.deepcopy(config_dict)
 
     @tasks.loop(minutes=2.5)
     async def commit_loop(self):
@@ -69,16 +71,24 @@ class DBHandler(commands.Cog):
                     f"{starboard[message]['author_id']}, {ori_reactors}, {var_reactors}, {guild_id}, {forced});")
         self.bot.starboard_bac = copy.deepcopy(self.bot.starboard)
 
-        star_config = self.bot.star_config
-        star_config_bac = self.bot.star_config_bac
+        config = self.bot.config
+        config_bac = self.bot.config_bac
 
-        for server in star_config.keys():
-            if server in star_config_bac.keys():
-                if not star_config[server] == star_config_bac[server]:
-                    blacklist = f"'{star_config[server]['blacklist']}'" if star_config[server]['blacklist'] != "" else "NULL"
+        for server in config.keys():
+            starboard_id = config[server]["starboard_id"] if config[server]["starboard_id"] != None else "NULL"
+            star_limit = config[server]["star_limit"] if config[server]["star_limit"] != None else "NULL"
+            star_blacklist = f"'{config[server]['star_blacklist']}'" if config[server]['star_blacklist'] != "" else "NULL"
+            star_toggle = config[server]["star_toggle"] if config[server]["star_toggle"] != None else "NULL"
 
-                    list_of_cmds.append(f"UPDATE starboard_config SET starboard_id = {star_config[server]['starboard_id']}, " + 
-                    f"star_limit = {star_config[server]['star_limit']}, blacklist = {blacklist} WHERE server_id = {server}")
+            if server in config_bac.keys():
+                if not config[server] == config[server]:
+                    list_of_cmds.append(f"UPDATE starboard_config SET starboard_id = {config[server]['starboard_id']}, " + 
+                    f"star_limit = {config[server]['star_limit']}, star_blacklist = {star_blacklist}, " +
+                    f"star_toggle = {star_toggle} WHERE server_id = {server}")
+            else:
+                list_of_cmds.append("INSERT INTO bot_config "+
+                    "(server_id, starboard_config, star_limit, star_blacklist, star_toggle) VALUES " +
+                    f"({server}, {starboard_id}, {star_limit}, {star_blacklist}, {star_toggle});")
         self.bot.star_config_bac = copy.deepcopy(self.bot.star_config)
 
         if list_of_cmds != []:

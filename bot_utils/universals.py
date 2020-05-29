@@ -1,5 +1,6 @@
 #!/usr/bin/env python3.7
 import traceback, discord
+from pathlib import Path
 
 async def proper_permissions(ctx):
     permissions = ctx.author.guild_permissions
@@ -34,3 +35,22 @@ async def user_from_id(bot, guild, user_id):
             user = None
 
     return user
+
+def file_to_ext(str_path, start_path):
+    str_path = str_path.replace(start_path, "")
+    str_path = str_path.replace("/", ".")
+    return str_path.replace(".py", "")
+
+def get_all_extensions(filename):
+    ext_files = []
+    loc_split = filename.split("cogs")
+    start_path = loc_split[0]
+
+    pathlist = Path(f"{start_path}/cogs").glob('**/*.py')
+    for path in pathlist:
+        str_path = str(path.as_posix())
+        str_path = file_to_ext(str_path, start_path)
+
+        ext_files.append(str_path)
+
+    return ext_files

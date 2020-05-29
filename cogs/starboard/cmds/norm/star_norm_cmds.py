@@ -1,10 +1,10 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import discord, datetime, importlib, re
-import star_utils.star_universals as star_univ
-import star_utils.universals as univ
+import discord, importlib, re, datetime
+import bot_utils.star_universals as star_univ
+import bot_utils.universals as univ
 
-class NormCMDs(commands.Cog):
+class StarNormCMDs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         importlib.reload(star_univ)
@@ -42,31 +42,6 @@ class NormCMDs(commands.Cog):
             return "position: N/A - no stars found!"
 
 
-    @commands.command()
-    async def help(self, ctx):
-
-        help_embed = discord.Embed(
-            title = "To see the list of commands and how to use them, please use the below link:", 
-            colour = discord.Colour(0x4378fc), 
-            description = "https://tinyurl.com/SonicsStarboardHelp"
-        )
-        help_embed.set_author(
-            name="Sonic's Starboard", 
-            icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}"
-        )
-
-        await ctx.send(embed=help_embed)
-
-    @commands.command()
-    async def ping(self, ctx):
-        current_time = datetime.datetime.utcnow().timestamp()
-        mes_time = ctx.message.created_at.timestamp()
-
-        ping_discord = round((self.bot.latency * 1000), 2)
-        ping_personal = round((current_time - mes_time) * 1000, 2)
-
-        await ctx.send(f"Pong!\n`{ping_discord}` ms from discord.\n`{ping_personal}` ms personally (not accurate)")
-
     @commands.cooldown(1, 5, commands.BucketType.member)
     @commands.command(aliases = ["msgtop"])
     async def msg_top(self, ctx):
@@ -76,10 +51,10 @@ class NormCMDs(commands.Cog):
         guild_entries = [self.bot.starboard[k] for k in self.bot.starboard.keys() if self.bot.starboard[k]["guild_id"] == ctx.guild.id]
         if guild_entries != []:
             top_embed = discord.Embed(title=f"Top starred messages in {ctx.guild.name}", colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow())
-            top_embed.set_author(name="Sonic's Starboard", icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}")
+            top_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}")
             top_embed.set_footer(text="As of")
 
-            starboard_id = self.bot.star_config[ctx.guild.id]['starboard_id']
+            starboard_id = self.bot.config[ctx.guild.id]['starboard_id']
 
             guild_entries.sort(reverse=True, key=by_stars)
 
@@ -106,7 +81,7 @@ class NormCMDs(commands.Cog):
 
         if user_star_list != None:
             top_embed = discord.Embed(title=f"Star Leaderboard for {ctx.guild.name}", colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow())
-            top_embed.set_author(name="Sonic's Starboard", icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}")
+            top_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}")
 
             for i in range(len(user_star_list)):
                 if i > 9:
@@ -147,7 +122,7 @@ class NormCMDs(commands.Cog):
                     placing = f"Your {self.get_user_placing(user_star_list, member.id)}"
 
                 place_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=placing, timestamp=datetime.datetime.utcnow())
-                place_embed.set_author(name="Sonic's Starboard", icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}")
+                place_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}")
                 place_embed.set_footer(text="Sent")
 
                 await ctx.send(embed=place_embed)
@@ -157,4 +132,4 @@ class NormCMDs(commands.Cog):
             await ctx.send("I could not get the user you were trying to get. Please try again with a valid user.")
 
 def setup(bot):
-    bot.add_cog(NormCMDs(bot))
+    bot.add_cog(StarNormCMDs(bot))
