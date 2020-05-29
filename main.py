@@ -39,7 +39,8 @@ async def on_ready():
         cogs_list = univ.get_all_extensions(__file__)
 
         for cog in cogs_list:
-            bot.load_extension(cog)
+            if cog != "cogs.db_handler":
+                bot.load_extension(cog)
 
     utcnow = datetime.utcnow()
     time_format = utcnow.strftime("%x %X UTC")

@@ -48,18 +48,18 @@ class DBHandler(commands.Cog):
         starboard = self.bot.starboard
         star_bac = self.bot.starboard_bac
 
-        for message in starboard.keys():
+        for message in self.bot.starboard.keys():
             if starboard[message]["ori_chan_id"] == None:
                 list_of_cmds.append(f"DELETE FROM starboard WHERE ori_mes_id = {message}")
-                del starboard[message]
+                del self.bot.starboard[message]
             else:
                 star_var_id = starboard[message]["star_var_id"] if starboard[message]["star_var_id"] != None else "NULL"
                 guild_id = starboard[message]["guild_id"] if starboard[message]["guild_id"] != None else "NULL"
                 ori_reactors = f"'{starboard[message]['ori_reactors']}'" if starboard[message]['ori_reactors'] != "" else "NULL"
                 var_reactors = f"'{starboard[message]['var_reactors']}'" if starboard[message]['var_reactors'] != "" else "NULL"
-                forced = starboard[message]["forced"] if starboard[message]["forced"] != None else "NULL"
+                forced = int(starboard[message]["forced"]) if starboard[message]["forced"] != None else "NULL"
 
-                if message in star_bac.keys():
+                if message in list(star_bac.keys()):
                     if not starboard[message] == star_bac[message]:
                         list_of_cmds.append(f"UPDATE starboard SET star_var_id = {star_var_id}, ori_reactors = {ori_reactors}, " +
                         f"var_reactors = {var_reactors}, guild_id = {guild_id}, forced = {forced}, " +
@@ -69,37 +69,38 @@ class DBHandler(commands.Cog):
                     "(ori_mes_id, ori_chan_id, star_var_id, author_id, ori_reactors, var_reactors, guild_id, forced) VALUES " +
                     f"({message}, {starboard[message]['ori_chan_id']}, {star_var_id}, " +
                     f"{starboard[message]['author_id']}, {ori_reactors}, {var_reactors}, {guild_id}, {forced});")
+
         self.bot.starboard_bac = copy.deepcopy(self.bot.starboard)
 
         config = self.bot.config
         config_bac = self.bot.config_bac
 
-        for server in config.keys():
+        for server in self.bot.config.keys():
             starboard_id = config[server]["starboard_id"] if config[server]["starboard_id"] != None else "NULL"
             star_limit = config[server]["star_limit"] if config[server]["star_limit"] != None else "NULL"
             star_blacklist = f"'{config[server]['star_blacklist']}'" if config[server]['star_blacklist'] != "" else "NULL"
-            star_toggle = config[server]["star_toggle"] if config[server]["star_toggle"] != None else "NULL"
+            star_toggle = int(config[server]["star_toggle"]) if config[server]["star_toggle"] != None else "NULL"
 
-            if server in config_bac.keys():
+            if server in list(config_bac.keys()):
                 if not config[server] == config[server]:
-                    list_of_cmds.append(f"UPDATE starboard_config SET starboard_id = {config[server]['starboard_id']}, " + 
+                    list_of_cmds.append(f"UPDATE bot_config SET starboard_id = {config[server]['starboard_id']}, " + 
                     f"star_limit = {config[server]['star_limit']}, star_blacklist = {star_blacklist}, " +
                     f"star_toggle = {star_toggle} WHERE server_id = {server}")
             else:
                 list_of_cmds.append("INSERT INTO bot_config "+
                     "(server_id, starboard_config, star_limit, star_blacklist, star_toggle) VALUES " +
                     f"({server}, {starboard_id}, {star_limit}, {star_blacklist}, {star_toggle});")
-        self.bot.star_config_bac = copy.deepcopy(self.bot.star_config)
+        self.bot.config_bac = copy.deepcopy(self.bot.config)
 
         if list_of_cmds != []:
-            await self.run_command(list_of_cmds, a_list = True, commit = True)
+            output = await self.run_command(list_of_cmds, a_list = True, commit = True)
 
     @commit_loop.before_loop
     async def before_commit_loop(self):
         if self.bot.init_load:
             await self.get_dbs()
 
-            while self.bot.star_config == {} or self.bot.starboard == {}:
+            while self.bot.config == {} or self.bot.starboard == {}:
                 await asyncio.sleep(0.1)
 
         await asyncio.sleep(60)

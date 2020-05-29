@@ -15,7 +15,7 @@ class Star(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        if star_univ.star_check(self.bot, payload):
+        if not star_univ.star_check(self.bot, payload):
             return
 
         try:
@@ -45,7 +45,7 @@ class Star(commands.Cog):
     
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
-        if star_univ.star_check(self.bot, payload):
+        if not star_univ.star_check(self.bot, payload):
             return
             
         user, channel, mes = await univ.fetch_needed(self.bot, payload)

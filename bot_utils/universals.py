@@ -46,11 +46,16 @@ def get_all_extensions(filename):
     loc_split = filename.split("cogs")
     start_path = loc_split[0]
 
+    if start_path == filename:
+        start_path = start_path.replace("main.py", "")
+    start_path = start_path.replace("\\", "/")
+
     pathlist = Path(f"{start_path}/cogs").glob('**/*.py')
     for path in pathlist:
         str_path = str(path.as_posix())
         str_path = file_to_ext(str_path, start_path)
 
-        ext_files.append(str_path)
+        if str_path != "cogs.db_handler":
+            ext_files.append(str_path)
 
     return ext_files

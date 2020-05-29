@@ -19,3 +19,6 @@ class OnGuildJoin(commands.Cog):
 
                 "guild_id_bac": guild.id
             }
+
+def setup(bot):
+    bot.add_cog(OnGuildJoin(bot))

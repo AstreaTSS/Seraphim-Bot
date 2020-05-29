@@ -17,7 +17,7 @@ class ClearEvents(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_message_delete(self, payload):
-        if star_univ.star_check(self.bot, payload):
+        if not star_univ.star_check(self.bot, payload):
             return
         
         star_variant = star_univ.get_star_entry(self.bot, payload.message_id)
@@ -32,7 +32,7 @@ class ClearEvents(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_bulk_message_delete(self, payload):
-        if star_univ.star_check(self.bot, payload):
+        if not star_univ.star_check(self.bot, payload):
             return
 
         star_variants = [
@@ -51,14 +51,14 @@ class ClearEvents(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_clear(self, payload):
-        if star_univ.star_check(self.bot, payload):
+        if not star_univ.star_check(self.bot, payload):
             return
 
         await self.auto_clear_stars(self.bot, payload)
 
     @commands.Cog.listener()
     async def on_raw_reaction_clear_emoji(self, payload):
-        if star_univ.star_check(self.bot, payload):
+        if not star_univ.star_check(self.bot, payload):
             return
             
         if str(payload.emoji) == "⭐":
