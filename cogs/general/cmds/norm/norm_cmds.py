@@ -33,8 +33,7 @@ class NormCMDs(commands.Cog):
     
     @commands.command()
     async def reverse(self, ctx, *, msg):
-        clean_msg = discord.utils.escape_mentions(msg)
-        await ctx.send(clean_msg[::-1])
+        await ctx.send(discord.utils.escape_mentions(msg[::-1]))
 
 def setup(bot):
     bot.add_cog(NormCMDs(bot))
