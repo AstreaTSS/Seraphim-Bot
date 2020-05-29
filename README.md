@@ -1,4 +1,4 @@
-# Sonic's Starboard
+# Serahil
 
 ![Serahil Logo](https://cdn.discordapp.com/avatars/700857077672706120/3436b2471afc77f3fdf6579ddd32deec.png?size=256)
 
