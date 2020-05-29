@@ -2,7 +2,6 @@
 import discord, re
 
 async def send(bot, mes, unique_stars, forced = False):
-    bot.starboard[mes.id]["passed_star_limit"] = True
     image_url = ""
 
     if mes.author.id in [270904126974590976, 499383056822435840] and mes.embeds != []:

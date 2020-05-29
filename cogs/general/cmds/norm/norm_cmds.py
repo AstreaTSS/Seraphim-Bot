@@ -30,6 +30,11 @@ class NormCMDs(commands.Cog):
         ping_personal = round((current_time - mes_time) * 1000, 2)
 
         await ctx.send(f"Pong!\n`{ping_discord}` ms from discord.\n`{ping_personal}` ms personally (not accurate)")
+    
+    @commands.command()
+    async def reverse(self, ctx, *, msg):
+        clean_msg = discord.utils.escape_mentions(msg)
+        await ctx.send(clean_msg[::-1])
 
 def setup(bot):
     bot.add_cog(NormCMDs(bot))
