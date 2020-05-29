@@ -50,7 +50,7 @@ async def on_ready():
     connect_msg = f"Logged in at `{time_format}`!" if bot.init_load == True else f"Reconnected at `{time_format}`!"
 
     await owner.send(connect_msg)
-    activity = discord.Activity(name = 'for stars!', type = discord.ActivityType.watching)
+    activity = discord.Activity(name = 'over a couple of servers', type = discord.ActivityType.watching)
     await bot.change_presence(activity = activity)
 
     bot.init_load = False
