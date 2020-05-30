@@ -33,7 +33,10 @@ class NormCMDs(commands.Cog):
     
     @commands.command()
     async def reverse(self, ctx, *, msg):
-        await ctx.send(discord.utils.escape_mentions(msg[::-1]))
+        if len(msg) < 1950:
+            await ctx.send(f"{ctx.author.mention}: {discord.utils.escape_mentions(msg[::-1])}")
+        else:
+            await ctx.send(f"{ctx.author.mention}, that message is too long!")
 
 def setup(bot):
     bot.add_cog(NormCMDs(bot))
