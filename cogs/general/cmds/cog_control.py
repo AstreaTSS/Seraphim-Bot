@@ -78,7 +78,8 @@ class CogControl(commands.Cog):
 
         ext_files = univ.get_all_extensions(__file__)
 
-        to_unload = [e for e in self.bot.extensions.keys() if e not in ext_files]
+        to_unload = [e for e in self.bot.extensions.keys() 
+        if e not in ext_files and e != "cogs.db_handler"]
         for ext in to_unload:
             self.bot.unload_extension(ext)
             unloaded_files.append(ext)
