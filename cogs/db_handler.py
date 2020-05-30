@@ -7,6 +7,9 @@ class DBHandler(commands.Cog):
         self.bot = bot
         self.commit_loop.start()
 
+    def cog_unload(self):
+        self.commit_loop.cancel()
+
     async def get_dbs(self):
         starboard_db = await self.run_command("SELECT * FROM starboard")
         config_db = await self.run_command("SELECT * FROM bot_config")
