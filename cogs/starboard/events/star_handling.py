@@ -51,7 +51,7 @@ class Star(commands.Cog):
         user, channel, mes = await univ.fetch_needed(self.bot, payload)
 
         if (str(payload.emoji) == "⭐" and not user.bot and mes.author.id != user.id
-            and not str(channel.id) in self.bot.config[mes.guild.id]["blacklist"].split(",")):
+            and not str(channel.id) in self.bot.config[mes.guild.id]["star_blacklist"].split(",")):
 
             star_variant = star_univ.get_star_entry(self.bot, mes.id)
 
