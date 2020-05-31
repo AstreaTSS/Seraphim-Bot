@@ -102,3 +102,6 @@ class SayCMDS(commands.Cog):
             await ctx.send(embed = say_embed)
 
         await ori.edit(content = "```\nSetup complete.\n```")
+        
+def setup(bot):
+    bot.add_cog(SayCMDS(bot))
