@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import discord, datetime, time
+import discord, time
 
 class NormCMDs(commands.Cog):
     def __init__(self, bot):
@@ -26,12 +26,12 @@ class NormCMDs(commands.Cog):
         start_time = time.perf_counter()
         ping_discord = round((self.bot.latency * 1000), 2)
 
-        mes = await ctx.send(f"Pong!\n`{ping_discord}` ms from discord.\nCalculating personal ping...")
+        mes = await ctx.send(f"Pong!\n`{ping_discord}` ms from Discord.\nCalculating personal ping...")
         
         end_time = time.perf_counter()
         ping_personal = round(((end_time - start_time) * 1000), 2)
         
-        await mes.edit(content=f"Pong!\n`{ping_discord}` ms from discord.\n`{ping_personal}` ms personally.")
+        await mes.edit(content=f"Pong!\n`{ping_discord}` ms from Discord.\n`{ping_personal}` ms personally.")
     
     @commands.command()
     async def reverse(self, ctx, *, msg):
