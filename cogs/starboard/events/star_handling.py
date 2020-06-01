@@ -15,7 +15,7 @@ class Star(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        if not star_univ.star_check(self.bot, payload):
+        if not (star_univ.star_check(self.bot, payload) and str(payload.emoji) == "⭐"):
             return
 
         try:
@@ -24,7 +24,7 @@ class Star(commands.Cog):
             univ.msg_to_owner(self.bot, f"{payload.message_id}: could not find Message object. Channel: {payload.channel_id}")
             return
 
-        if (str(payload.emoji) == "⭐" and not user.bot and mes.author.id != user.id
+        if (not user.bot and mes.author.id != user.id
             and not str(channel.id) in self.bot.config[mes.guild.id]["star_blacklist"].split(",")):
 
             star_variant = star_univ.get_star_entry(self.bot, mes.id, check_for_var=True)
@@ -45,7 +45,7 @@ class Star(commands.Cog):
     
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
-        if not star_univ.star_check(self.bot, payload):
+        if not (star_univ.star_check(self.bot, payload) and str(payload.emoji) == "⭐"):
             return
             
         try:
@@ -53,7 +53,7 @@ class Star(commands.Cog):
         except discord.NotFound:
             return
 
-        if (str(payload.emoji) == "⭐" and not user.bot and mes.author.id != user.id
+        if (not user.bot and mes.author.id != user.id
             and not str(channel.id) in self.bot.config[mes.guild.id]["star_blacklist"].split(",")):
 
             star_variant = star_univ.get_star_entry(self.bot, mes.id)

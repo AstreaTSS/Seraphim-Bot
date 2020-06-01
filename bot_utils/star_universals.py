@@ -123,8 +123,7 @@ async def star_entry_refresh(bot, starboard_entry, guild_id):
         pass
 
 def star_check(bot, payload):
-    if payload.guild_id != None:
-        if bot.config[payload.guild_id]["star_toggle"]:
-            return True
+    if payload.guild_id != None and bot.config[payload.guild_id]["star_toggle"]:
+        return True
     
     return False
