@@ -48,7 +48,10 @@ class Star(commands.Cog):
         if not star_univ.star_check(self.bot, payload):
             return
             
-        user, channel, mes = await univ.fetch_needed(self.bot, payload)
+        try:
+            user, channel, mes = await univ.fetch_needed(self.bot, payload)
+        except discord.NotFound:
+            return
 
         if (str(payload.emoji) == "⭐" and not user.bot and mes.author.id != user.id
             and not str(channel.id) in self.bot.config[mes.guild.id]["star_blacklist"].split(",")):

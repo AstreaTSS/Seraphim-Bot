@@ -48,6 +48,10 @@ class ModCMDs(commands.Cog):
     @commands.command()
     @commands.check(univ.proper_permissions)
     async def force(self, ctx, mes_id):
+        if not self.bot.config[ctx.guild.id]["star_toggle"]:
+            await ctx.send("Starboard is not turned on for this server!")
+            return
+
         if not mes_id.isdigit():
             await ctx.send("Not a valid channel id!")
             return
