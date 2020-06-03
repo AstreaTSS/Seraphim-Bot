@@ -15,11 +15,14 @@ async def fetch_needed(bot, payload):
 
     return user, channel, mes
 
-async def error_handle(bot, error):
+async def error_handle(bot, error, ctx = None):
     error_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
 
     await msg_to_owner(bot, error_str)
     bot.logger.error(error_str)
+
+    if ctx != None:
+        await ctx.send("An internal error has occured. The bot owner has been notified.")
 
 async def msg_to_owner(bot, string):
     application = await bot.application_info()

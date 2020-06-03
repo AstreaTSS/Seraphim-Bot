@@ -14,7 +14,7 @@ class OnCMDError(commands.Cog):
         if isinstance(error, commands.CommandInvokeError):
             original = error.original
             if not isinstance(original, discord.HTTPException):
-                await univ.error_handle(self.bot, error)
+                await univ.error_handle(self.bot, error, ctx)
         elif isinstance(error, (commands.ConversionError, commands.UserInputError)):
             await ctx.send(error)
         elif isinstance(error, commands.CheckFailure):
@@ -26,7 +26,7 @@ class OnCMDError(commands.Cog):
         elif isinstance(error, commands.CommandNotFound):
             pass
         else:
-            await univ.error_handle(self.bot, error)
+            await univ.error_handle(self.bot, error, ctx)
 
 def setup(bot):
     bot.add_cog(OnCMDError(bot))
