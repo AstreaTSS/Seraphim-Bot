@@ -33,8 +33,8 @@ class DBHandler(commands.Cog):
                 "ori_chan_id": row["ori_chan_id"],
                 "star_var_id": row["star_var_id"],
                 "author_id": row["author_id"],
-                "ori_reactors": row["ori_reactors"],
-                "var_reactors": row["var_reactors"],
+                "ori_reactors": row["ori_reactors"] if row["ori_reactors"] != None else [],
+                "var_reactors": row["var_reactors"] if row["var_reactors"] != None else [],
                 "guild_id": row["guild_id"],
                 "forced": bool(row["forced"]) if row["forced"] != None else False,
 
@@ -45,7 +45,7 @@ class DBHandler(commands.Cog):
             config_dict[row["server_id"]] = {
                 "starboard_id": row["starboard_id"],
                 "star_limit": row["star_limit"],
-                "star_blacklist": row["star_blacklist"],
+                "star_blacklist": row["star_blacklist"] if row["star_blacklist"] != None else [],
                 "star_toggle": bool(row["star_toggle"]) if row["star_toggle"] != None else False,
 
                 "guild_id_bac": row["server_id"]
