@@ -14,7 +14,7 @@ class SnipeCMDs(commands.Cog):
             no_msg_found = True
         else:
             now = datetime.datetime.utcnow()
-            two_minutes = datetime.timedelta(min=2)
+            two_minutes = datetime.timedelta(minutes=2)
             two_minutes_ago = now - two_minutes
 
             if self.bot.sniped[ctx.channel.id]["time_deleted"] < two_minutes_ago:
@@ -44,7 +44,7 @@ class SnipeCMDs(commands.Cog):
             no_msg_found = True
         else:
             now = datetime.datetime.utcnow()
-            two_minutes = datetime.timedelta(min=2)
+            two_minutes = datetime.timedelta(minutes=2)
             two_minutes_ago = now - two_minutes
 
             if self.bot.editsniped[ctx.channel.id]["time_edited"] < two_minutes_ago:
