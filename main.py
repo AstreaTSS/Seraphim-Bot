@@ -4,7 +4,6 @@ from discord.ext import commands
 
 import logging, time
 from datetime import datetime
-from pathlib import Path
 
 import bot_utils.universals as univ
 
@@ -37,7 +36,7 @@ async def on_ready():
         while bot.config == {}:
             await asyncio.sleep(0.1)
 
-        cogs_list = univ.get_all_extensions(Path().absolute().as_posix())
+        cogs_list = univ.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))
 
         for cog in cogs_list:
             if cog != "cogs.db_handler":
