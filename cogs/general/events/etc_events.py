@@ -33,7 +33,7 @@ class OnGuildJoin(commands.Cog):
     async def on_message_edit(self, before, after):
         if before.content != after.content:
             now = datetime.datetime.utcnow()
-            self.bot.editsniped[message.channel.id] = {
+            self.bot.editsniped[before.channel.id] = {
                 "author": before.author,
                 "content": before.content,
                 "created_at": before.created_at,
