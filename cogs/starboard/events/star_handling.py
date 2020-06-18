@@ -38,6 +38,20 @@ class Star(commands.Cog):
 
                     if unique_stars >= self.bot.config[mes.guild.id]["star_limit"]:
                         await star_mes.send(self.bot, mes, unique_stars)
+
+                elif mes.embeds != []:
+                    if user.id == 655390915325591629: # Another starboard bot
+                        await star_univ.import_starboard_bot_entry(self.bot, mes)
+                        star_entry = star_univ.get_star_entry(self.bot, mes.id)
+                        unique_stars = star_univ.get_num_stars(star_entry)
+
+                        if unique_stars >= self.bot.config[mes.guild.id]["star_limit"]:
+                            await star_mes.send(self.bot, mes, unique_stars)
+
+                    elif user.id == bot.user.id:
+                        entry = await star_univ.import_old_entry(self.bot, mes)
+                        if entry != None:
+                            await star_univ.star_entry_refresh(self.bot, entry, mes.guild.id)
                             
             elif user.id != star_variant["author_id"]:
                 await star_univ.modify_stars(self.bot, mes, payload.user_id, "ADD")
