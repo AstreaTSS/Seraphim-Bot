@@ -137,37 +137,6 @@ async def star_entry_refresh(bot, starboard_entry, guild_id):
     except discord.NotFound:
         pass
 
-async def import_starboard_bot_entry(bot, mes):
-    link = mes.embeds[0].fields[0].value
-    link = link.replace("[Click to jump to message!]", "")
-    link = link.replace("(", "")
-    link = link.replace(")", "")
-
-    split_link = link.split("/")
-    ori_chan_id = int(split_link[5])
-    ori_mes_id = int(split_link[6])
-
-    try:
-        ori_channel = await bot.fetch_channel(ori_chan_id)
-        ori_mes = await ori_channel.fetch_message(ori_mes_id)
-
-        ori_mes_reactors = await get_prev_reactors(ori_mes, ori_mes.author.id)
-
-        bot.starboard[ori_mes.id] = {
-            "ori_chan_id": ori_mes.channel.id,
-            "star_var_id": None,
-            "author_id": ori_mes.author.id,
-            "ori_reactors": ori_mes_reactors,
-            "var_reactors": [],
-            "guild_id": mes.guild.id,
-            "forced": False,
-
-            "ori_mes_id_bac": ori_mes.id,
-            "updated": True
-        }
-    except discord.HTTPException:
-        pass
-
 async def import_old_entry(bot, mes):
     link = mes.embeds[0].fields[0].value
     link = link.replace("[Jump]", "")

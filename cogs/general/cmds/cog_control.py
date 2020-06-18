@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import discord, datetime, importlib, asyncio
+import discord, datetime, os
+import importlib, asyncio
 
 import bot_utils.universals as univ
 
@@ -76,7 +77,7 @@ class CogControl(commands.Cog):
         reloaded_files = []
         loaded_files = []
 
-        ext_files = univ.get_all_extensions(__file__)
+        ext_files = univ.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))
 
         to_unload = [e for e in self.bot.extensions.keys() 
         if e not in ext_files and e != "cogs.db_handler"]

@@ -4,4 +4,4 @@
 
 A personal bot made for server I mod in. Meant to be extremely versatile and changable and helping out those servers with tasks otherwise made more difficult with other bots.
 
-Environment vars: MAIN_TOKEN, DB_URL, LOG_FILE_PATH, DIRECTORY_OF_FILE.
+Environment vars: MAIN_TOKEN, DB_URL, DIRECTORY_OF_FILE.

@@ -1,21 +1,12 @@
 #!/usr/bin/env python3.7
 import discord, os, asyncio
 from discord.ext import commands
-
-import logging, time
 from datetime import datetime
 
 import bot_utils.universals as univ
 
 from dotenv import load_dotenv
 load_dotenv()
-
-logger = logging.getLogger('discord')
-logger.setLevel(logging.ERROR)
-handler = logging.FileHandler(filename=os.environ.get("LOG_FILE_PATH"), encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-handler.formatter.converter = time.gmtime
-logger.addHandler(handler)
 
 async def _prefix(bot, msg):
     bot_id = bot.user.id
@@ -31,7 +22,10 @@ async def on_ready():
     if bot.init_load == True:
         bot.starboard = {}
         bot.config = {}
-        bot.logger = logger
+
+        bot.sniped = {}
+        bot.editsniped = {}
+
         bot.load_extension("cogs.db_handler")
         while bot.config == {}:
             await asyncio.sleep(0.1)
