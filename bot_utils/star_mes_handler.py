@@ -7,8 +7,9 @@ import bot_utils.universals as univ
 async def send(bot, mes, unique_stars, forced = False):
     image_url = ""
 
-    if mes.embeds != [] and (mes.author.id in [270904126974590976, 499383056822435840]
-    or (mes.author.id == bot.user.id and mes.embeds[0].author.name != bot.user.name)):
+    if mes.embeds != [] and ((mes.author.id in [270904126974590976, 499383056822435840] 
+    and mes.embeds[0].author.name != discord.Embed.Empty) or (mes.author.id == bot.user.id 
+    and mes.embeds[0].author.name != bot.user.name)):
         snipe_embed = mes.embeds[0]
 
         entry = star_univ.get_star_entry(bot, mes.id)
