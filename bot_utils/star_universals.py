@@ -21,10 +21,10 @@ def get_num_stars(starboard_entry):
     return len(reactors) if reactors != [] else 0
 
 def get_reactor_list(starboard_entry, return_extra = False):
-    ori_reactors = starboard_entry["ori_reactors"].split(",")
-    var_reactors = starboard_entry["var_reactors"].split(",")
+    ori_reactors = starboard_entry["ori_reactors"]
+    var_reactors = starboard_entry["var_reactors"]
 
-    reactors = [i for i in ori_reactors if i != ""] + [i for i in var_reactors if i != ""]
+    reactors = ori_reactors + var_reactors
 
     if not return_extra:
         return reactors
@@ -33,7 +33,7 @@ def get_reactor_list(starboard_entry, return_extra = False):
 
 def clear_stars(bot, starboard_entry, mes_id):
     type_of = "ori_reactors" if mes_id == starboard_entry["ori_mes_id_bac"] else "var_reactors"
-    new_reactors = ""
+    new_reactors = []
     starboard_entry[type_of] = new_reactors
 
     ori_mes_id = starboard_entry["ori_mes_id_bac"]
@@ -55,8 +55,8 @@ def modify_stars(bot, mes, reactor_id, operation):
             "ori_chan_id": mes.channel.id,
             "star_var_id": None,
             "author_id": author_id,
-            "ori_reactors": str(reactor_id),
-            "var_reactors": "",
+            "ori_reactors": [reactor_id],
+            "var_reactors": [],
             "guild_id": mes.guild.id,
             "forced": False,
 
@@ -70,16 +70,14 @@ def modify_stars(bot, mes, reactor_id, operation):
     if author_id != reactor_id:
         type_of = ""
 
-        if not str(reactor_id) in reactors["reactors"] and operation == "ADD":
+        if not reactor_id in reactors["reactors"] and operation == "ADD":
             if mes.id == starboard_entry["star_var_id"]:
                 type_of = "var_reactors"
             elif mes.id == starboard_entry["ori_mes_id_bac"]:
                 type_of = "ori_reactors"
 
-            if reactors[type_of] != ['']:
-                new_reactors = ",".join(reactors[type_of]) + f",{reactor_id}"
-            else:
-                new_reactors = f"{reactor_id}"
+            reactors[type_of].append(reactor_id)
+            new_reactors = reactors[type_of]
             starboard_entry[type_of] = new_reactors
 
         elif operation == "SUBTRACT":
@@ -88,13 +86,9 @@ def modify_stars(bot, mes, reactor_id, operation):
             elif mes.id == starboard_entry["ori_mes_id_bac"]:
                 type_of = "ori_reactors"
 
-            if str(reactor_id) in reactors[type_of]:
-                reactors[type_of].remove(str(reactor_id))
-
-                if reactors[type_of] != []:
-                    new_reactors = ",".join(reactors[type_of])
-                else:
-                    new_reactors = ""
+            if reactor_id in reactors[type_of]:
+                reactors[type_of].remove(reactor_id)
+                new_reactors = reactors[type_of]
 
                 starboard_entry[type_of] = new_reactors
 

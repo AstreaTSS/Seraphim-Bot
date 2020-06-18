@@ -68,8 +68,8 @@ class ModCMDs(commands.Cog):
                 "ori_chan_id": mes.channel.id,
                 "star_var_id": None,
                 "author_id": mes.author.id,
-                "ori_reactors": "",
-                "var_reactors": "",
+                "ori_reactors": [],
+                "var_reactors": [],
                 "guild_id": mes.guild.id,
                 "forced": True,
 

@@ -1,2 +1,2 @@
 discord
-git+https://github.com/aio-libs/aiomysql.git
+asyncpg
