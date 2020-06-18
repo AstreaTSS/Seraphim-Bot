@@ -149,38 +149,39 @@ async def import_old_entry(bot, mes):
     link = link.replace("(", "")
     link = link.replace(")", "")
 
-    split_link = link.split("/")
-    ori_chan_id = int(split_link[5])
-    ori_mes_id = int(split_link[6])
+    if link != mes.embeds[0].fields[0].value:
+        split_link = link.split("/")
+        ori_chan_id = int(split_link[5])
+        ori_mes_id = int(split_link[6])
 
-    try:
-        ori_channel = await bot.fetch_channel(ori_chan_id)
-        ori_mes = await ori_channel.fetch_message(ori_mes_id)
+        try:
+            ori_channel = await bot.fetch_channel(ori_chan_id)
+            ori_mes = await ori_channel.fetch_message(ori_mes_id)
 
-        basic_author = mes.embeds[0].author.name.split("#")
-        author = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
-        author_id = ori_mes.author.id if author == None else author.id
+            basic_author = mes.embeds[0].author.name.split("#")
+            author = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
+            author_id = ori_mes.author.id if author == None else author.id
 
-        star_var_reactors = await get_prev_reactors(mes, ori_mes.author.id)
-        ori_mes_reactors = await get_prev_reactors(ori_mes, ori_mes.author.id)
-        star_var_reactors = [i for i in star_var_reactors if not i in ori_mes_reactors]
+            star_var_reactors = await get_prev_reactors(mes, ori_mes.author.id)
+            ori_mes_reactors = await get_prev_reactors(ori_mes, ori_mes.author.id)
+            star_var_reactors = [i for i in star_var_reactors if not i in ori_mes_reactors]
 
-        bot.starboard[ori_mes.id] = {
-            "ori_chan_id": ori_mes.channel.id,
-            "star_var_id": mes.id,
-            "author_id": ori_mes.author.id,
-            "ori_reactors": ori_mes_reactors,
-            "var_reactors": star_var_reactors,
-            "guild_id": mes.guild.id,
-            "forced": False,
+            bot.starboard[ori_mes.id] = {
+                "ori_chan_id": ori_mes.channel.id,
+                "star_var_id": mes.id,
+                "author_id": ori_mes.author.id,
+                "ori_reactors": ori_mes_reactors,
+                "var_reactors": star_var_reactors,
+                "guild_id": mes.guild.id,
+                "forced": False,
 
-            "ori_mes_id_bac": ori_mes.id,
-            "updated": True
-        }
+                "ori_mes_id_bac": ori_mes.id,
+                "updated": True
+            }
 
-        return bot.starboard[ori_mes.id]
-    except discord.HTTPException:
-        return None
+            return bot.starboard[ori_mes.id]
+        except discord.HTTPException:
+            return None
 
     return None
 

@@ -14,7 +14,7 @@ async def send(bot, mes, unique_stars, forced = False):
 
         entry = star_univ.get_star_entry(bot, mes.id)
 
-        author = univ.user_from_id(bot, mes.guild, entry["author_id"])
+        author = await univ.user_from_id(bot, mes.guild, entry["author_id"])
         author_str = ""
         if author == None:
             author_str = mes.embeds[0].author.name
