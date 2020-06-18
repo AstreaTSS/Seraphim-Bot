@@ -34,6 +34,7 @@ class OnGuildJoin(commands.Cog):
         if before.content != after.content:
             now = datetime.datetime.utcnow()
             self.bot.editsniped[before.channel.id] = {
+                "id": before.id,
                 "author": before.author,
                 "content": before.content,
                 "created_at": before.created_at,
