@@ -1,22 +1,31 @@
 #!/usr/bin/env python3.7
 import discord, re
 
+import bot_utils.star_universals as star_univ
+import bot_utils.universals as univ
+
 async def send(bot, mes, unique_stars, forced = False):
     image_url = ""
 
-    if mes.author.id in [270904126974590976, 499383056822435840] and mes.embeds != []:
-        dank_embed = mes.embeds[0]
+    if mes.embeds != [] and (mes.author.id in [270904126974590976, 499383056822435840]
+    or (mes.author.id == bot.user.id and mes.embeds[0].author.name != bot.user.name)):
+        snipe_embed = mes.embeds[0]
 
-        basic_author = dank_embed.author.name.split("#")
-        member = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
-        author = f"{member.display_name} ({str(member)})" if member != None else dank_embed.author.name
+        entry = star_univ.get_star_entry(bot, mes.id)
 
-        icon = dank_embed.author.icon_url if member == None else str(member.avatar_url_as(format="jpg", size=128))
-        content = dank_embed.description
+        author = univ.user_from_id(bot, mes.guild, entry["author_id"])
+        author_str = ""
+        if author == None:
+            author_str = mes.embeds[0].author.name
+        else:
+            author_str = f"{author.display_name} ({str(author)})"
 
-        send_embed = discord.Embed(title="Sniped from Dank Memer:", colour=discord.Colour(0xcfca76), 
+        icon = snipe_embed.author.icon_url if author == None else str(author.avatar_url_as(format="jpg", size=128))
+        content = snipe_embed.description
+
+        send_embed = discord.Embed(title="Sniped:", colour=discord.Colour(0xcfca76), 
         description=content, timestamp=mes.created_at)
-        send_embed.set_author(name=author, icon_url=icon)
+        send_embed.set_author(name=author_str, icon_url=icon)
         send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
         send_embed.set_footer(text=f"ID: {mes.id}")
 
