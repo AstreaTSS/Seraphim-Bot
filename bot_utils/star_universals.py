@@ -39,7 +39,7 @@ def clear_stars(bot, starboard_entry, mes_id):
     ori_mes_id = starboard_entry["ori_mes_id_bac"]
     bot.starboard[ori_mes_id] = starboard_entry
 
-def modify_stars(bot, mes, reactor_id, operation):
+async def modify_stars(bot, mes, reactor_id, operation):
     starboard_entry = get_star_entry(bot, mes.id)
     if starboard_entry == []:
         author_id = None
@@ -51,20 +51,31 @@ def modify_stars(bot, mes, reactor_id, operation):
         else:
             author_id = mes.author.id
 
+        prev_reactors = await get_prev_reactors(mes, author_id)
+
         bot.starboard[mes.id] = {
             "ori_chan_id": mes.channel.id,
             "star_var_id": None,
             "author_id": author_id,
-            "ori_reactors": [reactor_id],
+            "ori_reactors": prev_reactors,
             "var_reactors": [],
             "guild_id": mes.guild.id,
             "forced": False,
 
-            "ori_mes_id_bac": mes.id
+            "ori_mes_id_bac": mes.id,
+            "updated": True
         }
         starboard_entry = bot.starboard[mes.id]
 
     author_id = starboard_entry["author_id"]
+
+    if not starboard_entry["updated"]:
+        new_reactors = await get_prev_reactors(mes, author_id)
+        type_of = "ori_reactors" if mes.id == starboard_entry["ori_mes_id_bac"] else "var_reactors"
+
+        starboard_entry[type_of] = new_reactors
+        starboard_entry["updated"] = True
+
     reactors = get_reactor_list(starboard_entry, return_extra=True)
 
     if author_id != reactor_id:
@@ -94,6 +105,16 @@ def modify_stars(bot, mes, reactor_id, operation):
 
         ori_mes_id = starboard_entry["ori_mes_id_bac"]
         bot.starboard[ori_mes_id] = starboard_entry
+
+async def get_prev_reactors(mes, author_id):
+    reactions = mes.reactions
+    for reaction in reactions:
+        if str(reaction) != "⭐":
+            continue
+
+        users = await reaction.users().flatten()
+        users_id = [u.id for u in users if u.id != author_id and not u.bot]
+        return users_id
 
 async def star_entry_refresh(bot, starboard_entry, guild_id):
     star_var_chan = await bot.fetch_channel(bot.config[guild_id]["starboard_id"])

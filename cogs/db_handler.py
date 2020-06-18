@@ -38,7 +38,8 @@ class DBHandler(commands.Cog):
                 "guild_id": row["guild_id"],
                 "forced": bool(row["forced"]) if row["forced"] != None else False,
 
-                "ori_mes_id_bac": row["ori_mes_id"]
+                "ori_mes_id_bac": row["ori_mes_id"],
+                "updated": False
             }
 
         for row in config_db:
@@ -94,7 +95,7 @@ class DBHandler(commands.Cog):
         if self.bot.init_load:
             await self.get_dbs()
 
-            while self.bot.config == {} or self.bot.starboard == {}:
+            while self.bot.config == {}:
                 await asyncio.sleep(0.1)
 
         await asyncio.sleep(60)
@@ -104,7 +105,7 @@ class DBHandler(commands.Cog):
         conn = await asyncpg.connect(db_url)
 
         data = await conn.fetch(f"SELECT * FROM {table}")
-        conn.close()
+        await conn.close()
         return data
 
     async def run_commands(self, commands):
@@ -125,12 +126,12 @@ class DBHandler(commands.Cog):
                         "star_blacklist = $4, star_toggle = $5 WHERE server_id = $1")
                     
                     if db_command != "":
-                        conn.execute(db_command, command["server_id"], command["starboard_id"], command["star_limit"], 
+                        await conn.execute(db_command, command["guild_id_bac"], command["starboard_id"], command["star_limit"], 
                         command["star_blacklist"], command["star_toggle"])
 
                 elif command["table"] == "starboard":
                     if command["type"] == "DELETE FROM":
-                        conn.execute("DELETE FROM starboard WHERE ori_mes_id = $1", command["ori_mes_id"])
+                        await conn.execute("DELETE FROM starboard WHERE ori_mes_id = $1", command["ori_mes_id_bac"])
                         continue
                     elif command["type"] == "INSERT INTO":
                         db_command = ("INSERT INTO starboard" +
@@ -142,7 +143,7 @@ class DBHandler(commands.Cog):
                         f"author_id = $4 WHERE ori_mes_id = $1")
 
                     if db_command != "":
-                        conn.execute(db_command, command["ori_mes_id"], command["ori_chan_id"], command["star_var_id"], 
+                        await conn.execute(db_command, command["ori_mes_id_bac"], command["ori_chan_id"], command["star_var_id"], 
                         command["author_id"], command["ori_reactors"], command["var_reactors"], command["guild_id"],
                         command["forced"])
 

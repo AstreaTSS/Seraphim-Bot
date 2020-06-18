@@ -31,7 +31,7 @@ class Star(commands.Cog):
 
             if star_variant == []:
                 if channel.id != self.bot.config[mes.guild.id]["starboard_id"]:
-                    star_univ.modify_stars(self.bot, mes, payload.user_id, "ADD")
+                    await star_univ.modify_stars(self.bot, mes, payload.user_id, "ADD")
 
                     star_entry = star_univ.get_star_entry(self.bot, mes.id)
                     unique_stars = star_univ.get_num_stars(star_entry)
@@ -40,7 +40,7 @@ class Star(commands.Cog):
                         await star_mes.send(self.bot, mes, unique_stars)
                             
             elif user.id != star_variant["author_id"]:
-                star_univ.modify_stars(self.bot, mes, payload.user_id, "ADD")
+                await star_univ.modify_stars(self.bot, mes, payload.user_id, "ADD")
                 await star_univ.star_entry_refresh(self.bot, star_variant, mes.guild.id)
     
     @commands.Cog.listener()
@@ -59,7 +59,7 @@ class Star(commands.Cog):
             star_variant = star_univ.get_star_entry(self.bot, mes.id)
 
             if star_variant != []:
-                star_univ.modify_stars(self.bot, mes, payload.user_id, "SUBTRACT")
+                await star_univ.modify_stars(self.bot, mes, payload.user_id, "SUBTRACT")
 
                 if star_variant["star_var_id"] != None:
                     await star_univ.star_entry_refresh(self.bot, star_variant, mes.guild.id)

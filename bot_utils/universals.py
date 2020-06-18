@@ -53,6 +53,9 @@ def get_all_extensions(filename):
         start_path = start_path.replace("main.py", "")
     start_path = start_path.replace("\\", "/")
 
+    if start_path[-1] != "/":
+        start_path += "/"
+
     pathlist = Path(f"{start_path}/cogs").glob('**/*.py')
     for path in pathlist:
         str_path = str(path.as_posix())

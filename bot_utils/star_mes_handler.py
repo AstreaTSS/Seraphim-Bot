@@ -19,6 +19,16 @@ async def send(bot, mes, unique_stars, forced = False):
         send_embed.set_author(name=author, icon_url=icon)
         send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
         send_embed.set_footer(text=f"ID: {mes.id}")
+
+    elif mes.embeds != [] and mes.embeds[0].description != discord.Embed.Empty:
+        author = f"{mes.author.display_name} ({str(mes.author)})"
+        icon = str(mes.author.avatar_url_as(format="jpg", size=128))
+
+        send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=mes.embeds[0].description, timestamp=mes.created_at)
+        send_embed.set_author(name=author, icon_url=icon)
+        send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
+        send_embed.set_footer(text=f"ID: {mes.id}")
+        
     else:
         content = mes.content
 
