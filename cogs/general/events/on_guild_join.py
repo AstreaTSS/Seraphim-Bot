@@ -14,7 +14,7 @@ class OnGuildJoin(commands.Cog):
             self.bot.config[guild.id] = {
                 "starboard_id": None,
                 "star_limit": None,
-                "star_blacklist": "",
+                "star_blacklist": [],
                 "star_toggle": False,
 
                 "guild_id_bac": guild.id
