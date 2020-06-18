@@ -25,7 +25,7 @@ class Star(commands.Cog):
             return
 
         if (not user.bot and mes.author.id != user.id
-            and not str(channel.id) in self.bot.config[mes.guild.id]["star_blacklist"].split(",")):
+            and not channel.id in self.bot.config[mes.guild.id]["star_blacklist"]):
 
             star_variant = star_univ.get_star_entry(self.bot, mes.id, check_for_var=True)
 
@@ -54,7 +54,7 @@ class Star(commands.Cog):
             return
 
         if (not user.bot and mes.author.id != user.id
-            and not str(channel.id) in self.bot.config[mes.guild.id]["star_blacklist"].split(",")):
+            and not channel.id in self.bot.config[mes.guild.id]["star_blacklist"]):
 
             star_variant = star_univ.get_star_entry(self.bot, mes.id)
 
