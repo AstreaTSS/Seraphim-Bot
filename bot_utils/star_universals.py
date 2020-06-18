@@ -137,17 +137,6 @@ async def star_entry_refresh(bot, starboard_entry, guild_id):
     except discord.NotFound:
         pass
 
-async def import_starboard_entry(bot, mes):
-    link = mes.embeds[0].fields[0].value
-    link = link.replace("[Click to jump to message!]", "")
-    link = link.replace("(", "")
-    link = link.replace(")", "")
-
-    entry = get_star_entry(bot, ori_mes_id)
-    if entry == []:
-
-        prev_reactors = await get_prev_reactors(mes, author_id)
-
 def star_check(bot, payload):
     if payload.guild_id != None and bot.config[payload.guild_id]["star_toggle"]:
         return True
