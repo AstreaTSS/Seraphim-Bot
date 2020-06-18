@@ -40,7 +40,7 @@ class Star(commands.Cog):
                         await star_mes.send(self.bot, mes, unique_stars)
 
                 elif mes.embeds != []:
-                    if user.id == bot.user.id:
+                    if user.id == self.bot.user.id:
                         entry = await star_univ.import_old_entry(self.bot, mes)
                         if entry != None:
                             await star_univ.star_entry_refresh(self.bot, entry, mes.guild.id)
