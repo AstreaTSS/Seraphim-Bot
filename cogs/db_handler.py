@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands, tasks
-import discord, os, asyncio, copy, asyncpg
+import discord, os, asyncio
+import copy, asyncpg, json
 
 class DBHandler(commands.Cog):
     def __init__(self, bot):
@@ -48,6 +49,7 @@ class DBHandler(commands.Cog):
                 "star_limit": row["star_limit"],
                 "star_blacklist": row["star_blacklist"] if row["star_blacklist"] != None else [],
                 "star_toggle": bool(row["star_toggle"]) if row["star_toggle"] != None else False,
+                "pingable_roles": row["pingable_roles"] if row["pingable_roles"] != None else {},
 
                 "guild_id_bac": row["server_id"]
             }
@@ -104,6 +106,8 @@ class DBHandler(commands.Cog):
         db_url = os.environ.get("DB_URL")
         conn = await asyncpg.connect(db_url)
 
+        await conn.set_type_codec('json', encoder=json.dumps, decoder=json.loads, schema='pg_catalog')
+
         data = await conn.fetch(f"SELECT * FROM {table}")
         await conn.close()
         return data
@@ -112,6 +116,8 @@ class DBHandler(commands.Cog):
         db_url = os.environ.get("DB_URL")
         conn = await asyncpg.connect(db_url)
 
+        await conn.set_type_codec('json', encoder=json.dumps, decoder=json.loads, schema='pg_catalog')
+
         async with conn.transaction():
             for command in commands:
                 db_command = ""
@@ -119,15 +125,15 @@ class DBHandler(commands.Cog):
                 if command["table"] == "seraphim_config":
                     if command["type"] == "INSERT INTO":
                         db_command = ("INSERT INTO seraphim_config" +
-                        "(server_id, starboard_id, star_limit, star_blacklist, star_toggle) VALUES(" +
-                        "$1, $2, $3, $4, $5)")
+                        "(server_id, starboard_id, star_limit, star_blacklist, star_toggle, pingable_roles) VALUES(" +
+                        "$1, $2, $3, $4, $5, $6)")
                     elif command["type"] == "UPDATE":
                         db_command = ("UPDATE seraphim_config SET starboard_id = $2, star_limit = $3, " +
-                        "star_blacklist = $4, star_toggle = $5 WHERE server_id = $1")
+                        "star_blacklist = $4, star_toggle = $5, pingable_roles = $6 WHERE server_id = $1")
                     
                     if db_command != "":
                         await conn.execute(db_command, command["guild_id_bac"], command["starboard_id"], command["star_limit"], 
-                        command["star_blacklist"], command["star_toggle"])
+                        command["star_blacklist"], command["star_toggle"], command["pingable_roles"])
 
                 elif command["table"] == "starboard":
                     if command["type"] == "DELETE FROM":
@@ -135,8 +141,8 @@ class DBHandler(commands.Cog):
                         continue
                     elif command["type"] == "INSERT INTO":
                         db_command = ("INSERT INTO starboard" +
-                        "(ori_mes_id, ori_chan_id, star_var_id, author_id, ori_reactors, var_reactors, guild_id, forced) VALUES(" +
-                        "$1, $2, $3, $4, $5, $6, $7, $8)")
+                        "(ori_mes_id, ori_chan_id, star_var_id, author_id, ori_reactors, var_reactors, guild_id, forced)" +
+                        " VALUES($1, $2, $3, $4, $5, $6, $7, $8)")
                     elif command["type"] == "UPDATE":
                         db_command = ("UPDATE starboard SET ori_chan_id = $2, star_var_id = $3, ori_reactors = $5, " +
                         f"var_reactors = $6, guild_id = $7, forced = $8, " +

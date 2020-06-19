@@ -14,6 +14,7 @@ class EtcEvents(commands.Cog):
                 "star_limit": None,
                 "star_blacklist": [],
                 "star_toggle": False,
+                "pingable_roles": {},
 
                 "guild_id_bac": guild.id
             }
