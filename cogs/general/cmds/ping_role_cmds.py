@@ -8,14 +8,18 @@ class PingRoleCMDs(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def ping_role(self, ctx, *, role):
+    async def ping_role(self, ctx, *, role_name):
         ping_roles = self.bot.config[ctx.guild.id]["pingable_roles"]
 
         if ping_roles == {}:
             await ctx.send("There are no roles for you to ping!")
             return
 
-        role_obj = discord.utils.get(ctx.guild.roles, name = role)
+        role_obj = None
+
+        for role in ctx.guild.roles:
+            if role.name.lower() == role_name.lower():
+                role_obj = role
 
         if role_obj == None:
             await ctx.send("That role doesn't exist!")
@@ -24,7 +28,7 @@ class PingRoleCMDs(commands.Cog):
             await ctx.send("That role isn't pingable!")
             return
 
-        role_entry = ping_roles[role_obj.id]
+        role_entry = ping_roles[str(role_obj.id)]
 
         now = datetime.datetime.utcnow()
         time_period = datetime.timedelta(seconds=role_entry["time_period"])
