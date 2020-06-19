@@ -32,7 +32,6 @@ class SnipeCMDs(commands.Cog):
 
         send_embed = discord.Embed(colour=discord.Colour(0x4378fc), description=sniped_msg["content"], timestamp=sniped_msg["created_at"])
         send_embed.set_author(name=author, icon_url=icon)
-        send_embed.set_footer(text=f"ID: {sniped_msg['id']}")
 
         await ctx.send(embed = send_embed)
 
@@ -62,7 +61,6 @@ class SnipeCMDs(commands.Cog):
 
         send_embed = discord.Embed(colour=discord.Colour(0x4378fc), description=sniped_msg["content"], timestamp=sniped_msg["created_at"])
         send_embed.set_author(name=author, icon_url=icon)
-        send_embed.set_footer(text=f"ID: {sniped_msg['id']}")
 
         await ctx.send(embed = send_embed)
 

@@ -24,7 +24,6 @@ class EtcEvents(commands.Cog):
         if message.content != "":
             now = datetime.datetime.utcnow()
             self.bot.sniped[message.channel.id] = {
-                "id": message.id,
                 "author": message.author,
                 "content": message.content,
                 "created_at": message.created_at,
@@ -37,7 +36,6 @@ class EtcEvents(commands.Cog):
             if before.content != "":
                 now = datetime.datetime.utcnow()
                 self.bot.editsniped[before.channel.id] = {
-                    "id": before.id,
                     "author": before.author,
                     "content": before.content,
                     "created_at": before.created_at,
