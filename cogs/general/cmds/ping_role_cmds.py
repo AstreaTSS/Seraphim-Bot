@@ -102,7 +102,7 @@ class PingRoleCMDs(commands.Cog):
             return
 
         last_char = cooldown[-1]
-        num_cooldown = cooldown[:-2]
+        num_cooldown = cooldown[:-1]
 
         if not num_cooldown.isdigit():
             await ctx.send("Invalid cooldown! Make sure you have a time period, and the number's positive.")
@@ -110,11 +110,11 @@ class PingRoleCMDs(commands.Cog):
 
         multiplicity = 0
 
-        if last_char == "h":
+        if last_char.lower() == "h":
             multiplicity = 3600
-        if last_char == "m":
+        if last_char.lower() == "m":
             multiplicity = 60
-        if last_char == "s":
+        if last_char.lower() == "s":
             multiplicity = 1
 
         if multiplicity == 0:
