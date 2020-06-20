@@ -7,7 +7,7 @@ class PingRoleCMDs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases = ["pingrole"])
+    @commands.command(aliases = ["pingrole", "roleping", "role_ping"])
     async def ping_role(self, ctx, *, role_name):
         ping_roles = self.bot.config[ctx.guild.id]["pingable_roles"]
 
