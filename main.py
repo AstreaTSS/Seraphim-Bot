@@ -26,6 +26,8 @@ async def on_ready():
         bot.sniped = {}
         bot.editsniped = {}
 
+        bot.star_queue = {}
+
         bot.load_extension("cogs.db_handler")
         while bot.config == {}:
             await asyncio.sleep(0.1)

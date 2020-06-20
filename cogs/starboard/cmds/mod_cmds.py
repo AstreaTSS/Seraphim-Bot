@@ -62,22 +62,10 @@ class ModCMDs(commands.Cog):
             await ctx.send("Message not found! Is this a valid message ID and are you running this command in the same channel as the message?")
             return
 
+        star_univ.modify_stars(self.bot, mes, None, "None")
         starboard_entry = star_univ.get_star_entry(self.bot, mes.id)
-        if starboard_entry == []:
-            self.bot.starboard[mes.id] = {
-                "ori_chan_id": mes.channel.id,
-                "star_var_id": None,
-                "author_id": mes.author.id,
-                "ori_reactors": [],
-                "var_reactors": [],
-                "guild_id": mes.guild.id,
-                "forced": True,
-
-                "ori_mes_id_bac": mes.id,
-                "passed_star_limit": False
-            }
-            starboard_entry = self.bot.starboard[mes.id]
-        elif starboard_entry["star_var_id"] == None:
+        
+        if starboard_entry["star_var_id"] == None:
             starboard_entry["forced"] == True
         else:
             await ctx.send("This message is already on the starboard!")

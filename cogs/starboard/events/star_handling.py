@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.7
-from discord.ext import commands
+from discord.ext import commands, tasks
 import discord, importlib
 
 import bot_utils.universals as univ
@@ -9,9 +9,23 @@ import bot_utils.star_mes_handler as star_mes
 class Star(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
         importlib.reload(univ)
         importlib.reload(star_univ)
         importlib.reload(star_mes)
+
+        self.starboard_queue.start()
+
+    def cog_unload(self):
+        self.starboard_queue.cancel()
+
+    @tasks.loop(seconds=7)
+    async def starboard_queue(self):
+        for entry_key in self.bot.star_queue.keys():
+            entry = self.bot.star_queue[entry_key]
+            await star_mes.send(self.bot, entry["mes"], entry["unique_stars"])
+
+        self.bot.star_queue = {}
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
@@ -37,7 +51,10 @@ class Star(commands.Cog):
                     unique_stars = star_univ.get_num_stars(star_entry)
 
                     if unique_stars >= self.bot.config[mes.guild.id]["star_limit"]:
-                        await star_mes.send(self.bot, mes, unique_stars)
+                        self.bot.star_queue[mes.id] = {
+                            "mes": mes,
+                            "unique_stars": unique_stars
+                        }
 
                 elif mes.embeds != []:
                     if user.id == self.bot.user.id:
