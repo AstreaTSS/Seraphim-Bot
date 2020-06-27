@@ -32,8 +32,6 @@ async def generate(bot, mes, forced = False):
         send_embed = discord.Embed(title="Sniped:", colour=discord.Colour(0xcfca76), 
         description=content, timestamp=mes.created_at)
         send_embed.set_author(name=author_str, icon_url=icon)
-        send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
-        send_embed.set_footer(text=f"ID: {mes.id}")
 
     elif mes.embeds != [] and mes.embeds[0].description != discord.Embed.Empty:
         author = f"{mes.author.display_name} ({str(mes.author)})"
@@ -41,8 +39,6 @@ async def generate(bot, mes, forced = False):
 
         send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=mes.embeds[0].description, timestamp=mes.created_at)
         send_embed.set_author(name=author, icon_url=icon)
-        send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
-        send_embed.set_footer(text=f"ID: {mes.id}")
         
     else:
         content = mes.system_content
@@ -72,13 +68,13 @@ async def generate(bot, mes, forced = False):
         else:
             send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=discord.Embed.Empty, timestamp=mes.created_at)
         send_embed.set_author(name=author, icon_url=icon)
-        send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
-        send_embed.set_footer(text=f"ID: {mes.id}")
 
         if image_url != "":
             send_embed.set_image(url=image_url)
 
-        return send_embed
+    send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
+    send_embed.set_footer(text=f"ID: {mes.id}")
+    return send_embed
 
 async def send(bot, mes, unique_stars, forced = False):
     send_embed = await generate(bot, mes, forced)
