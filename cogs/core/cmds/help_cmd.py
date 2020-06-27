@@ -1,5 +1,5 @@
 from discord.ext import commands
-from cogs.core.cmds.paginator import Pages
+from bot_utils.paginator import Pages
 import discord, asyncio, itertools
 
 # most of this code has been copied from https://github.com/Rapptz/RoboDanny
