@@ -38,9 +38,6 @@ async def on_ready():
             if cog != "cogs.db_handler":
                 bot.load_extension(cog)
 
-        activity = discord.Activity(name = 'over a couple of servers', type = discord.ActivityType.watching)
-        await bot.change_presence(activity = activity)
-
     utcnow = datetime.utcnow()
     time_format = utcnow.strftime("%x %X UTC")
 
@@ -51,6 +48,10 @@ async def on_ready():
     await owner.send(connect_msg)
 
     bot.init_load = False
+
+    activity = discord.Activity(name = 'over a couple of servers', type = discord.ActivityType.watching)
+    await bot.change_presence(activity = activity)
+
 
 @bot.event
 async def on_resumed():

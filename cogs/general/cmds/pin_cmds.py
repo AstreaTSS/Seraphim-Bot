@@ -96,5 +96,7 @@ class PinCMDs(commands.Cog):
             await des_chan.send(embed = send_embed)
             await pin.unpin()
 
+        await ctx.send("Done!")
+
 def setup(bot):
     bot.add_cog(PinCMDs(bot))
