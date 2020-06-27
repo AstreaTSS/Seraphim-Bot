@@ -30,7 +30,7 @@ class PinCMDs(commands.Cog):
         for entry in self.bot.config[ctx.guild.id]["pin_config"].keys():
             try:
                 entry_chan = await self.bot.fetch_channel(int(entry))
-                des_chan = self.bot.fetch_channel(self.bot.config[ctx.guild.id]["pin_config"][entry]["destination"])
+                des_chan = await self.bot.fetch_channel(self.bot.config[ctx.guild.id]["pin_config"][entry]["destination"])
                 limit = self.bot.config[ctx.guild.id]["pin_config"][entry]["limit"]
 
                 entries_list.append(f"{entry_chan.mention} -> {des_chan.mention} (Limit: {limit})")
