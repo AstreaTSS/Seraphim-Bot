@@ -44,7 +44,7 @@ class NormCMDs(commands.Cog, name="Normal"):
         "but you might be able to convince him, although unlikely, to invite me to your server.") 
 
         about_embed = discord.Embed(
-            title = "About me, Seraphim", 
+            title = "About", 
             colour = discord.Colour(0x4378fc), 
             description = "\n\n".join(msg_list)
         )
