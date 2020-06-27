@@ -81,7 +81,7 @@ async def generate(bot, mes, forced = False):
         return send_embed
 
 async def send(bot, mes, unique_stars, forced = False):
-    send_embed = generate(bot, mes, forced)
+    send_embed = await generate(bot, mes, forced)
     starboard = mes.guild.get_channel(bot.config[mes.guild.id]["starboard_id"])
 
     if not forced:
