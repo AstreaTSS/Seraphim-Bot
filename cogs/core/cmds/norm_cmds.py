@@ -40,8 +40,8 @@ class NormCMDs(commands.Cog, name="Normal"):
         "but I've since been expanded to other functions, too.")
         msg_list.append("I tend to have features that are either done poorly by other bots, or features of bots " +
         "that tend to be offline/unresponsive for a decent amount of time.")
-        msg_list.append("You cannot invite me to your server. Usually, Sonic49 invites me to one of his servers on his own, " +
-        "but you might be able to convince him, although unlikely, to invite me to your server.") 
+        msg_list.append("You cannot invite me to your server normally. Usually, Sonic49 invites me to one of his servers on his own, " +
+        "but you might be able to convince him, although unlikely, to get me on your server.") 
 
         about_embed = discord.Embed(
             title = "About", 
