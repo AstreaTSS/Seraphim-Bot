@@ -62,7 +62,8 @@ class CogControl(commands.Cog):
 
     @commands.command()
     async def reload_all_extensions(self, ctx):
-        for extension in self.bot.extensions.keys():
+        extensions = [i for i in self.bot.extensions.keys() if  e != "cogs.db_handler"]
+        for extension in extensions:
             self.bot.reload_extension(extension)
 
         await self.msg_handler(ctx, f"All extensions reloaded!")
