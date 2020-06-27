@@ -27,7 +27,7 @@ class PinHandler(commands.Cog):
             if des_chan == None:
                 return
 
-            send_embed = await star_mes.generate(self.bot, msg)
+            send_embed = await star_mes.generate(self.bot, early_entry)
             send_embed.color = discord.Colour(0x4378fc)
 
             await des_chan.send(embed = send_embed)
