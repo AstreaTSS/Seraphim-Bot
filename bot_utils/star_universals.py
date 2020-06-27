@@ -39,24 +39,28 @@ def clear_stars(bot, starboard_entry, mes_id):
     ori_mes_id = starboard_entry["ori_mes_id_bac"]
     bot.starboard[ori_mes_id] = starboard_entry
 
+def get_author_id(mes, bot):
+    author_id = None
+    if mes.author.id in [270904126974590976, 499383056822435840] and mes.embeds != []:
+        dank_embed = mes.embeds[0]
+        basic_author = dank_embed.author.name.split("#")
+        author = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
+        author_id = mes.author.id if author == None else author.id
+
+    elif mes.author.id == bot.user.id and mes.embeds != [] and mes.embeds[0].author.name != bot.user.name:
+        basic_author = mes.embeds[0].author.name.split('(', 1)[1].split(')')[0] # somehow gets stuff between parentheses
+        author = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
+        author_id = mes.author.id if author == None else author.id
+
+    else:
+        author_id = mes.author.id
+
+    return author_id
+
 async def modify_stars(bot, mes, reactor_id, operation):
     starboard_entry = get_star_entry(bot, mes.id)
     if starboard_entry == []:
-        author_id = None
-        if mes.author.id in [270904126974590976, 499383056822435840] and mes.embeds != []:
-            dank_embed = mes.embeds[0]
-            basic_author = dank_embed.author.name.split("#")
-            author = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
-            author_id = mes.author.id if author == None else author.id
-
-        elif mes.author.id == bot.user.id and mes.embeds != [] and mes.embeds[0].author.name != bot.user.name:
-            basic_author = mes.embeds[0].author.name.split('(', 1)[1].split(')')[0] # somehow gets stuff between parentheses
-            author = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
-            author_id = mes.author.id if author == None else author.id
-
-        else:
-            author_id = mes.author.id
-
+        author_id = get_author_id(mes, bot)
         prev_reactors = await get_prev_reactors(mes, author_id)
 
         bot.starboard[mes.id] = {

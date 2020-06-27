@@ -1,11 +1,12 @@
 from discord.ext import commands
-import discord, datetime, math
+import discord, datetime, math, importlib
 
 import bot_utils.universals as univ
 
 class PingRoleCMDs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        importlib.reload(univ)
 
     @commands.command(aliases = ["pingrole", "roleping", "role_ping"])
     async def ping_role(self, ctx, *, role_name):

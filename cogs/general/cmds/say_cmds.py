@@ -1,11 +1,12 @@
 from discord.ext import commands
-import discord, re, asyncio
+import discord, re, asyncio, importlib
 
 import bot_utils.universals as univ
 
 class SayCMDS(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        importlib.reload(univ)
         
     async def setup_helper(self, ctx, ori_mes, question, code_mes = True):
         def check(m):

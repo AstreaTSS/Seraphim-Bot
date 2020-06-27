@@ -4,7 +4,7 @@ import discord, re
 import bot_utils.star_universals as star_univ
 import bot_utils.universals as univ
 
-async def send(bot, mes, unique_stars, forced = False):
+async def generate(bot, mes, forced = False):
     image_url = ""
 
     if mes.embeds != [] and ((mes.author.id in [270904126974590976, 499383056822435840] 
@@ -14,7 +14,12 @@ async def send(bot, mes, unique_stars, forced = False):
 
         entry = star_univ.get_star_entry(bot, mes.id)
 
-        author = await univ.user_from_id(bot, mes.guild, entry["author_id"])
+        if entry != []:
+            author = await univ.user_from_id(bot, mes.guild, entry["author_id"])
+        else:
+            author_id = star_univ.get_author_id(mes, bot)
+            author = await univ.user_from_id(bot, mes.guild, author_id)
+            
         author_str = ""
         if author == None:
             author_str = mes.embeds[0].author.name
@@ -72,7 +77,11 @@ async def send(bot, mes, unique_stars, forced = False):
 
         if image_url != "":
             send_embed.set_image(url=image_url)
-    
+
+        return send_embed
+
+async def send(bot, mes, unique_stars, forced = False):
+    send_embed = generate(bot, mes, forced)
     starboard = mes.guild.get_channel(bot.config[mes.guild.id]["starboard_id"])
 
     if not forced:

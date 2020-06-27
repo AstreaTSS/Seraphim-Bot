@@ -26,8 +26,11 @@ class BlacklistCMDs(commands.Cog):
             channel_mentions = []
 
             for channel_id in channel_id_list:
-                channel = await self.bot.fetch_channel(channel_id)
-                channel_mentions.append(channel.mention)
+                try:
+                    channel = await self.bot.fetch_channel(channel_id)
+                    channel_mentions.append(channel.mention)
+                except discord.NotFound:
+                    continue
 
             await ctx.send(f"Blacklisted channels: {', '.join(channel_mentions)}")
         else:

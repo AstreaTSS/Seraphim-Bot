@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands, tasks
-import discord, importlib, datetime
+import discord, datetime
 
 class EtcEvents(commands.Cog):
     def __init__(self, bot):
@@ -24,6 +24,7 @@ class EtcEvents(commands.Cog):
                 "star_blacklist": [],
                 "star_toggle": False,
                 "pingable_roles": {},
+                "pin_config": {},
 
                 "guild_id_bac": guild.id
             }

@@ -53,6 +53,11 @@ async def on_ready():
     bot.init_load = False
 
 @bot.event
+async def on_resumed():
+    activity = discord.Activity(name = 'over a couple of servers', type = discord.ActivityType.watching)
+    await bot.change_presence(activity = activity)
+
+@bot.event
 async def on_error(event, *args, **kwargs):
     try:
         raise

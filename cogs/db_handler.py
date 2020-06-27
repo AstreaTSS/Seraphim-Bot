@@ -50,6 +50,7 @@ class DBHandler(commands.Cog):
                 "star_blacklist": row["star_blacklist"] if row["star_blacklist"] != None else [],
                 "star_toggle": bool(row["star_toggle"]) if row["star_toggle"] != None else False,
                 "pingable_roles": row["pingable_roles"] if row["pingable_roles"] != None else {},
+                "pin_config": row["pin_config"] if row["pin_config"] != None else {},
 
                 "guild_id_bac": row["server_id"]
             }
@@ -125,15 +126,15 @@ class DBHandler(commands.Cog):
                 if command["table"] == "seraphim_config":
                     if command["type"] == "INSERT INTO":
                         db_command = ("INSERT INTO seraphim_config" +
-                        "(server_id, starboard_id, star_limit, star_blacklist, star_toggle, pingable_roles) VALUES(" +
-                        "$1, $2, $3, $4, $5, $6)")
+                        "(server_id, starboard_id, star_limit, star_blacklist, star_toggle, pingable_roles, pin_config) VALUES(" +
+                        "$1, $2, $3, $4, $5, $6, $7)")
                     elif command["type"] == "UPDATE":
                         db_command = ("UPDATE seraphim_config SET starboard_id = $2, star_limit = $3, " +
-                        "star_blacklist = $4, star_toggle = $5, pingable_roles = $6 WHERE server_id = $1")
+                        "star_blacklist = $4, star_toggle = $5, pingable_roles = $6, pin_config = $7 WHERE server_id = $1")
                     
                     if db_command != "":
                         await conn.execute(db_command, command["guild_id_bac"], command["starboard_id"], command["star_limit"], 
-                        command["star_blacklist"], command["star_toggle"], command["pingable_roles"])
+                        command["star_blacklist"], command["star_toggle"], command["pingable_roles"], command["pin_config"])
 
                 elif command["table"] == "starboard":
                     if command["type"] == "DELETE FROM":
