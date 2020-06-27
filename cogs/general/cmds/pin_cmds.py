@@ -4,7 +4,7 @@ import discord, importlib
 import bot_utils.universals as univ
 import bot_utils.star_mes_handler as star_mes
 
-class PinCMDs(commands.Cog):
+class PinCMDs(commands.Cog, name = "Pinboard"):
     def __init__(self, bot):
         self.bot = bot
 
@@ -14,6 +14,9 @@ class PinCMDs(commands.Cog):
     @commands.group()
     @commands.check(univ.proper_permissions)
     async def manage_pinboard(self, ctx):
+        """Base command for managing the pinboard. See the subcommands below. 
+        Requires Manage Server permissions or higher. Running this command with no arguments will run list."""
+
         if ctx.invoked_subcommand == None:
             list_cmd = self.bot.get_command("manage_pinboard list")
             await ctx.invoke(list_cmd)
@@ -21,6 +24,8 @@ class PinCMDs(commands.Cog):
     @manage_pinboard.command(aliases = ["list"])
     @commands.check(univ.proper_permissions)
     async def _list(self, ctx):
+        """Returns a list of channels that have their pins mapped to another channel, and the max limit before they overflow to that other channel."""
+
         if self.bot.config[ctx.guild.id]["pin_config"] == {}:
             await ctx.send("There are no entries for this server!")
             return
@@ -44,6 +49,9 @@ class PinCMDs(commands.Cog):
     @manage_pinboard.command(aliases = ["map"])
     @commands.check(univ.proper_permissions)
     async def _map(self, ctx, entry: discord.TextChannel, destination: discord.TextChannel, limit: int):
+        """Maps overflowing pins from the entry channel to go to the destination channel. 
+        If there are more pins than the limit, it is considered overflowing."""
+
         self.bot.config[ctx.guild.id]["pin_config"][str(entry.id)] = {
             "destination": destination.id,
             "limit": limit
@@ -54,12 +62,16 @@ class PinCMDs(commands.Cog):
     @manage_pinboard.command(aliases = ["pinlimit"])
     @commands.check(univ.proper_permissions)
     async def pin_limit(self, ctx, entry: discord.TextChannel, limit: int):
+        """Changes the max limit of the entry channel to the provided limit."""
+
         self.bot.config[ctx.guild.id]["pin_config"][str(entry.id)]["limit"] = limit
         await ctx.send(f"The pin limit for {entry.mention} is now set to {limit}.")
 
     @manage_pinboard.command()
     @commands.check(univ.proper_permissions)
     async def unmap(self, ctx, entry: discord.TextChannel):
+        """Umaps the entry channel, so overflowing pins do not get put into another channel."""
+
         try:
             del self.bot.config[ctx.guild.id]["pin_config"][str(entry.id)]
             await ctx.send(f"Unmapped {entry.mention}.")
@@ -69,6 +81,10 @@ class PinCMDs(commands.Cog):
     @commands.command(aliases = ["pin_all"])
     @commands.check(univ.proper_permissions)
     async def pinall(self, ctx):
+        """Retroactively moves overflowing pins from the channel this command is used in to the destination channel.
+        Useful if you just mapped a channel and need to move old pin entries.
+        Requires Manage Server permissions or higher."""
+
         if not str(ctx.channel.id) in self.bot.config[ctx.guild.id]["pin_config"].keys():
             await ctx.send("This channel isn't mapped!")
             return

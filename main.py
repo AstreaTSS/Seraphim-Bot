@@ -8,13 +8,7 @@ import bot_utils.universals as univ
 from dotenv import load_dotenv
 load_dotenv()
 
-async def _prefix(bot, msg):
-    bot_id = bot.user.id
-    return [f"<@{bot_id}> ", f"<@!{bot_id}> ", "s!"]
-
-bot = commands.Bot(command_prefix=_prefix, fetch_offline_members=True)
-
-bot.remove_command("help")
+bot = commands.Bot(command_prefix=commands.when_mentioned_or("s!"), fetch_offline_members=True)
 
 @bot.event
 async def on_ready():
@@ -52,7 +46,6 @@ async def on_ready():
     activity = discord.Activity(name = 'over a couple of servers', type = discord.ActivityType.watching)
     await bot.change_presence(activity = activity)
 
-
 @bot.event
 async def on_resumed():
     activity = discord.Activity(name = 'over a couple of servers', type = discord.ActivityType.watching)
@@ -62,7 +55,7 @@ async def on_resumed():
 async def on_error(event, *args, **kwargs):
     try:
         raise
-    except Exception as e:
+    except BaseException as e:
         await univ.error_handle(bot, e)
 
 @bot.check

@@ -3,7 +3,7 @@ import discord, re, asyncio, importlib
 
 import bot_utils.universals as univ
 
-class SayCMDS(commands.Cog):
+class SayCMDS(commands.Cog, name = "Say"):
     def __init__(self, bot):
         self.bot = bot
         importlib.reload(univ)
@@ -40,6 +40,7 @@ class SayCMDS(commands.Cog):
     @commands.command()
     @commands.check(univ.proper_permissions)
     async def say(self, ctx, *, message):
+        """Allows people with Manage Server permissions to speak with the bot. You can provide a channel and upload any attachments you wish to use."""
 
         args = message.split(" ")
         optional_channel = None
@@ -70,7 +71,8 @@ class SayCMDS(commands.Cog):
     @commands.command()
     @commands.check(univ.proper_permissions)
     async def embed_say(self, ctx):
-
+        """Allows people with Manage Server permissions to speak with the bot with a fancy embed. Will open a wizard-like prompt."""
+        
         optional_channel = None
         optional_color = None
 

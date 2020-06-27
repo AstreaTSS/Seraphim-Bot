@@ -4,12 +4,11 @@ import discord, importlib, re, datetime
 import bot_utils.star_universals as star_univ
 import bot_utils.universals as univ
 
-class StarNormCMDs(commands.Cog):
+class StarNormCMDs(commands.Cog, name = "Normal Star"):
     def __init__(self, bot):
         self.bot = bot
         importlib.reload(star_univ)
         importlib.reload(univ)
-
 
     def get_star_rankings(self, ctx):
         def by_stars(elem):
@@ -48,6 +47,8 @@ class StarNormCMDs(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.member)
     @commands.command(aliases = ["msgtop"])
     async def msg_top(self, ctx):
+        """Allows you to view the top 10 starred messages on a server. Cooldown of once every 5 seconds per user."""
+
         def by_stars(elem):
             return star_univ.get_num_stars(elem)
 
@@ -80,6 +81,8 @@ class StarNormCMDs(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.member)
     @commands.command(name = "top", aliases = ["leaderboard", "lb"])
     async def top(self, ctx):
+        """Allows you to view the top 10 people with the most stars on a server. Cooldown of once every 5 seconds per user."""
+
         user_star_list = self.get_star_rankings(ctx)
 
         if user_star_list != None:
@@ -105,6 +108,8 @@ class StarNormCMDs(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.member)
     @commands.command(aliases = ["position", "place", "placing"])
     async def pos(self, ctx, user_mention = None):
+        """allows you to get either your or whoever you mentioned’s position in the star leaderboard (like the top command, but only for one person)."""
+        
         member = None
 
         if user_mention != None:

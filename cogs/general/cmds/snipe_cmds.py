@@ -8,6 +8,8 @@ class SnipeCMDs(commands.Cog):
 
     @commands.command()
     async def snipe(self, ctx):
+        """Allows you to get the last deleted message from the channel this command was used in."""
+
         no_msg_found = False
 
         if not ctx.channel.id in self.bot.sniped.keys():
@@ -37,6 +39,8 @@ class SnipeCMDs(commands.Cog):
 
     @commands.command()
     async def editsnipe(self, ctx):
+        """Allows you to get the last edited message from the channel this command was used in."""
+
         no_msg_found = False
 
         if not ctx.channel.id in self.bot.editsniped.keys():

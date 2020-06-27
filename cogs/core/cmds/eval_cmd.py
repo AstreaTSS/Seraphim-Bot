@@ -11,12 +11,12 @@ from discord.ext import commands
 # eval command source - https://github.com/fourjr/eval-bot
 # i'm sadly not skilled enough to make one myself :(
 
-class Eval(commands.Cog):
+class Eval(commands.Cog, name="Eval", command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.is_owner()
-    @commands.command(name='eval')
+    @commands.command(name='eval', hidden=True)
     async def _eval(self, ctx, *, body):
         """Evaluates python code"""
         env = {

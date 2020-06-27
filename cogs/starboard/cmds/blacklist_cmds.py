@@ -3,7 +3,7 @@ import discord, importlib
 
 import bot_utils.universals as univ
 
-class BlacklistCMDs(commands.Cog):
+class BlacklistCMDs(commands.Cog, name = "Blacklist"):
     def __init__(self, bot):
         self.bot = bot
         importlib.reload(univ)
@@ -14,6 +14,9 @@ class BlacklistCMDs(commands.Cog):
     @commands.group()
     @commands.check(univ.proper_permissions)
     async def blacklist(self, ctx):
+        """The base command for the star blacklist. See the subcommands for more info.
+        Requires Manage Server permissions or higher. Running this with no arguments will run the list command."""
+
         if ctx.invoked_subcommand == None:
             list_cmd = self.bot.get_command("blacklist list")
             await ctx.invoke(list_cmd)
@@ -21,6 +24,8 @@ class BlacklistCMDs(commands.Cog):
     @blacklist.command(name = "list")
     @commands.check(univ.proper_permissions)
     async def _list(self, ctx):
+        """Returns a list of channels that have been blacklisted. Messages from channels that are blacklisted won’t be starred."""
+
         channel_id_list = self.bot.config[ctx.guild.id]["star_blacklist"]
         if channel_id_list != []:
             channel_mentions = []
@@ -39,6 +44,8 @@ class BlacklistCMDs(commands.Cog):
     @blacklist.command()
     @commands.check(univ.proper_permissions)
     async def add(self, ctx, channel: discord.TextChannel):
+        """Adds the channel to the blacklist."""
+
         channel_id_list = self.bot.config[ctx.guild.id]["star_blacklist"]
 
         if not channel.id in channel_id_list:
@@ -51,6 +58,8 @@ class BlacklistCMDs(commands.Cog):
     @blacklist.command()
     @commands.check(univ.proper_permissions)
     async def remove(self, ctx, channel: discord.TextChannel):
+        """Removed the channel from the blacklist."""
+
         channel_id_list = self.bot.config[ctx.guild.id]["star_blacklist"]
 
         if channel.id in channel_id_list:

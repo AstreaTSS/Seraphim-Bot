@@ -5,7 +5,7 @@ import importlib, asyncio
 
 import bot_utils.universals as univ
 
-class CogControl(commands.Cog):
+class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
         importlib.reload(univ)
@@ -21,7 +21,7 @@ class CogControl(commands.Cog):
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def load_extension(self, ctx, extension):
         try:
             self.bot.load_extension(extension)
@@ -36,7 +36,7 @@ class CogControl(commands.Cog):
 
         await self.msg_handler(ctx, f"Extension '{extension}' loaded!")
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def reload_extension(self, ctx, extension):
         try:
             self.bot.reload_extension(extension)
@@ -51,7 +51,7 @@ class CogControl(commands.Cog):
 
         await self.msg_handler(ctx, f"Extension '{extension}' reloaded!")
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def unload_extension(self, ctx, extension):
         try:
             self.bot.unload_extension(extension)
@@ -60,7 +60,7 @@ class CogControl(commands.Cog):
 
         await self.msg_handler(ctx, f"Extension '{extension}' unloaded!")
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def reload_all_extensions(self, ctx):
         extensions = [i for i in self.bot.extensions.keys() if i != "cogs.db_handler"]
         for extension in extensions:
@@ -68,7 +68,7 @@ class CogControl(commands.Cog):
 
         await self.msg_handler(ctx, f"All extensions reloaded!")
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def refresh_extensions(self, ctx):
         def ext_str(list_files):
             exten_list = [f"`{k}`" for k in list_files]
@@ -111,13 +111,13 @@ class CogControl(commands.Cog):
 
         await self.msg_handler(ctx, msg_content)
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def list_loaded_extensions(self, ctx):
         exten_list = [f"`{k}`" for k in self.bot.extensions.keys()]
         exten_str = ", ".join(exten_list)
         await ctx.send(f"Extensions: {exten_str}")
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def reload_database(self, ctx):
         loc_split = __file__.split("cogs")
         start_path = loc_split[0]

@@ -4,7 +4,7 @@ from pathlib import Path
 
 async def proper_permissions(ctx):
     permissions = ctx.author.guild_permissions
-    return (permissions.administrator or permissions.manage_messages)
+    return (permissions.administrator or permissions.manage_guild)
 
 async def fetch_needed(bot, payload):
     guild = await bot.fetch_guild(payload.guild_id)

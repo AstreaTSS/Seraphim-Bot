@@ -3,13 +3,15 @@ import discord, datetime, math, importlib
 
 import bot_utils.universals as univ
 
-class PingRoleCMDs(commands.Cog):
+class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
     def __init__(self, bot):
         self.bot = bot
         importlib.reload(univ)
 
     @commands.command(aliases = ["pingrole", "roleping", "role_ping"])
     async def ping_role(self, ctx, *, role_name):
+        """Pings the role specified if the role isn't on cooldown and has been added to a list."""
+
         ping_roles = self.bot.config[ctx.guild.id]["pingable_roles"]
 
         if ping_roles == {}:
@@ -70,6 +72,9 @@ class PingRoleCMDs(commands.Cog):
     @commands.group()
     @commands.check(univ.proper_permissions)
     async def manage_ping_roles(self, ctx):
+        """The base command for managing all of the pingable roles. See the help for the subcommands for more info.
+        Only people with Manage Server permissions or higher can use this."""
+        
         if ctx.invoked_subcommand == None:
             list_cmd = self.bot.get_command("manage_ping_roles list")
             await ctx.invoke(list_cmd)
@@ -77,6 +82,8 @@ class PingRoleCMDs(commands.Cog):
     @manage_ping_roles.command(name = "list")
     @commands.check(univ.proper_permissions)
     async def _list(self, ctx):
+        """Returns a list of roles that have been made pingable, and their cooldown in seconds."""
+
         ping_roles = self.bot.config[ctx.guild.id]["pingable_roles"]
 
         if ping_roles == {}:
@@ -97,6 +104,10 @@ class PingRoleCMDs(commands.Cog):
     @manage_ping_roles.command()
     @commands.check(univ.proper_permissions)
     async def add(self, ctx, role_name, cooldown):
+        """Adds the role to the roles able to be pinged. 
+        The role name is case-sensitive, and must be in quotes if it’s over one word. 
+        The cooldown can be in seconds, minutes, or hours (ex. 1s, 1m, 1h)."""
+
         role_obj = discord.utils.get(ctx.guild.roles, name = role_name)
         if role_obj == None:
             await ctx.send("That's not a role! Make sure it's spelled correctly, and if it has multiple words, that it's in quotes.")
@@ -138,6 +149,10 @@ class PingRoleCMDs(commands.Cog):
     @manage_ping_roles.command()
     @commands.check(univ.proper_permissions)
     async def remove(self, ctx, *, role_name):
+        """removes that role from the roles able to be pinged. 
+        Role name is case-sensitive, although it does not need to be in quotes if it’s over one word. 
+        This is the only way to ‘edit’ a role’s cooldown; removing it and adding it back in with the new cooldown."""
+
         ping_roles = self.bot.config[ctx.guild.id]["pingable_roles"]
 
         if ping_roles == {}:
