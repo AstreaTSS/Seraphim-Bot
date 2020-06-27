@@ -45,7 +45,7 @@ async def generate(bot, mes, forced = False):
         send_embed.set_footer(text=f"ID: {mes.id}")
         
     else:
-        content = mes.content
+        content = mes.system_content
 
         image_endings = (".jpg", ".png", ".gif")
         image_extensions = tuple(image_endings) # no idea why I have to do this

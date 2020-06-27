@@ -1,5 +1,5 @@
 from discord.ext import commands
-import discord
+import discord, importlib
 
 import bot_utils.universals as univ
 import bot_utils.star_mes_handler as star_mes
@@ -7,6 +7,9 @@ import bot_utils.star_mes_handler as star_mes
 class PinHandler(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+        importlib.reload(univ)
+        importlib.reload(star_mes)
 
     @commands.Cog.listener()
     async def on_message(self, msg):
@@ -28,7 +31,7 @@ class PinHandler(commands.Cog):
                 return
 
             send_embed = await star_mes.generate(self.bot, early_entry)
-            send_embed.color = discord.Colour(0x4378fc)
+            send_embed.color = discord.Colour.default()
 
             await des_chan.send(embed = send_embed)
             await early_entry.unpin()
