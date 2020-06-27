@@ -1,10 +1,10 @@
 from discord.ext import commands
-from bot_utils.paginator import Pages
-import discord, asyncio, itertools
+import bot_utils.paginator as paginator
+import discord, asyncio, itertools, importlib
 
 # most of this code has been copied from https://github.com/Rapptz/RoboDanny
 
-class HelpPaginator(Pages):
+class HelpPaginator(paginator.Pages):
     def __init__(self, help_command, ctx, entries, *, per_page=4):
         super().__init__(ctx, entries=entries, per_page=per_page)
         self.reaction_emojis.append(('\N{WHITE QUESTION MARK ORNAMENT}', self.show_bot_help))
@@ -156,7 +156,7 @@ class PaginatedHelpCommand(commands.HelpCommand):
 
     async def send_command_help(self, command):
         # No pagination necessary for a single command.
-        embed = discord.Embed(colour=discord.Colour.blurple())
+        embed = discord.Embed(colour=discord.Colour(0x4378fc))
         self.common_command_formatting(embed, command)
         await self.context.send(embed=embed)
 
@@ -174,6 +174,8 @@ class PaginatedHelpCommand(commands.HelpCommand):
 class HelpCMD(commands.Cog, name="Help"):
     def __init__(self, bot):
         self.bot = bot
+        importlib.reload(paginator)
+
         self.old_help_command = bot.help_command
         bot.help_command = PaginatedHelpCommand()
         bot.help_command.cog = self
