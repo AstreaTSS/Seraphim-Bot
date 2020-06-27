@@ -153,7 +153,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
     @manage_ping_roles.command()
     @commands.check(univ.proper_permissions)
     async def remove(self, ctx, *, role_name):
-        """removes that role from the roles able to be pinged. 
+        """Removes that role from the roles able to be pinged. 
         Role name is case-sensitive, although it does not need to be in quotes if it’s over one word. 
         This is the only way to ‘edit’ a role’s cooldown; removing it and adding it back in with the new cooldown."""
 
