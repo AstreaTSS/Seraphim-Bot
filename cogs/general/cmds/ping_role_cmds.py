@@ -96,10 +96,14 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
             role_obj = ctx.guild.get_role(int(role))
             if role_obj != None:
                 role_list.append(f"`{role_obj.name}, {role['time_period']} second cooldown`")
+            else:
+                del self.bot.config[ctx.guild.id]["pingable_roles"][role]
 
-        role_str = ", ".join(role_list)
-
-        await ctx.send(f"Pingable roles: {role_str}")
+        if role_list != []:
+            role_str = ", ".join(role_list)
+            await ctx.send(f"Pingable roles: {role_str}")
+        else:
+            await ctx.send("There are no roles added!")
 
     @manage_ping_roles.command()
     @commands.check(univ.proper_permissions)

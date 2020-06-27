@@ -33,18 +33,21 @@ class PinCMDs(commands.Cog, name = "Pinboard"):
         entries_list = []
 
         for entry in self.bot.config[ctx.guild.id]["pin_config"].keys():
-            try:
-                entry_chan = await self.bot.fetch_channel(int(entry))
-                des_chan = await self.bot.fetch_channel(self.bot.config[ctx.guild.id]["pin_config"][entry]["destination"])
+            entry_chan = self.bot.get_channel(int(entry))
+            des_chan = self.bot.get_channel(self.bot.config[ctx.guild.id]["pin_config"][entry]["destination"])
+
+            if not (entry_chan == None or des_chan == None):
                 limit = self.bot.config[ctx.guild.id]["pin_config"][entry]["limit"]
 
                 entries_list.append(f"{entry_chan.mention} -> {des_chan.mention} (Limit: {limit})")
-            except discord.NotFound:
-                continue
+            else:
+                del self.bot.config[ctx.guild.id]["pin_config"][entry]
 
-        entries_str = "\n".join(entries_list)
-
-        await ctx.send(f"Channels mapped:\n\n{entries_str}")
+        if entries_list != []:
+            entries_str = "\n".join(entries_list)
+            await ctx.send(f"Channels mapped:\n\n{entries_str}")
+        else:
+            await ctx.send("There are no entries for this server!")
 
     @manage_pinboard.command(aliases = ["map"])
     @commands.check(univ.proper_permissions)

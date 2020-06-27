@@ -11,9 +11,9 @@ class BlacklistCMDs(commands.Cog, name = "Blacklist"):
     async def cog_check(self, ctx):
         return self.bot.config[ctx.guild.id]["star_toggle"]
 
-    @commands.group()
+    @commands.group(aliases = ["star_bl", "starblacklist"])
     @commands.check(univ.proper_permissions)
-    async def blacklist(self, ctx):
+    async def star_blacklist(self, ctx):
         """The base command for the star blacklist. See the subcommands for more info.
         Requires Manage Server permissions or higher. Running this with no arguments will run the list command."""
 
@@ -21,7 +21,7 @@ class BlacklistCMDs(commands.Cog, name = "Blacklist"):
             list_cmd = self.bot.get_command("blacklist list")
             await ctx.invoke(list_cmd)
 
-    @blacklist.command(name = "list")
+    @star_blacklist.command(name = "list")
     @commands.check(univ.proper_permissions)
     async def _list(self, ctx):
         """Returns a list of channels that have been blacklisted. Messages from channels that are blacklisted won’t be starred."""
@@ -31,17 +31,20 @@ class BlacklistCMDs(commands.Cog, name = "Blacklist"):
             channel_mentions = []
 
             for channel_id in channel_id_list:
-                try:
-                    channel = await self.bot.fetch_channel(channel_id)
+                channel = await self.bot.get_channel(channel_id)
+
+                if channel != None:
                     channel_mentions.append(channel.mention)
-                except discord.NotFound:
-                    continue
+                else:
+                    del self.bot.config[ctx.guild.id]["star_blacklist"][channel_id]
 
-            await ctx.send(f"Blacklisted channels: {', '.join(channel_mentions)}")
-        else:
-            await ctx.send("There's no blacklisted channels for this guild!")
+            if channel_mentions != []:
+                await ctx.send(f"Blacklisted channels: {', '.join(channel_mentions)}")
+                return
+                
+        await ctx.send("There's no blacklisted channels for this guild!")
 
-    @blacklist.command()
+    @star_blacklist.command()
     @commands.check(univ.proper_permissions)
     async def add(self, ctx, channel: discord.TextChannel):
         """Adds the channel to the blacklist."""
@@ -55,7 +58,7 @@ class BlacklistCMDs(commands.Cog, name = "Blacklist"):
         else:
             await ctx.send("That channel's already in the blacklist!")
 
-    @blacklist.command()
+    @star_blacklist.command()
     @commands.check(univ.proper_permissions)
     async def remove(self, ctx, channel: discord.TextChannel):
         """Removed the channel from the blacklist."""
