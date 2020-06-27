@@ -13,12 +13,12 @@ class PinCMDs(commands.Cog):
 
     @commands.group()
     @commands.check(univ.proper_permissions)
-    async def manage_pin(self, ctx):
+    async def manage_pinboard(self, ctx):
         if ctx.invoked_subcommand == None:
-            list_cmd = self.bot.get_command("pin list")
+            list_cmd = self.bot.get_command("manage_pinboard list")
             await ctx.invoke(list_cmd)
 
-    @manage_pin.command(aliases = ["list"])
+    @manage_pinboard.command(aliases = ["list"])
     @commands.check(univ.proper_permissions)
     async def _list(self, ctx):
         if self.bot.config[ctx.guild.id]["pin_config"] == {}:
@@ -41,7 +41,7 @@ class PinCMDs(commands.Cog):
 
         await ctx.send(f"Channels mapped:\n\n{entries_str}")
 
-    @manage_pin.command(aliases = ["map"])
+    @manage_pinboard.command(aliases = ["map"])
     @commands.check(univ.proper_permissions)
     async def _map(self, ctx, entry: discord.TextChannel, destination: discord.TextChannel, limit: int):
         self.bot.config[ctx.guild.id]["pin_config"][str(entry.id)] = {
@@ -51,13 +51,13 @@ class PinCMDs(commands.Cog):
 
         await ctx.send(f"Overflowing pins from {entry.mention} will now appear in {destination.mention}.")
 
-    @manage_pin.command(aliases = ["pinlimit"])
+    @manage_pinboard.command(aliases = ["pinlimit"])
     @commands.check(univ.proper_permissions)
     async def pin_limit(self, ctx, entry: discord.TextChannel, limit: int):
         self.bot.config[ctx.guild.id]["pin_config"][str(entry.id)]["limit"] = limit
         await ctx.send(f"The pin limit for {entry.mention} is now set to {limit}.")
 
-    @manage_pin.command()
+    @manage_pinboard.command()
     @commands.check(univ.proper_permissions)
     async def unmap(self, ctx, entry: discord.TextChannel):
         try:
