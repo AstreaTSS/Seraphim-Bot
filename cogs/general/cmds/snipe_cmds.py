@@ -30,8 +30,12 @@ class SnipeCMDs(commands.Cog):
 
     @commands.command()
     async def snipe(self, ctx, msg_num = 1):
-        """Allows you to get the last or the nth last deleted message from the channel this command was used in.
+        """Allows you to get the last or the nth to last deleted message from the channel this command was used in.
         Any message that had been deleted over a minute ago will not be able to be sniped."""
+
+        if msg_num == 0:
+            await ctx.send("You can't snipe the 0th to last message no matter how hard you try.")
+            return
 
         no_msg_found = False
         msg_num = abs(msg_num)
@@ -68,6 +72,10 @@ class SnipeCMDs(commands.Cog):
     async def editsnipe(self, ctx, msg_num = 1):
         """Allows you to get either the last or nth lasted edited message from the channel this command was used in.
         Any message that has been edited in over a minute will not be able to be sniped."""
+
+        if msg_num == 0:
+            await ctx.send("You can't snipe the 0th to last message no matter how hard you try.")
+            return
 
         no_msg_found = False
         msg_num = abs(msg_num)
