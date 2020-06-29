@@ -13,7 +13,7 @@ class SnipeCMDs(commands.Cog):
 
         for chan_id in self.bot.snipes[type_of].keys():
             for index in range(len(self.bot.snipes[type_of][chan_id])):
-                if self.bot.snipes[type_of][chan_id][index][f"time_{type_of[:-2]}ed"] < one_minute_ago:
+                if self.bot.snipes[type_of][chan_id][index][f"time_{type_of.replace('s', 'd')}"] < one_minute_ago:
                     del self.bot.snipes[type_of][chan_id][index]
 
     async def snipe_handle(self, ctx, msg_num, type_of):
