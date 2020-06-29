@@ -6,18 +6,17 @@ class SnipeCMDs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def snipe_cleanup(self, type_of, past_type):
+    def snipe_cleanup(self, type_of, past_type, chan_id):
         now = datetime.datetime.utcnow()
         one_minute = datetime.timedelta(minutes=1)
         one_minute_ago = now - one_minute
 
-        for chan_id in self.bot.snipes[type_of].keys():
-            for index in range(len(self.bot.snipes[type_of][chan_id]) - 1):
-                if self.bot.snipes[type_of][chan_id][index][f"time_{past_type}"] < one_minute_ago:
-                    del self.bot.snipes[type_of][chan_id][index]
+        for index in range(len(self.bot.snipes[type_of][chan_id]) - 1):
+            if self.bot.snipes[type_of][chan_id][index][f"time_{past_type}"] < one_minute_ago:
+                del self.bot.snipes[type_of][chan_id][index]
 
     async def snipe_handle(self, ctx, msg_num, type_of, past_type):
-        self.snipe_cleanup(type_of, past_type)
+        self.snipe_cleanup(type_of, past_type, ctx.channel.id)
 
         if msg_num == 0:
             await ctx.send("You can't snipe the 0th to last message no matter how hard you try.")
@@ -29,7 +28,7 @@ class SnipeCMDs(commands.Cog):
             await ctx.send("There's nothing to snipe!")
             return
 
-        sniped_msg = self.bot.snipes[type_of][ctx.channel.id][msg_num]
+        sniped_msg = self.bot.snipes[type_of][ctx.channel.id][msg_num - 1]
 
         author = f"{sniped_msg['author'].display_name} ({str(sniped_msg['author'])})"
         icon = str(sniped_msg['author'].avatar_url_as(format="jpg", size=128))
