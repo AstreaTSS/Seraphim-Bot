@@ -33,10 +33,10 @@ class EtcEvents(commands.Cog):
     async def on_message_delete(self, message):
         if message.content != "":
             now = datetime.datetime.utcnow()
-            if not message.channel.id in self.bot.sniped.keys():
-                self.bot.sniped[message.channel.id] = []
+            if not message.channel.id in self.bot.snipes["deletes"].keys():
+                self.bot.snipes["deletes"][message.channel.id] = []
 
-            self.bot.sniped[message.channel.id].append({
+            self.bot.snipes["deletes"][message.channel.id].append({
                 "author": message.author,
                 "content": message.content,
                 "created_at": message.created_at,
@@ -48,10 +48,10 @@ class EtcEvents(commands.Cog):
         if before.content != after.content:
             if before.content != "":
                 now = datetime.datetime.utcnow()
-                if not before.channel.id in self.bot.editsniped.keys():
-                    self.bot.editsniped[before.channel.id] = []
+                if not before.channel.id in self.bot.snipes["edits"].keys():
+                    self.bot.snipes["edits"][before.channel.id] = []
                 
-                self.bot.editsniped[before.channel.id].append({
+                self.bot.snipes["edits"][before.channel.id].append({
                     "author": before.author,
                     "content": before.content,
                     "created_at": before.created_at,

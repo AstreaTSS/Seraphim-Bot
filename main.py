@@ -17,8 +17,10 @@ async def on_ready():
         bot.starboard = {}
         bot.config = {}
 
-        bot.sniped = {}
-        bot.editsniped = {}
+        bot.snipes = {
+            "deletes": {},
+            "edits": {}
+        }
 
         bot.star_queue = {}
 
