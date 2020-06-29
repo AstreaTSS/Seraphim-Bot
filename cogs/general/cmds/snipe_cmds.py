@@ -29,7 +29,7 @@ class SnipeCMDs(commands.Cog):
             await ctx.send("There's nothing to snipe!")
             return
 
-        sniped_msg = self.bot.snipes[type_of][ctx.channel.id][-msg_num]
+        sniped_msg = self.bot.snipes[type_of][ctx.channel.id][msg_num]
 
         author = f"{sniped_msg['author'].display_name} ({str(sniped_msg['author'])})"
         icon = str(sniped_msg['author'].avatar_url_as(format="jpg", size=128))
