@@ -29,7 +29,7 @@ class SnipeCMDs(commands.Cog):
             return
 
         try:
-            sniped_msg = self.bot.snipes[type_of][ctx.channel.id][msg_num - 1]
+            sniped_msg = self.bot.snipes[type_of][ctx.channel.id][-msg_num]
         except IndexError:
             await ctx.send("There's nothing to snipe!")
             return
