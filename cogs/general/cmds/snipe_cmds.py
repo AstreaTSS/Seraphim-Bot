@@ -11,8 +11,9 @@ class SnipeCMDs(commands.Cog):
         one_minute = datetime.timedelta(minutes=1)
         one_minute_ago = now - one_minute
 
-        for index in range(len(self.bot.snipes[type_of][chan_id]) - 1):
-            if self.bot.snipes[type_of][chan_id][index][f"time_{past_type}"] < one_minute_ago:
+        for entry in self.bot.snipes[type_of][chan_id]:
+            if entry < one_minute_ago:
+                index = self.bot.snipes[type_of][chan_id].index(entry)
                 del self.bot.snipes[type_of][chan_id][index]
 
     async def snipe_handle(self, ctx, msg_num, type_of, past_type):
