@@ -6,18 +6,18 @@ class SnipeCMDs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def snipe_cleanup(self, type_of):
+    def snipe_cleanup(self, type_of, base_index):
         now = datetime.datetime.utcnow()
         one_minute = datetime.timedelta(minutes=1)
         one_minute_ago = now - one_minute
 
         for chan_id in self.bot.snipes[type_of].keys():
             for index in range(len(self.bot.snipes[type_of][chan_id])):
-                if self.bot.snipes[type_of][chan_id][index][f"time_{type_of.replace('s', 'd')}"] < one_minute_ago:
+                if self.bot.snipes[type_of][chan_id][index][f"time_{type_of[:-base_index]}ed"] < one_minute_ago:
                     del self.bot.snipes[type_of][chan_id][index]
 
-    async def snipe_handle(self, ctx, msg_num, type_of):
-        self.snipe_cleanup(type_of)
+    async def snipe_handle(self, ctx, msg_num, type_of, base_index):
+        self.snipe_cleanup(type_of, base_index)
 
         if msg_num == 0:
             await ctx.send("You can't snipe the 0th to last message no matter how hard you try.")
@@ -44,14 +44,14 @@ class SnipeCMDs(commands.Cog):
         """Allows you to get the last or the nth to last deleted message from the channel this command was used in.
         Any message that had been deleted over a minute ago will not be able to be sniped."""
 
-        await self.snipe_handle(ctx, msg_num, "deletes")
+        await self.snipe_handle(ctx, msg_num, "deletes", 2)
 
     @commands.command()
     async def editsnipe(self, ctx, msg_num = 1):
         """Allows you to get either the last or nth lasted edited message from the channel this command was used in.
         Any message that has been edited in over a minute will not be able to be sniped."""
 
-        await self.snipe_handle(ctx, msg_num, "edits")
+        await self.snipe_handle(ctx, msg_num, "edits", 1)
 
 def setup(bot):
     bot.add_cog(SnipeCMDs(bot))
