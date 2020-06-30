@@ -35,7 +35,7 @@ class SnipeCMDs(commands.Cog):
             return
 
         author = f"{sniped_msg['author'].display_name} ({str(sniped_msg['author'])})"
-        icon = str(sniped_msg['author'].avatar_url_as(format="jpg", size=128))
+        icon = str(sniped_msg['author'].avatar_url_as(format=None,static_format='jpg', size=128))
 
         send_embed = discord.Embed(colour=discord.Colour(0x4378fc), description=sniped_msg["content"], timestamp=sniped_msg["created_at"])
         send_embed.set_author(name=author, icon_url=icon)

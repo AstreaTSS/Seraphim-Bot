@@ -50,7 +50,7 @@ class NormCMDs(commands.Cog, name="Normal"):
         )
         about_embed.set_author(
             name=f"{self.bot.user.name}", 
-            icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}"
+            icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='jpg', size=128))}"
         )
 
         source_list = []

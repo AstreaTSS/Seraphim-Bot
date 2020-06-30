@@ -55,7 +55,7 @@ class StarNormCMDs(commands.Cog, name = "Normal Star"):
         guild_entries = [self.bot.starboard[k] for k in self.bot.starboard.keys() if self.bot.starboard[k]["guild_id"] == ctx.guild.id]
         if guild_entries != []:
             top_embed = discord.Embed(title=f"Top starred messages in {ctx.guild.name}", colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow())
-            top_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}")
+            top_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='jpg', size=128))}")
             top_embed.set_footer(text="As of")
 
             starboard_id = self.bot.config[ctx.guild.id]['starboard_id']
@@ -87,7 +87,7 @@ class StarNormCMDs(commands.Cog, name = "Normal Star"):
 
         if user_star_list != None:
             top_embed = discord.Embed(title=f"Star Leaderboard for {ctx.guild.name}", colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow())
-            top_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}")
+            top_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='jpg', size=128))}")
 
             for i in range(len(user_star_list)):
                 if i > 9:
@@ -130,7 +130,7 @@ class StarNormCMDs(commands.Cog, name = "Normal Star"):
                     placing = f"Your {self.get_user_placing(user_star_list, member.id)}"
 
                 place_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=placing, timestamp=datetime.datetime.utcnow())
-                place_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format='jpg', size=128))}")
+                place_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='jpg',size=128))}")
                 place_embed.set_footer(text="Sent")
 
                 await ctx.send(embed=place_embed)
