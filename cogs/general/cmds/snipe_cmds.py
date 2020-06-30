@@ -12,7 +12,7 @@ class SnipeCMDs(commands.Cog):
         one_minute_ago = now - one_minute
 
         for entry in self.bot.snipes[type_of][chan_id]:
-            if entry < one_minute_ago:
+            if entry[f"time_{past_type}"] < one_minute_ago:
                 index = self.bot.snipes[type_of][chan_id].index(entry)
                 del self.bot.snipes[type_of][chan_id][index]
 
