@@ -64,8 +64,24 @@ class ModCMDs(commands.Cog, name = "Mod Star"):
             await ctx.send("Starboard is not turned on for this server!")
             return
 
-        star_univ.modify_stars(self.bot, msg, None, "None")
         starboard_entry = star_univ.get_star_entry(self.bot, msg.id)
+        if starboard_entry == []:
+            author_id = star_univ.get_author_id(msg, self.bot)
+            prev_reactors = await star_univ.get_prev_reactors(msg, author_id)
+
+            self.bot.starboard[msg.id] = {
+                "ori_chan_id": msg.channel.id,
+                "star_var_id": None,
+                "author_id": author_id,
+                "ori_reactors": prev_reactors,
+                "var_reactors": [],
+                "guild_id": msg.guild.id,
+                "forced": False,
+
+                "ori_mes_id_bac": msg.id,
+                "updated": True
+            }
+            starboard_entry = self.bot.starboard[msg.id]
         
         if starboard_entry["star_var_id"] == None:
             starboard_entry["forced"] == True
