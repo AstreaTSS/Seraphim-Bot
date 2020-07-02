@@ -124,7 +124,7 @@ async def get_prev_reactors(mes, author_id):
 
         users = await reaction.users().flatten()
         users_id = [u.id for u in users if u.id != author_id and not u.bot]
-        return users_id
+        return users_id if users_id != None else []
 
     return []
 
