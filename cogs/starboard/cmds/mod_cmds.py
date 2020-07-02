@@ -65,7 +65,7 @@ class ModCMDs(commands.Cog, name = "Mod Star"):
             return
 
         starboard_entry = star_univ.get_star_entry(self.bot, msg.id)
-        await univ.msg_to_owner(string = str(starboard_entry))
+        await univ.msg_to_owner(self.bot, str(starboard_entry))
         if starboard_entry == []:
             author_id = star_univ.get_author_id(msg, self.bot)
             prev_reactors = await star_univ.get_prev_reactors(msg, author_id)
@@ -84,7 +84,7 @@ class ModCMDs(commands.Cog, name = "Mod Star"):
             }
             starboard_entry = self.bot.starboard[msg.id]
 
-        await univ.msg_to_owner(string = str(starboard_entry))
+        await univ.msg_to_owner(self.bot, str(starboard_entry))
         
         if starboard_entry["star_var_id"] == None:
             starboard_entry["forced"] == True
