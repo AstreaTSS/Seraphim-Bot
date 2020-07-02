@@ -26,7 +26,12 @@ async def error_handle(bot, error, ctx = None):
 async def msg_to_owner(bot, string):
     application = await bot.application_info()
     owner = application.owner
-    await owner.send(f"{string}")
+
+    str_split = string.split("")
+    str_chunks = [str_split[x:x+1950] for x in range(0, len(str_split), 1950)]
+
+    for chunk in str_chunks:
+        await owner.send(f"{''.join(chunk)}")
 
 async def user_from_id(bot, guild, user_id):
     user = guild.get_member(user_id)
