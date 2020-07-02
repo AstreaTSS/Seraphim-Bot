@@ -47,7 +47,7 @@ class SayCMDS(commands.Cog, name = "Say"):
         files_sent = []
 
         try:
-            optional_channel = commands.TextChannelConverter().convert(ctx, args[0])
+            optional_channel = await commands.TextChannelConverter().convert(ctx, args[0])
         except commands.BadArgument:
             pass
             
@@ -88,7 +88,7 @@ class SayCMDS(commands.Cog, name = "Say"):
             return
         elif reply.content.lower() != "skip":
             try:
-                optional_channel = commands.TextChannelConverter().convert(ctx, reply.content)
+                optional_channel = await commands.TextChannelConverter().convert(ctx, reply.content)
             except commands.BadArgument:
                 await ori.edit(content = "```\nFailed to get channel. Exiting...\n```")
                 return
@@ -101,7 +101,7 @@ class SayCMDS(commands.Cog, name = "Say"):
             return
         elif reply.content.lower() != "skip":
             try:
-                optional_color = commands.ColourConverter().convert(ctx, reply.content.lower())
+                optional_color = await commands.ColourConverter().convert(ctx, reply.content.lower())
             except commands.BadArgument:
                 await ori.edit(content = "```\nFailed to get hex color. Exiting...\n```")
                 return
