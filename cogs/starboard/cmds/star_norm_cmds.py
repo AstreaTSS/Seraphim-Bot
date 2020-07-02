@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import discord, importlib, re, datetime
+import discord, importlib, re, datetime, typing
 import bot_utils.star_universals as star_univ
 import bot_utils.universals as univ
 
@@ -107,18 +107,10 @@ class StarNormCMDs(commands.Cog, name = "Normal Star"):
 
     @commands.cooldown(1, 5, commands.BucketType.member)
     @commands.command(aliases = ["position", "place", "placing"])
-    async def pos(self, ctx, user_mention = None):
+    async def pos(self, ctx, user_mention: typing.Optional(discord.Member)):
         """Allows you to get either your or whoever you mentioned’s position in the star leaderboard (like the top command, but only for one person)."""
-        
-        member = None
 
-        if user_mention != None:
-            if re.search("[<@>]", user_mention):
-                user_id = re.sub("[<@>]", "", user_mention)
-                user_id = user_id.replace("!", "")
-                member = await univ.user_from_id(self.bot, ctx.guild, int(user_id))
-        else:
-            member = ctx.author
+        member = ctx.author if user_mention == None else user_mention
 
         if member != None:
             user_star_list = self.get_star_rankings(ctx)

@@ -21,11 +21,11 @@ class NormCMDs(commands.Cog, name="Normal"):
         await mes.edit(content=f"Pong!\n`{ping_discord}` ms from Discord.\n`{ping_personal}` ms personally.")
     
     @commands.command()
-    async def reverse(self, ctx, *, msg):
+    async def reverse(self, ctx, *, content):
         """Reverses the content given."""
 
-        if len(msg) < 1950:
-            await ctx.send(f"{ctx.author.mention}: {discord.utils.escape_mentions(msg[::-1])}")
+        if len(content) < 1950:
+            await ctx.send(f"{ctx.author.mention}: {discord.utils.escape_mentions(content[::-1])}")
         else:
             await ctx.send(f"{ctx.author.mention}, that message is too long!")
 

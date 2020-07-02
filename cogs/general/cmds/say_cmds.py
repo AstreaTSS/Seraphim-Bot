@@ -46,9 +46,10 @@ class SayCMDS(commands.Cog, name = "Say"):
         optional_channel = None
         files_sent = []
 
-        if (re.search("[<#>]", args[0])):
-            channel_id = re.sub("[<#>]", "", args[0])
-            optional_channel = ctx.guild.get_channel(int(channel_id))
+        try:
+            optional_channel = commands.TextChannelConverter().convert(ctx, args[0])
+        except commands.BadArgument:
+            pass
             
         if ctx.message.attachments is not None:
             for a_file in ctx.message.attachments:
@@ -86,9 +87,9 @@ class SayCMDS(commands.Cog, name = "Say"):
         if reply == None:
             return
         elif reply.content.lower() != "skip":
-            if reply.channel_mentions != []:
-                optional_channel = reply.channel_mentions[0]
-            else:
+            try:
+                optional_channel = commands.TextChannelConverter().convert(ctx, reply.content)
+            except commands.BadArgument:
                 await ori.edit(content = "```\nFailed to get channel. Exiting...\n```")
                 return
 
@@ -99,11 +100,9 @@ class SayCMDS(commands.Cog, name = "Say"):
         if reply == None:
             return
         elif reply.content.lower() != "skip":
-            temp_fix = reply.content.replace("#", "")
-            if (re.search(r'^(?:[0-9a-fA-F]{3}){1,2}$', temp_fix)):
-                hex_color = int(reply.content.replace("#", ""), 16)
-                optional_color = discord.Color(hex_color)
-            else:
+            try:
+                optional_color = commands.ColourConverter().convert(ctx, reply.content.lower())
+            except commands.BadArgument:
                 await ori.edit(content = "```\nFailed to get hex color. Exiting...\n```")
                 return
 

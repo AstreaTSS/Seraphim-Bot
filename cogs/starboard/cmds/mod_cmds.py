@@ -30,7 +30,7 @@ class ModCMDs(commands.Cog, name = "Mod Star"):
 
     @star_settings.group()
     @commands.check(univ.proper_permissions)
-    async def limit(self, ctx, limit):
+    async def limit(self, ctx, limit: int):
         """Sets the amount of stars needed to get onto the starboard to that number."""
         if limit.isdigit():
             self.bot.config[ctx.guild.id]["star_limit"] = int(limit)
@@ -54,7 +54,7 @@ class ModCMDs(commands.Cog, name = "Mod Star"):
 
     @commands.command()
     @commands.check(univ.proper_permissions)
-    async def force(self, ctx, mes_id):
+    async def force(self, ctx, msg: discord.Message):
         """Forces a message onto the starboard, regardless of how many stars it has.
         The message represented by the message id must be in the same channel as the channel you send the command.
         This message cannot be taken off the starboard unless it is deleted from it manually.
@@ -64,18 +64,8 @@ class ModCMDs(commands.Cog, name = "Mod Star"):
             await ctx.send("Starboard is not turned on for this server!")
             return
 
-        if not mes_id.isdigit():
-            await ctx.send("Not a valid channel id!")
-            return
-
-        try:
-            mes = await ctx.channel.fetch_message(int(mes_id))
-        except discord.NotFound:
-            await ctx.send("Message not found! Is this a valid message ID and are you running this command in the same channel as the message?")
-            return
-
-        star_univ.modify_stars(self.bot, mes, None, "None")
-        starboard_entry = star_univ.get_star_entry(self.bot, mes.id)
+        star_univ.modify_stars(self.bot, msg, None, "None")
+        starboard_entry = star_univ.get_star_entry(self.bot, msg.id)
         
         if starboard_entry["star_var_id"] == None:
             starboard_entry["forced"] == True
@@ -84,7 +74,7 @@ class ModCMDs(commands.Cog, name = "Mod Star"):
             return
         
         unique_stars = star_univ.get_num_stars(starboard_entry)
-        await star_mes.send(self.bot, mes, unique_stars, forced=True)
+        await star_mes.send(self.bot, msg, unique_stars, forced=True)
 
         await ctx.send("Done!")
 
