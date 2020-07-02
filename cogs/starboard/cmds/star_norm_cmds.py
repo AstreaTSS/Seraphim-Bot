@@ -107,7 +107,7 @@ class StarNormCMDs(commands.Cog, name = "Normal Star"):
 
     @commands.cooldown(1, 5, commands.BucketType.member)
     @commands.command(aliases = ["position", "place", "placing"])
-    async def pos(self, ctx, user_mention: typing.Optional(discord.Member)):
+    async def pos(self, ctx, user_mention: typing.Optional[discord.Member]):
         """Allows you to get either your or whoever you mentioned’s position in the star leaderboard (like the top command, but only for one person)."""
 
         member = ctx.author if user_mention == None else user_mention
