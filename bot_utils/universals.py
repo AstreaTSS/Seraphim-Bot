@@ -27,11 +27,10 @@ async def msg_to_owner(bot, string):
     application = await bot.application_info()
     owner = application.owner
 
-    str_split = string.split("")
-    str_chunks = [str_split[x:x+1950] for x in range(0, len(str_split), 1950)]
+    str_chunks = [string[i:i+1950] for i in range(0, len(string), 1950)]
 
     for chunk in str_chunks:
-        await owner.send(f"{''.join(chunk)}")
+        await owner.send(f"{chunk}")
 
 async def user_from_id(bot, guild, user_id):
     user = guild.get_member(user_id)
