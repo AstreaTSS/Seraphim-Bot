@@ -126,6 +126,8 @@ async def get_prev_reactors(mes, author_id):
         users_id = [u.id for u in users if u.id != author_id and not u.bot]
         return users_id
 
+    return []
+
 async def star_entry_refresh(bot, starboard_entry, guild_id):
     star_var_chan = await bot.fetch_channel(bot.config[guild_id]["starboard_id"])
 
