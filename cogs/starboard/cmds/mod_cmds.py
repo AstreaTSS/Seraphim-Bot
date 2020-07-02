@@ -69,6 +69,7 @@ class ModCMDs(commands.Cog, name = "Mod Star"):
         if starboard_entry == []:
             author_id = star_univ.get_author_id(msg, self.bot)
             prev_reactors = await star_univ.get_prev_reactors(msg, author_id)
+            await univ.msg_to_owner(bot = self.bot, string = str(prev_reactors))
 
             self.bot.starboard[msg.id] = {
                 "ori_chan_id": msg.channel.id,
