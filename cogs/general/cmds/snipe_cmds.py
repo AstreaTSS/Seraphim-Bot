@@ -5,6 +5,10 @@ import discord, datetime
 class SnipeCMDs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.auto_cleanup.start()
+
+    def cog_unload(self):
+        self.auto_cleanup.cancel()
 
     def snipe_cleanup(self, type_of, past_type, chan_id):
         now = datetime.datetime.utcnow()
@@ -16,6 +20,22 @@ class SnipeCMDs(commands.Cog):
             for entry in snipes_copy:
                 if entry[f"time_{past_type}"] < one_minute_ago:
                     self.bot.snipes[type_of][chan_id].remove(entry)
+
+    @tasks.loop(minutes=5)
+    async def auto_cleanup(self):
+        now = datetime.datetime.utcnow()
+        one_minute = datetime.timedelta(minutes=1)
+        one_minute_ago = now - one_minute
+
+        for chan_id in self.bot.snipes["deletes"].keys():
+            for entry in self.bot.snipes["deletes"][chan_id].copy():
+                if entry[f"time_deleted"] < one_minute_ago:
+                    self.bot.snipes["deletes"][chan_id].remove(entry)
+
+        for chan_id in self.bot.snipes["edits"].keys():
+            for entry in self.bot.snipes["edits"][chan_id].copy():
+                if entry[f"time_edited"] < one_minute_ago:
+                    self.bot.snipes["edits"][chan_id].remove(entry)
 
     async def snipe_handle(self, ctx, msg_num, type_of, past_type):
         self.snipe_cleanup(type_of, past_type, ctx.channel.id)
@@ -43,6 +63,7 @@ class SnipeCMDs(commands.Cog):
         send_embed.set_author(name=author, icon_url=icon)
 
         await ctx.send(embed = send_embed)
+        
 
     @commands.command()
     async def snipe(self, ctx, msg_num = 1):
