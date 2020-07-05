@@ -12,7 +12,8 @@ class SnipeCMDs(commands.Cog):
         one_minute_ago = now - one_minute
 
         if chan_id in self.bot.snipes[type_of]:
-            for entry in self.bot.snipes[type_of][chan_id]:
+            snipes_copy = self.bot.snipes[type_of][chan_id].copy()
+            for entry in snipes_copy:
                 if entry[f"time_{past_type}"] < one_minute_ago:
                     self.bot.snipes[type_of][chan_id].remove(entry)
 

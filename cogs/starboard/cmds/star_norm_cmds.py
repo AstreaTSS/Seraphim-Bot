@@ -67,7 +67,7 @@ class StarNormCMDs(commands.Cog, name = "Normal Star"):
                     break
 
                 entry = guild_entries[i]
-                url = f"https://discordapp.com/channels/{ctx.guild.id}/{starboard_id}/{entry['ori_mes_id_bac']}"
+                url = f"https://discordapp.com/channels/{ctx.guild.id}/{starboard_id}/{entry['star_var_id']}"
                 num_stars = star_univ.get_num_stars(entry)
                 member = await univ.user_from_id(self.bot, ctx.guild, entry['author_id'])
                 author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry['author_id']}"
