@@ -76,7 +76,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         
         for role in ping_roles.keys():
             role_obj = ctx.guild.get_role(int(role))
-            period_delta = datetime.timedelta(seconds=role['time_period'])
+            period_delta = datetime.timedelta(seconds=ping_roles[role]['time_period'])
 
             if role_obj != None:
                 role_list.append(f"`{role_obj.name}, {humanize.precisedelta(period_delta, format='%0.0f')} cooldown`")
