@@ -117,7 +117,12 @@ class TimeDurationConverter(commands.Converter):
 
         for entry in self.regex.split(argument):
             if not (entry == "" or entry == None):
-                time_format_list.append(entry.strip().lower())
+                try:
+                    float(entry)
+                    raise BadArgument(f"0. Argument {argument} is not a valid time duration.\n" +
+                    f"{time_format_list}, {time_value_list}")
+                except ValueError:
+                    time_format_list.append(entry.strip().lower())
 
         if (time_format_list == [] or time_value_list == [] 
             or len(time_format_list) != len(time_value_list)):
