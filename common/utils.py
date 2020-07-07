@@ -99,7 +99,7 @@ class TimeDurationConverter(commands.Converter):
         "year": 31536000,
         "years": 31536000
     }
-    regex = re.compile(r"[^a-z ]\ *([.0-9])*\d")
+    regex = re.compile(r"([+-]?(?=\.\d|\d)(?:\d+)?(?:\.?\d*))(?:[eE]([+-]?\d+))?")
 
     def to_seconds(self, time_value, time_prefix):
         try:
