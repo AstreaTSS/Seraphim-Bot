@@ -119,8 +119,7 @@ class TimeDurationConverter(commands.Converter):
             if not (entry == "" or entry == None):
                 try:
                     float(entry)
-                    raise BadArgument(f"0. Argument {argument} is not a valid time duration.\n" +
-                    f"{time_format_list}, {time_value_list}")
+                    continue
                 except ValueError:
                     time_format_list.append(entry.strip().lower())
 
