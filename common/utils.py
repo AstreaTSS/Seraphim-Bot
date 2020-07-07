@@ -125,8 +125,7 @@ class TimeDurationConverter(commands.Converter):
 
         if (time_format_list == [] or time_value_list == [] 
             or len(time_format_list) != len(time_value_list)):
-            raise BadArgument(f"1. Argument {argument} is not a valid time duration.\n" +
-            f"{time_format_list}, {time_value_list}")
+            raise BadArgument(f"1. Argument {argument} is not a valid time duration.")
 
         for i in range(len(time_format_list)):
             if time_span == -1:
@@ -135,7 +134,6 @@ class TimeDurationConverter(commands.Converter):
             time_span += self.to_seconds(time_value_list[i], time_format_list[i])
 
         if time_span == -1:
-            raise BadArgument(f"2. Argument {argument} is not a valid time duration.\n" +
-            f"{time_format_list}, {time_value_list}")
+            raise BadArgument(f"2. Argument {argument} is not a valid time duration.")
 
         return datetime.timedelta(seconds=time_span)

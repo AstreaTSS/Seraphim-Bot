@@ -91,10 +91,10 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
 
     @manage_ping_roles.command()
     @commands.check(utils.proper_permissions)
-    async def add(self, ctx, role_name, cooldown: utils.TimeDurationConverter):
+    async def add(self, ctx, role_name, *, cooldown: utils.TimeDurationConverter):
         """Adds the role to the roles able to be pinged. 
         The role name is case-sensitive, and must be in quotes if it’s over one word. 
-        The cooldown can be in seconds, minutes, hours, days, months, and/or years (ex. 1s, 1m, 1h20.5m)."""
+        The cooldown can be in seconds, minutes, hours, days, months, and/or years (ex. 1s, 1m, 1h 20.5m)."""
 
         role_obj = discord.utils.get(ctx.guild.roles, name = role_name)
         if role_obj == None:
