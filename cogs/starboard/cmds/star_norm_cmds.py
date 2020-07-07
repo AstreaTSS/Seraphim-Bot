@@ -1,14 +1,14 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
 import discord, importlib, re, datetime, typing
-import bot_utils.star_universals as star_univ
-import bot_utils.universals as univ
+import common.star_utils as star_utils
+import common.utils as utils
 
 class StarNormCMDs(commands.Cog, name = "Normal Star"):
     def __init__(self, bot):
         self.bot = bot
-        importlib.reload(star_univ)
-        importlib.reload(univ)
+        importlib.reload(star_utils)
+        importlib.reload(utils)
 
     def get_star_rankings(self, ctx):
         def by_stars(elem):
@@ -21,9 +21,9 @@ class StarNormCMDs(commands.Cog, name = "Normal Star"):
         if guild_entries != []:
             for entry in guild_entries:
                 if entry["author_id"] in user_star_dict.keys():
-                    user_star_dict[entry["author_id"]] += star_univ.get_num_stars(entry)
+                    user_star_dict[entry["author_id"]] += star_utils.get_num_stars(entry)
                 else:
-                    user_star_dict[entry["author_id"]] = star_univ.get_num_stars(entry)
+                    user_star_dict[entry["author_id"]] = star_utils.get_num_stars(entry)
 
             user_star_list = list(user_star_dict.items())
             user_star_list.sort(reverse=True, key=by_stars)
@@ -50,7 +50,7 @@ class StarNormCMDs(commands.Cog, name = "Normal Star"):
         """Allows you to view the top 10 starred messages on a server. Cooldown of once every 5 seconds per user."""
 
         def by_stars(elem):
-            return star_univ.get_num_stars(elem)
+            return star_utils.get_num_stars(elem)
 
         guild_entries = [self.bot.starboard[k] for k in self.bot.starboard.keys() if self.bot.starboard[k]["guild_id"] == ctx.guild.id]
         if guild_entries != []:
@@ -68,8 +68,8 @@ class StarNormCMDs(commands.Cog, name = "Normal Star"):
 
                 entry = guild_entries[i]
                 url = f"https://discordapp.com/channels/{ctx.guild.id}/{starboard_id}/{entry['star_var_id']}"
-                num_stars = star_univ.get_num_stars(entry)
-                member = await univ.user_from_id(self.bot, ctx.guild, entry['author_id'])
+                num_stars = star_utils.get_num_stars(entry)
+                member = await utils.user_from_id(self.bot, ctx.guild, entry['author_id'])
                 author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry['author_id']}"
 
                 top_embed.add_field(name=f"#{i+1}: {num_stars} ⭐ from {author_str}", value=f"[Message]({url})\n", inline=False)
@@ -94,7 +94,7 @@ class StarNormCMDs(commands.Cog, name = "Normal Star"):
                     break
                 entry = user_star_list[i]
 
-                member = await univ.user_from_id(self.bot, ctx.guild, entry[0])
+                member = await utils.user_from_id(self.bot, ctx.guild, entry[0])
                 num_stars = entry[1]
                 author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry[0]}"
 

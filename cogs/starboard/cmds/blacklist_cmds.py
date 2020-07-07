@@ -1,18 +1,18 @@
 from discord.ext import commands
 import discord, importlib
 
-import bot_utils.universals as univ
+import common.utils as utils
 
 class BlacklistCMDs(commands.Cog, name = "Blacklist"):
     def __init__(self, bot):
         self.bot = bot
-        importlib.reload(univ)
+        importlib.reload(utils)
 
     async def cog_check(self, ctx):
         return self.bot.config[ctx.guild.id]["star_toggle"]
 
     @commands.group(aliases = ["star_bl", "starblacklist"])
-    @commands.check(univ.proper_permissions)
+    @commands.check(utils.proper_permissions)
     async def star_blacklist(self, ctx):
         """The base command for the star blacklist. See the subcommands for more info.
         Requires Manage Server permissions or higher. Running this with no arguments will run the list command."""
@@ -22,7 +22,7 @@ class BlacklistCMDs(commands.Cog, name = "Blacklist"):
             await ctx.invoke(list_cmd)
 
     @star_blacklist.command(name = "list")
-    @commands.check(univ.proper_permissions)
+    @commands.check(utils.proper_permissions)
     async def _list(self, ctx):
         """Returns a list of channels that have been blacklisted. Messages from channels that are blacklisted won’t be starred."""
 
@@ -45,7 +45,7 @@ class BlacklistCMDs(commands.Cog, name = "Blacklist"):
         await ctx.send("There's no blacklisted channels for this guild!")
 
     @star_blacklist.command()
-    @commands.check(univ.proper_permissions)
+    @commands.check(utils.proper_permissions)
     async def add(self, ctx, channel: discord.TextChannel):
         """Adds the channel to the blacklist."""
 
@@ -59,7 +59,7 @@ class BlacklistCMDs(commands.Cog, name = "Blacklist"):
             await ctx.send("That channel's already in the blacklist!")
 
     @star_blacklist.command()
-    @commands.check(univ.proper_permissions)
+    @commands.check(utils.proper_permissions)
     async def remove(self, ctx, channel: discord.TextChannel):
         """Removed the channel from the blacklist."""
 

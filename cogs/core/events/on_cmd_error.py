@@ -1,32 +1,33 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import discord, importlib, math
+import discord, importlib
+import datetime, humanize
 
-import bot_utils.universals as univ
+import common.utils as utils
 
 class OnCMDError(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        importlib.reload(univ)
+        importlib.reload(utils)
             
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
             original = error.original
             if not isinstance(original, discord.HTTPException):
-                await univ.error_handle(self.bot, error, ctx)
+                await utils.error_handle(self.bot, error, ctx)
         elif isinstance(error, (commands.ConversionError, commands.UserInputError)):
             await ctx.send(error)
         elif isinstance(error, commands.CheckFailure):
             if ctx.guild != None:
                 await ctx.send("You do not have the proper permissions to use that command.")
         elif isinstance(error, commands.CommandOnCooldown):
-            time_to_wait = math.ceil(error.retry_after)
-            await ctx.send(f"You're doing that command too fast! Try again after {time_to_wait} seconds.")
+            delta_wait = datetime.timedelta(seconds=error.retry_after)
+            await ctx.send(f"You're doing that command too fast! Try again in {humanize.precisedelta(delta_wait)}.")
         elif isinstance(error, commands.CommandNotFound):
             pass
         else:
-            await univ.error_handle(self.bot, error, ctx)
+            await utils.error_handle(self.bot, error, ctx)
 
 def setup(bot):
     bot.add_cog(OnCMDError(bot))

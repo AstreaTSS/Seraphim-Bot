@@ -3,7 +3,7 @@ import discord, os, asyncio
 from discord.ext import commands
 from datetime import datetime
 
-import bot_utils.universals as univ
+import common.utils as utils
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -28,7 +28,7 @@ async def on_ready():
         while bot.config == {}:
             await asyncio.sleep(0.1)
 
-        cogs_list = univ.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))
+        cogs_list = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))
 
         for cog in cogs_list:
             if cog != "cogs.db_handler":
@@ -58,7 +58,7 @@ async def on_error(event, *args, **kwargs):
     try:
         raise
     except BaseException as e:
-        await univ.error_handle(bot, e)
+        await utils.error_handle(bot, e)
 
 @bot.check
 async def block_dms(ctx):

@@ -3,12 +3,12 @@ from discord.ext import commands
 import discord, datetime, os
 import importlib, asyncio
 
-import bot_utils.universals as univ
+import common.utils as utils
 
 class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
-        importlib.reload(univ)
+        importlib.reload(utils)
 
     async def msg_handler(self, ctx, msg_str):
         await ctx.send(msg_str)
@@ -16,7 +16,7 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
         utcnow = datetime.datetime.utcnow()
         time_format = utcnow.strftime("%x %X UTC")
 
-        await univ.msg_to_owner(ctx.bot, f"`{time_format}`: {msg_str}")
+        await utils.msg_to_owner(ctx.bot, f"`{time_format}`: {msg_str}")
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
@@ -78,7 +78,7 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
         reloaded_files = []
         loaded_files = []
 
-        ext_files = univ.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))
+        ext_files = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))
 
         to_unload = [e for e in self.bot.extensions.keys() 
         if e not in ext_files and e != "cogs.db_handler"]
@@ -94,11 +94,11 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
                 self.bot.load_extension(ext)
                 loaded_files.append(ext)
             except commands.ExtensionNotFound as e:
-                await univ.error_handle(self.bot, e)
+                await utils.error_handle(self.bot, e)
             except commands.NoEntryPointError:
                 pass
             except commands.ExtensionFailed as e:
-                await univ.error_handle(self.bot, e)
+                await utils.error_handle(self.bot, e)
 
         msg_content = ""
 
@@ -122,7 +122,7 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
         loc_split = __file__.split("cogs")
         start_path = loc_split[0]
 
-        this_cog = univ.file_to_ext(__file__, start_path)
+        this_cog = utils.file_to_ext(__file__, start_path)
         
         extensions = [ex for ex in self.bot.extensions.keys() if ex != this_cog]
 

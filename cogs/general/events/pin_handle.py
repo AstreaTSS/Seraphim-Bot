@@ -1,14 +1,14 @@
 from discord.ext import commands
 import discord, importlib
 
-import bot_utils.universals as univ
-import bot_utils.star_mes_handler as star_mes
+import common.utils as utils
+import common.star_mes_handler as star_mes
 
 class PinHandler(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        importlib.reload(univ)
+        importlib.reload(utils)
         importlib.reload(star_mes)
 
     @commands.Cog.listener()

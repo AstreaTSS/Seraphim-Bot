@@ -1,8 +1,8 @@
 #!/usr/bin/env python3.7
 import discord, re
 
-import bot_utils.star_universals as star_univ
-import bot_utils.universals as univ
+import common.star_utils as star_utils
+import common.utils as utils
 
 async def generate(bot, mes, forced = False):
     image_url = ""
@@ -12,13 +12,13 @@ async def generate(bot, mes, forced = False):
     and mes.embeds[0].author.name != bot.user.name)):
         snipe_embed = mes.embeds[0]
 
-        entry = star_univ.get_star_entry(bot, mes.id)
+        entry = star_utils.get_star_entry(bot, mes.id)
 
         if entry != []:
-            author = await univ.user_from_id(bot, mes.guild, entry["author_id"])
+            author = await utils.user_from_id(bot, mes.guild, entry["author_id"])
         else:
-            author_id = star_univ.get_author_id(mes, bot)
-            author = await univ.user_from_id(bot, mes.guild, author_id)
+            author_id = star_utils.get_author_id(mes, bot)
+            author = await utils.user_from_id(bot, mes.guild, author_id)
             
         author_str = ""
         if author == None:

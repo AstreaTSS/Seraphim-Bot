@@ -1,12 +1,13 @@
 from discord.ext import commands
-import discord, datetime, math, importlib
+import discord, datetime
+import importlib, humanize
 
-import bot_utils.universals as univ
+import common.utils as utils
 
 class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
     def __init__(self, bot):
         self.bot = bot
-        importlib.reload(univ)
+        importlib.reload(utils)
 
     @commands.command(aliases = ["pingrole", "roleping", "role_ping"])
     async def ping_role(self, ctx, *, role_name):
@@ -40,26 +41,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
 
         if now < next_use:
             till_next_time = next_use - now
-            till_next = till_next_time.total_seconds()
-
-            hours = math.floor(till_next / 3600)
-            till_next %= 3600
-            minutes = math.floor(till_next / 60)
-            till_next %= 60
-            seconds = math.floor(till_next)
-
-            time_group = []
-            hours_string = f"{hours} hours" if hours != 1 else f"{hours} hour"
-            if hours != 0:
-                time_group.append(hours_string)
-            minutes_string = f"{minutes} minutes" if minutes != 1 else f"{minutes} minutes"
-            if minutes != 0:
-                time_group.append(minutes_string)
-            seconds_string = f"{seconds} seconds" if seconds != 1 else f"{seconds} seconds"
-            if seconds != 0:
-                time_group.append(seconds_string)
-
-            time_text = ", ".join(time_group)
+            time_text = humanize.precisedelta(till_next_time)
             await ctx.send(f"You cannot ping that role yet! Please wait: `{time_text}` before trying to ping the role again.")
             return
         else:
@@ -70,7 +52,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
             self.bot.config[ctx.guild.id]["pingable_roles"][str(role_obj.id)]["last_used"] = now.timestamp()
 
     @commands.group()
-    @commands.check(univ.proper_permissions)
+    @commands.check(utils.proper_permissions)
     async def manage_ping_roles(self, ctx):
         """The base command for managing all of the pingable roles. See the help for the subcommands for more info.
         Only people with Manage Server permissions or higher can use this."""
@@ -80,9 +62,9 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
             await ctx.invoke(list_cmd)
 
     @manage_ping_roles.command(name = "list")
-    @commands.check(univ.proper_permissions)
+    @commands.check(utils.proper_permissions)
     async def _list(self, ctx):
-        """Returns a list of roles that have been made pingable, and their cooldown in seconds."""
+        """Returns a list of roles that have been made pingable and their cooldown."""
 
         ping_roles = self.bot.config[ctx.guild.id]["pingable_roles"]
 
@@ -94,8 +76,10 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         
         for role in ping_roles.keys():
             role_obj = ctx.guild.get_role(int(role))
+            period_delta = datetime.timedelta(seconds=role['time_period'])
+
             if role_obj != None:
-                role_list.append(f"`{role_obj.name}, {role['time_period']} second cooldown`")
+                role_list.append(f"`{role_obj.name}, {humanize.precisedelta(period_delta, format='%0.0f')} cooldown`")
             else:
                 del self.bot.config[ctx.guild.id]["pingable_roles"][role]
 
@@ -106,11 +90,11 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
             await ctx.send("There are no roles added!")
 
     @manage_ping_roles.command()
-    @commands.check(univ.proper_permissions)
-    async def add(self, ctx, role_name, cooldown):
+    @commands.check(utils.proper_permissions)
+    async def add(self, ctx, role_name, cooldown: utils.TimeDurationConverter):
         """Adds the role to the roles able to be pinged. 
         The role name is case-sensitive, and must be in quotes if it’s over one word. 
-        The cooldown can be in seconds, minutes, or hours (ex. 1s, 1m, 1h)."""
+        The cooldown can be in seconds, minutes, hours, days, months, and/or years (ex. 1s, 1m, 1h20m)."""
 
         role_obj = discord.utils.get(ctx.guild.roles, name = role_name)
         if role_obj == None:
@@ -121,27 +105,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
             await ctx.send("That role is already pingable! If you wish to change the cooldown, for now, remove and re-add the role.")
             return
 
-        last_char = cooldown[-1]
-        num_cooldown = cooldown[:-1]
-
-        if not num_cooldown.isdigit():
-            await ctx.send("Invalid cooldown! Make sure you have a time period, and the number's positive.")
-            return
-
-        multiplicity = 0
-
-        if last_char.lower() == "h":
-            multiplicity = 3600
-        if last_char.lower() == "m":
-            multiplicity = 60
-        if last_char.lower() == "s":
-            multiplicity = 1
-
-        if multiplicity == 0:
-            await ctx.send("Invalid cooldown! Make sure you have a time period, and the number's positive.")
-            return
-
-        period = int(num_cooldown) * multiplicity
+        period = cooldown.total_seconds()
 
         self.bot.config[ctx.guild.id]["pingable_roles"][str(role_obj.id)] = {
             "time_period": period,
@@ -151,7 +115,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         await ctx.send("Role added!")
 
     @manage_ping_roles.command()
-    @commands.check(univ.proper_permissions)
+    @commands.check(utils.proper_permissions)
     async def remove(self, ctx, *, role_name):
         """Removes that role from the roles able to be pinged. 
         Role name is case-sensitive, although it does not need to be in quotes if it’s over one word. 

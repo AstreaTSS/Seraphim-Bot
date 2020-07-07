@@ -1,12 +1,12 @@
 from discord.ext import commands
 import discord, re, asyncio, importlib
 
-import bot_utils.universals as univ
+import common.utils as utils
 
 class SayCMDS(commands.Cog, name = "Say"):
     def __init__(self, bot):
         self.bot = bot
-        importlib.reload(univ)
+        importlib.reload(utils)
         
     async def setup_helper(self, ctx, ori_mes, question, code_mes = True):
         def check(m):
@@ -38,7 +38,7 @@ class SayCMDS(commands.Cog, name = "Say"):
                 return reply
 
     @commands.command()
-    @commands.check(univ.proper_permissions)
+    @commands.check(utils.proper_permissions)
     async def say(self, ctx, *, message):
         """Allows people with Manage Server permissions to speak with the bot. You can provide a channel and upload any attachments you wish to use."""
 
@@ -70,7 +70,7 @@ class SayCMDS(commands.Cog, name = "Say"):
                 await ctx.send(content=" ".join(args), files=files_sent)
                 
     @commands.command()
-    @commands.check(univ.proper_permissions)
+    @commands.check(utils.proper_permissions)
     async def embed_say(self, ctx):
         """Allows people with Manage Server permissions to speak with the bot with a fancy embed. Will open a wizard-like prompt."""
         

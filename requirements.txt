@@ -1,2 +1,3 @@
 discord
 asyncpg
+git+https://github.com/eldipa/humanize.git@Format-Timedelta
