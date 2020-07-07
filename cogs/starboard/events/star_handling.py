@@ -9,11 +9,6 @@ import common.star_mes_handler as star_mes
 class Star(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-        importlib.reload(utils)
-        importlib.reload(star_utils)
-        importlib.reload(star_mes)
-
         self.starboard_queue.start()
 
     def cog_unload(self):
@@ -88,4 +83,8 @@ class Star(commands.Cog):
                     await star_utils.star_entry_refresh(self.bot, star_variant, mes.guild.id)
         
 def setup(bot):
+    importlib.reload(utils)
+    importlib.reload(star_utils)
+    importlib.reload(star_mes)
+    
     bot.add_cog(Star(bot))

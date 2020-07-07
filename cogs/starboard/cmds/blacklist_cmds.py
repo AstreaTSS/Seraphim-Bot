@@ -6,7 +6,6 @@ import common.utils as utils
 class BlacklistCMDs(commands.Cog, name = "Blacklist"):
     def __init__(self, bot):
         self.bot = bot
-        importlib.reload(utils)
 
     async def cog_check(self, ctx):
         return self.bot.config[ctx.guild.id]["star_toggle"]
@@ -73,4 +72,5 @@ class BlacklistCMDs(commands.Cog, name = "Blacklist"):
             await ctx.send("That channel's not in the blacklist!")
 
 def setup(bot):
+    importlib.reload(utils)
     bot.add_cog(BlacklistCMDs(bot))

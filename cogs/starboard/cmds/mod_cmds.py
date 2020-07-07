@@ -9,9 +9,6 @@ import common.star_mes_handler as star_mes
 class ModCMDs(commands.Cog, name = "Mod Star"):
     def __init__(self, bot):
         self.bot = bot
-        importlib.reload(star_utils)
-        importlib.reload(utils)
-        importlib.reload(star_mes)
 
     @commands.group()
     @commands.check(utils.proper_permissions)
@@ -95,4 +92,8 @@ class ModCMDs(commands.Cog, name = "Mod Star"):
         await ctx.send("Done!")
 
 def setup(bot):
+    importlib.reload(star_utils)
+    importlib.reload(utils)
+    importlib.reload(star_mes)
+    
     bot.add_cog(ModCMDs(bot))

@@ -7,7 +7,6 @@ import common.utils as utils
 class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
     def __init__(self, bot):
         self.bot = bot
-        importlib.reload(utils)
 
     @commands.command(aliases = ["pingrole", "roleping", "role_ping"])
     async def ping_role(self, ctx, *, role_name):
@@ -141,4 +140,5 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         await ctx.send("Deleted!")
 
 def setup(bot):
+    importlib.reload(utils)
     bot.add_cog(PingRoleCMDs(bot))

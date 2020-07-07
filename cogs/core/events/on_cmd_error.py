@@ -8,7 +8,6 @@ import common.utils as utils
 class OnCMDError(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        importlib.reload(utils)
             
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
@@ -30,4 +29,5 @@ class OnCMDError(commands.Cog):
             await utils.error_handle(self.bot, error, ctx)
 
 def setup(bot):
+    importlib.reload(utils)
     bot.add_cog(OnCMDError(bot))

@@ -174,11 +174,11 @@ class PaginatedHelpCommand(commands.HelpCommand):
 class HelpCMD(commands.Cog, name="Help"):
     def __init__(self, bot):
         self.bot = bot
-        importlib.reload(paginator)
 
         self.old_help_command = bot.help_command
         bot.help_command = PaginatedHelpCommand()
         bot.help_command.cog = self
 
 def setup(bot):
+    importlib.reload(paginator)
     bot.add_cog(HelpCMD(bot))

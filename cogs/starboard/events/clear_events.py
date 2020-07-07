@@ -7,7 +7,6 @@ import common.star_utils as star_utils
 class ClearEvents(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        importlib.reload(star_utils)
 
     async def auto_clear_stars(self, bot, payload):
         star_variant = star_utils.get_star_entry(self.bot, payload.message_id)
@@ -65,4 +64,5 @@ class ClearEvents(commands.Cog):
             await self.auto_clear_stars(self.bot, payload)
 
 def setup(bot):
+    importlib.reload(star_utils)
     bot.add_cog(ClearEvents(bot))

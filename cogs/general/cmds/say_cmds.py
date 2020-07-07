@@ -6,7 +6,6 @@ import common.utils as utils
 class SayCMDS(commands.Cog, name = "Say"):
     def __init__(self, bot):
         self.bot = bot
-        importlib.reload(utils)
         
     async def setup_helper(self, ctx, ori_mes, question, code_mes = True):
         def check(m):
@@ -136,4 +135,5 @@ class SayCMDS(commands.Cog, name = "Say"):
         await ori.edit(content = "```\nSetup complete.\n```")
         
 def setup(bot):
+    importlib.reload(utils)
     bot.add_cog(SayCMDS(bot))

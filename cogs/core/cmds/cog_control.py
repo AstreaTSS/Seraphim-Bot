@@ -8,7 +8,6 @@ import common.utils as utils
 class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
-        importlib.reload(utils)
 
     async def msg_handler(self, ctx, msg_str):
         await ctx.send(msg_str)
@@ -145,4 +144,5 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
         await self.msg_handler(ctx, f"Database reloaded!")
 
 def setup(bot):
+    importlib.reload(utils)
     bot.add_cog(CogControl(bot))

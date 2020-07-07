@@ -8,9 +8,6 @@ class PinCMDs(commands.Cog, name = "Pinboard"):
     def __init__(self, bot):
         self.bot = bot
 
-        importlib.reload(utils)
-        importlib.reload(star_mes)
-
     @commands.group()
     @commands.check(utils.proper_permissions)
     async def manage_pinboard(self, ctx):
@@ -118,4 +115,7 @@ class PinCMDs(commands.Cog, name = "Pinboard"):
         await ctx.send("Done!")
 
 def setup(bot):
+    importlib.reload(utils)
+    importlib.reload(star_mes)
+    
     bot.add_cog(PinCMDs(bot))

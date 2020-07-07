@@ -7,8 +7,6 @@ import common.utils as utils
 class StarNormCMDs(commands.Cog, name = "Normal Star"):
     def __init__(self, bot):
         self.bot = bot
-        importlib.reload(star_utils)
-        importlib.reload(utils)
 
     def get_star_rankings(self, ctx):
         def by_stars(elem):
@@ -132,4 +130,7 @@ class StarNormCMDs(commands.Cog, name = "Normal Star"):
             await ctx.send("I could not get the user you were trying to get. Please try again with a valid user.")
 
 def setup(bot):
+    importlib.reload(star_utils)
+    importlib.reload(utils)
+    
     bot.add_cog(StarNormCMDs(bot))

@@ -8,9 +8,6 @@ class PinHandler(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        importlib.reload(utils)
-        importlib.reload(star_mes)
-
     @commands.Cog.listener()
     async def on_message(self, msg):
         if (not msg.type == discord.MessageType.pins_add) or msg.guild == None:
@@ -37,4 +34,7 @@ class PinHandler(commands.Cog):
             await early_entry.unpin()
 
 def setup(bot):
+    importlib.reload(utils)
+    importlib.reload(star_mes)
+    
     bot.add_cog(PinHandler(bot))
