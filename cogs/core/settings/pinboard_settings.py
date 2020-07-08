@@ -12,7 +12,7 @@ async def main_cmd(ctx):
     if ctx.invoked_subcommand == None:
         await ctx.send_help(ctx.command)
 
-@main_cmd.command(aliases = ["list"])
+@main_cmd.command(name = "list")
 @commands.check(utils.proper_permissions)
 async def _list(ctx):
     """Returns a list of channels that have their pins mapped to another channel, and the max limit before they overflow to that other channel."""
@@ -40,7 +40,7 @@ async def _list(ctx):
     else:
         await ctx.send("There are no entries for this server!")
 
-@main_cmd.command(aliases = ["map"])
+@main_cmd.command(name = "map")
 @commands.check(utils.proper_permissions)
 async def _map(ctx, entry: discord.TextChannel, destination: discord.TextChannel, limit: int):
     """Maps overflowing pins from the entry channel to go to the destination channel. 
