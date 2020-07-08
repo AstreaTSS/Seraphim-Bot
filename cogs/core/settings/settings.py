@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import discord, importlib, os, inspect
+import discord, importlib, os
 
 import common.utils as utils
 
@@ -16,22 +16,22 @@ class Settings(commands.Cog, name="Settings"):
         await ctx.send_help(ctx.command)
 
     def custom_setup(self):
-        settings_cmd = self.bot.get_command("settings")
-        settings_ext = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"), "cogs/settings")
+        settings_cmd = None
+
+        for cmd in self.get_commands():
+            if cmd.name == "settings":
+                settings_cmd = cmd
+
+        if settings_cmd == None:
+            raise commands.CommandNotFound("Can't find settings command!")
+
+        settings_ext = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"), "cogs/core/settings")
         for setting in settings_ext:
             if setting == "cogs.core.settings.settings":
                 continue
 
-            spec = importlib.util.find_spec(setting)
-            if spec is None:
-                raise commands.ExtensionNotFound(setting)
-
-            lib = importlib.util.module_from_spec(spec)
-            
-            try:
-                main = getattr(lib, "main")
-            except AttributeError:
-                raise commands.NoEntryPointError(setting)
+            lib = importlib.import_module(setting)
+            main = getattr(lib, "main_cmd")
 
             settings_cmd.add_command(main)
 

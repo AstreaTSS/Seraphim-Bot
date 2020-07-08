@@ -5,15 +5,14 @@ import common.utils as utils
 
 @commands.group(name="ping_roles")
 @commands.check(utils.proper_permissions)
-async def main(ctx):
+async def main_cmd(ctx):
     """The base command for managing all of the pingable roles. See the help for the subcommands for more info.
     Only people with Manage Server permissions or higher can use this."""
     
     if ctx.invoked_subcommand == None:
-        list_cmd = ctx.bot.get_command("settings ping_roles list")
-        await ctx.invoke(list_cmd)
+        await ctx.send_help(ctx.command)
 
-@main.command(name = "list")
+@main_cmd.command(name = "list")
 @commands.check(utils.proper_permissions)
 async def _list(ctx):
     """Returns a list of roles that have been made pingable and their cooldown."""
@@ -41,7 +40,7 @@ async def _list(ctx):
     else:
         await ctx.send("There are no roles added!")
 
-@main.command()
+@main_cmd.command()
 @commands.check(utils.proper_permissions)
 async def add(ctx, role_name, *, cooldown: utils.TimeDurationConverter):
     """Adds the role to the roles able to be pinged. 
@@ -66,7 +65,7 @@ async def add(ctx, role_name, *, cooldown: utils.TimeDurationConverter):
 
     await ctx.send("Role added!")
 
-@main.command()
+@main_cmd.command()
 @commands.check(utils.proper_permissions)
 async def remove(ctx, *, role_name):
     """Removes that role from the roles able to be pinged. 

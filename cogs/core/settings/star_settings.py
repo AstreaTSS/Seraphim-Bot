@@ -3,22 +3,22 @@ import discord
 
 import common.utils as utils
 
-@commands.group(name="starboard")
+@commands.group(name="starboard", aliases=["sb"])
 @commands.check(utils.proper_permissions)
-async def main(ctx):
+async def main_cmd(ctx):
     """The base for messing around with the starboard. Check the subcommands for more info.
     Requires Manage Server permissions or higher."""
     if ctx.invoked_subcommand == None:
         await ctx.send_help(ctx.command)
 
-@main.command()
+@main_cmd.command()
 @commands.check(utils.proper_permissions)
 async def channel(ctx, channel: discord.TextChannel):
     """Sets the starboard channel to the channel mentioned."""
     ctx.bot.config[ctx.guild.id]["starboard_id"] = channel.id
     await ctx.send(f"Set channel to {channel.mention}!")
 
-@main.command()
+@main_cmd.command()
 @commands.check(utils.proper_permissions)
 async def limit(ctx, limit: int):
     """Sets the amount of stars needed to get onto the starboard to that number."""
@@ -28,7 +28,7 @@ async def limit(ctx, limit: int):
     else:
         await ctx.send("That doesn't seem like a valid number to me...")
 
-@main.command()
+@main_cmd.command()
 @commands.check(utils.proper_permissions)
 async def toggle(ctx, toggle: bool):
     """Toggles the entirety of the starboard (including the commands, hopefully) on or off (defaults to off when it joins a new server).
@@ -45,16 +45,15 @@ async def toggle(ctx, toggle: bool):
 def star_toggle_check(ctx):
     return ctx.bot.config[ctx.guild.id]["star_toggle"]
 
-@main.group(aliases = ["star_bl", "starblacklist"])
+@main_cmd.group(aliases = ["bl"])
 @commands.check(utils.proper_permissions)
 @commands.check(star_toggle_check)
 async def blacklist(ctx):
     """The base command for the star blacklist. See the subcommands for more info.
-    Requires Manage Server permissions or higher. Running this with no arguments will run the list command."""
+    Requires Manage Server permissions or higher."""
 
     if ctx.invoked_subcommand == None:
-        list_cmd = ctx.bot.get_command("settings starboard blacklist list")
-        await ctx.invoke(list_cmd)
+        await ctx.send_help(ctx.command)
 
 @blacklist.command(name = "list")
 @commands.check(utils.proper_permissions)

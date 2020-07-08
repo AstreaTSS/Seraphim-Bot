@@ -5,15 +5,14 @@ import common.utils as utils
 
 @commands.group(name="pinboard")
 @commands.check(utils.proper_permissions)
-async def main(ctx):
+async def main_cmd(ctx):
     """Base command for managing the pinboard. See the subcommands below. 
-    Requires Manage Server permissions or higher. Running this command with no arguments will run list."""
+    Requires Manage Server permissions or higher."""
 
     if ctx.invoked_subcommand == None:
-        list_cmd = ctx.bot.get_command("settings pinboard list")
-        await ctx.invoke(list_cmd)
+        await ctx.send_help(ctx.command)
 
-@main.command(aliases = ["list"])
+@main_cmd.command(aliases = ["list"])
 @commands.check(utils.proper_permissions)
 async def _list(ctx):
     """Returns a list of channels that have their pins mapped to another channel, and the max limit before they overflow to that other channel."""
@@ -41,7 +40,7 @@ async def _list(ctx):
     else:
         await ctx.send("There are no entries for this server!")
 
-@main.command(aliases = ["map"])
+@main_cmd.command(aliases = ["map"])
 @commands.check(utils.proper_permissions)
 async def _map(ctx, entry: discord.TextChannel, destination: discord.TextChannel, limit: int):
     """Maps overflowing pins from the entry channel to go to the destination channel. 
@@ -54,7 +53,7 @@ async def _map(ctx, entry: discord.TextChannel, destination: discord.TextChannel
 
     await ctx.send(f"Overflowing pins from {entry.mention} will now appear in {destination.mention}.")
 
-@main.command(aliases = ["pinlimit"])
+@main_cmd.command(aliases = ["pinlimit"])
 @commands.check(utils.proper_permissions)
 async def pin_limit(ctx, entry: discord.TextChannel, limit: int):
     """Changes the max limit of the entry channel to the provided limit."""
@@ -62,7 +61,7 @@ async def pin_limit(ctx, entry: discord.TextChannel, limit: int):
     ctx.bot.config[ctx.guild.id]["pin_config"][str(entry.id)]["limit"] = limit
     await ctx.send(f"The pin limit for {entry.mention} is now set to {limit}.")
 
-@main.command()
+@main_cmd.command()
 @commands.check(utils.proper_permissions)
 async def unmap(ctx, entry: discord.TextChannel):
     """Umaps the entry channel, so overflowing pins do not get put into another channel."""
