@@ -39,6 +39,28 @@ async def add(ctx, role_name, *, cooldown: utils.TimeDurationConverter):
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
+async def cooldown(ctx, role_name, *, cooldown: utils.TimeDurationConverter):
+    """Changes the cooldown of the role. 
+    The role name is case-sensitive, and must be in quotes if it’s over one word. 
+    The cooldown can be in seconds, minutes, hours, days, months, and/or years (ex. 1s, 1m, 1h 20.5m)."""
+
+    role_obj = discord.utils.get(ctx.guild.roles, name = role_name)
+    if role_obj == None:
+        await ctx.send("That's not a role! Make sure it's spelled correctly, and if it has multiple words, that it's in quotes.")
+        return
+
+    if not str(role_obj.id) in ctx.bot.config[ctx.guild.id]["pingable_roles"]:
+        await ctx.send("That role isn't on the ping list!")
+        return
+
+    period = cooldown.total_seconds()
+
+    ctx.bot.config[ctx.guild.id]["pingable_roles"][str(role_obj.id)]["time_period"] = period
+
+    await ctx.send("Role cooldown changed!")
+
+@main_cmd.command()
+@commands.check(utils.proper_permissions)
 async def remove(ctx, *, role_name):
     """Removes that role from the roles able to be pinged. 
     Role name is case-sensitive, although it does not need to be in quotes if it’s over one word. 
