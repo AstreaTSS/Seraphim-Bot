@@ -45,8 +45,8 @@ class Settings(commands.Cog, name="Settings"):
         if settings_cmd == None:
             raise commands.CommandNotFound("Can't find settings command!")
 
-        for cmd in settings_cmd.walk_commands():
-            settings_cmd.remove_command(cmd.name)
+        for cmd in settings_cmd.copy().walk_commands():
+            self.bot.remove_command(cmd.qualified_name)
 
 def setup(bot):
     importlib.reload(utils)
