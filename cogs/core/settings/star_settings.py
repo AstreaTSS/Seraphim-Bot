@@ -29,11 +29,11 @@ async def channel(ctx, channel: typing.Optional[discord.TextChannel]):
 async def limit(ctx, limit: typing.Optional[int]):
     """Allows you to either get the amount of stars needed to get on the starboard (no argument) or set the amount (with argument)."""
     if limit != None:
-        if limit.isdigit():
+        if limit > 0:
             ctx.bot.config[ctx.guild.id]["star_limit"] = int(limit)
             await ctx.send(f"Set limit to {limit}!")
         else:
-            await ctx.send("That doesn't seem like a valid number to me...")
+            await ctx.send("The number needs to be greater than 0!")
     else:
         await ctx.send(f"Star limit: {ctx.bot.config[ctx.guild.id]['star_limit']}")
 
