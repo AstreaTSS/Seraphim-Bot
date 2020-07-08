@@ -1,5 +1,6 @@
 #!/usr/bin/env python3.7
 import discord, os, asyncio
+import websockets
 from discord.ext import commands
 from datetime import datetime
 
@@ -49,7 +50,11 @@ async def on_ready():
     bot.init_load = False
 
     activity = discord.Activity(name = 'over a couple of servers', type = discord.ActivityType.watching)
-    await bot.change_presence(activity = activity)
+
+    try:
+        await bot.change_presence(activity = activity)
+    except websockets.ConnectionClosedOK:
+        await utils.msg_to_owner(bot, "Reconnecting...")
 
 @bot.event
 async def on_resumed():
