@@ -48,6 +48,8 @@ class Settings(commands.Cog, name="Settings"):
         for cmd in settings_cmd.copy().walk_commands():
             self.bot.remove_command(cmd.qualified_name)
 
+        self.bot.remove_command(settings_cmd.name)
+
 def setup(bot):
     importlib.reload(utils)
     bot.add_cog(Settings(bot))
