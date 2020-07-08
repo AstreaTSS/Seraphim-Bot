@@ -32,7 +32,10 @@ async def on_ready():
 
         for cog in cogs_list:
             if cog != "cogs.db_handler":
-                bot.load_extension(cog)
+                try:
+                    bot.load_extension(cog)
+                except commands.NoEntryPointError:
+                    pass
 
     utcnow = datetime.utcnow()
     time_format = utcnow.strftime("%x %X UTC")

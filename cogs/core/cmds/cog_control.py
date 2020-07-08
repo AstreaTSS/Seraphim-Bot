@@ -76,6 +76,7 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
         unloaded_files = []
         reloaded_files = []
         loaded_files = []
+        not_loaded = []
 
         ext_files = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))
 
@@ -95,7 +96,7 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
             except commands.ExtensionNotFound as e:
                 await utils.error_handle(self.bot, e)
             except commands.NoEntryPointError:
-                pass
+                not_loaded.append(ext)
             except commands.ExtensionFailed as e:
                 await utils.error_handle(self.bot, e)
 
@@ -107,7 +108,9 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
             msg_content += f"Loaded: {ext_str(loaded_files)}\n"
         if reloaded_files != []:
             msg_content += f"Reloaded: {ext_str(reloaded_files)}\n"
-
+        if not_loaded != []:
+            msg_content += f"Didn't load: {ext_str(not_loaded)}\n"
+            
         await self.msg_handler(ctx, msg_content)
 
     @commands.command(hidden=True)

@@ -44,27 +44,27 @@ async def user_from_id(bot, guild, user_id):
 
     return user
 
-def file_to_ext(str_path, start_path):
-    str_path = str_path.replace(start_path, "")
+def file_to_ext(str_path, base_path):
+    str_path = str_path.replace(base_path, "")
     str_path = str_path.replace("/", ".")
     return str_path.replace(".py", "")
 
-def get_all_extensions(filename):
+def get_all_extensions(str_path, folder = "cogs"):
     ext_files = []
-    loc_split = filename.split("cogs")
-    start_path = loc_split[0]
+    loc_split = str_path.split("cogs")
+    base_path = loc_split[0]
 
-    if start_path == filename:
-        start_path = start_path.replace("main.py", "")
-    start_path = start_path.replace("\\", "/")
+    if base_path == str_path:
+        base_path = base_path.replace("main.py", "")
+    base_path = base_path.replace("\\", "/")
 
-    if start_path[-1] != "/":
-        start_path += "/"
+    if base_path[-1] != "/":
+        base_path += "/"
 
-    pathlist = Path(f"{start_path}/cogs").glob('**/*.py')
+    pathlist = Path(f"{base_path}/{folder}").glob('**/*.py')
     for path in pathlist:
         str_path = str(path.as_posix())
-        str_path = file_to_ext(str_path, start_path)
+        str_path = file_to_ext(str_path, base_path)
 
         if str_path != "cogs.db_handler":
             ext_files.append(str_path)
@@ -79,11 +79,11 @@ class TimeDurationConverter(commands.Converter):
         "second": 1,
         "seconds": 1,
 
-        "m": 60,
+        "m": 60, # s * 60
         "minute": 60,
         "minutes": 60,
 
-        "h": 3600,
+        "h": 3600, # m * 60
         "hour": 3600,
         "hours": 3600,
 

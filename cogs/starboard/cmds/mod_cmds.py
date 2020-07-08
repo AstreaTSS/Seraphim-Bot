@@ -10,45 +10,6 @@ class ModCMDs(commands.Cog, name = "Mod Star"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group()
-    @commands.check(utils.proper_permissions)
-    async def star_settings(self, ctx):
-        """The base for messing around with the starboard. Check the subcommands for more info.
-        Requires Manage Server permissions or higher."""
-        if ctx.invoked_subcommand == None:
-            await ctx.send("Options: `channel`, `limit`, `toggle`")
-
-    @star_settings.group()
-    @commands.check(utils.proper_permissions)
-    async def channel(self, ctx, channel: discord.TextChannel):
-        """Sets the starboard channel to the channel mentioned."""
-        self.bot.config[ctx.guild.id]["starboard_id"] = channel.id
-        await ctx.send(f"Set channel to {channel.mention}!")
-
-    @star_settings.group()
-    @commands.check(utils.proper_permissions)
-    async def limit(self, ctx, limit: int):
-        """Sets the amount of stars needed to get onto the starboard to that number."""
-        if limit.isdigit():
-            self.bot.config[ctx.guild.id]["star_limit"] = int(limit)
-            await ctx.send(f"Set limit to {limit}!")
-        else:
-            await ctx.send("That doesn't seem like a valid number to me...")
-
-    @star_settings.group()
-    @commands.check(utils.proper_permissions)
-    async def toggle(self, ctx):
-        """Toggles the entirety of the starboard (including the commands, hopefully) on or off (defaults to off when it joins a new server).
-        To toggle it, both the star channel and the star limit must be set beforehand."""
-
-        guild_config = self.bot.config[ctx.guild.id]
-        if guild_config["starboard_id"] != None and guild_config["star_limit"] != None:
-            toggle = not guild_config["star_toggle"]
-            self.bot.config[ctx.guild.id]["star_toggle"] = toggle
-            await ctx.send(f"Toggled starboard to {toggle} for this server!")
-        else:
-            await ctx.send("Either you forgot to set the starboard channel or the star limit. Please try again.")
-
     @commands.command()
     @commands.check(utils.proper_permissions)
     async def force(self, ctx, msg: discord.Message):
