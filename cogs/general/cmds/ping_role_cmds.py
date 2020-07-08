@@ -50,6 +50,33 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
 
             self.bot.config[ctx.guild.id]["pingable_roles"][str(role_obj.id)]["last_used"] = now.timestamp()
 
+    @commands.command(aliases = ["list_ping_roles", "list_pingroles", "pingroles",
+    "list_rolepings", "rolepings", "list_role_pings", "role_pings"])
+    async def ping_roles(self, ctx):
+        """Returns a list of roles that have been made pingable and their cooldown."""
+        ping_roles = ctx.bot.config[ctx.guild.id]["pingable_roles"]
+
+        if ping_roles == {}:
+            await ctx.send("There are no roles added!")
+            return
+
+        role_list = []
+
+        for role in ping_roles.keys():
+            role_obj = ctx.guild.get_role(int(role))
+            period_delta = datetime.timedelta(seconds=ping_roles[role]['time_period'])
+
+            if role_obj != None:
+                role_list.append(f"`{role_obj.name}, {humanize.precisedelta(period_delta, format='%0.0f')} cooldown`")
+            else:
+                del ctx.bot.config[ctx.guild.id]["pingable_roles"][role]
+
+        if role_list != []:
+            role_str = ", ".join(role_list)
+            await ctx.send(f"Pingable roles: {role_str}")
+        else:
+            await ctx.send("There are no roles added!")
+
 def setup(bot):
     importlib.reload(utils)
     bot.add_cog(PingRoleCMDs(bot))

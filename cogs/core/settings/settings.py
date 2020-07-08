@@ -12,7 +12,7 @@ class Settings(commands.Cog, name="Settings"):
     @commands.group(invoke_without_command=True, aliases=["config", "conf"])
     @commands.check(utils.proper_permissions)
     async def settings(self, ctx):
-        """Base command for managing all settings for the bot."""
+        """Base command for managing all settings for the bot. See the help for options."""
         await ctx.send_help(ctx.command)
 
     def custom_setup(self):
