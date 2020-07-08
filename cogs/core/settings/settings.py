@@ -35,6 +35,26 @@ class Settings(commands.Cog, name="Settings"):
 
             settings_cmd.add_command(main)
 
+    def cog_unload(self):
+        settings_cmd = None
+
+        for cmd in self.get_commands():
+            if cmd.name == "settings":
+                settings_cmd = cmd
+
+        if settings_cmd == None:
+            raise commands.CommandNotFound("Can't find settings command!")
+
+        settings_ext = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"), "cogs/core/settings")
+        for setting in settings_ext:
+            if setting == "cogs.core.settings.settings":
+                continue
+
+            lib = importlib.import_module(setting)
+            main = getattr(lib, "main_cmd")
+
+            settings_cmd.remove_command(main.name)
+
 def setup(bot):
     importlib.reload(utils)
     bot.add_cog(Settings(bot))
