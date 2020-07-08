@@ -45,15 +45,8 @@ class Settings(commands.Cog, name="Settings"):
         if settings_cmd == None:
             raise commands.CommandNotFound("Can't find settings command!")
 
-        settings_ext = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"), "cogs/core/settings")
-        for setting in settings_ext:
-            if setting == "cogs.core.settings.settings":
-                continue
-
-            lib = importlib.import_module(setting)
-            main = getattr(lib, "main_cmd")
-
-            settings_cmd.remove_command(main.name)
+        for cmd in settings_cmd.walk_commands():
+            settings_cmd.remove_command(cmd.name)
 
 def setup(bot):
     importlib.reload(utils)
