@@ -31,6 +31,7 @@ class Settings(commands.Cog, name="Settings"):
                 continue
 
             lib = importlib.import_module(setting)
+            importlib.reload(lib)
             main = getattr(lib, "main_cmd")
 
             settings_cmd.add_command(main)
