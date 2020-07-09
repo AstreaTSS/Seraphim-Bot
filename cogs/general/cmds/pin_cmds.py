@@ -5,6 +5,8 @@ import common.utils as utils
 import common.star_mes_handler as star_mes
 
 class PinCMDs(commands.Cog, name = "Pinboard"):
+    """Commands for the pinboard. See the settings command to set a pinboard up."""
+
     def __init__(self, bot):
         self.bot = bot
 

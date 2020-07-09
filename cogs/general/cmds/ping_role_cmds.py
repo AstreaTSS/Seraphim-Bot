@@ -5,6 +5,8 @@ import importlib, humanize
 import common.utils as utils
 
 class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
+    """Commands for pingable roles. If you wish to add a pingable role, please view the settings command."""
+
     def __init__(self, bot):
         self.bot = bot
 
