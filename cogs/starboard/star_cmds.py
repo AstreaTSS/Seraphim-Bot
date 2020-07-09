@@ -7,6 +7,8 @@ import common.utils as utils
 import common.star_mes_handler as star_mes
 
 class StarCMDs(commands.Cog, name = "Starboard"):
+    """Commands for the starboard. See the settings command to set up the starboard."""
+
     def __init__(self, bot):
         self.bot = bot
 
