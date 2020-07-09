@@ -9,10 +9,10 @@ async def proper_permissions(ctx):
     return (permissions.administrator or permissions.manage_guild)
 
 async def fetch_needed(bot, payload):
-    guild = await bot.fetch_guild(payload.guild_id)
-    user = await guild.fetch_member(payload.user_id)
+    guild = bot.get_guild(payload.guild_id)
+    user = guild.get_member(payload.user_id)
 
-    channel = await bot.fetch_channel(payload.channel_id)
+    channel = bot.get_channel(payload.channel_id)
     mes = await channel.fetch_message(payload.message_id)
 
     return user, channel, mes
