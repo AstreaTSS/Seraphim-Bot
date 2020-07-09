@@ -25,7 +25,7 @@ class NormCMDs(commands.Cog, name="Normal"):
         """Reverses the content given."""
 
         if len(content) < 1950:
-            no_mentions = discord.AllowedMentions(everyone=False, users=False, roles=False)
+            no_mentions = discord.AllowedMentions(everyone=False, users=[ctx.author], roles=False)
             await ctx.send(f"{ctx.author.mention}: {content[::-1]}", allowed_mentions=no_mentions)
         else:
             await ctx.send(f"{ctx.author.mention}, that message is too long!")
