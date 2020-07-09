@@ -91,8 +91,15 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
                 self.bot.reload_extension(ext)
                 reloaded_files.append(ext)
             except commands.ExtensionNotLoaded:
-                self.bot.load_extension(ext)
-                loaded_files.append(ext)
+                try:
+                    self.bot.load_extension(ext)
+                    loaded_files.append(ext)
+                except commands.ExtensionNotFound as e:
+                    await utils.error_handle(self.bot, e)
+                except commands.NoEntryPointError:
+                    not_loaded.append(ext)
+                except commands.ExtensionFailed as e:
+                    await utils.error_handle(self.bot, e)
             except commands.ExtensionNotFound as e:
                 await utils.error_handle(self.bot, e)
             except commands.NoEntryPointError:
