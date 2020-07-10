@@ -49,14 +49,14 @@ async def type_from_url(url, bot = None):
         async with session.get(url) as resp:
             if resp.status != 200:
                 if bot != None:
-                    msg_to_owner(bot, str(resp.status))
+                    await msg_to_owner(bot, str(resp.status))
                 return None
             
             data = await resp.content.read(12)
             tup_data = tuple(data)
 
             if bot != None:
-                msg_to_owner(bot, str(tup_data))
+                await msg_to_owner(bot, str(tup_data))
             
             # first 7 bytes of most pngs
             png_list = (0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)
