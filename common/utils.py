@@ -48,6 +48,8 @@ async def type_from_url(url, bot = None):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:
             if resp.status != 200:
+                if bot != None:
+                    msg_to_owner(bot, str(resp.status))
                 return None
             
             data = await resp.content.read(12)
