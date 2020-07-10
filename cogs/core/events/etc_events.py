@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.6
 from discord.ext import commands, tasks
-import discord, datetime, importlib
+import discord, datetime, importlib, io
 
 import common.utils as utils
 
@@ -39,6 +39,7 @@ class EtcEvents(commands.Cog):
                 self.bot.snipes["deletes"][message.channel.id] = []
 
             image = None
+            img_file_type = None
 
             if message.attachments != []:
                 image_endings = ("jpg", "png", "gif")
@@ -47,8 +48,8 @@ class EtcEvents(commands.Cog):
                 file_type = await utils.type_from_url(message.attachments[0].proxy_url)
                 if file_type in image_extensions:
                     try:
-                        image = await message.attachments[0].to_file(use_cached=True)
-                        image.filename = f"image.{file_type}"
+                        image = io.BytesIO(await message.attachments[0].read(use_cached=True))
+                        img_file_type = file_type
                     except discord.NotFound:
                         if message.content == "":
                             return
@@ -58,6 +59,7 @@ class EtcEvents(commands.Cog):
             self.bot.snipes["deletes"][message.channel.id].append({
                 "mes": message,
                 "image": image,
+                "file_type": img_file_type,
                 "time_deleted": now
             })
 

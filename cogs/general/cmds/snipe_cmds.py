@@ -69,8 +69,9 @@ class SnipeCMDs(commands.Cog):
         send_embed.color = discord.Colour(0x4378fc)
 
         if image != None:
+            image_file = discord.File(image, f"image.{sniped_msg['file_type']}")
             send_embed.set_image(url=f"attachment://{image.filename}")
-            await ctx.send(file=image, embed=send_embed)
+            await ctx.send(file=image_file, embed=send_embed)
         else:
             await ctx.send(embed = send_embed)
 
