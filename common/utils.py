@@ -44,7 +44,7 @@ async def user_from_id(bot, guild, user_id):
 
     return user
 
-async def type_from_url(url):
+async def type_from_url(url, bot = None):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:
             if resp.status != 200:
@@ -53,7 +53,8 @@ async def type_from_url(url):
             data = await resp.content.read(12)
             tup_data = tuple(data)
 
-            print(tup_data)
+            if bot != None:
+                msg_to_owner(bot, str(tup_data))
             
             # first 7 bytes of most pngs
             png_list = (0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)
@@ -63,7 +64,6 @@ async def type_from_url(url):
             # first 12 bytes of most jp(e)gs. EXIF is a bit wierd, and so some manipulating had to be done
             jfif_list = (0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01)
             exif_lists = ((0xFF, 0xD8, 0xFF, 0xE1), (0x45, 0x78, 0x69, 0x66, 0x00, 0x00))
-            print(exif_lists)
 
             if tup_data == jfif_list or (tup_data[:4] == exif_lists[0] and tup_data[6:] == exif_lists[1]):
                 return "jpg"
