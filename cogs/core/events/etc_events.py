@@ -37,9 +37,7 @@ class EtcEvents(commands.Cog):
                 self.bot.snipes["deletes"][message.channel.id] = []
 
             self.bot.snipes["deletes"][message.channel.id].append({
-                "author": message.author,
-                "content": message.content,
-                "created_at": message.created_at,
+                "mes": message,
                 "time_deleted": now
             })
 
@@ -52,9 +50,7 @@ class EtcEvents(commands.Cog):
                     self.bot.snipes["edits"][before.channel.id] = []
                 
                 self.bot.snipes["edits"][before.channel.id].append({
-                    "author": before.author,
-                    "content": before.content,
-                    "created_at": before.created_at,
+                    "mes": before,
                     "time_edited": now
                 })
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.6
 from discord.ext import commands
 from discord.ext.commands.errors import BadArgument
-import traceback, discord, datetime, re
+import traceback, discord, datetime, re, aiohttp
 from pathlib import Path
 
 async def proper_permissions(ctx):
@@ -43,6 +43,37 @@ async def user_from_id(bot, guild, user_id):
             user = None
 
     return user
+
+async def type_from_url(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            data = await resp.content.read(12)
+            tup_data = tuple(data)
+            
+            # first 7 bytes of most pngs
+            png_list = (0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)
+            if tup_data[:8] == png_list:
+                return "png"
+            
+            # first 12 bytes of most jp(e)gs. EXIF is a bit wierd, and so some manipulating had to be done
+            jfif_list = (0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01)
+            exif_lists = ((0xFF, 0xD8, 0xFF, 0xE1), (0x45, 0x78, 0x69, 0x66, 0x00, 0x00))
+
+            if tup_data == jfif_list or (tup_data[:4] == exif_lists[0] and tup_data[6:] == exif_lists[1]):
+                return "jpg"
+
+            # first 6 bytes of most gifs. last two can be different, so we have to handle that
+            gif_lists = ((0x47, 0x49, 0x46, 0x38), ((0x37, 0x61), (0x39, 0x61)))
+            if tup_data[:4] == gif_lists[0] and tup_data[4:6] in gif_lists[1]:
+                return "gif"
+
+            # first 12 bytes of most webps. middle four are file size, so we ignore that
+            # webp isnt actually used for anything bot-wise, just here for the sake of it
+            webp_lists = ((0x52, 0x49, 0x46, 0x46), (0x57, 0x45, 0x42, 0x50))
+            if tup_data[:4] == webp_lists[0] and tup_data[8:] == webp_lists[1]:
+                return "webp"
+
+    return None
 
 def file_to_ext(str_path, base_path):
     str_path = str_path.replace(base_path, "")

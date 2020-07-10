@@ -38,7 +38,7 @@ class PinCMDs(commands.Cog, name = "Pinboard"):
         pins_subset = pins[-dif:]
 
         for pin in pins_subset:
-            send_embed = await star_mes.generate(self.bot, pin)
+            send_embed = await star_mes.star_generate(self.bot, pin)
             send_embed.color = discord.Colour.default()
 
             await des_chan.send(embed = send_embed)

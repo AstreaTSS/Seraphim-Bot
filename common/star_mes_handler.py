@@ -4,7 +4,7 @@ import discord, re
 import common.star_utils as star_utils
 import common.utils as utils
 
-async def generate(bot, mes, forced = False):
+async def base_generate(bot, mes):
     image_url = ""
 
     if mes.embeds != [] and ((mes.author.id in [270904126974590976, 499383056822435840] 
@@ -41,24 +41,36 @@ async def generate(bot, mes, forced = False):
         send_embed.set_author(name=author, icon_url=icon)
         
     else:
+        def cant_display(content):
+            if len(content) < 1975:
+                if content != "":
+                    content += "\n\n"
+                content += "*This message has attachments the bot cannot display. Pleae check out the original message to see them.*"
+            return content
+
         content = mes.system_content
 
         image_endings = (".jpg", ".png", ".gif")
         image_extensions = tuple(image_endings) # no idea why I have to do this
 
         if mes.attachments != []:
-            if len(mes.attachments) == 1 and mes.attachments[0].filename.lower().endswith(image_extensions):
+            file_type = await utils.type_from_url(mes.attachments[0].proxy_url)
+            if file_type in image_extensions:
                 image_url = mes.attachments[0].url
-            else:
-                if content != "":
-                    content += "\n\n"
-                content += "*This message has attachments the bot cannot display. Pleae check out the original message to see them.*"
 
-        urls = re.findall(r"((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)", content)
-        if urls != []:
-            images = [url[0] for url in urls if url[0].lower().endswith(image_extensions)]
-            if images != []:
-                image_url = images[0]
+                if len(mes.attachments) > 1:
+                    content = cant_display(content)
+            else:
+                content = cant_display(content)
+        else:
+            urls = re.findall(r"((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)", content)
+            if urls != []:
+                for url_entry in urls:
+                    url = url_entry[0]
+                    file_type = await utils.type_from_url(url)
+                    if file_type in image_extensions:
+                        image_url = url[0]
+                        break
 
         author = f"{mes.author.display_name} ({str(mes.author)})"
         icon = str(mes.author.avatar_url_as(format=None,static_format="jpg", size=128))
@@ -72,12 +84,17 @@ async def generate(bot, mes, forced = False):
         if image_url != "":
             send_embed.set_image(url=image_url)
 
+    return send_embed
+
+async def star_generate(bot, mes):
+    send_embed = await base_generate(bot, mes)
     send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
     send_embed.set_footer(text=f"ID: {mes.id}")
+
     return send_embed
 
 async def send(bot, mes, unique_stars, forced = False):
-    send_embed = await generate(bot, mes, forced)
+    send_embed = await star_generate(bot, mes)
     starboard = mes.guild.get_channel(bot.config[mes.guild.id]["starboard_id"])
 
     if not forced:

@@ -2,6 +2,8 @@
 from discord.ext import commands, tasks
 import discord, datetime
 
+import common.star_mes_handler as star_mes
+
 class SnipeCMDs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -56,11 +58,8 @@ class SnipeCMDs(commands.Cog):
             await ctx.send("There's nothing to snipe!")
             return
 
-        author = f"{sniped_msg['author'].display_name} ({str(sniped_msg['author'])})"
-        icon = str(sniped_msg['author'].avatar_url_as(format=None,static_format='jpg', size=128))
-
-        send_embed = discord.Embed(colour=discord.Colour(0x4378fc), description=sniped_msg["content"], timestamp=sniped_msg["created_at"])
-        send_embed.set_author(name=author, icon_url=icon)
+        send_embed = await star_mes.base_generate(self.bot, sniped_msg["mes"])
+        send_embed.color = discord.Colour(0x4378fc)
 
         await ctx.send(embed = send_embed)
         
