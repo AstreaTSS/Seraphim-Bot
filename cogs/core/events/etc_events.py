@@ -35,6 +35,7 @@ class EtcEvents(commands.Cog):
     @commands.Cog.listener()
     async def on_message_delete(self, message):
         if message.content != "" or message.attachments != []:
+            await utils.msg_to_owner(self.bot, "a")
             now = datetime.datetime.utcnow()
             if not message.channel.id in self.bot.snipes["deletes"].keys():
                 self.bot.snipes["deletes"][message.channel.id] = []
@@ -47,6 +48,7 @@ class EtcEvents(commands.Cog):
                 image_extensions = tuple(image_endings) # no idea why I have to do this
 
                 file_type = await utils.type_from_url(message.attachments[0].proxy_url)
+                await utils.msg_to_owner(self.bot, file_type)
                 if file_type in image_extensions:
                     async with aiohttp.ClientSession() as session:
                         async with session.get(message.attachments[0].proxy_url) as resp:
