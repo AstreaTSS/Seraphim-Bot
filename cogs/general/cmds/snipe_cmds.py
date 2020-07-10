@@ -58,11 +58,17 @@ class SnipeCMDs(commands.Cog):
             await ctx.send("There's nothing to snipe!")
             return
 
-        send_embed = await star_mes.base_generate(self.bot, sniped_msg["mes"])
+        mes = sniped_msg['mes']
+
+        author = f"{mes.author.display_name} ({str(mes.author)})"
+        icon = str(mes.author.avatar_url_as(format=None,static_format='jpg', size=128))
+
+        send_embed = discord.Embed(colour=discord.Colour(0x4378fc), description=mes.content, timestamp=mes.created_at)
+        send_embed.set_author(name=author, icon_url=icon)
         send_embed.color = discord.Colour(0x4378fc)
 
         await ctx.send(embed = send_embed)
-        
+
 
     @commands.command()
     async def snipe(self, ctx, msg_num = 1):

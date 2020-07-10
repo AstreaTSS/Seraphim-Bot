@@ -179,6 +179,12 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
         await ctx.send("Done!")
 
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def debug_star_mes(self, ctx):
+        send_embed = await star_mes.base_generate(self.bot, ctx.message)
+        await ctx.send(embed=send_embed)
+
 def setup(bot):
     importlib.reload(star_utils)
     importlib.reload(star_mes)

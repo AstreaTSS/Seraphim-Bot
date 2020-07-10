@@ -56,7 +56,7 @@ async def base_generate(bot, mes):
         if mes.attachments != []:
             file_type = await utils.type_from_url(mes.attachments[0].proxy_url)
             if file_type in image_extensions:
-                image_url = mes.attachments[0].url
+                image_url = mes.attachments[0].proxy_url
 
                 if len(mes.attachments) > 1:
                     content = cant_display(content)
