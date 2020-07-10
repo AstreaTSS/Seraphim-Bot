@@ -22,6 +22,7 @@ async def on_ready():
             "deletes": {},
             "edits": {}
         }
+        bot.img_cache = {}
 
         bot.star_queue = {}
 

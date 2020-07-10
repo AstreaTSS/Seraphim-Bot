@@ -9,14 +9,26 @@ class EtcEvents(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.activity_refresh.start()
+        self.img_cache_clean.start()
 
     def cog_unload(self):
         self.activity_refresh.cancel()
+        self.img_cache_clean.cancel()
 
     @tasks.loop(hours=2.5)
     async def activity_refresh(self):
         activity = discord.Activity(name = 'over a couple of servers', type = discord.ActivityType.watching)
         await self.bot.change_presence(activity = activity)
+
+    @tasks.loop(minutes=1)
+    async def img_cache_clean(self):
+        now = datetime.datetime.utcnow()
+        one_and_half_ago = now - datetime.timedelta(minutes=1.5)
+
+        for mes_id in self.bot.img_cache.keys():
+            entry = self.bot.img_cache[mes_id]
+            if entry["cached"] < one_and_half_ago:
+                self.bot.img_cache[mes_id] = {}
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
@@ -33,6 +45,39 @@ class EtcEvents(commands.Cog):
             }
 
     @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.attachments != []:
+            image = None
+            img_file_type = None
+
+            image_endings = ("jpg", "png", "gif")
+            image_extensions = tuple(image_endings) # no idea why I have to do this
+
+            file_type = await utils.type_from_url(message.attachments[0].url, self.bot)
+            if file_type in image_extensions:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(message.attachments[0].url) as resp:
+                        if resp.status == 200:
+                            try:
+                                await resp.content.readexactly(9437184) # 9 MiB
+                                # more or less, i'm abusing the fact that this should error out
+                                # if it's less than 9 MiB as a way to check if its small enough
+                                # to be sniped
+                                # i picked 9 MiB because nitro's 8 + 1 for safety
+                            except asyncio.IncompleteReadError as e:
+                                image = e.partial
+                                img_file_type = file_type
+
+                if image != None:
+                    now = datetime.datetime.utcnow()
+
+                    self.bot.img_cache[message.id] = {
+                        "image": image,
+                        "file_type": img_file_type,
+                        "cached": now
+                    }
+
+    @commands.Cog.listener()
     async def on_message_delete(self, message):
         if message.content != "" or message.attachments != []:
             now = datetime.datetime.utcnow()
@@ -45,25 +90,23 @@ class EtcEvents(commands.Cog):
             img_file_type = None
 
             if message.attachments != []:
-                image_endings = ("jpg", "png", "gif")
-                image_extensions = tuple(image_endings) # no idea why I have to do this
+                if message.id in self.bot.img_cache.keys():
+                    image = self.bot.img_cache[message.id]["image"]
+                    img_file_type = self.bot.img_cache[message.id]["file_type"]
+                else:
+                    image_endings = ("jpg", "png", "gif")
+                    image_extensions = tuple(image_endings) # no idea why I have to do this
 
-                await utils.msg_to_owner(self.bot, message.attachments[0].proxy_url)
-
-                file_type = await utils.type_from_url(message.attachments[0].proxy_url, self.bot)
-                if file_type in image_extensions:
-                    async with aiohttp.ClientSession() as session:
-                        async with session.get(message.attachments[0].proxy_url) as resp:
-                            if resp.status == 200:
-                                try:
-                                    await resp.content.readexactly(9437184) # 9 MiB
-                                    # more or less, i'm abusing the fact that this should error out
-                                    # if it's less than 9 MiB as a way to check if its small enough
-                                    # to be sniped
-                                    # i picked 9 MiB because nitro's 8 + 1 for safety
-                                except asyncio.IncompleteReadError as e:
-                                    image = e.partial
-                                    img_file_type = file_type
+                    file_type = await utils.type_from_url(message.attachments[0].proxy_url)
+                    if file_type in image_extensions:
+                        async with aiohttp.ClientSession() as session:
+                            async with session.get(message.attachments[0].proxy_url) as resp:
+                                if resp.status == 200:
+                                    try:
+                                        await resp.content.readexactly(9437184)
+                                    except asyncio.IncompleteReadError as e:
+                                        image = e.partial
+                                        img_file_type = file_type
 
             if image == None and message.content == "":
                 return
