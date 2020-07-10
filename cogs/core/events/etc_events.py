@@ -40,7 +40,6 @@ class EtcEvents(commands.Cog):
 
             image = None
             img_file_type = None
-            spoiler = False
 
             if message.attachments != []:
                 image_endings = ("jpg", "png", "gif")
@@ -51,7 +50,6 @@ class EtcEvents(commands.Cog):
                     try:
                         image = await message.attachments[0].read(use_cached=True)
                         img_file_type = file_type
-                        spoiler = message.attachments[0].is_spoiler()
                     except discord.NotFound:
                         if message.content == "":
                             return
@@ -62,7 +60,6 @@ class EtcEvents(commands.Cog):
                 "mes": message,
                 "image": image,
                 "file_type": img_file_type,
-                "spoiler": spoiler,
                 "time_deleted": now
             })
 
