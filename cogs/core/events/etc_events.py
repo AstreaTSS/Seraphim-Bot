@@ -28,7 +28,7 @@ class EtcEvents(commands.Cog):
         for mes_id in self.bot.img_cache.keys():
             entry = self.bot.img_cache[mes_id]
             if entry["cached"] < one_and_half_ago:
-                self.bot.img_cache[mes_id] = {}
+                del self.bot.img_cache[mes_id]
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
@@ -84,8 +84,6 @@ class EtcEvents(commands.Cog):
             if not message.channel.id in self.bot.snipes["deletes"].keys():
                 self.bot.snipes["deletes"][message.channel.id] = []
 
-            await utils.msg_to_owner(self.bot, str(message.attachments))
-
             image = None
             img_file_type = None
 
@@ -93,6 +91,7 @@ class EtcEvents(commands.Cog):
                 if message.id in self.bot.img_cache.keys():
                     image = self.bot.img_cache[message.id]["image"]
                     img_file_type = self.bot.img_cache[message.id]["file_type"]
+                    del self.bot.img_cache[message.id]
                 else:
                     image_endings = ("jpg", "png", "gif")
                     image_extensions = tuple(image_endings) # no idea why I have to do this
