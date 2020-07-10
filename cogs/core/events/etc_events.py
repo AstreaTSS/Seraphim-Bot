@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.6
 from discord.ext import commands, tasks
-import discord, datetime, importlib
+import discord, datetime, asyncio
+import importlib, aiohttp
 
 import common.utils as utils
 
@@ -47,14 +48,21 @@ class EtcEvents(commands.Cog):
 
                 file_type = await utils.type_from_url(message.attachments[0].proxy_url)
                 if file_type in image_extensions:
-                    try:
-                        image = await message.attachments[0].read(use_cached=True)
-                        img_file_type = file_type
-                    except discord.NotFound:
-                        if message.content == "":
-                            return
-                elif message.content == "":
-                    return
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(message.attachments[0].proxy_url) as resp:
+                            if resp.status == 200:
+                                try:
+                                    await resp.content.readexactly(9437184) # 9 MiB
+                                    # more or less, i'm abusing the fact that this should error out
+                                    # if it's less than 9 MiB as a way to check if its small enough
+                                    # to be sniped
+                                    # i picked 9 MiB because nitro's 8 + 1 for safety
+                                except asyncio.IncompleteReadError as e:
+                                    image = e.partial
+                                    img_file_type = file_type
+
+            if image == None and message.content == "":
+                return
 
             self.bot.snipes["deletes"][message.channel.id].append({
                 "mes": message,
