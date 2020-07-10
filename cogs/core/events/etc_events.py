@@ -48,6 +48,8 @@ class EtcEvents(commands.Cog):
                 image_endings = ("jpg", "png", "gif")
                 image_extensions = tuple(image_endings) # no idea why I have to do this
 
+                await utils.msg_to_owner(self.bot, message.attachments[0].proxy_url)
+
                 file_type = await utils.type_from_url(message.attachments[0].proxy_url, self.bot)
                 if file_type in image_extensions:
                     async with aiohttp.ClientSession() as session:
