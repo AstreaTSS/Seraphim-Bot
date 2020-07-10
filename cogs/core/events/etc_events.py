@@ -50,6 +50,8 @@ class EtcEvents(commands.Cog):
                 if file_type in image_extensions:
                     async with aiohttp.ClientSession() as session:
                         async with session.get(message.attachments[0].proxy_url) as resp:
+                            await utils.msg_to_owner(self.bot, message.attachments[0].proxy_url)
+                            await utils.msg_to_owner(self.bot, str(resp.status))
                             if resp.status == 200:
                                 try:
                                     await resp.content.readexactly(9437184) # 9 MiB
