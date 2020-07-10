@@ -58,6 +58,7 @@ class EtcEvents(commands.Cog):
                                     # to be sniped
                                     # i picked 9 MiB because nitro's 8 + 1 for safety
                                 except asyncio.IncompleteReadError as e:
+                                    await utils.msg_to_owner(self.bot, "hi")
                                     image = e.partial
                                     img_file_type = file_type
 
