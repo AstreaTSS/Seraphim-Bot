@@ -47,6 +47,9 @@ async def user_from_id(bot, guild, user_id):
 async def type_from_url(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:
+            if resp.status != 200:
+                return None
+            
             data = await resp.content.read(12)
             tup_data = tuple(data)
             

@@ -35,7 +35,6 @@ class EtcEvents(commands.Cog):
     @commands.Cog.listener()
     async def on_message_delete(self, message):
         if message.content != "" or message.attachments != []:
-            await utils.msg_to_owner(self.bot, "a")
             now = datetime.datetime.utcnow()
             if not message.channel.id in self.bot.snipes["deletes"].keys():
                 self.bot.snipes["deletes"][message.channel.id] = []
@@ -48,12 +47,9 @@ class EtcEvents(commands.Cog):
                 image_extensions = tuple(image_endings) # no idea why I have to do this
 
                 file_type = await utils.type_from_url(message.attachments[0].proxy_url)
-                await utils.msg_to_owner(self.bot, file_type)
                 if file_type in image_extensions:
                     async with aiohttp.ClientSession() as session:
                         async with session.get(message.attachments[0].proxy_url) as resp:
-                            await utils.msg_to_owner(self.bot, message.attachments[0].proxy_url)
-                            await utils.msg_to_owner(self.bot, str(resp.status))
                             if resp.status == 200:
                                 try:
                                     await resp.content.readexactly(9437184) # 9 MiB
@@ -62,7 +58,6 @@ class EtcEvents(commands.Cog):
                                     # to be sniped
                                     # i picked 9 MiB because nitro's 8 + 1 for safety
                                 except asyncio.IncompleteReadError as e:
-                                    await utils.msg_to_owner(self.bot, "hi")
                                     image = e.partial
                                     img_file_type = file_type
 
