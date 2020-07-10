@@ -1,6 +1,8 @@
 #!/usr/bin/env python3.6
 from discord.ext import commands, tasks
-import discord, datetime
+import discord, datetime, importlib
+
+import common.utils as utils
 
 class EtcEvents(commands.Cog):
     def __init__(self, bot):
@@ -31,13 +33,31 @@ class EtcEvents(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        if message.content != "":
+        if message.content != "" or message.attachments != []:
             now = datetime.datetime.utcnow()
             if not message.channel.id in self.bot.snipes["deletes"].keys():
                 self.bot.snipes["deletes"][message.channel.id] = []
 
+            image = None
+
+            if message.attachments != []:
+                image_endings = ("jpg", "png", "gif")
+                image_extensions = tuple(image_endings) # no idea why I have to do this
+
+                file_type = await utils.type_from_url(message.attachments[0].proxy_url)
+                if file_type in image_extensions:
+                    try:
+                        image = await message.attachments[0].to_file(use_cached=True)
+                        image.filename = f"image.{file_type}"
+                    except discord.NotFound:
+                        if message.content == "":
+                            return
+                elif message.content == "":
+                    return
+
             self.bot.snipes["deletes"][message.channel.id].append({
                 "mes": message,
+                "image": image,
                 "time_deleted": now
             })
 
@@ -51,8 +71,10 @@ class EtcEvents(commands.Cog):
                 
                 self.bot.snipes["edits"][before.channel.id].append({
                     "mes": before,
+                    "image": None,
                     "time_edited": now
                 })
 
 def setup(bot):
+    importlib.reload(utils)
     bot.add_cog(EtcEvents(bot))

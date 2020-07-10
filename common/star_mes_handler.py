@@ -50,7 +50,7 @@ async def base_generate(bot, mes):
 
         content = mes.system_content
 
-        image_endings = (".jpg", ".png", ".gif")
+        image_endings = ("jpg", "png", "gif")
         image_extensions = tuple(image_endings) # no idea why I have to do this
 
         if mes.attachments != []:
@@ -69,7 +69,7 @@ async def base_generate(bot, mes):
                     url = url_entry[0]
                     file_type = await utils.type_from_url(url)
                     if file_type in image_extensions:
-                        image_url = url[0]
+                        image_url = url
                         break
 
         author = f"{mes.author.display_name} ({str(mes.author)})"
