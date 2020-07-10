@@ -70,7 +70,7 @@ class SnipeCMDs(commands.Cog):
 
         if image != None:
             image_bytes = io.BytesIO(image)
-            image_file = discord.File(image_bytes, f"image.{sniped_msg['file_type']}")
+            image_file = discord.File(image_bytes, filename=f"image.{sniped_msg['file_type']}", spoiler=sniped_msg['spoiler'])
             send_embed.set_image(url=f"attachment://image.{sniped_msg['file_type']}")
             await ctx.send(file=image_file, embed=send_embed)
         else:
