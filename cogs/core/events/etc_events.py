@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.6
 from discord.ext import commands, tasks
-import discord, datetime, importlib, io
+import discord, datetime, importlib
 
 import common.utils as utils
 
@@ -48,7 +48,7 @@ class EtcEvents(commands.Cog):
                 file_type = await utils.type_from_url(message.attachments[0].proxy_url)
                 if file_type in image_extensions:
                     try:
-                        image = io.BytesIO(await message.attachments[0].read(use_cached=True))
+                        image = await message.attachments[0].read(use_cached=True)
                         img_file_type = file_type
                     except discord.NotFound:
                         if message.content == "":

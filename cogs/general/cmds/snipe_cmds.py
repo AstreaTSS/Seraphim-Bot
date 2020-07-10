@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.6
 from discord.ext import commands, tasks
-import discord, datetime
+import discord, datetime, io
 
 import common.star_mes_handler as star_mes
 
@@ -69,7 +69,8 @@ class SnipeCMDs(commands.Cog):
         send_embed.color = discord.Colour(0x4378fc)
 
         if image != None:
-            image_file = discord.File(image, f"image.{sniped_msg['file_type']}")
+            image_bytes = io.BytesIO(image)
+            image_file = discord.File(image_bytes, f"image.{sniped_msg['file_type']}")
             send_embed.set_image(url=f"attachment://image.{sniped_msg['file_type']}")
             await ctx.send(file=image_file, embed=send_embed)
         else:
