@@ -39,6 +39,8 @@ class EtcEvents(commands.Cog):
             if not message.channel.id in self.bot.snipes["deletes"].keys():
                 self.bot.snipes["deletes"][message.channel.id] = []
 
+            await utils.msg_to_owner(self.bot, str(message.attachments))
+
             image = None
             img_file_type = None
 
