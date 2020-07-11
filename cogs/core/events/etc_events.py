@@ -1,9 +1,6 @@
 #!/usr/bin/env python3.6
 from discord.ext import commands, tasks
 import discord, datetime, asyncio
-import importlib, aiohttp
-
-import common.utils as utils
 
 class EtcEvents(commands.Cog):
     def __init__(self, bot):
@@ -58,5 +55,4 @@ class EtcEvents(commands.Cog):
                 })
 
 def setup(bot):
-    importlib.reload(utils)
     bot.add_cog(EtcEvents(bot))
