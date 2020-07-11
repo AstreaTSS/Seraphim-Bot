@@ -9,26 +9,14 @@ class EtcEvents(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.activity_refresh.start()
-        self.img_cache_clean.start()
 
     def cog_unload(self):
         self.activity_refresh.cancel()
-        self.img_cache_clean.cancel()
 
     @tasks.loop(hours=2.5)
     async def activity_refresh(self):
         activity = discord.Activity(name = 'over a couple of servers', type = discord.ActivityType.watching)
         await self.bot.change_presence(activity = activity)
-
-    @tasks.loop(minutes=1)
-    async def img_cache_clean(self):
-        now = datetime.datetime.utcnow()
-        one_and_half_ago = now - datetime.timedelta(minutes=1.5)
-
-        for mes_id in self.bot.img_cache.keys():
-            entry = self.bot.img_cache[mes_id]
-            if entry["cached"] < one_and_half_ago:
-                del self.bot.img_cache[mes_id]
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
