@@ -45,75 +45,14 @@ class EtcEvents(commands.Cog):
             }
 
     @commands.Cog.listener()
-    async def on_message(self, message):
-        if message.attachments != []:
-            image = None
-            img_file_type = None
-
-            image_endings = ("jpg", "png", "gif")
-            image_extensions = tuple(image_endings) # no idea why I have to do this
-
-            file_type = await utils.type_from_url(message.attachments[0].url, self.bot)
-            if file_type in image_extensions:
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(message.attachments[0].url) as resp:
-                        if resp.status == 200:
-                            try:
-                                await resp.content.readexactly(9437184) # 9 MiB
-                                # more or less, i'm abusing the fact that this should error out
-                                # if it's less than 9 MiB as a way to check if its small enough
-                                # to be sniped
-                                # i picked 9 MiB because nitro's 8 + 1 for safety
-                            except asyncio.IncompleteReadError as e:
-                                image = e.partial
-                                img_file_type = file_type
-
-                if image != None:
-                    now = datetime.datetime.utcnow()
-
-                    self.bot.img_cache[message.id] = {
-                        "image": image,
-                        "file_type": img_file_type,
-                        "cached": now
-                    }
-
-    @commands.Cog.listener()
     async def on_message_delete(self, message):
-        if message.content != "" or message.attachments != []:
+        if message.content != "":
             now = datetime.datetime.utcnow()
             if not message.channel.id in self.bot.snipes["deletes"].keys():
                 self.bot.snipes["deletes"][message.channel.id] = []
 
-            image = None
-            img_file_type = None
-
-            if message.attachments != []:
-                if message.id in self.bot.img_cache.keys():
-                    image = self.bot.img_cache[message.id]["image"]
-                    img_file_type = self.bot.img_cache[message.id]["file_type"]
-                    del self.bot.img_cache[message.id]
-                else:
-                    image_endings = ("jpg", "png", "gif")
-                    image_extensions = tuple(image_endings) # no idea why I have to do this
-
-                    file_type = await utils.type_from_url(message.attachments[0].proxy_url)
-                    if file_type in image_extensions:
-                        async with aiohttp.ClientSession() as session:
-                            async with session.get(message.attachments[0].proxy_url) as resp:
-                                if resp.status == 200:
-                                    try:
-                                        await resp.content.readexactly(9437184)
-                                    except asyncio.IncompleteReadError as e:
-                                        image = e.partial
-                                        img_file_type = file_type
-
-            if image == None and message.content == "":
-                return
-
             self.bot.snipes["deletes"][message.channel.id].append({
                 "mes": message,
-                "image": image,
-                "file_type": img_file_type,
                 "time_deleted": now
             })
 
@@ -127,7 +66,6 @@ class EtcEvents(commands.Cog):
                 
                 self.bot.snipes["edits"][before.channel.id].append({
                     "mes": before,
-                    "image": None,
                     "time_edited": now
                 })
 

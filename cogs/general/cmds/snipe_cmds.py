@@ -59,7 +59,6 @@ class SnipeCMDs(commands.Cog):
             return
 
         mes = sniped_msg['mes']
-        image = sniped_msg["image"]
 
         author = f"{mes.author.display_name} ({str(mes.author)})"
         icon = str(mes.author.avatar_url_as(format=None,static_format='jpg', size=128))
@@ -67,14 +66,8 @@ class SnipeCMDs(commands.Cog):
         send_embed = discord.Embed(colour=discord.Colour(0x4378fc), description=mes.content, timestamp=mes.created_at)
         send_embed.set_author(name=author, icon_url=icon)
         send_embed.color = discord.Colour(0x4378fc)
-
-        if image != None:
-            image_bytes = io.BytesIO(image)
-            image_file = discord.File(image_bytes, filename=f"image.{sniped_msg['file_type']}")
-            send_embed.set_image(url=f"attachment://image.{sniped_msg['file_type']}")
-            await ctx.send(file=image_file, embed=send_embed)
-        else:
-            await ctx.send(embed = send_embed)
+        
+        await ctx.send(embed = send_embed)
 
 
     @commands.command()
