@@ -6,8 +6,8 @@ from datetime import datetime
 
 import common.utils as utils
 
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("s!"), fetch_offline_members=True)
 
