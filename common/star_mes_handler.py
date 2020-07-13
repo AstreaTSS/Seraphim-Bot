@@ -54,8 +54,7 @@ async def base_generate(bot, mes):
         image_extensions = tuple(image_endings) # no idea why I have to do this
 
         if mes.attachments != []:
-            file_type = await utils.type_from_url(mes.attachments[0].proxy_url)
-            if file_type in image_extensions:
+            if mes.attachments[0].filename.lower().endswith(image_extensions):
                 image_url = mes.attachments[0].proxy_url
 
                 if len(mes.attachments) > 1:
@@ -65,12 +64,9 @@ async def base_generate(bot, mes):
         else:
             urls = re.findall(r"((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)", content)
             if urls != []:
-                for url_entry in urls:
-                    url = url_entry[0]
-                    file_type = await utils.type_from_url(url)
-                    if file_type in image_extensions:
-                        image_url = url
-                        break
+                images = [url[0] for url in urls if url[0].lower().endswith(image_extensions)]
+                if images != []:
+                    image_url = images[0]
 
         author = f"{mes.author.display_name} ({str(mes.author)})"
         icon = str(mes.author.avatar_url_as(format=None,static_format="jpg", size=128))
