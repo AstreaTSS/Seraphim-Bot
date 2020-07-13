@@ -25,7 +25,7 @@ class Settings(commands.Cog, name="Settings"):
         if settings_cmd == None:
             raise commands.CommandNotFound("Can't find settings command!")
 
-        settings_ext = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"), "cogs/core/settings")
+        settings_ext = ['cogs.core.settings.pinboard_settings', 'cogs.core.settings.ping_roles_settings', 'cogs.core.settings.star_settings']
         for setting in settings_ext:
             if setting == "cogs.core.settings.settings":
                 continue
