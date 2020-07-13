@@ -29,11 +29,7 @@ async def on_ready():
         while bot.config == {}:
             await asyncio.sleep(0.1)
 
-        cogs_list = ['cogs.core.cmds.cog_control', 'cogs.core.cmds.eval_cmd', 'cogs.core.cmds.help_cmd', 'cogs.core.cmds.norm_cmds', 
-        'cogs.core.events.etc_events', 'cogs.core.events.on_cmd_error', 
-        'cogs.core.settings.settings', 'cogs.general.cmds.ping_role_cmds', 'cogs.general.cmds.pin_cmds', 
-        'cogs.general.cmds.say_cmds', 'cogs.general.cmds.snipe_cmds', 'cogs.general.events.pin_handle', 'cogs.starboard.clear_events', 
-        'cogs.starboard.star_cmds', 'cogs.starboard.star_handling']
+        cogs_list = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))
 
         for cog in cogs_list:
             if cog != "cogs.db_handler":
