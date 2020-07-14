@@ -71,14 +71,9 @@ class SnipeCMDs(commands.Cog):
         except IndexError:
             await ctx.send("There's nothing to snipe!")
             return
-
-        mes = sniped_msg['mes']
-
-        author = f"{mes.author.display_name} ({str(mes.author)})"
-        icon = str(mes.author.avatar_url_as(format=None,static_format='jpg', size=128))
-
-        send_embed = discord.Embed(colour=discord.Colour(0x4378fc), description=mes.content, timestamp=mes.created_at)
-        send_embed.set_author(name=author, icon_url=icon)
+            
+        send_embed = discord.Embed(colour=discord.Colour(0x4378fc), description=sniped_msg["mes_content"], timestamp=sniped_msg["created_at"])
+        send_embed.set_author(name=sniped_msg["author_name"], icon_url=sniped_msg["author_url"])
         send_embed.color = discord.Colour(0x4378fc)
         
         await ctx.send(embed = send_embed)
