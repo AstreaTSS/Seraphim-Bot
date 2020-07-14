@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3.7
 from discord.ext import commands
 from discord.ext.commands.errors import BadArgument
 import traceback, discord, datetime, re, aiohttp

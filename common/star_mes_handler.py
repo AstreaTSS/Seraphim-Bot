@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3.7
 import discord, re
 
 import common.star_utils as star_utils

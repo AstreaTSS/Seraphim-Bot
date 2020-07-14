@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3.7
 import discord
 
 def get_star_entry(bot, mes_id, check_for_var = False):
