@@ -16,7 +16,7 @@ class Star(commands.Cog):
 
     @tasks.loop(seconds=7)
     async def starboard_queue(self):
-        for entry_key in list(self.bot.star_queue.keys()_.copy():
+        for entry_key in list(self.bot.star_queue.keys()).copy():
             entry = self.bot.star_queue[entry_key]
             await star_mes.send(self.bot, entry["mes"], entry["unique_stars"])
 
