@@ -66,7 +66,7 @@ async def modify_stars(bot, mes, reactor_id, operation):
             "ori_chan_id": mes.channel.id,
             "star_var_id": None,
             "author_id": author_id,
-            "ori_reactors": reactor_id,
+            "ori_reactors": [reactor_id],
             "var_reactors": [],
             "guild_id": mes.guild.id,
             "forced": False,
@@ -128,8 +128,8 @@ async def sync_prev_reactors(bot, mes, author_id, starboard_entry, type_of):
 
         mes_id = starboard_entry["ori_mes_id_bac"]
 
-        add_ids = [i.id for i in user_ids if i not in bot.starboard[mes_id][type_of]]
-        remove_ids = [i.id for i in bot.starboard[mes_id][type_of] if i not in user_ids]
+        add_ids = [i for i in user_ids if i not in bot.starboard[mes_id][type_of]]
+        remove_ids = [i for i in bot.starboard[mes_id][type_of] if i not in user_ids]
         for add_id in add_ids:
             bot.starboard[mes_id][type_of].append(add_id)
         for remove_id in remove_ids:
