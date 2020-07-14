@@ -29,12 +29,12 @@ class SnipeCMDs(commands.Cog):
         one_minute = datetime.timedelta(minutes=1)
         one_minute_ago = now - one_minute
 
-        for chan_id in self.bot.snipes["deletes"].keys().copy():
+        for chan_id in list(self.bot.snipes["deletes"].keys()).copy():
             for entry in self.bot.snipes["deletes"][chan_id].copy():
                 if entry[f"time_deleted"] < one_minute_ago:
                     self.bot.snipes["deletes"][chan_id].remove(entry)
 
-        for chan_id in self.bot.snipes["edits"].keys().copy():
+        for chan_id in list(self.bot.snipes["edits"].keys()).copy():
             for entry in self.bot.snipes["edits"][chan_id].copy():
                 if entry[f"time_edited"] < one_minute_ago:
                     self.bot.snipes["edits"][chan_id].remove(entry)
@@ -51,7 +51,7 @@ class SnipeCMDs(commands.Cog):
 
         for chunk in str_chunks:
             await owner.send(f"{chunk}")
-            
+
 
     async def snipe_handle(self, ctx, msg_num, type_of, past_type):
         self.snipe_cleanup(type_of, past_type, ctx.channel.id)
