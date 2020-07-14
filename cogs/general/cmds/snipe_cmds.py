@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands, tasks
-import discord, datetime, io
+import discord, datetime, io, traceback
 
 import common.star_mes_handler as star_mes
 
@@ -29,15 +29,29 @@ class SnipeCMDs(commands.Cog):
         one_minute = datetime.timedelta(minutes=1)
         one_minute_ago = now - one_minute
 
-        for chan_id in self.bot.snipes["deletes"].keys():
+        for chan_id in self.bot.snipes["deletes"].keys().copy():
             for entry in self.bot.snipes["deletes"][chan_id].copy():
                 if entry[f"time_deleted"] < one_minute_ago:
                     self.bot.snipes["deletes"][chan_id].remove(entry)
 
-        for chan_id in self.bot.snipes["edits"].keys():
+        for chan_id in self.bot.snipes["edits"].keys().copy():
             for entry in self.bot.snipes["edits"][chan_id].copy():
                 if entry[f"time_edited"] < one_minute_ago:
                     self.bot.snipes["edits"][chan_id].remove(entry)
+
+    @auto_cleanup.error
+    async def error_handle(self, *args):
+        error = args[-1]
+        error_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+
+        application = await self.bot.application_info()
+        owner = application.owner
+
+        str_chunks = [error_str[i:i+1950] for i in range(0, len(error_str), 1950)]
+
+        for chunk in str_chunks:
+            await owner.send(f"{chunk}")
+            
 
     async def snipe_handle(self, ctx, msg_num, type_of, past_type):
         self.snipe_cleanup(type_of, past_type, ctx.channel.id)

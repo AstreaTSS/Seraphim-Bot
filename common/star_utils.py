@@ -61,13 +61,12 @@ async def modify_stars(bot, mes, reactor_id, operation):
     starboard_entry = get_star_entry(bot, mes.id)
     if starboard_entry == []:
         author_id = get_author_id(mes, bot)
-        prev_reactors = await get_prev_reactors(mes, author_id)
 
         bot.starboard[mes.id] = {
             "ori_chan_id": mes.channel.id,
             "star_var_id": None,
             "author_id": author_id,
-            "ori_reactors": prev_reactors,
+            "ori_reactors": reactor_id,
             "var_reactors": [],
             "guild_id": mes.guild.id,
             "forced": False,
@@ -77,13 +76,15 @@ async def modify_stars(bot, mes, reactor_id, operation):
         }
         starboard_entry = bot.starboard[mes.id]
 
+        await sync_prev_reactors(bot, mes, author_id, starboard_entry, "ori_reactors")
+
     author_id = starboard_entry["author_id"]
 
     if not starboard_entry["updated"]:
-        new_reactors = await get_prev_reactors(mes, author_id)
         type_of = "ori_reactors" if mes.id == starboard_entry["ori_mes_id_bac"] else "var_reactors"
+        await sync_prev_reactors(bot, mes, author_id, starboard_entry, type_of)
 
-        starboard_entry[type_of] = new_reactors
+        starboard_entry = bot.starboard[starboard_entry["ori_mes_id_bac"]]
         starboard_entry["updated"] = True
 
     reactors = get_reactor_list(starboard_entry, return_extra=True)
@@ -116,17 +117,25 @@ async def modify_stars(bot, mes, reactor_id, operation):
         ori_mes_id = starboard_entry["ori_mes_id_bac"]
         bot.starboard[ori_mes_id] = starboard_entry
 
-async def get_prev_reactors(mes, author_id):
+async def sync_prev_reactors(bot, mes, author_id, starboard_entry, type_of):
     reactions = mes.reactions
     for reaction in reactions:
         if str(reaction) != "⭐":
             continue
 
         users = await reaction.users().flatten()
-        users_id = [u.id for u in users if u.id != author_id and not u.bot]
-        return users_id if users_id != None else []
+        user_ids = [u.id for u in users if u.id != author_id and not u.bot]
 
-    return []
+        mes_id = starboard_entry["ori_mes_id_bac"]
+
+        add_ids = [i.id for i in user_ids if i not in bot.starboard[mes_id][type_of]]
+        remove_ids = [i.id for i in bot.starboard[mes_id][type_of] if i not in user_ids]
+        for add_id in add_ids:
+            bot.starboard[mes_id][type_of].append(add_id)
+        for remove_id in remove_ids:
+            bot.starboard[mes_id][type_of].remove(remove_id)
+
+        return bot.starboard[mes_id][type_of]
 
 async def star_entry_refresh(bot, starboard_entry, guild_id):
     star_var_chan = await bot.fetch_channel(bot.config[guild_id]["starboard_id"])
@@ -148,48 +157,6 @@ async def star_entry_refresh(bot, starboard_entry, guild_id):
             await star_var_mes.delete()
     except discord.NotFound:
         pass
-
-async def import_old_entry(bot, mes):
-    link = mes.embeds[0].fields[0].value
-    link = link.replace("[Jump]", "")
-    link = link.replace("(", "")
-    link = link.replace(")", "")
-
-    if link != mes.embeds[0].fields[0].value:
-        split_link = link.split("/")
-        ori_chan_id = int(split_link[5])
-        ori_mes_id = int(split_link[6])
-
-        try:
-            ori_channel = await bot.fetch_channel(ori_chan_id)
-            ori_mes = await ori_channel.fetch_message(ori_mes_id)
-
-            basic_author = mes.embeds[0].author.name.split("#")
-            author = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
-            author_id = ori_mes.author.id if author == None else author.id
-
-            star_var_reactors = await get_prev_reactors(mes, ori_mes.author.id)
-            ori_mes_reactors = await get_prev_reactors(ori_mes, ori_mes.author.id)
-            star_var_reactors = [i for i in star_var_reactors if not i in ori_mes_reactors]
-
-            bot.starboard[ori_mes.id] = {
-                "ori_chan_id": ori_mes.channel.id,
-                "star_var_id": mes.id,
-                "author_id": ori_mes.author.id,
-                "ori_reactors": ori_mes_reactors,
-                "var_reactors": star_var_reactors,
-                "guild_id": mes.guild.id,
-                "forced": False,
-
-                "ori_mes_id_bac": ori_mes.id,
-                "updated": True
-            }
-
-            return bot.starboard[ori_mes.id]
-        except discord.HTTPException:
-            return None
-
-    return None
 
 def star_check(bot, payload):
     if payload.guild_id != None and bot.config[payload.guild_id]["star_toggle"]:

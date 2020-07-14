@@ -16,11 +16,16 @@ class Star(commands.Cog):
 
     @tasks.loop(seconds=7)
     async def starboard_queue(self):
-        for entry_key in self.bot.star_queue.keys():
+        for entry_key in self.bot.star_queue.keys().copy():
             entry = self.bot.star_queue[entry_key]
             await star_mes.send(self.bot, entry["mes"], entry["unique_stars"])
 
         self.bot.star_queue = {}
+
+    @starboard_queue.error
+    async def error_handle(self, *args):
+        error = args[-1]
+        utils.error_handle(self.bot, error)
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
@@ -50,12 +55,6 @@ class Star(commands.Cog):
                             "mes": mes,
                             "unique_stars": unique_stars
                         }
-
-                elif mes.embeds != []:
-                    if user.id == self.bot.user.id:
-                        entry = await star_utils.import_old_entry(self.bot, mes)
-                        if entry != None:
-                            await star_utils.star_entry_refresh(self.bot, entry, mes.guild.id)
                             
             elif user.id != star_variant["author_id"]:
                 await star_utils.modify_stars(self.bot, mes, payload.user_id, "ADD")

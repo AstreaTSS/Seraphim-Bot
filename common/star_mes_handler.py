@@ -45,7 +45,7 @@ async def base_generate(bot, mes):
             if len(content) < 1975:
                 if content != "":
                     content += "\n\n"
-                content += "*This message has attachments the bot cannot display. Pleae check out the original message to see them.*"
+                content += "*This message has attachments the bot cannot display. Please check out the original message to see them.*"
             return content
 
         content = mes.system_content

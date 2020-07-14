@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands, tasks
-import discord, os, asyncio
+import discord, os, asyncio, traceback
 import copy, asyncpg, json
 
 class DBHandler(commands.Cog):
@@ -66,7 +66,7 @@ class DBHandler(commands.Cog):
         starboard = self.bot.starboard
         star_bac = self.bot.starboard_bac
 
-        for message in self.bot.starboard.keys():
+        for message in self.bot.starboard.keys().copy():
             if starboard[message]["ori_chan_id"] == None:
                 list_of_cmds.append(self.create_cmd("starboard", "DELETE FROM", starboard[message]))
                 del self.bot.starboard[message]
@@ -82,7 +82,7 @@ class DBHandler(commands.Cog):
         config = self.bot.config
         config_bac = self.bot.config_bac
 
-        for server in self.bot.config.keys():
+        for server in self.bot.config.keys().copy():
             if server in list(config_bac.keys()):
                 if not config[server] == config_bac[server]:
                     list_of_cmds.append(self.create_cmd("seraphim_config", "UPDATE", config[server]))
@@ -92,6 +92,19 @@ class DBHandler(commands.Cog):
 
         if list_of_cmds != []:
             await self.run_commands(list_of_cmds)
+
+    @commit_loop.error
+    async def error_handle(self, *args):
+        error = args[-1]
+        error_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+
+        application = await self.bot.application_info()
+        owner = application.owner
+
+        str_chunks = [error_str[i:i+1950] for i in range(0, len(error_str), 1950)]
+
+        for chunk in str_chunks:
+            await owner.send(f"{chunk}")
 
     @commit_loop.before_loop
     async def before_commit_loop(self):
