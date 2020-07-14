@@ -1,7 +1,9 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands, tasks
-import discord, os, asyncio, traceback
+import discord, os, asyncio, importlib
 import copy, asyncpg, json
+
+import common.utils as utils
 
 class DBHandler(commands.Cog):
     def __init__(self, bot):
@@ -96,15 +98,7 @@ class DBHandler(commands.Cog):
     @commit_loop.error
     async def error_handle(self, *args):
         error = args[-1]
-        error_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-
-        application = await self.bot.application_info()
-        owner = application.owner
-
-        str_chunks = [error_str[i:i+1950] for i in range(0, len(error_str), 1950)]
-
-        for chunk in str_chunks:
-            await owner.send(f"{chunk}")
+        await utils.error_handle(self.bot, error)
 
     @commit_loop.before_loop
     async def before_commit_loop(self):
@@ -170,4 +164,5 @@ class DBHandler(commands.Cog):
         await conn.close()
     
 def setup(bot):
+    importlib.reload(utils)
     bot.add_cog(DBHandler(bot))

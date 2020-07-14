@@ -1,6 +1,9 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands, tasks
-import discord, datetime, asyncio, traceback
+import discord, datetime
+import asyncio, importlib
+
+import common.utils as utils
 
 class EtcEvents(commands.Cog):
     def __init__(self, bot):
@@ -18,16 +21,7 @@ class EtcEvents(commands.Cog):
     @activity_refresh.error
     async def error_handle(self, *args):
         error = args[-1]
-        error_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-
-        application = await self.bot.application_info()
-        owner = application.owner
-
-        str_chunks = [error_str[i:i+1950] for i in range(0, len(error_str), 1950)]
-
-        for chunk in str_chunks:
-            await owner.send(f"{chunk}")
-
+        await utils.error_handle(self.bot, error)
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
@@ -75,4 +69,5 @@ class EtcEvents(commands.Cog):
                 })
 
 def setup(bot):
+    importlib.reload(utils)
     bot.add_cog(EtcEvents(bot))

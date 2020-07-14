@@ -1,8 +1,9 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands, tasks
-import discord, datetime, io, traceback
+import discord, datetime, io, importlib
 
 import common.star_mes_handler as star_mes
+import common.utils as utils
 
 class SnipeCMDs(commands.Cog):
     def __init__(self, bot):
@@ -42,15 +43,7 @@ class SnipeCMDs(commands.Cog):
     @auto_cleanup.error
     async def error_handle(self, *args):
         error = args[-1]
-        error_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
-
-        application = await self.bot.application_info()
-        owner = application.owner
-
-        str_chunks = [error_str[i:i+1950] for i in range(0, len(error_str), 1950)]
-
-        for chunk in str_chunks:
-            await owner.send(f"{chunk}")
+        await utils.error_handle(self.bot, error)
 
 
     async def snipe_handle(self, ctx, msg_num, type_of, past_type):
@@ -94,4 +87,5 @@ class SnipeCMDs(commands.Cog):
         await self.snipe_handle(ctx, msg_num, "edits", "edited")
 
 def setup(bot):
+    importlib.reload(utils)
     bot.add_cog(SnipeCMDs(bot))
