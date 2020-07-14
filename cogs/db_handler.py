@@ -66,7 +66,7 @@ class DBHandler(commands.Cog):
         starboard = self.bot.starboard
         star_bac = self.bot.starboard_bac
 
-        for message in self.bot.starboard.keys().copy():
+        for message in list(self.bot.starboard.keys()).copy():
             if starboard[message]["ori_chan_id"] == None:
                 list_of_cmds.append(self.create_cmd("starboard", "DELETE FROM", starboard[message]))
                 del self.bot.starboard[message]
@@ -82,7 +82,7 @@ class DBHandler(commands.Cog):
         config = self.bot.config
         config_bac = self.bot.config_bac
 
-        for server in self.bot.config.keys().copy():
+        for server in list(self.bot.config.keys()).copy():
             if server in list(config_bac.keys()):
                 if not config[server] == config_bac[server]:
                     list_of_cmds.append(self.create_cmd("seraphim_config", "UPDATE", config[server]))
