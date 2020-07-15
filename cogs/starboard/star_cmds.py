@@ -47,7 +47,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
     @commands.group(invoke_without_command=True, aliases = ["starboard", "sb"])
     async def star(self, ctx):
-        """Base command for viewing starboard stats."""
+        """Base command for running starboard commands. Use the help command for this to get more info."""
         await ctx.send_help(ctx.command)
 
     @star.command(aliases = ["msgtop"])
