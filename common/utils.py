@@ -92,7 +92,7 @@ async def type_from_url(url):
             if tup_data[:8] == png_list:
                 return "png"
 
-            # first 12 bytes of most jp(e)gs. EXIF is a bit wierd, and so some manipulating had to be done
+            # first 12 bytes of most jp(e)gs. EXIF is a bit wierd, and so some manipulating has to be done
             jfif_list = (0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01)
             exif_lists = ((0xFF, 0xD8, 0xFF, 0xE1), (0x45, 0x78, 0x69, 0x66, 0x00, 0x00))
 
@@ -105,7 +105,7 @@ async def type_from_url(url):
                 return "gif"
 
             # first 12 bytes of most webps. middle four are file size, so we ignore that
-            # webp isnt actually used for anything bot-wise, just here for the sake of it
+            # webp isnt actually used for anything bot-wise due to no apple support, just here for the sake of it
             webp_lists = ((0x52, 0x49, 0x46, 0x46), (0x57, 0x45, 0x42, 0x50))
             if tup_data[:4] == webp_lists[0] and tup_data[8:] == webp_lists[1]:
                 return "webp"
@@ -169,7 +169,7 @@ class TimeDurationConverter(commands.Converter):
         time_span = -1
 
         for match in self.regex.finditer(argument):
-            time_value_list.append(float(match.group()))
+            time_value_list.append(float(match.group())) # gets number value
 
         for entry in self.regex.split(argument):
             if not (entry == "" or entry == None):
@@ -177,11 +177,11 @@ class TimeDurationConverter(commands.Converter):
                     float(entry)
                     continue
                 except ValueError:
-                    time_format_list.append(entry.strip().lower())
+                    time_format_list.append(entry.strip().lower()) # gets h, m, s, etc.
 
         if (time_format_list == [] or time_value_list == [] 
             or len(time_format_list) != len(time_value_list)):
-            raise BadArgument(f"1. Argument {argument} is not a valid time duration.")
+            raise BadArgument(f"Argument {argument} is not a valid time duration.")
 
         for i in range(len(time_format_list)):
             if time_span == -1:
@@ -190,6 +190,6 @@ class TimeDurationConverter(commands.Converter):
             time_span += self.to_seconds(time_value_list[i], time_format_list[i])
 
         if time_span == -1:
-            raise BadArgument(f"2. Argument {argument} is not a valid time duration.")
+            raise BadArgument(f"Argument {argument} is not a valid time duration.")
 
         return datetime.timedelta(seconds=time_span)
