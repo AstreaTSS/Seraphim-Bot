@@ -10,8 +10,7 @@ def get_star_entry(bot, mes_id, check_for_var = False):
     else:
         starboard_entry = [
             bot.starboard[k] for k in bot.starboard.keys()
-            if (k == mes_id or bot.starboard[k]["star_var_id"] == mes_id)
-            and bot.starboard[k]["star_var_id"] != None
+            if k == mes_id and bot.starboard[k]["star_var_id"] != None
         ]
 
     return starboard_entry[0] if starboard_entry != [] else []

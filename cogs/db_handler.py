@@ -73,9 +73,8 @@ class DBHandler(commands.Cog):
                 list_of_cmds.append(self.create_cmd("starboard", "DELETE FROM", starboard[message]))
                 del self.bot.starboard[message]
             else:
-                if message in list(star_bac.keys()):
-                    if not starboard[message] == star_bac[message]:
-                        list_of_cmds.append(self.create_cmd("starboard", "UPDATE", starboard[message]))
+                if not starboard[message] == star_bac.get(message):
+                    list_of_cmds.append(self.create_cmd("starboard", "UPDATE", starboard[message]))
                 else:
                     list_of_cmds.append(self.create_cmd("starboard", "INSERT INTO", starboard[message]))
 
@@ -85,10 +84,9 @@ class DBHandler(commands.Cog):
         config_bac = self.bot.config_bac
 
         for server in list(self.bot.config.keys()).copy():
-            if server in list(config_bac.keys()):
-                if not config[server] == config_bac[server]:
-                    list_of_cmds.append(self.create_cmd("seraphim_config", "UPDATE", config[server]))
-            else:
+            if not config[server] == config_bac.get(server):
+                list_of_cmds.append(self.create_cmd("seraphim_config", "UPDATE", config[server]))
+        else:
                 list_of_cmds.append(self.create_cmd("seraphim_config", "INSERT INTO", config[server]))
         self.bot.config_bac = copy.deepcopy(self.bot.config)
 
