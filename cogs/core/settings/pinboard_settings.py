@@ -46,6 +46,18 @@ async def _map(ctx, entry: discord.TextChannel, destination: discord.TextChannel
     """Maps overflowing pins from the entry channel to go to the destination channel. 
     If there are more pins than the limit, it is considered overflowing."""
 
+    entry_perms = entry.permissions_for(ctx.guild.me)
+    entry_check = utils.chan_perm_check(entry, entry_perms)
+    if entry_check != "OK":
+        await ctx.send(entry_check)
+        return
+
+    dest_perms = destination.permissions_for(ctx.guild.me)
+    dest_check = utils.chan_perm_check(destination, dest_perms)
+    if dest_check != "OK":
+        await ctx.send(dest_check)
+        return
+
     ctx.bot.config[ctx.guild.id]["pin_config"][str(entry.id)] = {
         "destination": destination.id,
         "limit": limit

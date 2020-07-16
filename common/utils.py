@@ -104,6 +104,20 @@ async def type_from_url(url):
 
     return None
 
+def chan_perm_check(channel: discord.TextChannel, perms: discord.Permissions):
+    resp = "OK"
+
+    if not perms.read_messages:
+        resp = f"I cannot read messages in {channel.mention}!"
+    elif not perms.read_message_history:
+        resp = f"I cannot read the message history in {channel.mention}!"
+    elif not perms.send_messages:
+        resp = f"I cannot send messages in {channel.mention}!"
+    elif not perms.embed_links:
+        resp = f"I cannot send embeds in {channel.mention}!"
+
+    return resp
+
 class TimeDurationConverter(commands.Converter):
     # Converts a string to a time duration.
 

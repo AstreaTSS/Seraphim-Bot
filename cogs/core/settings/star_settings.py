@@ -97,6 +97,12 @@ async def _list(ctx):
 async def add(ctx, channel: discord.TextChannel):
     """Adds the channel to the blacklist."""
 
+    chan_perms = channel.permissions_for(ctx.guild.me)
+    chan_check = utils.chan_perm_check(channel, chan_perms)
+    if chan_check != "OK":
+        await ctx.send(chan_check)
+        return
+
     channel_id_list = ctx.bot.config[ctx.guild.id]["star_blacklist"]
 
     if not channel.id in channel_id_list:
