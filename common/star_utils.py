@@ -2,12 +2,16 @@
 import discord
 
 def get_star_entry(bot, mes_id, check_for_var = False):
+    # simple method to get star entry
+
     if not check_for_var:
+        # checks if mes_id = ori or star_var id
         starboard_entry = [
             bot.starboard[k] for k in bot.starboard.keys()
             if (k == mes_id or bot.starboard[k]["star_var_id"] == mes_id)
         ]
     else:
+        # checks if mes_id = ori, but no star_var
         starboard_entry = [
             bot.starboard[k] for k in bot.starboard.keys()
             if k == mes_id and bot.starboard[k]["star_var_id"] != None
@@ -16,10 +20,14 @@ def get_star_entry(bot, mes_id, check_for_var = False):
     return starboard_entry[0] if starboard_entry != [] else []
 
 def get_num_stars(starboard_entry):
+    # gets number of stars
     reactors = get_reactor_list(starboard_entry)
-    return len(reactors) if reactors != [] else 0
+    return len(reactors) if reactors != [] else 0 # semi-legacy code
 
 def get_reactor_list(starboard_entry, return_extra = False):
+    # this method is more of a legacy method, but still has some use in getting combined
+    # reactor list
+
     ori_reactors = starboard_entry["ori_reactors"]
     var_reactors = starboard_entry["var_reactors"]
 
@@ -31,6 +39,7 @@ def get_reactor_list(starboard_entry, return_extra = False):
         return {"reactors": reactors, "ori_reactors": ori_reactors, "var_reactors": var_reactors}
 
 def clear_stars(bot, starboard_entry, mes_id):
+    # clears entries from either ori or var reactors, depending on mes_id
     type_of = "ori_reactors" if mes_id == starboard_entry["ori_mes_id_bac"] else "var_reactors"
     new_reactors = []
     starboard_entry[type_of] = new_reactors
@@ -39,16 +48,44 @@ def clear_stars(bot, starboard_entry, mes_id):
     bot.starboard[ori_mes_id] = starboard_entry
 
 def get_author_id(mes, bot):
+    # gets author id from message
     author_id = None
-    if mes.author.id in [270904126974590976, 499383056822435840] and mes.embeds != []:
+    if mes.author.id in [270904126974590976, 499383056822435840] and mes.embeds != [] and mes.embeds[0].author.name != discord.Embed.Empty:
+        # conditions to check if message = sniped message from Dank Memer (and the Beta variant)
+
         dank_embed = mes.embeds[0]
-        basic_author = dank_embed.author.name.split("#")
+        basic_author = dank_embed.author.name.split("#") # Name ex: Sonic49#0121
         author = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
         author_id = mes.author.id if author == None else author.id
 
     elif mes.author.id == bot.user.id and mes.embeds != [] and mes.embeds[0].author.name != bot.user.name:
-        basic_author = mes.embeds[0].author.name.split("(")[-1].split(")")[0].split("#") # somehow gets stuff between parentheses
-        author = discord.utils.get(mes.guild.members, name=basic_author[0], discriminator=basic_author[1])
+        # conditions to check if message = sniped message from Seraphim
+
+        # author name ex: Sonic is a Pineapple (Sonic49#0121)
+        # next code splits via # and gets last entry, which should be anything after the hash in the username
+        hash_split = mes.embeds[0].author.name.split("#")
+        discrim = hash_split[-1][:4] # we don't want the )
+
+        username = ""
+        paren_num = 1
+
+        # the following gets second to last entry, which should have the entire username and other stuff we
+        # don't care about and reverses that entry, starting with the letter right before the # in the
+        # username
+        for chara in hash_split[-2][::-1]:
+
+            # code to make sure () in usernames are handled fine
+            if chara == "(":
+                paren_num -= 1
+            elif chara == ")":
+                paren_num += 1
+
+            if paren_num == 0:
+                break
+
+            username = chara + username
+
+        author = discord.utils.get(mes.guild.members, name=username, discriminator=discrim)
         author_id = mes.author.id if author == None else author.id
 
     else:
@@ -57,6 +94,9 @@ def get_author_id(mes, bot):
     return author_id
 
 async def modify_stars(bot, mes, reactor_id, operation):
+    # this method probably needs to be split up
+    # modifies stars and creates an starboard entry if it doesn't exist already
+
     starboard_entry = get_star_entry(bot, mes.id)
     if starboard_entry == []:
         author_id = get_author_id(mes, bot)
@@ -75,11 +115,12 @@ async def modify_stars(bot, mes, reactor_id, operation):
         }
         starboard_entry = bot.starboard[mes.id]
 
-        await sync_prev_reactors(bot, mes, author_id, starboard_entry, "ori_reactors")
+        await sync_prev_reactors(bot, mes, author_id, starboard_entry, "ori_reactors", remove=False)
 
     author_id = starboard_entry["author_id"]
 
     if not starboard_entry["updated"]:
+        # TODO: make it only sync one type of reactor
         type_of = "ori_reactors" if mes.id == starboard_entry["ori_mes_id_bac"] else "var_reactors"
         await sync_prev_reactors(bot, mes, author_id, starboard_entry, type_of)
 
@@ -89,6 +130,7 @@ async def modify_stars(bot, mes, reactor_id, operation):
     reactors = get_reactor_list(starboard_entry, return_extra=True)
 
     if author_id != reactor_id:
+        # this code probably needs slight rewriting
         type_of = ""
 
         if not reactor_id in reactors["reactors"] and operation == "ADD":
@@ -116,7 +158,8 @@ async def modify_stars(bot, mes, reactor_id, operation):
         ori_mes_id = starboard_entry["ori_mes_id_bac"]
         bot.starboard[ori_mes_id] = starboard_entry
 
-async def sync_prev_reactors(bot, mes, author_id, starboard_entry, type_of):
+async def sync_prev_reactors(bot, mes, author_id, starboard_entry, type_of, remove=True):
+    # syncs reactors stored in db with actual reactors on Discord
     reactions = mes.reactions
     for reaction in reactions:
         if str(reaction) != "⭐":
@@ -128,15 +171,18 @@ async def sync_prev_reactors(bot, mes, author_id, starboard_entry, type_of):
         mes_id = starboard_entry["ori_mes_id_bac"]
 
         add_ids = [i for i in user_ids if i not in bot.starboard[mes_id][type_of]]
-        remove_ids = [i for i in bot.starboard[mes_id][type_of] if i not in user_ids]
         for add_id in add_ids:
             bot.starboard[mes_id][type_of].append(add_id)
-        for remove_id in remove_ids:
-            bot.starboard[mes_id][type_of].remove(remove_id)
+
+        if remove:
+            remove_ids = [i for i in bot.starboard[mes_id][type_of] if i not in user_ids]
+            for remove_id in remove_ids:
+                bot.starboard[mes_id][type_of].remove(remove_id)
 
         return bot.starboard[mes_id][type_of]
 
 async def star_entry_refresh(bot, starboard_entry, guild_id):
+    # refreshes a starboard entry mes
     star_var_chan = await bot.fetch_channel(bot.config[guild_id]["starboard_id"])
 
     try:
@@ -158,6 +204,7 @@ async def star_entry_refresh(bot, starboard_entry, guild_id):
         pass
 
 def star_check(bot, payload):
+    # basic check for starboard stuff: is it in a guild, and is the starboard enabled here?
     if payload.guild_id != None and bot.config[payload.guild_id]["star_toggle"]:
         return True
     

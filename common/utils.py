@@ -5,10 +5,12 @@ import traceback, discord, datetime, re, aiohttp
 from pathlib import Path
 
 async def proper_permissions(ctx):
+    # checks if author has admin or manage guild perms
     permissions = ctx.author.guild_permissions
     return (permissions.administrator or permissions.manage_guild)
 
 async def fetch_needed(bot, payload):
+    # fetches info from payload
     guild = bot.get_guild(payload.guild_id)
     user = guild.get_member(payload.user_id)
 
@@ -18,6 +20,7 @@ async def fetch_needed(bot, payload):
     return user, channel, mes
 
 async def error_handle(bot, error, ctx = None):
+    # handles errors and sends them to owner
     error_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
 
     await msg_to_owner(bot, error_str)
@@ -26,6 +29,7 @@ async def error_handle(bot, error, ctx = None):
         await ctx.send("An internal error has occured. The bot owner has been notified.")
 
 async def msg_to_owner(bot, string):
+    # sends a message to the owner
     owner = bot.owner
 
     str_chunks = [string[i:i+1950] for i in range(0, len(string), 1950)]
@@ -34,6 +38,7 @@ async def msg_to_owner(bot, string):
         await owner.send(f"{chunk}")
 
 async def user_from_id(bot, guild, user_id):
+    # gets a user from id. attempts via guild first, then attempts globally
     user = guild.get_member(user_id)
     if user == None:
         try:
@@ -44,11 +49,13 @@ async def user_from_id(bot, guild, user_id):
     return user
 
 def file_to_ext(str_path, base_path):
+    # changes a file to an import-like string
     str_path = str_path.replace(base_path, "")
     str_path = str_path.replace("/", ".")
     return str_path.replace(".py", "")
 
 def get_all_extensions(str_path, folder = "cogs"):
+    # gets all extensions in a folder
     ext_files = []
     loc_split = str_path.split("cogs")
     base_path = loc_split[0]
@@ -71,6 +78,7 @@ def get_all_extensions(str_path, folder = "cogs"):
     return ext_files
 
 async def type_from_url(url):
+    # gets type of data from url
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:
             if resp.status != 200:
@@ -105,6 +113,7 @@ async def type_from_url(url):
     return None
 
 def chan_perm_check(channel: discord.TextChannel, perms: discord.Permissions):
+    # checks if bot can do what it needs to do in a channel
     resp = "OK"
 
     if not perms.read_messages:
@@ -146,7 +155,7 @@ class TimeDurationConverter(commands.Converter):
         "year": 31536000,
         "years": 31536000
     }
-    regex = re.compile(r"([+-]?(?=\.\d|\d)(?:\d+)?(?:\.?\d*))(?:[eE]([+-]?\d+))?")
+    regex = re.compile(r"([+-]?(?=\.\d|\d)(?:\d+)?(?:\.?\d*))(?:[eE]([+-]?\d+))?") # splits character and number
 
     def to_seconds(self, time_value, time_prefix):
         try:

@@ -34,6 +34,8 @@ class Star(commands.Cog):
 
         try:
             user, channel, mes = await utils.fetch_needed(self.bot, payload)
+        except discord.Forbidden:
+            return
         except discord.HTTPException:
             utils.msg_to_owner(self.bot, f"{payload.message_id}: could not find Message object. Channel: {payload.channel_id}")
             return
@@ -68,6 +70,8 @@ class Star(commands.Cog):
         try:
             user, channel, mes = await utils.fetch_needed(self.bot, payload)
         except discord.NotFound:
+            return
+        except discord.Forbidden:
             return
 
         if (not user.bot and mes.author.id != user.id

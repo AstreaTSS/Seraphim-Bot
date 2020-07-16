@@ -5,11 +5,12 @@ import common.star_utils as star_utils
 import common.utils as utils
 
 async def base_generate(bot, mes):
+    # generates core of star messages
     image_url = ""
 
     if mes.embeds != [] and ((mes.author.id in [270904126974590976, 499383056822435840] 
     and mes.embeds[0].author.name != discord.Embed.Empty) or (mes.author.id == bot.user.id 
-    and mes.embeds[0].author.name != bot.user.name)):
+    and mes.embeds[0].author.name != bot.user.name)): # if message is sniped message that's supported
         snipe_embed = mes.embeds[0]
 
         entry = star_utils.get_star_entry(bot, mes.id)
@@ -33,7 +34,7 @@ async def base_generate(bot, mes):
         description=content, timestamp=mes.created_at)
         send_embed.set_author(name=author_str, icon_url=icon)
 
-    elif mes.embeds != [] and mes.embeds[0].description != discord.Embed.Empty:
+    elif mes.embeds != [] and mes.embeds[0].description != discord.Embed.Empty: # generic embed support
         author = f"{mes.author.display_name} ({str(mes.author)})"
         icon = str(mes.author.avatar_url_as(format=None,static_format="jpg", size=128))
 
@@ -41,7 +42,7 @@ async def base_generate(bot, mes):
         send_embed.set_author(name=author, icon_url=icon)
         
     else:
-        def cant_display(content):
+        def cant_display(content): # plan on rewriting later
             if len(content) < 1975:
                 if content != "":
                     content += "\n\n"
@@ -85,6 +86,7 @@ async def base_generate(bot, mes):
     return send_embed
 
 async def star_generate(bot, mes):
+    # base generate but with more fields
     send_embed = await base_generate(bot, mes)
     send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})")
     send_embed.set_footer(text=f"ID: {mes.id}")
@@ -92,6 +94,8 @@ async def star_generate(bot, mes):
     return send_embed
 
 async def send(bot, mes, unique_stars, forced = False):
+    # sends message to starboard channel
+
     send_embed = await star_generate(bot, mes)
     starboard = mes.guild.get_channel(bot.config[mes.guild.id]["starboard_id"])
 
