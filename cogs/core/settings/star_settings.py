@@ -78,7 +78,7 @@ async def _list(ctx):
         channel_mentions = []
 
         for channel_id in channel_id_list:
-            channel = await ctx.bot.get_channel(channel_id)
+            channel = ctx.bot.get_channel(channel_id)
 
             if channel != None:
                 channel_mentions.append(channel.mention)
