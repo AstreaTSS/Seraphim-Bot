@@ -77,13 +77,13 @@ async def _list(ctx):
     if channel_id_list != []:
         channel_mentions = []
 
-        for channel_id in channel_id_list:
+        for channel_id in channel_id_list.copy():
             channel = ctx.bot.get_channel(channel_id)
 
             if channel != None:
                 channel_mentions.append(channel.mention)
             else:
-                del ctx.bot.config[ctx.guild.id]["star_blacklist"][channel_id]
+                ctx.bot.config[ctx.guild.id]["star_blacklist"].remove(channel_id)
 
         if channel_mentions != []:
             await ctx.send(f"Blacklisted channels: {', '.join(channel_mentions)}")
