@@ -51,12 +51,11 @@ async def base_generate(bot, mes):
 
         content = mes.system_content
 
-        image_endings = ("jpg", "png", "gif")
+        image_endings = ("jpg", "jpeg", "png", "gif")
         image_extensions = tuple(image_endings) # no idea why I have to do this
 
         if mes.attachments != []:
-            file_type = await utils.type_from_url(mes.attachments[0].proxy_url)
-            if file_type in image_extensions:
+            if mes.attachments[0].proxy_url.endswith(image_extensions) and not mes.attachments[0].is_spoiler():
                 image_url = mes.attachments[0].proxy_url
 
                 if len(mes.attachments) > 1:
