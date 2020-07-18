@@ -188,25 +188,38 @@ async def sync_prev_reactors(bot, mes, author_id, starboard_entry, type_of, remo
 
 async def star_entry_refresh(bot, starboard_entry, guild_id):
     # refreshes a starboard entry mes
-    star_var_chan = await bot.fetch_channel(bot.config[guild_id]["starboard_id"])
+    star_var_chan = bot.get_channel(bot.config[guild_id]["starboard_id"])
+    unique_stars = get_num_stars(starboard_entry)
 
     try:
         star_var_mes = await star_var_chan.fetch_message(starboard_entry["star_var_id"])
+    except discord.HTTPException as e:
+        # if exception: most likely this is because starboard channel has moved, so this is a fix
+        if isinstance(e, (discord.NotFound, discord.Forbidden)):
+            ori_chan = bot.get_channel(starboard_entry["ori_chan_id"])
+            if ori_chan == None or ori_chan.guild.id != guild_id:
+                return
 
-        ori_starred = star_var_mes.embeds[0]
-        parts = star_var_mes.content.split(" | ")
+            try:
+                ori_mes = await ori_chan.fetch_message(starboard_entry["ori_mes_id_bac"])
+            except discord.HTTPException:
+                return
 
-        unique_stars = get_num_stars(starboard_entry)
+            import common.star_mes_handler
+            star_var_mes = await common.star_mes_handler.send(bot, ori_mes, unique_stars)
 
-        if unique_stars >= bot.config[guild_id]["star_limit"] or bool(starboard_entry["forced"]):
-            await star_var_mes.edit(content=f"⭐ **{unique_stars}** | {(parts)[1]}", embed=ori_starred)
-        else:
-            ori_mes_id = starboard_entry["ori_mes_id_bac"]
-            bot.starboard[ori_mes_id]["star_var_id"] = None
+    ori_starred = star_var_mes.embeds[0]
+    parts = star_var_mes.content.split(" | ")
 
-            await star_var_mes.delete()
-    except discord.NotFound:
-        pass
+    if unique_stars >= bot.config[guild_id]["star_limit"] or bool(starboard_entry["forced"]):
+        await star_var_mes.edit(content=f"⭐ **{unique_stars}** | {(parts)[1]}", embed=ori_starred)
+    else:
+        ori_mes_id = starboard_entry["ori_mes_id_bac"]
+        bot.starboard[ori_mes_id]["star_var_id"] = None
+
+        await star_var_mes.delete()
+        
+
 
 def star_check(bot, payload):
     # basic check for starboard stuff: is it in a guild, and is the starboard enabled here?

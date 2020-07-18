@@ -141,6 +141,9 @@ class StarCMDs(commands.Cog, name = "Starboard"):
     @sb.command()
     @commands.cooldown(1, 5, commands.BucketType.guild)
     async def random(self, ctx):
+        """Gets a random starboard entry from the server it's being run in.
+        May not work 100% of the time, and won't work with some entries if you change the starboard channel."""
+        # TODO: add some support for messages that had their starboard variant in a different channel.
         valid_entries = [
             e for e in self.bot.starboard.values()
             if e["guild_id"] == ctx.guild.id and

@@ -105,3 +105,5 @@ async def send(bot, mes, unique_stars, forced = False):
     await starred.add_reaction("⭐")
     
     bot.starboard[mes.id]["star_var_id"] = starred.id
+
+    return starred
