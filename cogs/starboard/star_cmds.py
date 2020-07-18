@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import discord, importlib, re, datetime, typing
+import discord, importlib, re
+import datetime, typing, random
 
 import common.star_utils as star_utils
 import common.utils as utils
@@ -45,14 +46,14 @@ class StarCMDs(commands.Cog, name = "Starboard"):
     async def cog_check(self, ctx):
         return self.bot.config[ctx.guild.id]["star_toggle"]
 
-    @commands.group(invoke_without_command=True, aliases = ["starboard", "sb"])
-    async def star(self, ctx):
+    @commands.group(invoke_without_command=True, aliases = ["starboard", "star"])
+    async def sb(self, ctx):
         """Base command for running starboard commands. Use the help command for this to get more info."""
         await ctx.send_help(ctx.command)
 
-    @star.command(aliases = ["msgtop"])
+    @sb.command(aliases = ["msg_top"])
     @commands.cooldown(1, 5, commands.BucketType.member)
-    async def msg_top(self, ctx):
+    async def msgtop(self, ctx):
         """Allows you to view the top 10 starred messages on a server. Cooldown of once every 5 seconds per user."""
 
         def by_stars(elem):
@@ -84,7 +85,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         else:
             await ctx.send("There are no starboard entries for this server!")
 
-    @star.command(name = "top", aliases = ["leaderboard", "lb"])
+    @sb.command(name = "top", aliases = ["leaderboard", "lb"])
     @commands.cooldown(1, 5, commands.BucketType.member)
     async def top(self, ctx):
         """Allows you to view the top 10 people with the most stars on a server. Cooldown of once every 5 seconds per user."""
@@ -111,7 +112,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         else:
             await ctx.send("There are no starboard entries for this server!")
 
-    @star.command(aliases = ["position", "place", "placing"])
+    @sb.command(aliases = ["position", "place", "placing"])
     @commands.cooldown(1, 5, commands.BucketType.member)
     async def pos(self, ctx, user_mention: typing.Optional[discord.Member]):
         """Allows you to get either your or whoever you mentioned’s position in the star leaderboard (like the top command, but only for one person)."""
@@ -137,7 +138,40 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         else:
             await ctx.send("I could not get the user you were trying to get. Please try again with a valid user.")
 
-    @star.command()
+    @sb.command()
+    @commands.cooldown(1, 5, commands.BucketType.guild)
+    async def random(self, ctx):
+        valid_entries = [
+            e for e in self.bot.starboard.values()
+            if e["guild_id"] == ctx.guild.id or
+            e["star_var_id"] != None
+        ]
+
+        if valid_entries:
+            random_entry = random.choice(valid_entries)
+            starboard_id = self.bot.config[ctx.guild.id]['starboard_id']
+
+            starboard_chan = ctx.guild.get_channel(starboard_id)
+            if starboard_chan == None:
+                await ctx.send("Might want to check your config. I couldn't find the starboard channel.")
+                return
+
+            try:
+                star_mes = await starboard_chan.fetch_message(random_entry["star_var_id"])
+            except discord.HTTPException:
+                url = f"https://discordapp.com/channels/{ctx.guild.id}/{random_entry['ori_chan_id']}/{random_entry['ori_mes_id_bac']}"
+                await ctx.send("I picked an entry, but I couldn't get the starboard message.\n" +
+                f"This might be the message I was trying to get: {url}")
+                return
+
+            star_content = star_mes.content
+            star_embed = star_mes.embeds[0]
+
+            await ctx.send(star_content, embed=star_embed)
+        else:
+            await ctx.send("There are no starboard entries for me to pick!")
+
+    @sb.command()
     @commands.check(utils.proper_permissions)
     async def force(self, ctx, msg: discord.Message):
         """Forces a message onto the starboard, regardless of how many stars it has.
