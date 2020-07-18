@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands, tasks
-import discord, datetime, io, importlib
+import discord, datetime, io, importlib, typing
 
 import common.star_mes_handler as star_mes
 import common.utils as utils
@@ -46,8 +46,10 @@ class SnipeCMDs(commands.Cog):
         await utils.error_handle(self.bot, error)
 
 
-    async def snipe_handle(self, ctx, msg_num, type_of, past_type):
-        self.snipe_cleanup(type_of, past_type, ctx.channel.id)
+    async def snipe_handle(self, ctx, chan, msg_num, type_of, past_type):
+        chan = chan if chan != None else ctx.channel
+
+        self.snipe_cleanup(type_of, past_type, chan.id)
 
         if msg_num == 0:
             await ctx.send("You can't snipe the 0th to last message no matter how hard you try.")
@@ -55,12 +57,12 @@ class SnipeCMDs(commands.Cog):
 
         msg_num = abs(msg_num)
 
-        if not ctx.channel.id in self.bot.snipes[type_of].keys():
+        if not chan.id in self.bot.snipes[type_of].keys():
             await ctx.send("There's nothing to snipe!")
             return
 
         try:
-            sniped_msg = self.bot.snipes[type_of][ctx.channel.id][-msg_num]
+            sniped_msg = self.bot.snipes[type_of][chan.id][-msg_num]
         except IndexError:
             await ctx.send("There's nothing to snipe!")
             return
@@ -73,18 +75,18 @@ class SnipeCMDs(commands.Cog):
 
 
     @commands.command()
-    async def snipe(self, ctx, msg_num = 1):
+    async def snipe(self, ctx, chan = typing.Optional[discord.TextChannel], msg_num = 1):
         """Allows you to get the last or the nth to last deleted message from the channel this command was used in.
         Any message that had been deleted over a minute ago will not be able to be sniped."""
 
-        await self.snipe_handle(ctx, msg_num, "deletes", "deleted")
+        await self.snipe_handle(ctx, chan, msg_num, "deletes", "deleted")
 
     @commands.command()
-    async def editsnipe(self, ctx, msg_num = 1):
+    async def editsnipe(self, ctx, chan = typing.Optional[discord.TextChannel], msg_num = 1):
         """Allows you to get either the last or nth lasted edited message from the channel this command was used in.
         Any message that has been edited in over a minute will not be able to be sniped."""
 
-        await self.snipe_handle(ctx, msg_num, "edits", "edited")
+        await self.snipe_handle(ctx, chan, msg_num, "edits", "edited")
 
 def setup(bot):
     importlib.reload(utils)
