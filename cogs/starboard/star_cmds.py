@@ -143,7 +143,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
     async def random(self, ctx):
         valid_entries = [
             e for e in self.bot.starboard.values()
-            if e["guild_id"] == ctx.guild.id or
+            if e["guild_id"] == ctx.guild.id and
             e["star_var_id"] != None
         ]
 
