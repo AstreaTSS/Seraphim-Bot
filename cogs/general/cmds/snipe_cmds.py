@@ -79,6 +79,8 @@ class SnipeCMDs(commands.Cog):
         """Allows you to get the last or the nth to last deleted message from the channel this command was used in.
         Any message that had been deleted over a minute ago will not be able to be sniped."""
 
+        await utils.msg_to_owner(str(chan))
+
         await self.snipe_handle(ctx, chan, msg_num, "deletes", "deleted")
 
     @commands.command()
