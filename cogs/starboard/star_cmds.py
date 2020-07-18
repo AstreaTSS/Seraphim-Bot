@@ -159,13 +159,14 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             try:
                 star_mes = await starboard_chan.fetch_message(random_entry["star_var_id"])
             except discord.HTTPException:
-                url = f"https://discordapp.com/channels/{ctx.guild.id}/{random_entry['ori_chan_id']}/{random_entry['ori_mes_id_bac']}"
+                ori_url = f"https://discordapp.com/channels/{ctx.guild.id}/{random_entry['ori_chan_id']}/{random_entry['ori_mes_id_bac']}"
                 await ctx.send("I picked an entry, but I couldn't get the starboard message.\n" +
-                f"This might be the message I was trying to get: {url}")
+                f"This might be the message I was trying to get: {ori_url}")
                 return
 
             star_content = star_mes.content
             star_embed = star_mes.embeds[0]
+            star_embed.add_field(name="Starboard Variant", value=f"[Jump]({star_mes.jump_url})")
 
             await ctx.send(star_content, embed=star_embed)
         else:
