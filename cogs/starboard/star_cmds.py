@@ -170,9 +170,6 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             star_content = star_mes.content
             star_embed = star_mes.embeds[0]
 
-            star_jump_field = star_embed.fields[0]
-            star_embed.set_field_at(0, name=star_jump_field.name, value=star_jump_field.value, inline=True)
-
             star_embed.add_field(name="Starboard Variant", value=f"[Jump]({star_mes.jump_url})", inline=True)
 
             await ctx.send(star_content, embed=star_embed)
