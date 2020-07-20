@@ -45,6 +45,22 @@ async def tenor_handle(url: str):
             except IndexError:
                 return None
 
+async def imgur_handle(url: str):
+    slash_split = url.split("/")
+
+    header = {"Authorization": f"Client-ID {os.environ.get('IMGUR_ID')}"}
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"https://api.imgur.com/3/image/{slash_split[-1]}", headers=header) as resp:
+            if resp.status != 200:
+                return None
+            resp_json = await resp.json()
+
+            try:
+                img_url = resp_json['data']['link']
+                return img_url
+            except KeyError:
+                return None
+
 async def base_generate(bot, mes):
     # generates core of star messages
     image_url = ""
@@ -86,7 +102,7 @@ async def base_generate(bot, mes):
         description=content, timestamp=mes.created_at)
         send_embed.set_author(name=author_str, icon_url=icon)
 
-    elif mes.embeds != [] and mes.embeds[0].description != discord.Embed.Empty: # generic embed support
+    elif mes.embeds != [] and mes.embeds[0].description != discord.Embed.Empty and mes.embeds[0].type == "rich": # generic embed support
         author = f"{mes.author.display_name} ({str(mes.author)})"
         icon = str(mes.author.avatar_url_as(format=None,static_format="jpg", size=128))
 
@@ -119,26 +135,23 @@ async def base_generate(bot, mes):
             urls = re.findall(r"((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)", content)
             if urls != []:
                 first_url = urls[0][0]
-
                 if "https://tenor.com/view" in first_url or "http://tenor.com/view" in first_url:
                     gif_url = await tenor_handle(first_url)
                     if gif_url != None:
-                        image_url = first_url
+                        image_url = gif_url
 
                 elif "https://imgur.com/" in first_url or "http://imgur.com/" in first_url:
-                    imgur_url = first_url.replace("imgur.com", "i.imgur.com")
-                    imgur_url += ".jpg"
-                    file_type = await utils.type_from_url(imgur_url)
-                    if file_type in image_extensions:
-                        image_url = first_url
+                    imgur_url = await imgur_handle(first_url)
+                    if imgur_url != None:
+                        image_url = imgur_url
                         
                 else:
                     file_type = await utils.type_from_url(first_url)
                     if file_type in image_extensions:
                         image_url = first_url
 
-        if image_url != "":
-            send_embed.set_image(url=image_url)
+    if image_url != "":
+        send_embed.set_image(url=image_url)
 
     return send_embed
 

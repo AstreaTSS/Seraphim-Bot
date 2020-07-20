@@ -65,8 +65,11 @@ class DBHandler(commands.Cog):
     @tasks.loop(minutes=2.5)
     async def commit_loop(self):
         list_of_cmds = []
+
         starboard = self.bot.starboard
         star_bac = self.bot.starboard_bac
+
+        star_bac_keys = list(star_bac.keys()).copy()
 
         for message in list(self.bot.starboard.keys()).copy():
             if starboard[message]["ori_chan_id"] == None:
@@ -75,7 +78,7 @@ class DBHandler(commands.Cog):
             else:
                 if not starboard[message] == star_bac.get(message):
                     list_of_cmds.append(self.create_cmd("starboard", "UPDATE", starboard[message]))
-                else:
+                elif not message in star_bac_keys:
                     list_of_cmds.append(self.create_cmd("starboard", "INSERT INTO", starboard[message]))
 
         self.bot.starboard_bac = copy.deepcopy(self.bot.starboard)
@@ -83,10 +86,12 @@ class DBHandler(commands.Cog):
         config = self.bot.config
         config_bac = self.bot.config_bac
 
+        config_bac_keys = list(config_bac.keys()).copy()
+
         for server in list(self.bot.config.keys()).copy():
             if not config[server] == config_bac.get(server):
                 list_of_cmds.append(self.create_cmd("seraphim_config", "UPDATE", config[server]))
-        else:
+            elif not server in config_bac_keys:
                 list_of_cmds.append(self.create_cmd("seraphim_config", "INSERT INTO", config[server]))
         self.bot.config_bac = copy.deepcopy(self.bot.config)
 
