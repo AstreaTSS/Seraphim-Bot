@@ -71,8 +71,9 @@ async def base_generate(bot, mes):
         send_embed = mes.embeds[0].copy() # it's using the same internal gen, so why not just copy it
 
         for x in range(len(send_embed.to_dict()["fields"])):
-            await utils.msg_to_owner(bot, send_embed.to_dict()["fields"][x])
+            await utils.msg_to_owner(bot, str(send_embed.to_dict()["fields"][x]))
             if send_embed.to_dict()["fields"][x]["name"] == "Original":
+                await utils.msg_to_owner(bot, "soup")
                 send_embed.remove_field(x)
                 break
 
