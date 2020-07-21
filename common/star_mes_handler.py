@@ -75,10 +75,10 @@ async def base_generate(bot, mes):
         send_embed.timestamp = mes.created_at
         send_embed.set_footer() # will set footer to default, aka none
 
-        for field in send_embed.fields:
-            if field.name == "Original":
-                index = send_embed.fields.index(field)
-                send_embed.remove_field(index)
+        for x in range(len(send_embed.fields)):
+            if send_embed.fields[x].name == "Original":
+                send_embed.remove_field(x)
+                break
 
     elif mes.embeds != [] and ((mes.author.id in [270904126974590976, 499383056822435840] 
     and mes.embeds[0].author.name != discord.Embed.Empty) or (mes.author.id == bot.user.id 
