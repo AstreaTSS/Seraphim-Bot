@@ -42,10 +42,13 @@ async def user_from_id(bot, guild, user_id):
     # gets a user from id. attempts via guild first, then attempts globally
     user = guild.get_member(user_id)
     if user == None:
-        try:
-            user = await bot.fetch_user(user_id)
-        except discord.NotFound:
-            user = None
+        user = bot.get_user(user_id)
+        
+        if user == None:
+            try:
+                user = await bot.fetch_user(user_id)
+            except discord.NotFound:
+                user = None
 
     return user
 

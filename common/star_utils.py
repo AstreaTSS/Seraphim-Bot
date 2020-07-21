@@ -6,19 +6,21 @@ def get_star_entry(bot, mes_id, check_for_var = False):
 
     if not check_for_var:
         # checks if mes_id = ori or star_var id
-        starboard_entry = [
-            bot.starboard[k] for k in bot.starboard.keys()
-            if (k == mes_id or bot.starboard[k]["star_var_id"] == mes_id)
-        ]
+        for entry in bot.starboard.values():
+            if mes_id in [entry["ori_mes_id_bac"], entry["star_var_id"]]:
+                return entry
     else:
         # checks if mes_id = ori or star_var's id, and there is a star var
-        starboard_entry = [
-            bot.starboard[k] for k in bot.starboard.keys()
-            if (k == mes_id or bot.starboard[k]["star_var_id"] == mes_id)
-            and bot.starboard[k]["star_var_id"] != None
-        ]
+        for entry in bot.starboard.values():
+            if entry["star_var_id"] == mes_id:
+                return entry 
+            elif entry["ori_mes_id_bac"] == mes_id:
+                if entry["star_var_id"] != None:
+                    return entry
+                else:
+                    break
 
-    return starboard_entry[0] if starboard_entry != [] else []
+    return []
 
 def get_num_stars(starboard_entry):
     # gets number of stars
