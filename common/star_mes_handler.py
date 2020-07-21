@@ -70,8 +70,10 @@ async def base_generate(bot, mes):
     mes.embeds[0].footer != discord.Embed.Empty: # all of this... for pinboard support
         send_embed = mes.embeds[0].copy() # it's using the same internal gen, so why not just copy it
 
+        await utils.msg_to_owner(bot, send_embed.to_dict())
+
         for x in range(len(send_embed.to_dict()["fields"])):
-            await utils.msg_to_owner(bot, str(send_embed.to_dict()["fields"][x]))
+            await utils.msg_to_owner(bot, x)
             if send_embed.to_dict()["fields"][x]["name"] == "Original":
                 await utils.msg_to_owner(bot, "soup")
                 send_embed.remove_field(x)

@@ -28,9 +28,10 @@ async def error_handle(bot, error, ctx = None):
     if ctx != None:
         await ctx.send("An internal error has occured. The bot owner has been notified.")
 
-async def msg_to_owner(bot, string):
+async def msg_to_owner(bot, content):
     # sends a message to the owner
     owner = bot.owner
+    string = str(content)
 
     str_chunks = [string[i:i+1950] for i in range(0, len(string), 1950)]
 
