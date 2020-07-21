@@ -221,7 +221,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
     @commands.command(hidden=True)
     @commands.is_owner()
     async def debug_star_mes(self, ctx, msg: discord.Message):
-        send_embed = await star_mes.base_generate(self.bot, msg)
+        send_embed = await star_mes.star_generate(self.bot, msg)
         await ctx.send(embed=send_embed)
 
 def setup(bot):
