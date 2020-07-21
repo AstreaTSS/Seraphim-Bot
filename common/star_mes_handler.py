@@ -70,15 +70,15 @@ async def base_generate(bot, mes):
     mes.embeds[0].footer != discord.Embed.Empty: # all of this... for pinboard support
         send_embed = mes.embeds[0].copy() # it's using the same internal gen, so why not just copy it
 
-        # next pieces of code make the embed more how a normally generated embed would be like
-        send_embed.color = discord.Colour(0xcfca76)
-        send_embed.timestamp = mes.created_at
-        send_embed.set_footer() # will set footer to default, aka none
-
         for x in range(len(send_embed.fields)):
             if send_embed.fields[x].name == "Original":
                 send_embed.remove_field(x)
                 break
+
+        # next pieces of code make the embed more how a normally generated embed would be like
+        send_embed.color = discord.Colour(0xcfca76)
+        send_embed.timestamp = mes.created_at
+        send_embed.set_footer() # will set footer to default, aka none
 
     elif mes.embeds != [] and ((mes.author.id in [270904126974590976, 499383056822435840] 
     and mes.embeds[0].author.name != discord.Embed.Empty) or (mes.author.id == bot.user.id 
