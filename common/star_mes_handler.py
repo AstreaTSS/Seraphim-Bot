@@ -67,7 +67,7 @@ async def base_generate(bot, mes):
 
     if mes.embeds and mes.author.id == bot.user.id and \
     mes.embeds[0].author.name != bot.user.name and mes.embeds[0].fields != discord.Embed.Empty and \
-    mes.embeds[0].fields[0].name == "Original": # all of this... for pinboard support
+    mes.embeds[0].footer != discord.Embed.Empty: # all of this... for pinboard support
         send_embed = mes.embeds[0].copy() # it's using the same internal gen, so why not just copy it
 
         # next pieces of code make the embed more how a normally generated embed would be like
