@@ -59,8 +59,6 @@ class DBHandler(commands.Cog):
                 else:
                     list_of_cmds.append(self.create_cmd("starboard", "INSERT INTO", starboard[message]))
 
-        self.bot.starboard_bac = copy.deepcopy(self.bot.starboard)
-
         config = self.bot.config
         config_bac = self.bot.config_bac
 
@@ -70,10 +68,12 @@ class DBHandler(commands.Cog):
                     list_of_cmds.append(self.create_cmd("seraphim_config", "UPDATE", config[guild]))
             else:
                 list_of_cmds.append(self.create_cmd("seraphim_config", "INSERT INTO", config[guild]))
-        self.bot.config_bac = copy.deepcopy(self.bot.config)
 
         if list_of_cmds != []:
             await self.run_commands(list_of_cmds)
+
+            self.bot.starboard_bac = copy.deepcopy(self.bot.starboard)
+            self.bot.config_bac = copy.deepcopy(self.bot.config)
 
     @commit_loop.error
     async def error_handle(self, *args):
