@@ -17,10 +17,8 @@ class DBHandler(commands.Cog):
         cmd = {
             "table": table,
             "type": a_type,
+            "entry": entry
         }
-
-        for key in entry.keys():
-            cmd[key] = entry[key]
 
         return cmd
 
@@ -32,30 +30,11 @@ class DBHandler(commands.Cog):
         config_dict = {}
 
         for row in starboard_db:
-            starboard_dict[row["ori_mes_id"]] = {
-                "ori_chan_id": row["ori_chan_id"],
-                "star_var_id": row["star_var_id"],
-                "author_id": row["author_id"],
-                "ori_reactors": row["ori_reactors"] if row["ori_reactors"] != None else [],
-                "var_reactors": row["var_reactors"] if row["var_reactors"] != None else [],
-                "guild_id": row["guild_id"],
-                "forced": bool(row["forced"]) if row["forced"] != None else False,
-
-                "ori_mes_id_bac": row["ori_mes_id"],
-                "updated": False
-            }
+            starboard_dict[row["ori_mes_id"]] = row["data"]
+            starboard_dict[row["ori_mes_id"]]["updated"] = False
 
         for row in config_db:
-            config_dict[row["server_id"]] = {
-                "starboard_id": row["starboard_id"],
-                "star_limit": row["star_limit"],
-                "star_blacklist": row["star_blacklist"] if row["star_blacklist"] != None else [],
-                "star_toggle": bool(row["star_toggle"]) if row["star_toggle"] != None else False,
-                "pingable_roles": row["pingable_roles"] if row["pingable_roles"] != None else {},
-                "pin_config": row["pin_config"] if row["pin_config"] != None else {},
-
-                "guild_id_bac": row["server_id"]
-            }
+            config_dict[row["guild_id"]] = row["config"]
 
         self.bot.starboard = starboard_dict
         self.bot.config = config_dict
@@ -69,16 +48,15 @@ class DBHandler(commands.Cog):
         starboard = self.bot.starboard
         star_bac = self.bot.starboard_bac
 
-        star_bac_keys = list(star_bac.keys()).copy()
-
         for message in list(self.bot.starboard.keys()).copy():
             if starboard[message]["ori_chan_id"] == None:
                 list_of_cmds.append(self.create_cmd("starboard", "DELETE FROM", starboard[message]))
                 del self.bot.starboard[message]
             else:
-                if not starboard[message] == star_bac.get(message):
-                    list_of_cmds.append(self.create_cmd("starboard", "UPDATE", starboard[message]))
-                elif not message in star_bac_keys:
+                if message in list(star_bac.keys()):
+                    if not starboard[message] == star_bac[message]:
+                        list_of_cmds.append(self.create_cmd("starboard", "UPDATE", starboard[message]))
+                else:
                     list_of_cmds.append(self.create_cmd("starboard", "INSERT INTO", starboard[message]))
 
         self.bot.starboard_bac = copy.deepcopy(self.bot.starboard)
@@ -86,13 +64,12 @@ class DBHandler(commands.Cog):
         config = self.bot.config
         config_bac = self.bot.config_bac
 
-        config_bac_keys = list(config_bac.keys()).copy()
-
-        for server in list(self.bot.config.keys()).copy():
-            if not config[server] == config_bac.get(server):
-                list_of_cmds.append(self.create_cmd("seraphim_config", "UPDATE", config[server]))
-            elif not server in config_bac_keys:
-                list_of_cmds.append(self.create_cmd("seraphim_config", "INSERT INTO", config[server]))
+        for guild in list(self.bot.config.keys()).copy():
+            if guild in list(config_bac.keys()):
+                if not config[guild] == config_bac[guild]:
+                    list_of_cmds.append(self.create_cmd("seraphim_config", "UPDATE", config[guild]))
+            else:
+                list_of_cmds.append(self.create_cmd("seraphim_config", "INSERT INTO", config[guild]))
         self.bot.config_bac = copy.deepcopy(self.bot.config)
 
         if list_of_cmds != []:
@@ -117,7 +94,7 @@ class DBHandler(commands.Cog):
         db_url = os.environ.get("DB_URL")
         conn = await asyncpg.connect(db_url)
 
-        await conn.set_type_codec('json', encoder=json.dumps, decoder=json.loads, schema='pg_catalog')
+        await conn.set_type_codec('jsonb', encoder=json.dumps, decoder=json.loads, schema='pg_catalog')
 
         data = await conn.fetch(f"SELECT * FROM {table}")
         await conn.close()
@@ -127,7 +104,7 @@ class DBHandler(commands.Cog):
         db_url = os.environ.get("DB_URL")
         conn = await asyncpg.connect(db_url)
 
-        await conn.set_type_codec('json', encoder=json.dumps, decoder=json.loads, schema='pg_catalog')
+        await conn.set_type_codec('jsonb', encoder=json.dumps, decoder=json.loads, schema='pg_catalog')
 
         async with conn.transaction():
             for command in commands:
@@ -135,34 +112,24 @@ class DBHandler(commands.Cog):
 
                 if command["table"] == "seraphim_config":
                     if command["type"] == "INSERT INTO":
-                        db_command = ("INSERT INTO seraphim_config" +
-                        "(server_id, starboard_id, star_limit, star_blacklist, star_toggle, pingable_roles, pin_config) VALUES(" +
-                        "$1, $2, $3, $4, $5, $6, $7)")
+                        db_command = ("INSERT INTO seraphim_config(guild_id, config) VALUES($1, $2)")
                     elif command["type"] == "UPDATE":
-                        db_command = ("UPDATE seraphim_config SET starboard_id = $2, star_limit = $3, " +
-                        "star_blacklist = $4, star_toggle = $5, pingable_roles = $6, pin_config = $7 WHERE server_id = $1")
+                        db_command = ("UPDATE seraphim_config SET config = $2 WHERE guild_id = $1")
                     
                     if db_command != "":
-                        await conn.execute(db_command, command["guild_id_bac"], command["starboard_id"], command["star_limit"], 
-                        command["star_blacklist"], command["star_toggle"], command["pingable_roles"], command["pin_config"])
+                        await conn.execute(db_command, command["entry"]["guild_id_bac"], command["entry"])
 
                 elif command["table"] == "starboard":
                     if command["type"] == "DELETE FROM":
-                        await conn.execute("DELETE FROM starboard WHERE ori_mes_id = $1", command["ori_mes_id_bac"])
+                        await conn.execute("DELETE FROM starboard WHERE ori_mes_id = $1", command["entry"]["ori_mes_id_bac"])
                         continue
                     elif command["type"] == "INSERT INTO":
-                        db_command = ("INSERT INTO starboard" +
-                        "(ori_mes_id, ori_chan_id, star_var_id, author_id, ori_reactors, var_reactors, guild_id, forced)" +
-                        " VALUES($1, $2, $3, $4, $5, $6, $7, $8)")
+                        db_command = ("INSERT INTO starboard(ori_mes_id, data) VALUES($1, $2)")
                     elif command["type"] == "UPDATE":
-                        db_command = ("UPDATE starboard SET ori_chan_id = $2, star_var_id = $3, ori_reactors = $5, " +
-                        f"var_reactors = $6, guild_id = $7, forced = $8, " +
-                        f"author_id = $4 WHERE ori_mes_id = $1")
+                        db_command = ("UPDATE starboard SET data = $2 WHERE ori_mes_id = $1")
 
                     if db_command != "":
-                        await conn.execute(db_command, command["ori_mes_id_bac"], command["ori_chan_id"], command["star_var_id"], 
-                        command["author_id"], command["ori_reactors"], command["var_reactors"], command["guild_id"],
-                        command["forced"])
+                        await conn.execute(db_command, command["entry"]["ori_mes_id_bac"], command["entry"])
 
         await conn.close()
     
