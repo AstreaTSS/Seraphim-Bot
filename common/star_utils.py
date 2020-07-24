@@ -1,26 +1,21 @@
 #!/usr/bin/env python3.7
-import discord
+import discord, collections
 
 def get_star_entry(bot, mes_id, check_for_var = False):
     # simple method to get star entry
+    # yes, we're using discord methods to do so
+    entry = discord.utils.find(lambda e: mes_id in [e["ori_mes_id_bac"], e["star_var_id"]], bot.starboard.values())
 
-    if not check_for_var:
-        # checks if mes_id = ori or star_var id
-        for entry in bot.starboard.values():
-            if mes_id in [entry["ori_mes_id_bac"], entry["star_var_id"]]:
-                return entry
-    else:
+    if entry == None:
+        return []
+
+    if check_for_var:
         # checks if mes_id = ori or star_var's id, and there is a star var
-        for entry in bot.starboard.values():
-            if entry["star_var_id"] == mes_id:
-                return entry 
-            elif entry["ori_mes_id_bac"] == mes_id:
-                if entry["star_var_id"] != None:
-                    return entry
-                else:
-                    break
+        if entry["ori_mes_id_bac"] == mes_id:
+            if entry["star_var_id"] == None:
+                return []
 
-    return []
+    return entry
 
 def get_num_stars(starboard_entry):
     # gets number of stars
@@ -53,7 +48,7 @@ def clear_stars(bot, starboard_entry, mes_id):
 def get_author_id(mes, bot):
     # gets author id from message
     author_id = None
-    if mes.author.id in [270904126974590976, 499383056822435840] and mes.embeds != [] and mes.embeds[0].author.name != discord.Embed.Empty:
+    if mes.author.id in (270904126974590976, 499383056822435840) and mes.embeds != [] and mes.embeds[0].author.name != discord.Embed.Empty:
         # conditions to check if message = sniped message from Dank Memer (and the Beta variant)
         # not too accurate due to some caching behavior with Dank Memer and username changes in general
         # but good enough for general use
@@ -72,7 +67,7 @@ def get_author_id(mes, bot):
         hash_split = mes.embeds[0].author.name.split("#")
         discrim = hash_split[-1][:4] # we don't want the )
 
-        username = ""
+        username = collections.deque() # we're really only appending to the ends of this, so deque works
         paren_num = 1
 
         # the following gets second to last entry, which should have the entire username and other stuff we
@@ -90,9 +85,9 @@ def get_author_id(mes, bot):
             if paren_num == 0:
                 break
 
-            username = chara + username # reminder we're getting the characters reversed
+            username.appendleft(chara) # reminder we're getting the characters reversed
 
-        author = discord.utils.get(mes.guild.members, name=username, discriminator=discrim)
+        author = discord.utils.get(mes.guild.members, name="".join(username), discriminator=discrim)
         author_id = mes.author.id if author == None else author.id
 
     else:
@@ -220,8 +215,6 @@ async def star_entry_refresh(bot, starboard_entry, guild_id):
         bot.starboard[ori_mes_id]["star_var_id"] = None
 
         await star_var_mes.delete()
-        
-
 
 def star_check(bot, payload):
     # basic check for starboard stuff: is it in a guild, and is the starboard enabled here?

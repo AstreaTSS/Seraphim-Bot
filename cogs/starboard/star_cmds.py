@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import discord, importlib, re
+import discord, importlib, re, collections
 import datetime, typing, random
 
 import common.star_utils as star_utils
@@ -14,30 +14,24 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         self.bot = bot
 
     def get_star_rankings(self, ctx):
-        def by_stars(elem):
-            return elem[1]
+        user_star_dict = collections.Counter()
+        guild_entries = (self.bot.starboard[k] for k in self.bot.starboard.keys() 
+        if self.bot.starboard[k]["guild_id"] == ctx.guild.id)
 
-        user_star_dict = {}
-        guild_entries = [self.bot.starboard[k] for k in self.bot.starboard.keys() 
-        if self.bot.starboard[k]["guild_id"] == ctx.guild.id]
-
-        if guild_entries != []:
+        if guild_entries != ():
             for entry in guild_entries:
                 if entry["author_id"] in user_star_dict.keys():
                     user_star_dict[entry["author_id"]] += star_utils.get_num_stars(entry)
                 else:
                     user_star_dict[entry["author_id"]] = star_utils.get_num_stars(entry)
 
-            user_star_list = list(user_star_dict.items())
-            user_star_list.sort(reverse=True, key=by_stars)
-
-            return user_star_list
+            return user_star_dict.most_common(None)
         else:
             return None
 
     def get_user_placing(self, user_star_list, author_id):
-        author_entry = [e for e in user_star_list if e[0] == author_id]
-        if author_entry != []:
+        author_entry = (e for e in user_star_list if e[0] == author_id)
+        if author_entry != ():
             author_index = user_star_list.index(author_entry[0])
             return f"position: #{author_index + 1} with {author_entry[0][1]} ⭐"
         else:
@@ -56,18 +50,15 @@ class StarCMDs(commands.Cog, name = "Starboard"):
     async def msgtop(self, ctx):
         """Allows you to view the top 10 starred messages on a server. Cooldown of once every 5 seconds per user."""
 
-        def by_stars(elem):
-            return star_utils.get_num_stars(elem)
-
-        guild_entries = [self.bot.starboard[k] for k in self.bot.starboard.keys() if self.bot.starboard[k]["guild_id"] == ctx.guild.id]
-        if guild_entries != []:
+        guild_entries = (self.bot.starboard[k] for k in self.bot.starboard.keys() if self.bot.starboard[k]["guild_id"] == ctx.guild.id)
+        if guild_entries != ():
             top_embed = discord.Embed(title=f"Top starred messages in {ctx.guild.name}", colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow())
             top_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='jpg', size=128))}")
             top_embed.set_footer(text="As of")
 
             starboard_id = self.bot.config[ctx.guild.id]['starboard_id']
 
-            guild_entries.sort(reverse=True, key=by_stars)
+            guild_entries.sort(reverse=True, key=lambda e: star_utils.get_num_stars(e))
 
             for i in range(len(guild_entries)):
                 if i > 9:

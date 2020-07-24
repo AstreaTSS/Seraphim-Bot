@@ -1,7 +1,8 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
 from discord.ext.commands.errors import BadArgument
-import traceback, discord, datetime, re, aiohttp
+import traceback, discord, datetime
+import re, aiohttp, collections
 from pathlib import Path
 
 async def proper_permissions(ctx):
@@ -40,13 +41,13 @@ async def msg_to_owner(bot, content):
 
 async def user_from_id(bot, guild, user_id):
     # gets a user from id. attempts via guild first, then attempts globally
-    user = guild.get_member(user_id)
+    user = guild.get_member(user_id) # member in guild
     if user == None:
-        user = bot.get_user(user_id)
+        user = bot.get_user(user_id) # user in cache
         
         if user == None:
             try:
-                user = await bot.fetch_user(user_id)
+                user = await bot.fetch_user(user_id) # a user that exists
             except discord.NotFound:
                 user = None
 
@@ -60,7 +61,7 @@ def file_to_ext(str_path, base_path):
 
 def get_all_extensions(str_path, folder = "cogs"):
     # gets all extensions in a folder
-    ext_files = []
+    ext_files = collections.deque()
     loc_split = str_path.split("cogs")
     base_path = loc_split[0]
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
 import discord, datetime, os
-import importlib, asyncio
+import importlib, asyncio, collections
 
 import common.utils as utils
 
@@ -70,7 +70,7 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
     @commands.command(hidden=True)
     async def refresh_extensions(self, ctx):
         def ext_str(list_files):
-            exten_list = [f"`{k}`" for k in list_files]
+            exten_list = (f"`{k}`" for k in list_files)
             return ", ".join(exten_list)
 
         unloaded_files = []
@@ -107,18 +107,18 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
             except commands.ExtensionFailed as e:
                 await utils.error_handle(self.bot, e)
 
-        msg_content = ""
+        msg_content = collections.deque()
 
         if unloaded_files != []:
-            msg_content += f"Unloaded: {ext_str(unloaded_files)}\n"
+            msg_content.append(f"Unloaded: {ext_str(unloaded_files)}")
         if loaded_files != []:
-            msg_content += f"Loaded: {ext_str(loaded_files)}\n"
+            msg_content.append(f"Loaded: {ext_str(loaded_files)}")
         if reloaded_files != []:
-            msg_content += f"Reloaded: {ext_str(reloaded_files)}\n"
+            msg_content.append(f"Reloaded: {ext_str(reloaded_files)}")
         if not_loaded != []:
-            msg_content += f"Didn't load: {ext_str(not_loaded)}\n"
+            msg_content.append(f"Didn't load: {ext_str(not_loaded)}")
             
-        await self.msg_handler(ctx, msg_content)
+        await self.msg_handler(ctx, "\n".join(msg_content))
 
     @commands.command(hidden=True)
     async def list_loaded_extensions(self, ctx):
