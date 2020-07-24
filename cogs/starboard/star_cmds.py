@@ -56,8 +56,6 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             top_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='jpg', size=128))}")
             top_embed.set_footer(text="As of")
 
-            starboard_id = self.bot.config[ctx.guild.id]['starboard_id']
-
             guild_entries.sort(reverse=True, key=lambda e: star_utils.get_num_stars(e))
 
             for i in range(len(guild_entries)):
@@ -65,6 +63,8 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                     break
 
                 entry = guild_entries[i]
+                starboard_id = entry['starboard_id']
+
                 url = f"https://discordapp.com/channels/{ctx.guild.id}/{starboard_id}/{entry['star_var_id']}"
                 num_stars = star_utils.get_num_stars(entry)
                 member = await utils.user_from_id(self.bot, ctx.guild, entry['author_id'])
@@ -143,7 +143,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
         if valid_entries:
             random_entry = random.choice(valid_entries)
-            starboard_id = self.bot.config[ctx.guild.id]['starboard_id']
+            starboard_id = valid_entries['starboard_id']
 
             starboard_chan = ctx.guild.get_channel(starboard_id)
             if starboard_chan == None:
@@ -186,6 +186,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             self.bot.starboard[msg.id] = {
                 "ori_chan_id": msg.channel.id,
                 "star_var_id": None,
+                "starboard_id": None,
                 "author_id": author_id,
                 "ori_reactors": [],
                 "var_reactors": [],

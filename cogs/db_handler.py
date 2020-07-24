@@ -94,44 +94,47 @@ class DBHandler(commands.Cog):
         db_url = os.environ.get("DB_URL")
         conn = await asyncpg.connect(db_url)
 
-        await conn.set_type_codec('jsonb', encoder=json.dumps, decoder=json.loads, schema='pg_catalog')
+        try:
+            await conn.set_type_codec('jsonb', encoder=json.dumps, decoder=json.loads, schema='pg_catalog')
+            data = await conn.fetch(f"SELECT * FROM {table}")
+        finally:
+            await conn.close()
 
-        data = await conn.fetch(f"SELECT * FROM {table}")
-        await conn.close()
         return data
 
     async def run_commands(self, commands):
         db_url = os.environ.get("DB_URL")
         conn = await asyncpg.connect(db_url)
 
-        await conn.set_type_codec('jsonb', encoder=json.dumps, decoder=json.loads, schema='pg_catalog')
+        try:
+            await conn.set_type_codec('jsonb', encoder=json.dumps, decoder=json.loads, schema='pg_catalog')
 
-        async with conn.transaction():
-            for command in commands:
-                db_command = ""
+            async with conn.transaction():
+                for command in commands:
+                    db_command = ""
 
-                if command["table"] == "seraphim_config":
-                    if command["type"] == "INSERT INTO":
-                        db_command = ("INSERT INTO seraphim_config(guild_id, config) VALUES($1, $2)")
-                    elif command["type"] == "UPDATE":
-                        db_command = ("UPDATE seraphim_config SET config = $2 WHERE guild_id = $1")
-                    
-                    if db_command != "":
-                        await conn.execute(db_command, command["entry"]["guild_id_bac"], command["entry"])
+                    if command["table"] == "seraphim_config":
+                        if command["type"] == "INSERT INTO":
+                            db_command = ("INSERT INTO seraphim_config(guild_id, config) VALUES($1, $2)")
+                        elif command["type"] == "UPDATE":
+                            db_command = ("UPDATE seraphim_config SET config = $2 WHERE guild_id = $1")
+                        
+                        if db_command != "":
+                            await conn.execute(db_command, command["entry"]["guild_id_bac"], command["entry"])
 
-                elif command["table"] == "starboard":
-                    if command["type"] == "DELETE FROM":
-                        await conn.execute("DELETE FROM starboard WHERE ori_mes_id = $1", command["entry"]["ori_mes_id_bac"])
-                        continue
-                    elif command["type"] == "INSERT INTO":
-                        db_command = ("INSERT INTO starboard(ori_mes_id, data) VALUES($1, $2)")
-                    elif command["type"] == "UPDATE":
-                        db_command = ("UPDATE starboard SET data = $2 WHERE ori_mes_id = $1")
+                    elif command["table"] == "starboard":
+                        if command["type"] == "DELETE FROM":
+                            await conn.execute("DELETE FROM starboard WHERE ori_mes_id = $1", command["entry"]["ori_mes_id_bac"])
+                            continue
+                        elif command["type"] == "INSERT INTO":
+                            db_command = ("INSERT INTO starboard(ori_mes_id, data) VALUES($1, $2)")
+                        elif command["type"] == "UPDATE":
+                            db_command = ("UPDATE starboard SET data = $2 WHERE ori_mes_id = $1")
 
-                    if db_command != "":
-                        await conn.execute(db_command, command["entry"]["ori_mes_id_bac"], command["entry"])
-
-        await conn.close()
+                        if db_command != "":
+                            await conn.execute(db_command, command["entry"]["ori_mes_id_bac"], command["entry"])
+        finally:
+            await conn.close()
     
 def setup(bot):
     importlib.reload(utils)

@@ -106,6 +106,7 @@ async def modify_stars(bot, mes, reactor_id, operation):
         bot.starboard[mes.id] = {
             "ori_chan_id": mes.channel.id,
             "star_var_id": None,
+            "starboard_id": None,
             "author_id": author_id,
             "ori_reactors": [reactor_id],
             "var_reactors": [],
