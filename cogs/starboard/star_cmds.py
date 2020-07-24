@@ -50,8 +50,8 @@ class StarCMDs(commands.Cog, name = "Starboard"):
     async def msgtop(self, ctx):
         """Allows you to view the top 10 starred messages on a server. Cooldown of once every 5 seconds per user."""
 
-        guild_entries = (self.bot.starboard[k] for k in self.bot.starboard.keys() if self.bot.starboard[k]["guild_id"] == ctx.guild.id)
-        if guild_entries != ():
+        guild_entries = [self.bot.starboard[k] for k in self.bot.starboard.keys() if self.bot.starboard[k]["guild_id"] == ctx.guild.id]
+        if guild_entries != []:
             top_embed = discord.Embed(title=f"Top starred messages in {ctx.guild.name}", colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow())
             top_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='jpg', size=128))}")
             top_embed.set_footer(text="As of")

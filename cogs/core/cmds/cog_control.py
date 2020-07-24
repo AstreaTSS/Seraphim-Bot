@@ -70,7 +70,7 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
     @commands.command(hidden=True)
     async def refresh_extensions(self, ctx):
         def ext_str(list_files):
-            exten_list = (f"`{k}`" for k in list_files)
+            exten_list = [f"`{k}`" for k in list_files]
             return ", ".join(exten_list)
 
         unloaded_files = []

@@ -48,7 +48,7 @@ def clear_stars(bot, starboard_entry, mes_id):
 def get_author_id(mes, bot):
     # gets author id from message
     author_id = None
-    if mes.author.id in (270904126974590976, 499383056822435840) and mes.embeds != [] and mes.embeds[0].author.name != discord.Embed.Empty:
+    if mes.author.id in [270904126974590976, 499383056822435840] and mes.embeds != [] and mes.embeds[0].author.name != discord.Embed.Empty:
         # conditions to check if message = sniped message from Dank Memer (and the Beta variant)
         # not too accurate due to some caching behavior with Dank Memer and username changes in general
         # but good enough for general use
