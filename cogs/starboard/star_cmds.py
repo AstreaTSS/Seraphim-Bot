@@ -143,7 +143,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
         if valid_entries:
             random_entry = random.choice(valid_entries)
-            starboard_id = valid_entries['starboard_id']
+            starboard_id = random_entry['starboard_id']
 
             starboard_chan = ctx.guild.get_channel(starboard_id)
             if starboard_chan == None:
