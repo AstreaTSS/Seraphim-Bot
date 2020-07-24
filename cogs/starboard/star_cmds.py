@@ -30,7 +30,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             return None
 
     def get_user_placing(self, user_star_list, author_id):
-        author_entry = (e for e in user_star_list if e[0] == author_id)
+        author_entry = [e for e in user_star_list if e[0] == author_id]
         if author_entry != ():
             author_index = user_star_list.index(author_entry[0])
             return f"position: #{author_index + 1} with {author_entry[0][1]} ⭐"
