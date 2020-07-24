@@ -182,13 +182,12 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         starboard_entry = star_utils.get_star_entry(self.bot, msg.id)
         if starboard_entry == []:
             author_id = star_utils.get_author_id(msg, self.bot)
-            prev_reactors = await star_utils.get_prev_reactors(msg, author_id)
 
             self.bot.starboard[msg.id] = {
                 "ori_chan_id": msg.channel.id,
                 "star_var_id": None,
                 "author_id": author_id,
-                "ori_reactors": prev_reactors,
+                "ori_reactors": [],
                 "var_reactors": [],
                 "guild_id": msg.guild.id,
                 "forced": False,
@@ -197,6 +196,8 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                 "updated": True
             }
             starboard_entry = self.bot.starboard[msg.id]
+
+            await star_utils.sync_prev_reactors(self.bot, msg, author_id, starboard_entry, "ori_reactors", remove=False)
         
         if starboard_entry["star_var_id"] == None:
             starboard_entry["forced"] == True
@@ -205,9 +206,13 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             return
         
         unique_stars = star_utils.get_num_stars(starboard_entry)
-        await star_mes.send(self.bot, msg, unique_stars, forced=True)
+        self.bot.star_queue[msg.id] = {
+            "mes": msg,
+            "unique_stars": unique_stars,
+            "forced": True
+        }
 
-        await ctx.send("Done!")
+        await ctx.send("Done! Please wait a couple of seconds for the message to appear.")
 
     @commands.command(hidden=True)
     @commands.is_owner()

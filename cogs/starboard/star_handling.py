@@ -18,7 +18,7 @@ class Star(commands.Cog):
     async def starboard_queue(self):
         for entry_key in list(self.bot.star_queue.keys()).copy():
             entry = self.bot.star_queue[entry_key]
-            await star_mes.send(self.bot, entry["mes"], entry["unique_stars"])
+            await star_mes.send(self.bot, entry["mes"], entry["unique_stars"], entry["forced"])
 
         self.bot.star_queue = {}
 
@@ -55,7 +55,8 @@ class Star(commands.Cog):
                     if unique_stars >= self.bot.config[mes.guild.id]["star_limit"]:
                         self.bot.star_queue[mes.id] = {
                             "mes": mes,
-                            "unique_stars": unique_stars
+                            "unique_stars": unique_stars,
+                            "forced": False
                         }
                             
             elif user.id != star_variant["author_id"]:
