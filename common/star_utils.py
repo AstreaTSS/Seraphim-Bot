@@ -186,7 +186,7 @@ async def sync_prev_reactors(bot, mes, author_id, starboard_entry, type_of, remo
 
 async def star_entry_refresh(bot, starboard_entry, guild_id):
     # refreshes a starboard entry mes
-    star_var_chan = bot.get_channel(bot.config[guild_id]["starboard_id"])
+    star_var_chan = bot.get_channel(starboard_entry["starboard_id"]) #TODO: ignore cases where bot can't access/use channel
     unique_stars = get_num_stars(starboard_entry)
 
     try:
