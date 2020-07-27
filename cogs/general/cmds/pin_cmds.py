@@ -24,6 +24,7 @@ class PinCMDs(commands.Cog, name = "Pinboard"):
         chan_entry = self.bot.config[ctx.guild.id]["pin_config"][str(ctx.channel.id)]
 
         pins = await ctx.channel.pins()
+        pins.reverse() # pins are retrived newest -> oldest, we want to do the opposite
 
         if not len(pins) > chan_entry["limit"]:
             await ctx.send("The number of pins is below or at the limit!")

@@ -42,7 +42,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
 
         if now < next_use:
             till_next_time = next_use - now
-            time_text = humanize.precisedelta(till_next_time)
+            time_text = humanize.precisedelta(till_next_time, format='%0.0f')
             await ctx.send(f"You cannot ping that role yet! Please wait: `{time_text}` before trying to ping the role again.")
             return
         else:
