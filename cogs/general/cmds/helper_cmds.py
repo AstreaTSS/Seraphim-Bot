@@ -9,7 +9,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(aliases=["addemoji"])
     @commands.check(utils.proper_permissions)
     async def add_emoji(self, ctx, emoji_name, url: typing.Optional[image_utils.URLToImage]):
         """Adds the image or URL given as an emoji to this server.
