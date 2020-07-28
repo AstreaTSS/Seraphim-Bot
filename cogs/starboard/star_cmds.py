@@ -74,7 +74,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
             await ctx.send(embed=top_embed)
         else:
-            await ctx.send("There are no starboard entries for this server!")
+            raise utils.CustomCheckFailure("There are no starboard entries for this server!")
 
     @sb.command(name = "top", aliases = ["leaderboard", "lb"])
     @commands.cooldown(1, 5, commands.BucketType.member)
@@ -101,7 +101,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             top_embed.set_footer(text=f"Your {self.get_user_placing(user_star_list, ctx.author.id)}")
             await ctx.send(embed=top_embed)
         else:
-            await ctx.send("There are no starboard entries for this server!")
+            raise utils.CustomCheckFailure("There are no starboard entries for this server!")
 
     @sb.command(aliases = ["position", "place", "placing"])
     @commands.cooldown(1, 5, commands.BucketType.member)
@@ -125,9 +125,9 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
                 await ctx.send(embed=place_embed)
             else:
-                await ctx.send("There are no starboard entries for this server!")
+                raise utils.CustomCheckFailure("There are no starboard entries for this server!")
         else:
-            await ctx.send("I could not get the user you were trying to get. Please try again with a valid user.")
+            raise commands.BadArgument("I could not get the user you were trying to get. Please try again with a valid user.")
 
     @sb.command()
     @commands.cooldown(1, 5, commands.BucketType.guild)
@@ -147,8 +147,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
             starboard_chan = ctx.guild.get_channel(starboard_id)
             if starboard_chan == None:
-                await ctx.send("Might want to check your config. I couldn't find the starboard channel.")
-                return
+                raise utils.CustomCheckFailure("I couldn't find the starboard channel for the entry I picked.")
 
             try:
                 star_mes = await starboard_chan.fetch_message(random_entry["star_var_id"])
@@ -176,8 +175,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         You must have Manage Server permissions or higher to run this command."""
         
         if not self.bot.config[ctx.guild.id]["star_toggle"]:
-            await ctx.send("Starboard is not turned on for this server!")
-            return
+            raise utils.CustomCheckFailure("Starboard is not turned on for this server!")
 
         starboard_entry = star_utils.get_star_entry(self.bot, msg.id)
         if starboard_entry == []:
@@ -203,8 +201,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         if starboard_entry["star_var_id"] == None:
             starboard_entry["forced"] == True
         else:
-            await ctx.send("This message is already on the starboard!")
-            return
+            raise commands.BadArgument("This message is already on the starboard!")
         
         unique_stars = star_utils.get_num_stars(starboard_entry)
         self.bot.star_queue[msg.id] = {

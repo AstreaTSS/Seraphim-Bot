@@ -33,7 +33,7 @@ async def limit(ctx, limit: typing.Optional[int]):
             ctx.bot.config[ctx.guild.id]["star_limit"] = int(limit)
             await ctx.send(f"Set limit to {limit}!")
         else:
-            await ctx.send("The number needs to be greater than 0!")
+            raise commands.BadArgument("The limit needs to be greater than 0!")
     else:
         await ctx.send(f"Star limit: {ctx.bot.config[ctx.guild.id]['star_limit']}")
 
@@ -49,7 +49,7 @@ async def toggle(ctx, toggle: typing.Optional[bool]):
             ctx.bot.config[ctx.guild.id]["star_toggle"] = toggle
             await ctx.send(f"Toggled starboard to {toggle} for this server!")
         else:
-            await ctx.send("Either you forgot to set the starboard channel or the star limit. Please try again.")
+            raise utils.CustomCheckFailure("Either you forgot to set the starboard channel or the star limit. Please try again.")
     else:
         await ctx.send(f"Star toggle: {ctx.bot.config[ctx.guild.id]['star_toggle']}")
 
@@ -89,7 +89,7 @@ async def _list(ctx):
             await ctx.send(f"Blacklisted channels: {', '.join(channel_mentions)}")
             return
             
-    await ctx.send("There's no blacklisted channels for this guild!")
+    raise utils.CustomCheckFailure("There's no blacklisted channels for this guild!")
 
 @blacklist.command()
 @commands.check(utils.proper_permissions)
@@ -100,8 +100,7 @@ async def add(ctx, channel: discord.TextChannel):
     chan_perms = channel.permissions_for(ctx.guild.me)
     chan_check = utils.chan_perm_check(channel, chan_perms)
     if chan_check != "OK":
-        await ctx.send(chan_check)
-        return
+        raise utils.CustomCheckFailure(chan_check)
 
     channel_id_list = ctx.bot.config[ctx.guild.id]["star_blacklist"]
 
@@ -110,7 +109,7 @@ async def add(ctx, channel: discord.TextChannel):
         ctx.bot.config[ctx.guild.id]["blacklist"] = channel_id_list
         await ctx.send(f"Addded {channel.mention} to the blacklist!")
     else:
-        await ctx.send("That channel's already in the blacklist!")
+        raise commands.BadArgument("That channel's already in the blacklist!")
 
 @blacklist.command()
 @commands.check(utils.proper_permissions)
@@ -125,4 +124,4 @@ async def remove(ctx, channel: discord.TextChannel):
         ctx.bot.config[ctx.guild.id]["blacklist"] = channel_id_list
         await ctx.send(f"Removed {channel.mention} from the blacklist!")
     else:
-        await ctx.send("That channel's not in the blacklist!")
+        raise commands.BadArgument("That channel's not in the blacklist!")

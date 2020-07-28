@@ -18,8 +18,7 @@ async def _list(ctx):
     """Returns a list of channels that have their pins mapped to another channel, and the max limit before they overflow to that other channel."""
 
     if ctx.bot.config[ctx.guild.id]["pin_config"] == {}:
-        await ctx.send("There are no entries for this server!")
-        return
+        raise utils.CustomCheckFailure("There are no entries for this server!")
 
     entries_list = []
 
@@ -38,7 +37,7 @@ async def _list(ctx):
         entries_str = "\n".join(entries_list)
         await ctx.send(f"Channels mapped:\n\n{entries_str}")
     else:
-        await ctx.send("There are no entries for this server!")
+        raise utils.CustomCheckFailure("There are no entries for this server!")
 
 @main_cmd.command(name = "map")
 @commands.check(utils.proper_permissions)
@@ -49,14 +48,12 @@ async def _map(ctx, entry: discord.TextChannel, destination: discord.TextChannel
     entry_perms = entry.permissions_for(ctx.guild.me)
     entry_check = utils.chan_perm_check(entry, entry_perms)
     if entry_check != "OK":
-        await ctx.send(entry_check)
-        return
+        raise utils.CustomCheckFailure(entry_check)
 
     dest_perms = destination.permissions_for(ctx.guild.me)
     dest_check = utils.chan_perm_check(destination, dest_perms)
     if dest_check != "OK":
-        await ctx.send(dest_check)
-        return
+        raise utils.CustomCheckFailure(entry_check)
 
     ctx.bot.config[ctx.guild.id]["pin_config"][str(entry.id)] = {
         "destination": destination.id,
@@ -82,4 +79,4 @@ async def unmap(ctx, entry: discord.TextChannel):
         del ctx.bot.config[ctx.guild.id]["pin_config"][str(entry.id)]
         await ctx.send(f"Unmapped {entry.mention}.")
     except KeyError:
-        await ctx.send("This channel wasn't mapped in the first place!")
+        raise commands.BadArgument("That channel wasn't mapped in the first place!")

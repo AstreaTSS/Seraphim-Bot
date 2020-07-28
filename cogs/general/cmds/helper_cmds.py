@@ -37,21 +37,21 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
         emoji_count = len(ctx.guild.emojis)
         if emoji_count >= ctx.guild.emoji_limit:
-            await ctx.send("This guild has no more emoji slots!")
-            return
+            raise utils.CustomCheckFailure("This guild has no more emoji slots!")
 
         emoji_data = await image_utils.get_file_bytes(url, 262143) # 256 KB - 1
         if emoji_data == None:
-            await ctx.send("This emoji is over 256 KB! Please try compressing the image and try again.")
-            return
+            raise commands.BadArgument("This image's size is greater than or equal to 256 KB! Please try compressing the image and try again.")
 
         try:
             emoji = await ctx.guild.create_custom_emoji(name=emoji_name, image=emoji_data, reason=f"Created by {str(ctx.author)}")
+            del emoji_data
         except discord.HTTPException as e:
-            await ctx.send(
-                    "".join(("I was unable to add this emoji! This might ",
-                "due to me not having the permissions or the name being improper in some way.\n",
-                f"Error: {e}"))
+            await ctx.send("".join(
+                    ("I was unable to add this emoji! This might be ",
+                    "due to me not having the permissions or the name being improper in some way.\n",
+                    f"Error: {e}")
+                )
             )
             return
 

@@ -52,20 +52,18 @@ class SnipeCMDs(commands.Cog):
         self.snipe_cleanup(type_of, past_type, chan.id)
 
         if msg_num == 0:
-            await ctx.send("You can't snipe the 0th to last message no matter how hard you try.")
-            return
+            raise commands.BadArgument("You can't snipe the 0th to last message no matter how hard you try.")
 
         msg_num = abs(msg_num)
 
         if not chan.id in self.bot.snipes[type_of].keys():
-            await ctx.send("There's nothing to snipe!")
-            return
+            raise commands.BadArgument("There's nothing to snipe!")
+
 
         try:
             sniped_msg = self.bot.snipes[type_of][chan.id][-msg_num]
         except IndexError:
-            await ctx.send("There's nothing to snipe!")
-            return
+            raise commands.BadArgument("There's nothing to snipe!")
             
         send_embed = discord.Embed(colour=discord.Colour(0x4378fc), description=sniped_msg["mes_content"], timestamp=sniped_msg["created_at"])
         send_embed.set_author(name=sniped_msg["author_name"], icon_url=sniped_msg["author_url"])

@@ -17,6 +17,8 @@ class OnCMDError(commands.Cog):
                 await utils.error_handle(self.bot, error, ctx)
         elif isinstance(error, (commands.ConversionError, commands.UserInputError, commands.BadArgument)):
             await ctx.send(error)
+        elif isinstance(error, utils.CustomCheckFailure):
+            await ctx.send(error)
         elif isinstance(error, commands.CheckFailure):
             if ctx.guild != None:
                 await ctx.send("You do not have the proper permissions to use that command.")

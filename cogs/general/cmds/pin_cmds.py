@@ -18,8 +18,7 @@ class PinCMDs(commands.Cog, name = "Pinboard"):
         Requires Manage Server permissions or higher."""
 
         if not str(ctx.channel.id) in self.bot.config[ctx.guild.id]["pin_config"].keys():
-            await ctx.send("This channel isn't mapped!")
-            return
+            raise commands.BadArgument("This channel isn't mapped!")
 
         chan_entry = self.bot.config[ctx.guild.id]["pin_config"][str(ctx.channel.id)]
 
@@ -27,13 +26,11 @@ class PinCMDs(commands.Cog, name = "Pinboard"):
         pins.reverse() # pins are retrived newest -> oldest, we want to do the opposite
 
         if not len(pins) > chan_entry["limit"]:
-            await ctx.send("The number of pins is below or at the limit!")
-            return
+            raise utils.CustomCheckFailure("The number of pins is below or at the limit!")
 
         des_chan = self.bot.get_channel(chan_entry["destination"])
         if des_chan == None:
-            await ctx.send("The destination channel doesn't exist anymore!")
-            return
+            raise utils.CustomCheckFailure("The destination channel doesn't exist anymore! Please fix this in the config.")
 
         dif = len(pins) - chan_entry["limit"]
         pins_subset = pins[-dif:]

@@ -17,8 +17,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         ping_roles = self.bot.config[ctx.guild.id]["pingable_roles"]
 
         if ping_roles == {}:
-            await ctx.send("There are no roles for you to ping!")
-            return
+            raise utils.CustomCheckFailure("There are no roles for you to ping!")
 
         role_obj = None
 
@@ -27,11 +26,9 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
                 role_obj = role
 
         if role_obj == None:
-            await ctx.send("That role doesn't exist!")
-            return
+            raise commands.BadArgument("That role doesn't exist!")
         if not str(role_obj.id) in ping_roles.keys():
-            await ctx.send("That role isn't pingable!")
-            return
+            raise commands.BadArgument("That role isn't pingable!")
 
         role_entry = ping_roles[str(role_obj.id)]
 
@@ -43,8 +40,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         if now < next_use:
             till_next_time = next_use - now
             time_text = humanize.precisedelta(till_next_time, format='%0.0f')
-            await ctx.send(f"You cannot ping that role yet! Please wait: `{time_text}` before trying to ping the role again.")
-            return
+            raise utils.CustomCheckFailure(f"You cannot ping that role yet! Please wait: `{time_text}` before trying to ping the role again.")
         else:
             await role_obj.edit(mentionable=True)
             await ctx.send(role_obj.mention)
@@ -59,8 +55,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         ping_roles = ctx.bot.config[ctx.guild.id]["pingable_roles"]
 
         if ping_roles == {}:
-            await ctx.send("There are no roles added!")
-            return
+            raise utils.CustomCheckFailure("There are no roles added!")
 
         role_list = []
 
@@ -77,7 +72,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
             role_str = ", ".join(role_list)
             await ctx.send(f"Pingable roles: {role_str}")
         else:
-            await ctx.send("There are no roles added!")
+            raise utils.CustomCheckFailure("There are no roles added!")
 
 def setup(bot):
     importlib.reload(utils)

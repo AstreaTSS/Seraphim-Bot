@@ -97,6 +97,10 @@ def chan_perm_check(channel: discord.TextChannel, perms: discord.Permissions):
 
     return resp
 
+class CustomCheckFailure(commands.CheckFailure):
+    # custom classs for custom prerequisite failures outside of normal command checks
+    pass
+
 class TimeDurationConverter(commands.Converter):
     # Converts a string to a time duration.
 
