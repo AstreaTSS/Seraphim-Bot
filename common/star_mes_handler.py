@@ -4,6 +4,8 @@ import aiohttp, collections
 
 import common.star_utils as star_utils
 import common.utils as utils
+import common.image_utils as image_utils
+
 
 def cant_display(embed: discord.Embed, attachments: list, index = 0):
     attach_strs = collections.deque()
@@ -24,43 +26,6 @@ def cant_display(embed: discord.Embed, attachments: list, index = 0):
         embed.add_field(name="Other Attachments", value="\n".join(attach_strs), inline=False)
 
     return embed
-
-async def tenor_handle(url: str):
-    dash_split = url.split("-")
-
-    params = {
-        "ids": dash_split[-1],
-        "key": os.environ.get("TENOR_KEY"),
-        "media_filter": "minimal"
-    }
-
-    async with aiohttp.ClientSession() as session:
-        async with session.get("https://api.tenor.com/v1/gifs", params=params) as resp:
-            resp_json = await resp.json()
-
-            try:
-                gif_url = resp_json["results"][0]["media"][0]["gif"]["url"]
-                return gif_url
-            except KeyError:
-                return None
-            except IndexError:
-                return None
-
-async def imgur_handle(url: str):
-    slash_split = url.split("/")
-
-    header = {"Authorization": f"Client-ID {os.environ.get('IMGUR_ID')}"}
-    async with aiohttp.ClientSession() as session:
-        async with session.get(f"https://api.imgur.com/3/image/{slash_split[-1]}", headers=header) as resp:
-            if resp.status != 200:
-                return None
-            resp_json = await resp.json()
-
-            try:
-                img_url = resp_json['data']['link']
-                return img_url
-            except KeyError:
-                return None
 
 async def base_generate(bot, mes):
     # generates core of star messages
@@ -140,20 +105,10 @@ async def base_generate(bot, mes):
             urls = re.findall(r"((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)", content)
             if urls != []:
                 first_url = urls[0][0]
-                if "https://tenor.com/view" in first_url or "http://tenor.com/view" in first_url:
-                    gif_url = await tenor_handle(first_url)
-                    if gif_url != None:
-                        image_url = gif_url
-
-                elif "https://imgur.com/" in first_url or "http://imgur.com/" in first_url:
-                    imgur_url = await imgur_handle(first_url)
-                    if imgur_url != None:
-                        image_url = imgur_url
-                        
-                else:
-                    file_type = await utils.type_from_url(first_url)
-                    if file_type in image_extensions:
-                        image_url = first_url
+                
+                possible_url = await image_utils.get_image_url(first_url)
+                if possible_url != None:
+                    image_url = possible_url
 
     if image_url != "":
         send_embed.set_image(url=image_url)
