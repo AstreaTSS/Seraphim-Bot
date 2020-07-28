@@ -18,8 +18,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         Useful if you're on iOS and transparency gets the best of you or if you want to add an emoji from a URL."""
 
         if len(emoji_name) < 2:
-            await ctx.send("Emoji name must at least 2 characters!")
-            return
+            raise commands.BadArgument("Emoji name must at least 2 characters!")
 
         if url == None:
             if ctx.message.attachments:
