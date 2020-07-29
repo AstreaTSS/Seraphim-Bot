@@ -55,7 +55,10 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         await ctx.send(f"Added {str(emoji)}!")
 
     @commands.command()
-    async def get_emoji_url(self, ctx, emoji: discord.PartialEmoji):
+    async def get_emoji_url(self, ctx, emoji: typing.Union[discord.PartialEmoji, str]):
+        if isinstance(emoji, str):
+            raise commands.BadArgument("The argument provided is not a custom emoji!")
+
         if emoji.is_custom_emoji():
             await ctx.send(f"URL: {str(emoji.url)}")
         else:
