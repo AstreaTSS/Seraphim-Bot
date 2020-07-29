@@ -6,9 +6,10 @@ import re, collections, os
 from pathlib import Path
 
 async def proper_permissions(ctx):
-    # checks if author has admin or manage guild perms
+    # checks if author has admin or manage guild perms or is the owner
     permissions = ctx.author.guild_permissions
-    return (permissions.administrator or permissions.manage_guild)
+    return (permissions.administrator or permissions.manage_guild
+    or ctx.guild.owner.id == ctx.author.id)
 
 async def fetch_needed(bot, payload):
     # fetches info from payload
