@@ -56,12 +56,16 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
     @commands.command()
     async def get_emoji_url(self, ctx, emoji: typing.Union[discord.PartialEmoji, str]):
+        """Gets the emoji URL from an emoji.
+        The emoji does not have to be from the server it's used in, but it does have to be an emoji, not a name or URL."""
+
         if isinstance(emoji, str):
             raise commands.BadArgument("The argument provided is not a custom emoji!")
 
         if emoji.is_custom_emoji():
             await ctx.send(f"URL: {str(emoji.url)}")
         else:
+            # this shouldn't happen due to how the PartialEmoji converter works, but you never know
             raise commands.BadArgument("This emoji is not a custom emoji!")
 
 def setup(bot):
