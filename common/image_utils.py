@@ -1,6 +1,6 @@
 from discord.ext import commands
 from discord.ext.commands.errors import BadArgument
-import asyncio, aiohttp, os, re
+import asyncio, aiohttp, os, re, humanize
 
 async def type_from_url(url):
     # gets type of data from url
@@ -99,17 +99,29 @@ async def get_image_url(url: str):
 
     return None
 
-async def get_file_bytes(url: str, limit: int):
+async def get_file_bytes(url: str, limit: int, equal_to = True):
     # gets a file as long as it's under the limit (in bytes)
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:
             if resp.status == 200:
                 try:
-                    await resp.content.readexactly(limit)
-                except asyncio.IncompleteReadError as e:
-                    return e.partial
+                    if equal_to:
+                        await resp.content.readexactly(limit + 1) # we want this to error out even if the file is exactly the limit
+                        raise BadArgument(
+                            f"The file/URL given is over {humanize.naturalsize(limit, binary=True)}!"
+                        )
+                    else:
+                        await resp.content.readexactly(limit)
+                        raise BadArgument(
+                            f"The file/URL given is at or over {humanize.naturalsize(limit, binary=True)}!"
+                        )
 
-    return None
+                except asyncio.IncompleteReadError as e:
+                    # essentially, we're exploting the fact that readexactly will error out if
+                    # the url given is less than the limit
+                    return e.partial
+            else:
+                raise BadArgument("I can't get this file/URL!")
 
 class URLToImage(commands.Converter):
     # gets either the URL or the image from an argument
@@ -123,4 +135,4 @@ class URLToImage(commands.Converter):
             if possible_url != None:
                 return possible_url
             else:
-                raise BadArgument(f"Argument {argument} is not a url.")
+                raise BadArgument(f"Argument {argument} is not an image url.")
