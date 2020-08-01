@@ -23,7 +23,7 @@ async def fetch_needed(bot, payload):
 
 async def error_handle(bot, error, ctx = None):
     # handles errors and sends them to owner
-    error_str = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+    error_str = error_format(error)
 
     await msg_to_owner(bot, error_str)
 
@@ -35,7 +35,7 @@ async def msg_to_owner(bot, content):
     owner = bot.owner
     string = str(content)
 
-    str_chunks = [string[i:i+1950] for i in range(0, len(string), 1950)]
+    str_chunks = string_split(string)
 
     for chunk in str_chunks:
         await owner.send(f"{chunk}")
@@ -53,6 +53,29 @@ async def user_from_id(bot, guild, user_id):
                 user = None
 
     return user
+
+def generate_mentions(ctx: commands.Context):
+    # generates an AllowedMentions object that is similar to what a user can usually use
+
+    permissions = ctx.author.guild_permissions
+    # i assume mention_everyone also means they can ping all roles
+    can_mention = (permissions.administrator or permissions.mention_everyone
+    or ctx.guild.owner.id == ctx.author.id)
+
+    if can_mention:
+        # i could use a default AllowedMentions object, but this is more clear
+        return discord.AllowedMentions(everyone=True, users=True, roles=True)
+    else:
+        pingable_roles = [r for r in ctx.guild.roles if r.mentionable]
+        return discord.AllowedMentions(everyone=False, users=True, roles=pingable_roles)
+
+def error_format(error):
+    # simple function that formats an exception
+    return ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+
+def string_split(string):
+    # simple function that splits a string into 1950-character parts
+    return [string[i:i+1950] for i in range(0, len(string), 1950)]
 
 def file_to_ext(str_path, base_path):
     # changes a file to an import-like string

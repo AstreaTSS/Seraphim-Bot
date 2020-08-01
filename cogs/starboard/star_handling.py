@@ -16,11 +16,17 @@ class Star(commands.Cog):
 
     @tasks.loop(seconds=7)
     async def starboard_queue(self):
+        if self.bot.star_lock:
+            return
+
+        self.bot.star_lock = True
+
         for entry_key in list(self.bot.star_queue.keys()).copy():
             entry = self.bot.star_queue[entry_key]
             await star_mes.send(self.bot, entry["mes"], entry["unique_stars"], entry["forced"])
 
         self.bot.star_queue = {}
+        self.bot.star_lock = False
 
     @starboard_queue.error
     async def error_handle(self, *args):

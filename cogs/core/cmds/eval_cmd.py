@@ -8,6 +8,9 @@ from contextlib import redirect_stdout
 import aiohttp
 from discord.ext import commands
 
+import importlib
+import common.utils as utils
+
 # eval command source - https://github.com/fourjr/eval-bot
 # i'm sadly not skilled enough to make one myself :(
 
@@ -62,7 +65,14 @@ class Eval(commands.Cog, name="Eval", command_attrs=dict(hidden=True)):
         try:
             exec(to_compile, env)
         except Exception as e:
-            err = await ctx.send(f'```py\n{e.__class__.__name__}: {e}\n```')
+            err_str = utils.error_format(e)
+            err_split = paginate(err_str)
+
+            for page in err_split:
+                if page == err_split[-1]:
+                    err = await ctx.send(f'```py\n{page}\n```')
+                    break
+                await ctx.send(f'```py\n{page}\n```')
             return await ctx.message.add_reaction('\u2049')
 
         func = env['func']
@@ -105,4 +115,5 @@ class Eval(commands.Cog, name="Eval", command_attrs=dict(hidden=True)):
             await ctx.message.add_reaction('\u2705')
 
 def setup(bot):
+    importlib.reload(utils)
     bot.add_cog(Eval(bot))

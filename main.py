@@ -26,6 +26,7 @@ async def on_ready():
         }
 
         bot.star_queue = {}
+        bot.star_lock = False
 
         application = await bot.application_info()
         bot.owner = application.owner

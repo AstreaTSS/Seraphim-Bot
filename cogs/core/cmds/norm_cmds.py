@@ -1,6 +1,8 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import discord, time
+import discord, time, importlib, collections
+
+import common.utils as utils
 
 class NormCMDs(commands.Cog, name="Normal"):
     def __init__(self, bot):
@@ -25,8 +27,8 @@ class NormCMDs(commands.Cog, name="Normal"):
         """Reverses the content given."""
 
         if len(content) < 1950:
-            no_mentions = discord.AllowedMentions(everyone=False, users=[ctx.author], roles=False)
-            await ctx.send(f"{ctx.author.mention}: {content[::-1]}", allowed_mentions=no_mentions)
+            allowed_mentions = utils.generate_mentions(ctx)
+            await ctx.send(f"{ctx.author.mention}: {content[::-1]}", allowed_mentions=allowed_mentions)
         else:
             await ctx.send(f"{ctx.author.mention}, that message is too long!")
 
@@ -34,7 +36,7 @@ class NormCMDs(commands.Cog, name="Normal"):
     async def about(self, ctx):
         """Gives information about the bot."""
 
-        msg_list = []
+        msg_list = collections.deque() # is this pointless? yeah, mostly, but why not
 
         msg_list.append("Hi! I'm Seraphim, Sonic49's personal bot!")
         msg_list.append("I was created initially as a starboard bot as other starboard bots had poor uptime, " +
@@ -54,7 +56,7 @@ class NormCMDs(commands.Cog, name="Normal"):
             icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='jpg', size=128))}"
         )
 
-        source_list = []
+        source_list = collections.deque()
         source_list.append("My source code is [here!](https://github.com/Sonic4999/Seraphim-Bot)")
         source_list.append("This code might not be the best code out there, but you may have some use for it.")
 
@@ -67,4 +69,5 @@ class NormCMDs(commands.Cog, name="Normal"):
         await ctx.send(embed=about_embed)
 
 def setup(bot):
+    importlib.reload(utils)
     bot.add_cog(NormCMDs(bot))
