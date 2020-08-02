@@ -77,6 +77,8 @@ def get_author_id(mes, bot):
 
             # code to make sure () in usernames are handled fine
             # our goal is to satify all () pairs, including the one surrounding the username itself
+            # if someone has a username like weird_username(#7385, this would fail, but at that point
+            # i cant do much about it
             if chara == "(":
                 paren_num -= 1
             elif chara == ")":
@@ -96,7 +98,7 @@ def get_author_id(mes, bot):
     return author_id
 
 async def modify_stars(bot, mes, reactor_id, operation):
-    # this method probably needs to be split up
+    # TODO: this method probably needs to be split up
     # modifies stars and creates an starboard entry if it doesn't exist already
 
     starboard_entry = get_star_entry(bot, mes.id)
@@ -123,7 +125,7 @@ async def modify_stars(bot, mes, reactor_id, operation):
     author_id = starboard_entry["author_id"]
 
     if not starboard_entry["updated"]:
-        # TODO: make it only sync one type of reactor
+        # TODO: make it sync both reactors instead of only doing one
         type_of = "ori_reactors" if mes.id == starboard_entry["ori_mes_id_bac"] else "var_reactors"
         await sync_prev_reactors(bot, mes, author_id, starboard_entry, type_of)
 
@@ -203,7 +205,7 @@ async def star_entry_refresh(bot, starboard_entry, guild_id):
             except discord.HTTPException:
                 return
 
-            import common.star_mes_handler
+            import common.star_mes_handler # very dirty import, i know
             star_var_mes = await common.star_mes_handler.send(bot, ori_mes, unique_stars)
 
     ori_starred = star_var_mes.embeds[0]

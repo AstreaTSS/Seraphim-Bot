@@ -22,10 +22,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
         if url == None:
             if ctx.message.attachments:
-                image_endings = ("jpg", "jpeg", "png", "gif")
-                image_extensions = tuple(image_endings) # no idea why I have to do this
-
-                if ctx.message.attachments[0].proxy_url.endswith(image_extensions):
+                if ctx.message.attachments[0].proxy_url.endswith(self.bot.image_extensions):
                     url = ctx.message.attachments[0].proxy_url
                 else:
                     raise commands.BadArgument("Attachment provided is not a valid image.")
@@ -42,7 +39,6 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
         try:
             emoji = await ctx.guild.create_custom_emoji(name=emoji_name, image=emoji_data, reason=f"Created by {str(ctx.author)}")
-            del emoji_data
         except discord.HTTPException as e:
             await ctx.send("".join(
                     ("I was unable to add this emoji! This might be due to me not having the ",
@@ -51,10 +47,12 @@ class HelperCMDs(commands.Cog, name = "Helper"):
                 )
             )
             return
+        finally:
+            del emoji_data
 
         await ctx.send(f"Added {str(emoji)}!")
 
-    @commands.command()
+    @commands.command(aliases=["getemojiurl", "get-emoji-url"])
     async def get_emoji_url(self, ctx, emoji: typing.Union[discord.PartialEmoji, str]):
         """Gets the emoji URL from an emoji.
         The emoji does not have to be from the server it's used in, but it does have to be an emoji, not a name or URL."""

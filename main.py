@@ -11,7 +11,17 @@ load_dotenv()
 
 logging.basicConfig(filename=os.environ.get("LOG_FILE_PATH"), level=logging.INFO, format="%(asctime)s:%(levelname)s:%(name)s: %(message)s")
 
-bot = commands.Bot(command_prefix=commands.when_mentioned_or("s!"), fetch_offline_members=True)
+def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
+    # rn this is more or less when_mentioned_or('s!'), but soon this will be expanded for custom prefixes
+
+    mention_prefixes = [f"{bot.user.mention} ", f"<@!{bot.user.id}> "]
+    custom_prefixes = ["s!"]
+
+    return mention_prefixes + custom_prefixes
+
+# i plan on this being a custom class that inherits from commands.Bot
+# instead of just being commands.Bot one day for custom processing of commands, but rn this works
+bot = commands.Bot(command_prefix=seraphim_prefixes, fetch_offline_members=True)
 
 @bot.event
 async def on_ready():
@@ -27,6 +37,9 @@ async def on_ready():
 
         bot.star_queue = {}
         bot.star_lock = False
+
+        image_endings = ("jpg", "jpeg", "png", "gif")
+        bot.image_extensions = tuple(image_endings) # no idea why I have to do this
 
         application = await bot.application_info()
         bot.owner = application.owner

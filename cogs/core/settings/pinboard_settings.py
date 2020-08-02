@@ -1,5 +1,5 @@
 from discord.ext import commands
-import discord
+import discord, collections
 
 import common.utils as utils
 
@@ -20,7 +20,7 @@ async def _list(ctx):
     if ctx.bot.config[ctx.guild.id]["pin_config"] == {}:
         raise utils.CustomCheckFailure("There are no entries for this server!")
 
-    entries_list = []
+    entries_list = collections.deque()
 
     for entry in ctx.bot.config[ctx.guild.id]["pin_config"].keys():
         entry_chan = ctx.bot.get_channel(int(entry))

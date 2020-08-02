@@ -10,7 +10,7 @@ class NormCMDs(commands.Cog, name="Normal"):
 
     @commands.command()
     async def ping(self, ctx):
-        """Pings the bot. Great way of finding out if the bot’s working correctly."""
+        """Pings the bot. Great way of finding out if the bot’s working correctly, but otherwise has no real use."""
 
         start_time = time.perf_counter()
         ping_discord = round((self.bot.latency * 1000), 2)
@@ -24,7 +24,7 @@ class NormCMDs(commands.Cog, name="Normal"):
     
     @commands.command()
     async def reverse(self, ctx, *, content):
-        """Reverses the content given."""
+        """Reverses the content given. Only will ping what you can ping."""
 
         if len(content) < 1950:
             allowed_mentions = utils.generate_mentions(ctx)
@@ -36,7 +36,7 @@ class NormCMDs(commands.Cog, name="Normal"):
     async def about(self, ctx):
         """Gives information about the bot."""
 
-        msg_list = collections.deque() # is this pointless? yeah, mostly, but why not
+        msg_list = collections.deque() # is this pointless? yeah, mostly (there's a slight performance boost), but why not
 
         msg_list.append("Hi! I'm Seraphim, Sonic49's personal bot!")
         msg_list.append("I was created initially as a starboard bot as other starboard bots had poor uptime, " +

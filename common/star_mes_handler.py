@@ -90,11 +90,8 @@ async def base_generate(bot, mes):
             send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=discord.Embed.Empty, timestamp=mes.created_at)
         send_embed.set_author(name=author, icon_url=icon)
 
-        image_endings = ("jpg", "jpeg", "png", "gif")
-        image_extensions = tuple(image_endings) # no idea why I have to do this
-
         if mes.attachments != []:
-            if mes.attachments[0].proxy_url.endswith(image_extensions) and not mes.attachments[0].is_spoiler():
+            if mes.attachments[0].proxy_url.endswith(bot.image_extensions) and not mes.attachments[0].is_spoiler():
                 image_url = mes.attachments[0].proxy_url
 
                 if len(mes.attachments) > 1:

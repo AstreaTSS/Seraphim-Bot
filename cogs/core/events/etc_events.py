@@ -8,20 +8,6 @@ import common.utils as utils
 class EtcEvents(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.activity_refresh.start()
-
-    def cog_unload(self):
-        self.activity_refresh.cancel()
-
-    @tasks.loop(hours=2.5)
-    async def activity_refresh(self):
-        activity = discord.Activity(name = 'over a couple of servers', type = discord.ActivityType.watching)
-        await self.bot.change_presence(activity = activity)
-
-    @activity_refresh.error
-    async def error_handle(self, *args):
-        error = args[-1]
-        await utils.error_handle(self.bot, error)
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
