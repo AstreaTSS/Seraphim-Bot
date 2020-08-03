@@ -161,9 +161,9 @@ class FuzzyMemberConverter(commands.IDConverter):
             result = discord.utils.get(ctx.guild.members, name=hash_split[0], discriminator=hash_split[1])
 
         if result == None:
-            result = self.extract_from_memebers(ctx, argument, self.get_display_name)
+            result = await self.extract_from_memebers(ctx, argument, self.get_display_name)
             if result == None:
-                result = self.extract_from_memebers(ctx, argument, self.get_name)
+                result = await self.extract_from_memebers(ctx, argument, self.get_name)
 
         if result == None:
             raise commands.BadArgument(f'Member "{argument}" not found.')
