@@ -3,6 +3,7 @@ from discord.ext import commands
 import discord, importlib, re, collections
 import datetime, typing, random
 
+import common.classes
 import common.star_utils as star_utils
 import common.utils as utils
 import common.star_mes_handler as star_mes
@@ -105,7 +106,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
     @sb.command(aliases = ["position", "place", "placing"])
     @commands.cooldown(1, 5, commands.BucketType.member)
-    async def pos(self, ctx, user_mention: typing.Optional[discord.Member]):
+    async def pos(self, ctx, user_mention: typing.Optional[common.classes.FuzzyMemberConverter]):
         """Allows you to get either your or whoever you mentioned’s position in the star leaderboard (like the top command, but only for one person)."""
 
         member = ctx.author if user_mention == None else user_mention
@@ -222,5 +223,6 @@ def setup(bot):
     importlib.reload(star_utils)
     importlib.reload(star_mes)
     importlib.reload(utils)
+    importlib.reload(common.classes)
     
     bot.add_cog(StarCMDs(bot))

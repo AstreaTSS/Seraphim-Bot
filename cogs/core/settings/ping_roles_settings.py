@@ -2,6 +2,7 @@ from discord.ext import commands
 import discord, datetime, humanize
 
 import common.utils as utils
+import common.classes
 
 @commands.group(name="ping_roles")
 @commands.check(utils.proper_permissions)
@@ -14,7 +15,7 @@ async def main_cmd(ctx):
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
-async def add(ctx, role: discord.Role, *, cooldown: utils.TimeDurationConverter):
+async def add(ctx, role: discord.Role, *, cooldown: common.classes.TimeDurationConverter):
     """Adds the role to the roles able to be pinged. 
     The role can be an ID, a mention, or a name. If it's a name, it's case sensitive and, if the name is more than one word, that it must be in quotes.
     The cooldown can be in seconds, minutes, hours, days, months, and/or years (ex. 1s, 1m, 1h 20.5m)."""
@@ -41,7 +42,7 @@ async def add(ctx, role: discord.Role, *, cooldown: utils.TimeDurationConverter)
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
-async def cooldown(ctx, role: discord.Role, *, cooldown: utils.TimeDurationConverter):
+async def cooldown(ctx, role: discord.Role, *, cooldown: common.classes.TimeDurationConverter):
     """Changes the cooldown of the role. 
     The role can be an ID, a mention, or a name. If it's a name, it's case sensitive and, if the name is more than one word, that it must be in quotes.
     The cooldown can be in seconds, minutes, hours, days, months, and/or years (ex. 1s, 1m, 1h 20.5m)."""
