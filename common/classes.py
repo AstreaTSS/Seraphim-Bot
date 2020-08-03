@@ -116,7 +116,7 @@ class FuzzyMemberConverter(commands.IDConverter):
         return selection_embed
 
     async def extract_from_memebers(self, ctx, argument, processor):
-        member_list = process.extractBests(argument, ctx.guild.members, processor=processor, scorer=fuzz.token_set_ratio, score_cutoff=80, limit=5)
+        member_list = process.extractBests(argument, ctx.guild.members, processor=processor, scorer=fuzz.partial_ratio, score_cutoff=80, limit=5)
         if member_list != []:
             if len(member_list) == 1:
                 return member_list[0][0]
