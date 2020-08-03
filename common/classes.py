@@ -85,14 +85,14 @@ class FuzzyMemberConverter(commands.IDConverter):
         without losing too much performance as a try error would do."""
 
         if isinstance(member, discord.Member):
-            return member.display_name
+            return member.display_name.lower()
         else:
             return member
 
     def get_name(self, member):
         """Same thing as above, but with a normal name."""
         if isinstance(member, discord.Member):
-            return member.name
+            return member.name.lower()
         else:
             return member
     
@@ -116,7 +116,7 @@ class FuzzyMemberConverter(commands.IDConverter):
         return selection_embed
 
     async def extract_from_memebers(self, ctx, argument, processor):
-        member_list = process.extractBests(argument, ctx.guild.members, processor=processor, scorer=fuzz.token_sort_ratio, score_cutoff=80, limit=5)
+        member_list = process.extractBests(argument, ctx.guild.members, processor=processor, scorer=fuzz.partial_ratio, score_cutoff=80, limit=5)
         if member_list != []:
             if len(member_list) == 1:
                 return member_list[0][0]
