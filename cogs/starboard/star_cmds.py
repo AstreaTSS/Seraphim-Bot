@@ -106,29 +106,26 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
     @sb.command(aliases = ["position", "place", "placing"])
     @commands.cooldown(1, 5, commands.BucketType.member)
-    async def pos(self, ctx, user_mention: typing.Optional[common.classes.FuzzyMemberConverter]):
+    async def pos(self, ctx, user_mention = None):
         """Allows you to get either your or whoever you mentioned’s position in the star leaderboard (like the top command, but only for one person)."""
 
-        member = ctx.author if user_mention == None else user_mention
+        member = ctx.author if user_mention == None else common.classes.FuzzyMemberConverter.convert(ctx, user_mention)
 
-        if member != None:
-            user_star_list = self.get_star_rankings(ctx)
+        user_star_list = self.get_star_rankings(ctx)
 
-            if user_star_list != None:
-                if user_mention != None:
-                    placing = f"{member.display_name}'s {self.get_user_placing(user_star_list, member.id)}"
-                else:
-                    placing = f"Your {self.get_user_placing(user_star_list, member.id)}"
-
-                place_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=placing, timestamp=datetime.datetime.utcnow())
-                place_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='jpg',size=128))}")
-                place_embed.set_footer(text="Sent")
-
-                await ctx.send(embed=place_embed)
+        if user_star_list != None:
+            if user_mention != None:
+                placing = f"{member.display_name}'s {self.get_user_placing(user_star_list, member.id)}"
             else:
-                raise utils.CustomCheckFailure("There are no starboard entries for this server!")
+                placing = f"Your {self.get_user_placing(user_star_list, member.id)}"
+
+            place_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=placing, timestamp=datetime.datetime.utcnow())
+            place_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='jpg',size=128))}")
+            place_embed.set_footer(text="Sent")
+
+            await ctx.send(embed=place_embed)
         else:
-            raise commands.BadArgument("I could not get the user you were trying to get. Please try again with a valid user.")
+            raise utils.CustomCheckFailure("There are no starboard entries for this server!")
 
     @sb.command()
     @commands.cooldown(1, 5, commands.BucketType.guild)
