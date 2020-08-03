@@ -109,7 +109,10 @@ class StarCMDs(commands.Cog, name = "Starboard"):
     async def pos(self, ctx, user_mention = None):
         """Allows you to get either your or whoever you mentioned’s position in the star leaderboard (like the top command, but only for one person)."""
 
-        member = ctx.author if user_mention == None else common.classes.FuzzyMemberConverter.convert(ctx, user_mention)
+        if user_mention != None:
+            member = await common.classes.FuzzyMemberConverter().convert(ctx, user_mention)
+        else:
+            member = ctx.author
 
         user_star_list = self.get_star_rankings(ctx)
 
