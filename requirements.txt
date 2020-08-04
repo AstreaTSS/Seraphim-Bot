@@ -1,4 +1,4 @@
 git+https://github.com/Rapptz/discord.py.git
 asyncpg
-fuzzywuzzy[speedup]
+fuzzywuzzy
 git+https://github.com/jmoiron/humanize.git

@@ -201,18 +201,29 @@ class FuzzyMemberConverter(FuzzyConverter):
         else:
             return member
 
-    async def multi_extract(self, ctx, argument, list_of_items, processors, scorers):
+    async def multi_extract(self, ctx, argument, list_of_items):
         combined_list = []
+
+        processors = [self.get_display_name, self.get_name]
+        scorers = [fuzz.token_set_ratio, fuzz.WRatio]
 
         for scorer in scorers:
             for processor in processors:
                 fuzzy_list = process.extractBests(argument, list_of_items, processor=processor, scorer=scorer, score_cutoff=80, limit=5)
                 if fuzzy_list != []:
                     combined_members = [e[0] for e in combined_list]
-                    new_members = [e for e in fuzzy_list if not e[0] in combined_members]
+
+                    if processor == fuzz.WRatio:
+                        new_members = [e for e in fuzzy_list if not e[0] in combined_members and not
+                        (len(e[0].display_name) < 2 and len(argument) > 2) and argument.lower() in processor(e[0])]
+                    else:
+                        new_members = [e for e in fuzzy_list if not e[0] in combined_members and argument.lower() in processor(e[0])]
+
                     combined_list.extend(new_members)
 
-                    if len(combined_list) > 3:
+                    if len(combined_list) > 1:
+                        if len(combined_list) > 5:
+                            combined_list = combined_list[:5]
                         return await self.selection_handler(ctx, combined_list)
 
         if combined_list != []:
@@ -221,7 +232,7 @@ class FuzzyMemberConverter(FuzzyConverter):
             else:
                 return await self.selection_handler(ctx, combined_list)
         else:
-            return None
+            return
 
     async def convert(self, ctx, argument):
         result = None
@@ -235,7 +246,7 @@ class FuzzyMemberConverter(FuzzyConverter):
             result = discord.utils.get(ctx.guild.members, name=hash_split[0], discriminator=hash_split[1])
 
         if result == None:
-            result = await self.multi_extract(ctx, argument, ctx.guild.members, [self.get_display_name, self.get_name], [fuzz.token_set_ratio, fuzz.token_set_ratio])
+            result = await self.multi_extract(ctx, argument, ctx.guild.members)
 
         if result == None:
             raise commands.BadArgument(f'Member "{argument}" not found.')
