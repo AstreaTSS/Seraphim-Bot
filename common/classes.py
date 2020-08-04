@@ -94,7 +94,7 @@ class FuzzyConverter(commands.IDConverter):
         description.append("Multiple entries found. Please choose one of the following, or type cancel.")
 
         for n in range(len(list_str)):
-            description.append(f"{n+1} - {list_str[n]}")
+            description.append(f"{n+1} - `{list_str[n]}`")
 
         return self.embed_gen(ctx, description)
 
@@ -172,6 +172,17 @@ class FuzzyMemberConverter(FuzzyConverter):
     Most of this initial code is very similar code to MemberConverter
     Checks for ID then mention, username with discrim, then...
     fuzzy searches via nicks first, then usernames"""
+
+    def norm_embed_gen(self, ctx, entries):
+        list_str = [f"`{m.display_name} ({str(m)})`" for m in entries]
+
+        description = collections.deque()
+        description.append("Multiple entries found. Please choose one of the following, or type cancel.")
+
+        for n in range(len(list_str)):
+            description.append(f"{n+1} - {list_str[n]}")
+
+        return self.embed_gen(ctx, description)
 
     def get_display_name(self, member):
         """For some reason fuzzywuzzy runs the processor on the query,

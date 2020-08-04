@@ -106,7 +106,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
     @sb.command(aliases = ["position", "place", "placing"])
     @commands.cooldown(1, 5, commands.BucketType.member)
-    async def pos(self, ctx, user_mention = None):
+    async def pos(self, ctx, *, user_mention = None):
         """Allows you to get either your or whoever you mentioned’s position in the star leaderboard (like the top command, but only for one person)."""
 
         if user_mention != None:
