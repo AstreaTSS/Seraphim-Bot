@@ -214,8 +214,12 @@ class FuzzyMemberConverter(FuzzyConverter):
 
         if result == None:
             result = await self.extract_from_list(ctx, argument, ctx.guild.members, self.get_display_name, fuzz.token_set_ratio)
-            if result == None:
-                result = await self.extract_from_list(ctx, argument, ctx.guild.members, self.get_name, fuzz.token_set_ratio)
+        if result == None:
+            result = await self.extract_from_list(ctx, argument, ctx.guild.members, self.get_name, fuzz.token_set_ratio)
+        if result == None:
+            result = await self.extract_from_list(ctx, argument, ctx.guild.members, self.get_display_name, fuzz.WRatio)
+        if result == None:
+            result = await self.extract_from_list(ctx, argument, ctx.guild.members, self.get_name, fuzz.token_set_ratio)
 
         if result == None:
             raise commands.BadArgument(f'Member "{argument}" not found.')
