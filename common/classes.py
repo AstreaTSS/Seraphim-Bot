@@ -213,9 +213,9 @@ class FuzzyMemberConverter(FuzzyConverter):
             result = discord.utils.get(ctx.guild.members, name=hash_split[0], discriminator=hash_split[1])
 
         if result == None:
-            result = await self.extract_from_list(ctx, argument, ctx.guild.members, self.get_display_name, fuzz.partial_ratio)
+            result = await self.extract_from_list(ctx, argument, ctx.guild.members, self.get_display_name, fuzz.token_set_ratio)
             if result == None:
-                result = await self.extract_from_list(ctx, argument, ctx.guild.members, self.get_name, fuzz.partial_ratio)
+                result = await self.extract_from_list(ctx, argument, ctx.guild.members, self.get_name, fuzz.token_set_ratio)
 
         if result == None:
             raise commands.BadArgument(f'Member "{argument}" not found.')
