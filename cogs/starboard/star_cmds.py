@@ -106,18 +106,19 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
     @sb.command(aliases = ["position", "place", "placing"])
     @commands.cooldown(1, 5, commands.BucketType.member)
-    async def pos(self, ctx, *, user_mention = None):
-        """Allows you to get either your or whoever you mentioned’s position in the star leaderboard (like the top command, but only for one person)."""
+    async def pos(self, ctx, *, user = None):
+        """Allows you to get either your or whoever you mentioned’s position in the star leaderboard (like the top command, but only for one person).
+        The user can be mentioned, searched up by ID, or you can say their name and the bot will attempt to search for that person."""
 
-        if user_mention != None:
-            member = await common.classes.FuzzyMemberConverter().convert(ctx, user_mention)
+        if user != None:
+            member = await common.classes.FuzzyMemberConverter().convert(ctx, user)
         else:
             member = ctx.author
 
         user_star_list = self.get_star_rankings(ctx)
 
         if user_star_list != None:
-            if user_mention != None:
+            if user != None:
                 placing = f"{member.display_name}'s {self.get_user_placing(user_star_list, member.id)}"
             else:
                 placing = f"Your {self.get_user_placing(user_star_list, member.id)}"
