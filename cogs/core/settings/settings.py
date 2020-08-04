@@ -9,7 +9,7 @@ class Settings(commands.Cog, name="Settings"):
         self.bot = bot
         self.custom_setup()
 
-    @commands.group(invoke_without_command=True, aliases=["config", "conf"])
+    @commands.group(invoke_without_command=True, aliases=["config", "conf"], ignore_extra=False)
     @commands.check(utils.proper_permissions)
     async def settings(self, ctx):
         """Base command for managing all settings for the bot. This is where you set up the starboard, pinboard, and pingable roles."""

@@ -5,7 +5,7 @@ import discord, datetime, io, importlib, typing
 import common.star_mes_handler as star_mes
 import common.utils as utils
 
-class SnipeCMDs(commands.Cog):
+class SnipeCMDs(commands.Cog, name="Snipe"):
     def __init__(self, bot):
         self.bot = bot
         self.auto_cleanup.start()

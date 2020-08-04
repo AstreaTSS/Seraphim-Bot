@@ -15,7 +15,7 @@ class OnCMDError(commands.Cog):
             original = error.original
             if not isinstance(original, discord.HTTPException):
                 await utils.error_handle(self.bot, error, ctx)
-        elif isinstance(error, (commands.ConversionError, commands.UserInputError, commands.BadArgument)):
+        elif isinstance(error, (commands.ConversionError, commands.UserInputError, commands.BadArgument, commands.TooManyArguments)):
             await ctx.send(error)
         elif isinstance(error, utils.CustomCheckFailure):
             await ctx.send(error)

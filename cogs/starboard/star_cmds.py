@@ -41,7 +41,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
     async def cog_check(self, ctx):
         return self.bot.config[ctx.guild.id]["star_toggle"]
 
-    @commands.group(invoke_without_command=True, aliases = ["starboard", "star"])
+    @commands.group(invoke_without_command=True, aliases = ["starboard", "star"], ignore_extra=False)
     async def sb(self, ctx):
         """Base command for running starboard commands. Use the help command for this to get more info."""
         await ctx.send_help(ctx.command)
