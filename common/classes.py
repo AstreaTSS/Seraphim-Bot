@@ -73,7 +73,101 @@ class TimeDurationConverter(commands.Converter):
 
         return datetime.timedelta(seconds=time_span)
 
-class FuzzyMemberConverter(commands.IDConverter):
+class FuzzyConverter(commands.IDConverter):
+    """General class for fuzzy matching. Contains functions
+    needed to fuzzy convert."""
+
+    def embed_gen(self, ctx, description):
+        selection_embed = discord.Embed(
+            colour = discord.Colour(0x4378fc), 
+            description = "\n".join(description)
+        )
+        selection_embed.set_author(
+            name=f"{ctx.guild.me.name}", 
+            icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='jpg', size=128))}"
+        )
+        
+        return selection_embed
+
+    def norm_embed_gen(self, ctx, list_str):
+        description = collections.deque()
+        description.append("Multiple entries found. Please choose one of the following, or type cancel.")
+
+        for n in range(len(list_str)):
+            description.append(f"{n+1} - {list_str[n]}")
+
+        return self.embed_gen(ctx, description)
+
+    def unsure_embed_gen(self, ctx, item):
+        description = collections.deque()
+        description.append(f"Did you mean `{str(item)}`?.")
+        description.append(f"Reply with yes or no.")
+
+        return self.embed_gen(ctx, description)
+
+    async def extract_from_list(self, ctx, argument, list_of_items, processor, scorer, unsure = False):
+        fuzzy_list = process.extractBests(argument, list_of_items, processor=processor, scorer=scorer, score_cutoff=80, limit=5)
+        if fuzzy_list != []:
+            if len(fuzzy_list) == 1:
+                if not unsure:
+                    return fuzzy_list[0][0] # actual entry itself
+                else:
+                    if fuzzy_list[0][1] < 95: # entries score
+                        await self.unsure_select_handler(ctx, fuzzy_list[0][0])
+                    return fuzzy_list[0][0]
+            else:
+                return await self.selection_handler(ctx, fuzzy_list)
+        return None
+
+    async def unsure_select_handler(self, ctx, item):
+        selection_embed = self.unsure_embed_gen(ctx, item)
+        await ctx.send(embed = selection_embed)
+
+        def check(m):
+            return m.channel == ctx.channel and m.author == ctx.author
+
+        try:
+            msg = await ctx.bot.wait_for('message', timeout=15.0, check=check)
+        except asyncio.TimeoutError:
+            raise commands.BadArgument("No option selected. Canceling command.")
+
+        else:
+            lowered = msg.content.lower()
+
+            # yes, this snippet is copied from the source of d.py, but it's slightly edited so...
+            if lowered in ('yes', 'y', 'true', 't', '1'):
+                return
+            elif lowered in ('no', 'n', 'false', 'f', '0'):
+                raise utils.CustomCheckFailure("Couldn't verify the entry. Canceled command.")
+            else:
+                raise commands.BadArgument("Invalid input. Canceled command.")
+
+    async def selection_handler(self, ctx, options):
+        entries = [o[0] for o in options]
+        selection_embed = self.norm_embed_gen(ctx, entries)
+        await ctx.send(embed = selection_embed)
+        
+        def check(m):
+            return m.channel == ctx.channel and m.author == ctx.author
+
+        try:
+            msg = await ctx.bot.wait_for('message', timeout=15.0, check=check)
+        except asyncio.TimeoutError:
+            raise commands.BadArgument("No entry selected. Canceling command.")
+
+        else:
+            if msg.content.lower() == "cancel":
+                raise utils.CustomCheckFailure("Canceled command.")
+            elif not msg.content.isdigit():
+                raise commands.BadArgument("Invalid input. Canceled command.")
+            else:
+                selection = int(msg.content)
+                if selection > len(entries):
+                    raise commands.BadArgument("Invalid number. Canceled command.")
+                else:
+                    return entries[selection - 1]
+
+class FuzzyMemberConverter(FuzzyConverter):
     """Uses fuzzy matching to match strings to a member.
     Most of this initial code is very similar code to MemberConverter
     Checks for ID then mention, username with discrim, then...
@@ -95,59 +189,6 @@ class FuzzyMemberConverter(commands.IDConverter):
             return member.name.lower()
         else:
             return member
-    
-    def embed_gen(self, ctx, members):
-        members_str = [f"`{m.display_name} ({str(m)})`" for m in members]
-        description = collections.deque()
-        description.append("Multiple users found. Please choose one of the following, or type cancel.")
-
-        for n in range(len(members_str)):
-            description.append(f"{n+1} - {members_str[n]}")
-
-        selection_embed = discord.Embed(
-            colour = discord.Colour(0x4378fc), 
-            description = "\n".join(description)
-        )
-        selection_embed.set_author(
-            name=f"{ctx.guild.me.name}", 
-            icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='jpg', size=128))}"
-        )
-
-        return selection_embed
-
-    async def extract_from_memebers(self, ctx, argument, processor):
-        member_list = process.extractBests(argument, ctx.guild.members, processor=processor, scorer=fuzz.partial_ratio, score_cutoff=80, limit=5)
-        if member_list != []:
-            if len(member_list) == 1:
-                return member_list[0][0]
-            else:
-                return await self.selection_handler(ctx, member_list)
-        return None
-
-    async def selection_handler(self, ctx, options):
-        members = [o[0] for o in options]
-        selection_embed = self.embed_gen(ctx, members)
-        await ctx.send(embed = selection_embed)
-        
-        def check(m):
-            return m.channel == ctx.channel and m.author == ctx.author
-
-        try:
-            msg = await ctx.bot.wait_for('message', timeout=15.0, check=check)
-        except asyncio.TimeoutError:
-            raise commands.BadArgument("No user selected. Canceling command.")
-
-        else:
-            if msg.content.lower() == "cancel":
-                raise utils.CustomCheckFailure("Canceled command.")
-            elif not msg.content.isdigit():
-                raise commands.BadArgument("Invalid input. Canceled command.")
-            else:
-                selection = int(msg.content)
-                if selection > len(members):
-                    raise commands.BadArgument("Invalid number. Canceled command.")
-                else:
-                    return members[selection - 1]
 
     async def convert(self, ctx, argument):
         result = None
@@ -161,10 +202,36 @@ class FuzzyMemberConverter(commands.IDConverter):
             result = discord.utils.get(ctx.guild.members, name=hash_split[0], discriminator=hash_split[1])
 
         if result == None:
-            result = await self.extract_from_memebers(ctx, argument, self.get_display_name)
+            result = await self.extract_from_list(ctx, argument, ctx.guild.members, self.get_display_name, fuzz.partial_ratio)
             if result == None:
-                result = await self.extract_from_memebers(ctx, argument, self.get_name)
+                result = await self.extract_from_list(ctx, argument, ctx.guild.members, self.get_name, fuzz.partial_ratio)
 
         if result == None:
             raise commands.BadArgument(f'Member "{argument}" not found.')
+        return result
+
+class FuzzyRoleConverter(FuzzyConverter):
+    """Uses fuzzy matching to match strings to a role.
+    ID, mention, then name. Since getting the wrong role can be dangerous, we take
+    some extra steps just in case."""
+
+    def get_name(self, role):
+        if isinstance(role, discord.Role):
+            return role.name
+        else:
+            return role
+
+    async def convert(self, ctx, argument):
+        result = None
+        match = self._get_id_match(argument) or re.match(r'<@!?([0-9]+)>$', argument)
+
+        if match != None:
+            role_id = int(match.group(1))
+            result = ctx.guild.get_role(role_id)
+
+        if result == None:
+            result = await self.extract_from_list(ctx, argument, ctx.guild.roles, self.get_name, fuzz.ratio, unsure=True)
+        
+        if result == None:
+            raise commands.BadArgument(f'Role "{argument}" not found.')
         return result

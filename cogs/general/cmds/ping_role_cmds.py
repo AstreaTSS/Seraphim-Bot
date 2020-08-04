@@ -3,6 +3,7 @@ import discord, datetime
 import importlib, humanize
 
 import common.utils as utils
+import common.classes
 
 class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
     """Commands for pingable roles. If you wish to add a pingable role, please view the settings command."""
@@ -11,7 +12,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         self.bot = bot
 
     @commands.command(aliases = ["pingrole", "roleping", "role_ping"])
-    async def ping_role(self, ctx, *, role_name):
+    async def ping_role(self, ctx, *, role_obj: common.classes.FuzzyRoleConverter):
         """Pings the role specified if the role isn't on cooldown and has been added to a list."""
 
         ping_roles = self.bot.config[ctx.guild.id]["pingable_roles"]
@@ -19,14 +20,6 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         if ping_roles == {}:
             raise utils.CustomCheckFailure("There are no roles for you to ping!")
 
-        role_obj = None
-
-        for role in ctx.guild.roles:
-            if role.name.lower() == role_name.lower():
-                role_obj = role
-
-        if role_obj == None:
-            raise commands.BadArgument("That role doesn't exist!")
         if not str(role_obj.id) in ping_roles.keys():
             raise commands.BadArgument("That role isn't pingable!")
 
@@ -76,4 +69,6 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
 
 def setup(bot):
     importlib.reload(utils)
+    importlib.reload(common.classes)
+    
     bot.add_cog(PingRoleCMDs(bot))
