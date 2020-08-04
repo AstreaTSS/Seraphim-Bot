@@ -208,7 +208,8 @@ class FuzzyMemberConverter(FuzzyConverter):
             for processor in processors:
                 fuzzy_list = process.extractBests(argument, list_of_items, processor=processor, scorer=scorer, score_cutoff=80, limit=5)
                 if fuzzy_list != []:
-                    new_members = [e for e in fuzzy_list if not e[0] in combined_list]
+                    combined_members = [e[0] for e in combined_list]
+                    new_members = [e for e in fuzzy_list if not e[0] in combined_members]
                     combined_list.extend(new_members)
 
                     if len(combined_list) > 3:
