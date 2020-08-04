@@ -217,7 +217,7 @@ class FuzzyRoleConverter(FuzzyConverter):
 
     def get_name(self, role):
         if isinstance(role, discord.Role):
-            return role.name
+            return role.name.lower()
         else:
             return role
 
