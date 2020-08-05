@@ -172,7 +172,8 @@ class StarCMDs(commands.Cog, name = "Starboard"):
     @commands.check(utils.proper_permissions)
     async def force(self, ctx, msg: discord.Message):
         """Forces a message onto the starboard, regardless of how many stars it has.
-        The message represented by the message id must be in the same channel as the channel you send the command.
+        The message either needs to be a message ID of a message in the channel the command is being run in,
+        a {channel id}-{message id} format, or the message link itself.
         This message cannot be taken off the starboard unless it is deleted from it manually.
         You must have Manage Server permissions or higher to run this command."""
         

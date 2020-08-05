@@ -60,11 +60,8 @@ async def on_ready():
     utcnow = datetime.utcnow()
     time_format = utcnow.strftime("%x %X UTC")
 
-    application = await bot.application_info()
-    owner = application.owner
-
     connect_msg = f"Logged in at `{time_format}`!" if bot.init_load == True else f"Reconnected at `{time_format}`!"
-    await owner.send(connect_msg)
+    await bot.owner.send(connect_msg)
 
     bot.init_load = False
 

@@ -95,7 +95,7 @@ class DBHandler(commands.Cog):
         conn = await asyncpg.connect(db_url)
 
         try:
-            await conn.set_type_codec('jsonb', encoder=json.dumps, decoder=json.loads, schema='pg_catalog')
+            await conn.set_type_codec('jsonb', encoder=discord.utils.to_json, decoder=json.loads, schema='pg_catalog')
             data = await conn.fetch(f"SELECT * FROM {table}")
         finally:
             await conn.close()
@@ -107,7 +107,7 @@ class DBHandler(commands.Cog):
         conn = await asyncpg.connect(db_url)
 
         try:
-            await conn.set_type_codec('jsonb', encoder=json.dumps, decoder=json.loads, schema='pg_catalog')
+            await conn.set_type_codec('jsonb', encoder=discord.utils.to_json, decoder=json.loads, schema='pg_catalog')
 
             async with conn.transaction():
                 for command in commands:

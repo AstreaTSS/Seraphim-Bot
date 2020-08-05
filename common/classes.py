@@ -7,7 +7,8 @@ import discord, re, collections
 import datetime, asyncio
 
 class TimeDurationConverter(commands.Converter):
-    # Converts a string to a time duration.
+    """Converts a string to a time duration.
+    Works very similarly to YAGPDB's time duration converter."""
 
     convert_dict = {
         "s": 1,
@@ -202,10 +203,11 @@ class FuzzyMemberConverter(FuzzyConverter):
             return member
 
     async def multi_extract(self, ctx, argument, list_of_items):
+        """Uses multiple scorers and processors for a good mix of accuracy and fuzzy-ness"""
         combined_list = []
 
-        processors = [self.get_display_name, self.get_name]
-        scorers = [fuzz.token_set_ratio, fuzz.WRatio]
+        processors = (self.get_display_name, self.get_name)
+        scorers = (fuzz.token_set_ratio, fuzz.WRatio)
 
         for scorer in scorers:
             for processor in processors:
@@ -213,9 +215,9 @@ class FuzzyMemberConverter(FuzzyConverter):
                 if fuzzy_list != []:
                     combined_members = [e[0] for e in combined_list]
 
-                    if processor == fuzz.WRatio:
+                    if processor == fuzz.WRatio: # WRatio isn't the best, so we add in extra filters to make sure everythings turns out ok
                         new_members = [e for e in fuzzy_list if not e[0] in combined_members and not
-                        (len(e[0].display_name) < 2 and len(argument) > 2) and argument.lower() in processor(e[0])]
+                        (len(processor(e[0])) < 2 and len(argument) > 2) and argument.lower() in processor(e[0])]
                     else:
                         new_members = [e for e in fuzzy_list if not e[0] in combined_members and argument.lower() in processor(e[0])]
 
@@ -258,6 +260,7 @@ class FuzzyRoleConverter(FuzzyConverter):
     some extra steps just in case."""
 
     def get_name(self, role):
+        """See FuzzyMemberConverter's get_display_name"""
         if isinstance(role, discord.Role):
             return role.name.lower()
         else:

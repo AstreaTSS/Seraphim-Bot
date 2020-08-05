@@ -17,11 +17,8 @@ async def type_from_url(url):
             if tup_data[:8] == png_list:
                 return "png"
 
-            # first 12 bytes of most jp(e)gs. EXIF is a bit wierd, and so some manipulating has to be done
-            jfif_list = (0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01)
-            exif_lists = ((0xFF, 0xD8, 0xFF, 0xE1), (0x45, 0x78, 0x69, 0x66, 0x00, 0x00))
-
-            if tup_data == jfif_list or (tup_data[:4] == exif_lists[0] and tup_data[6:] == exif_lists[1]):
+            # copied from d.py's _get_mime_type_for_image
+            if tup_data[0:3] == b'\xff\xd8\xff' or tup_data[6:10] in (b'JFIF', b'Exif'):
                 return "jpg"
 
             # first 6 bytes of most gifs. last two can be different, so we have to handle that

@@ -66,6 +66,25 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             # this shouldn't happen due to how the PartialEmoji converter works, but you never know
             raise commands.BadArgument("This emoji is not a custom emoji!")
 
+    @commands.command()
+    @commands.check(utils.proper_permissions)
+    async def publish(self, ctx, msg: discord.Message):
+        """Publishes a message in a news channel. Useful if you're on mobile.
+        The message either needs to be a message ID of a message in the channel the command is being run in,
+        a {channel id}-{message id} format, or the message link itself.
+        Both you and the bot need Manage Server permissions to use this."""
+
+        if msg.channel.type != discord.ChannelType.news:
+            raise commands.BadArgument("This channel isn't a news channel!")
+        elif not msg.channel.permissions_for(ctx.guild.me).manage_messages:
+            raise utils.CustomCheckFailure("I do not have the proper permissions to do that!")
+
+        try:
+            await msg.publish()
+            await ctx.send("Published!")
+        except discord.HTTPException as e:
+            await ctx.send(f"An error occured. This should happen, but here's the error (it might be useful to you): {e}")
+
 def setup(bot):
     importlib.reload(utils)
     importlib.reload(image_utils)
