@@ -83,7 +83,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             await msg.publish()
             await ctx.send("Published!")
         except discord.HTTPException as e:
-            await ctx.send(f"An error occured. This should happen, but here's the error (it might be useful to you): {e}")
+            await ctx.send(f"An error occured. This shouldn't happen, but here's the error (it might be useful to you): {e}")
 
 def setup(bot):
     importlib.reload(utils)
