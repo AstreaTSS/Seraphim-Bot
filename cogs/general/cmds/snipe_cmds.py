@@ -108,7 +108,7 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
         elif lowered in ("both", "all"):
             self.bot.snipes["edits"][chan.id] = []
             self.bot.snipes["deletes"][chan.id] = []
-            await ctx.send(f"Cleared all deleted snipes for {chan.mention}!")
+            await ctx.send(f"Cleared all snipes for {chan.mention}!")
 
         else:
             raise commands.BadArgument("Incorrect snipe type!")
