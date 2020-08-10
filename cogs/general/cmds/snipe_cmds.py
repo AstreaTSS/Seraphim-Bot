@@ -86,6 +86,33 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
 
         await self.snipe_handle(ctx, chan, msg_num, "edits", "edited")
 
+    @commands.command(aliases=["clearsnipe", "snipeclear"])
+    @commands.check(utils.proper_permissions)
+    async def clearsnipes(self, ctx, snipe_type, chan: typing.Optional[discord.TextChannel]):
+        """Clears all snipes of the type specified from the bot, making them unable to be sniped. Useful for moderation.
+        Type can be edits, deletes, or both. If no channel is specified, it assumes the current channel."""
+
+        if chan == None:
+            chan = ctx.channel
+
+        lowered = snipe_type.lower()
+
+        if lowered in ("edit", "edits", "edited", "editsnipe", "editsnipes"):
+            self.bot.snipes["edits"][chan.id] = []
+            await ctx.send(f"Cleared all edit snipes for {chan.mention}!")
+
+        elif lowered in ("delete", "deleted", "deletes", "snipe", "snipes"):
+            self.bot.snipes["deletes"][chan.id] = []
+            await ctx.send(f"Cleared all deleted snipes for {chan.mention}!")
+
+        elif lowered in ("both", "all"):
+            self.bot.snipes["edits"][chan.id] = []
+            self.bot.snipes["deletes"][chan.id] = []
+            await ctx.send(f"Cleared all deleted snipes for {chan.mention}!")
+
+        else:
+            raise commands.BadArgument("Incorrect snipe type!")
+
 def setup(bot):
     importlib.reload(utils)
     bot.add_cog(SnipeCMDs(bot))

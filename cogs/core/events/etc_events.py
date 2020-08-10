@@ -29,7 +29,8 @@ class EtcEvents(commands.Cog):
             now = datetime.datetime.utcnow()
             if not message.channel.id in self.bot.snipes["deletes"].keys():
                 self.bot.snipes["deletes"][message.channel.id] = []
-
+            
+            # TODO: might make this a namedtuple or a slotted class
             self.bot.snipes["deletes"][message.channel.id].append({
                 "author_name": f"{message.author.display_name} ({str(message.author)})",
                 "author_url": str(message.author.avatar_url_as(format=None,static_format='jpg', size=128)),
