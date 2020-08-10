@@ -106,19 +106,43 @@ class FuzzyConverter(commands.IDConverter):
 
         return self.embed_gen(ctx, description)
 
-    async def extract_from_list(self, ctx, argument, list_of_items, processor, scorer, unsure = False):
-        fuzzy_list = process.extractBests(argument, list_of_items, processor=processor, scorer=scorer, score_cutoff=80, limit=5)
-        if fuzzy_list != []:
-            if len(fuzzy_list) == 1:
+    async def extract_from_list(self, ctx, argument, list_of_items, processors, unsure = False):
+        """Uses multiple scorers and processors for a good mix of accuracy and fuzzy-ness"""
+        combined_list = []
+
+        scorers = (fuzz.token_set_ratio, fuzz.WRatio)
+
+        for scorer in scorers:
+            for processor in processors:
+                fuzzy_list = process.extractBests(argument, list_of_items, processor=processor, scorer=scorer, score_cutoff=80, limit=5)
+                if fuzzy_list != []:
+                    combined_entries = [e[0] for e in combined_list]
+
+                    if processor == fuzz.WRatio: # WRatio isn't the best, so we add in extra filters to make sure everythings turns out ok
+                        new_members = [e for e in fuzzy_list if not e[0] in combined_entries and not
+                        (len(processor(e[0])) < 2 and len(argument) > 2) and argument.lower() in processor(e[0])]
+                    else:
+                        new_members = [e for e in fuzzy_list if not e[0] in combined_entries and argument.lower() in processor(e[0])]
+
+                    combined_list.extend(new_members)
+
+                    if len(combined_list) > 1:
+                        if len(combined_list) > 5:
+                            combined_list = combined_list[:5]
+                        return await self.selection_handler(ctx, combined_list)
+
+        if combined_list != []:
+            if len(combined_list) == 1:
                 if not unsure:
-                    return fuzzy_list[0][0] # actual entry itself
+                    return combined_list[0][0] # actual entry itself
                 else:
-                    if fuzzy_list[0][1] < 95: # entries score
-                        await self.unsure_select_handler(ctx, fuzzy_list[0][0])
-                    return fuzzy_list[0][0]
+                    if combined_list[0][1] < 95: # entries score
+                        await self.unsure_select_handler(ctx, combined_list[0][0])
+                    return combined_list[0][0]
             else:
-                return await self.selection_handler(ctx, fuzzy_list)
-        return None
+                return await self.selection_handler(ctx, combined_list)
+        else:
+            return
 
     async def unsure_select_handler(self, ctx, item):
         selection_embed = self.unsure_embed_gen(ctx, item)
@@ -202,40 +226,6 @@ class FuzzyMemberConverter(FuzzyConverter):
         else:
             return member
 
-    async def multi_extract(self, ctx, argument, list_of_items):
-        """Uses multiple scorers and processors for a good mix of accuracy and fuzzy-ness"""
-        combined_list = []
-
-        processors = (self.get_display_name, self.get_name)
-        scorers = (fuzz.token_set_ratio, fuzz.WRatio)
-
-        for scorer in scorers:
-            for processor in processors:
-                fuzzy_list = process.extractBests(argument, list_of_items, processor=processor, scorer=scorer, score_cutoff=80, limit=5)
-                if fuzzy_list != []:
-                    combined_members = [e[0] for e in combined_list]
-
-                    if processor == fuzz.WRatio: # WRatio isn't the best, so we add in extra filters to make sure everythings turns out ok
-                        new_members = [e for e in fuzzy_list if not e[0] in combined_members and not
-                        (len(processor(e[0])) < 2 and len(argument) > 2) and argument.lower() in processor(e[0])]
-                    else:
-                        new_members = [e for e in fuzzy_list if not e[0] in combined_members and argument.lower() in processor(e[0])]
-
-                    combined_list.extend(new_members)
-
-                    if len(combined_list) > 1:
-                        if len(combined_list) > 5:
-                            combined_list = combined_list[:5]
-                        return await self.selection_handler(ctx, combined_list)
-
-        if combined_list != []:
-            if len(combined_list) == 1:
-                return combined_list[0][0]
-            else:
-                return await self.selection_handler(ctx, combined_list)
-        else:
-            return
-
     async def convert(self, ctx, argument):
         result = None
         match = self._get_id_match(argument) or re.match(r'<@!?([0-9]+)>$', argument)
@@ -248,7 +238,7 @@ class FuzzyMemberConverter(FuzzyConverter):
             result = discord.utils.get(ctx.guild.members, name=hash_split[0], discriminator=hash_split[1])
 
         if result == None:
-            result = await self.multi_extract(ctx, argument, ctx.guild.members)
+            result = await self.extract_from_list(ctx, argument, ctx.guild.members, (self.get_display_name, self.get_name))
 
         if result == None:
             raise commands.BadArgument(f'Member "{argument}" not found.')
@@ -275,7 +265,7 @@ class FuzzyRoleConverter(FuzzyConverter):
             result = ctx.guild.get_role(role_id)
 
         if result == None:
-            result = await self.extract_from_list(ctx, argument, ctx.guild.roles, self.get_name, fuzz.ratio, unsure=True)
+            result = await self.extract_from_list(ctx, argument, ctx.guild.roles, (self.get_name), unsure=True)
         
         if result == None:
             raise commands.BadArgument(f'Role "{argument}" not found.')
