@@ -27,7 +27,6 @@ async def type_from_url(url):
                 return "gif"
 
             # first 12 bytes of most webps. middle four are file size, so we ignore that
-            # webp isnt actually used for anything bot-wise due to no apple support, just here for the sake of it
             webp_lists = ((0x52, 0x49, 0x46, 0x46), (0x57, 0x45, 0x42, 0x50))
             if tup_data[:4] == webp_lists[0] and tup_data[8:] == webp_lists[1]:
                 return "webp"
@@ -76,7 +75,7 @@ async def imgur_handle(url: str):
 async def get_image_url(url: str):
     # handles getting true image url from a url
 
-    image_endings = ("jpg", "jpeg", "png", "gif")
+    image_endings = ("jpg", "jpeg", "png", "gif", "webp")
     image_extensions = tuple(image_endings) # no idea why I have to do this
 
     if "https://tenor.com/view" in url or "http://tenor.com/view" in url:

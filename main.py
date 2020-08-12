@@ -38,7 +38,7 @@ async def on_ready():
         bot.star_queue = {}
         bot.star_lock = False
 
-        image_endings = ("jpg", "jpeg", "png", "gif")
+        image_endings = ("jpg", "jpeg", "png", "gif", "webp")
         bot.image_extensions = tuple(image_endings) # no idea why I have to do this
 
         application = await bot.application_info()

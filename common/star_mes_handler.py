@@ -91,7 +91,7 @@ async def base_generate(bot, mes):
         send_embed.set_author(name=author, icon_url=icon)
 
         if mes.attachments != []:
-            if mes.attachments[0].proxy_url.endswith(bot.image_extensions) and not mes.attachments[0].is_spoiler():
+            if mes.attachments[0].proxy_url.lower().endswith(bot.image_extensions) and not mes.attachments[0].is_spoiler():
                 image_url = mes.attachments[0].proxy_url
 
                 if len(mes.attachments) > 1:
