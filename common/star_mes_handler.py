@@ -90,7 +90,9 @@ async def base_generate(bot, mes):
             send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=discord.Embed.Empty, timestamp=mes.created_at)
         send_embed.set_author(name=author, icon_url=icon)
 
-        if mes.attachments != []:
+        if mes.embeds != [] and mes.embeds[0].type == "image" and mes.embeds[0].thumbnail.url != discord.Embed.Empty:
+            image_url = mes.embeds[0].thumbnail.url
+        elif mes.attachments != []:
             if mes.attachments[0].proxy_url.lower().endswith(bot.image_extensions) and not mes.attachments[0].is_spoiler():
                 image_url = mes.attachments[0].proxy_url
 

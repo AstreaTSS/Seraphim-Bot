@@ -55,23 +55,6 @@ async def tenor_handle(url: str):
             except IndexError:
                 return None
 
-async def imgur_handle(url: str):
-    # handles getting images from imgur links
-    slash_split = url.split("/")
-
-    header = {"Authorization": f"Client-ID {os.environ.get('IMGUR_ID')}"}
-    async with aiohttp.ClientSession() as session:
-        async with session.get(f"https://api.imgur.com/3/image/{slash_split[-1]}", headers=header) as resp:
-            if resp.status != 200:
-                return None
-            resp_json = await resp.json()
-
-            try:
-                img_url = resp_json['data']['link']
-                return img_url
-            except KeyError:
-                return None
-
 async def get_image_url(url: str):
     # handles getting true image url from a url
 
@@ -82,11 +65,6 @@ async def get_image_url(url: str):
         gif_url = await tenor_handle(url)
         if gif_url != None:
             return gif_url
-
-    elif "https://imgur.com/" in url or "http://imgur.com/" in url:
-        imgur_url = await imgur_handle(url)
-        if imgur_url != None:
-            return imgur_url
             
     else:
         file_type = await type_from_url(url)
