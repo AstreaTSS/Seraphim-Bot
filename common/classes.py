@@ -279,7 +279,7 @@ class FuzzyRoleConverter(FuzzyConverter):
             result = ctx.guild.get_role(role_id)
 
         if result == None:
-            result = await self.extract_from_list(ctx, argument, ctx.guild.roles, (self.get_name), unsure=True)
+            result = await self.extract_from_list(ctx, argument, ctx.guild.roles, [self.get_name], unsure=True)
         
         if result == None:
             raise commands.BadArgument(f'Role "{argument}" not found.')
