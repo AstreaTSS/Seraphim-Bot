@@ -17,7 +17,12 @@ def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
     # rn this is more or less when_mentioned_or('s!'), but soon this will be expanded for custom prefixes
 
     mention_prefixes = [f"{bot.user.mention} ", f"<@!{bot.user.id}> "]
-    custom_prefixes = bot.config[msg.guild.id]["prefixes"]
+
+    try:
+        custom_prefixes = bot.config[msg.guild.id]["prefixes"]
+    except AttributeError:
+        # prefix handling runs before command checks, so there's a chane there's no guild
+        custom_prefixes = ["s!"]
 
     return mention_prefixes + custom_prefixes
 
