@@ -2,6 +2,7 @@
 import discord, os, asyncio
 import websockets, logging
 from discord.ext import commands
+from discord.ext.commands.view import StringView
 from datetime import datetime
 
 import common.utils as utils
@@ -15,78 +16,83 @@ def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
     # rn this is more or less when_mentioned_or('s!'), but soon this will be expanded for custom prefixes
 
     mention_prefixes = [f"{bot.user.mention} ", f"<@!{bot.user.id}> "]
-    custom_prefixes = ["s!"]
+    custom_prefixes = bot.config[msg.guild.id]["prefixes"]
 
     return mention_prefixes + custom_prefixes
 
-# i plan on this being a custom class that inherits from commands.Bot
-# instead of just being commands.Bot one day for custom processing of commands, but rn this works
-bot = commands.Bot(command_prefix=seraphim_prefixes, fetch_offline_members=True)
+class SeraphimBot(commands.Bot):
+    async def on_ready(self):
+        if self.init_load == True:
+            self.starboard = {}
+            self.config = {}
 
-@bot.event
-async def on_ready():
+            self.snipes = {
+                "deletes": {},
+                "edits": {}
+            }
 
-    if bot.init_load == True:
-        bot.starboard = {}
-        bot.config = {}
+            self.star_queue = {}
+            self.star_lock = False
 
-        bot.snipes = {
-            "deletes": {},
-            "edits": {}
-        }
+            image_endings = ("jpg", "jpeg", "png", "gif", "webp")
+            self.image_extensions = tuple(image_endings) # no idea why I have to do this
 
-        bot.star_queue = {}
-        bot.star_lock = False
+            application = await self.application_info()
+            self.owner = application.owner
 
-        image_endings = ("jpg", "jpeg", "png", "gif", "webp")
-        bot.image_extensions = tuple(image_endings) # no idea why I have to do this
+            self.load_extension("cogs.db_handler")
+            while self.config == {}:
+                await asyncio.sleep(0.1)
 
-        application = await bot.application_info()
-        bot.owner = application.owner
+            cogs_list = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))
 
-        bot.load_extension("cogs.db_handler")
-        while bot.config == {}:
-            await asyncio.sleep(0.1)
+            for cog in cogs_list:
+                if cog != "cogs.db_handler":
+                    try:
+                        self.load_extension(cog)
+                    except commands.NoEntryPointError:
+                        pass
 
-        cogs_list = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))
+        utcnow = datetime.utcnow()
+        time_format = utcnow.strftime("%x %X UTC")
 
-        for cog in cogs_list:
-            if cog != "cogs.db_handler":
-                try:
-                    bot.load_extension(cog)
-                except commands.NoEntryPointError:
-                    pass
+        connect_msg = f"Logged in at `{time_format}`!" if self.init_load == True else f"Reconnected at `{time_format}`!"
+        await self.owner.send(connect_msg)
 
-    utcnow = datetime.utcnow()
-    time_format = utcnow.strftime("%x %X UTC")
+        self.init_load = False
 
-    connect_msg = f"Logged in at `{time_format}`!" if bot.init_load == True else f"Reconnected at `{time_format}`!"
-    await bot.owner.send(connect_msg)
+        activity = discord.Activity(name = 'over a couple of servers', type = discord.ActivityType.watching)
 
-    bot.init_load = False
+        try:
+            await self.change_presence(activity = activity)
+        except websockets.ConnectionClosedOK:
+            await utils.msg_to_owner(self, "Reconnecting...")
 
-    activity = discord.Activity(name = 'over a couple of servers', type = discord.ActivityType.watching)
+    async def on_resumed(self):
+        activity = discord.Activity(name = 'over a couple of servers', type = discord.ActivityType.watching)
+        await self.change_presence(activity = activity)
 
-    try:
-        await bot.change_presence(activity = activity)
-    except websockets.ConnectionClosedOK:
-        await utils.msg_to_owner(bot, "Reconnecting...")
+    async def on_error(self, event, *args, **kwargs):
+        try:
+            raise
+        except BaseException as e:
+            await utils.error_handle(bot, e)
 
-@bot.event
-async def on_resumed():
-    activity = discord.Activity(name = 'over a couple of servers', type = discord.ActivityType.watching)
-    await bot.change_presence(activity = activity)
+    async def block_dms(self, ctx):
+        return ctx.guild is not None
 
-@bot.event
-async def on_error(event, *args, **kwargs):
-    try:
-        raise
-    except BaseException as e:
-        await utils.error_handle(bot, e)
+    async def get_context(self, message, *, cls=commands.Context):
+        """A simple extension of get_content. If it doesn't manage to get a command, it changes the string used
+        to get the command from - to _ and retries. Convient for the end user."""
 
-@bot.check
-async def block_dms(ctx):
-    return ctx.guild is not None
+        ctx = super().get_context(message, cls=cls)
+        if ctx.command == None:
+            ctx.command = self.all_commands.get(ctx.invoked_with.replace("-", "_"))
+
+        return ctx
+
+
+bot = SeraphimBot(command_prefix=seraphim_prefixes, fetch_offline_members=True)
 
 bot.init_load = True
 bot.run(os.environ.get("MAIN_TOKEN"))
