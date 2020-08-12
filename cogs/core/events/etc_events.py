@@ -20,6 +20,7 @@ class EtcEvents(commands.Cog):
                 "star_toggle": False,
                 "pingable_roles": {},
                 "pin_config": {},
+                "prefixes": ["s!"],
 
                 "guild_id_bac": guild.id
             }
