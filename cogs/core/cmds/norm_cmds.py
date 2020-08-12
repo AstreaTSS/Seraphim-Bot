@@ -74,7 +74,6 @@ class NormCMDs(commands.Cog, name="Normal"):
         "but you might be able to convince him, although unlikely, to get me on your server.")
 
     @commands.group(invoke_without_command=True, aliases=["prefix"], ignore_extra=False)
-    @commands.check()
     async def prefixes(self, ctx):
         """A way of getting all of the prefixes for this server. You can also add and remove prefixes via this command."""
         prefixes = [f"`{p}`" for p in self.bot.config[ctx.guild.id]["prefixes"]]

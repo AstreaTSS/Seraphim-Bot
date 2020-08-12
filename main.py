@@ -85,7 +85,7 @@ class SeraphimBot(commands.Bot):
         """A simple extension of get_content. If it doesn't manage to get a command, it changes the string used
         to get the command from - to _ and retries. Convient for the end user."""
 
-        ctx = super().get_context(message, cls=cls)
+        ctx = await super().get_context(message, cls=cls)
         if ctx.command == None:
             ctx.command = self.all_commands.get(ctx.invoked_with.replace("-", "_"))
 
