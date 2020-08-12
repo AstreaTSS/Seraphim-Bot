@@ -14,7 +14,7 @@ class SnipedMessage():
         self.author_name = f"{message.author.display_name} ({str(message.author)})"
         self.author_url = str(message.author.avatar_url_as(format=None,static_format='jpg', size=128))
         self.content = message.system_content
-        self.created_at: message.created_at
+        self.created_at = message.created_at
         self.time_modified = now
 
     def __repr__(self):
