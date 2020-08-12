@@ -205,8 +205,12 @@ class Pages:
     async def stop_pages(self):
         """stops the interactive pagination session"""
         await self.message.edit(content = "The help command has stopped running.", embed=None)
-        await self.message.clear_reactions()
-        self.paginating = False
+        try:
+            await self.message.clear_reactions()
+        except:
+            pass
+        finally:
+            self.paginating = False
 
     def react_check(self, payload):
         if payload.user_id != self.author.id:

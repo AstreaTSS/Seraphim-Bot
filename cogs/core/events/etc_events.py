@@ -4,6 +4,7 @@ import discord, datetime
 import asyncio, importlib
 
 import common.utils as utils
+import common.classes as custom_classes
 
 class EtcEvents(commands.Cog):
     def __init__(self, bot):
@@ -30,14 +31,7 @@ class EtcEvents(commands.Cog):
             if not message.channel.id in self.bot.snipes["deletes"].keys():
                 self.bot.snipes["deletes"][message.channel.id] = []
             
-            # TODO: might make this a namedtuple or a slotted class
-            self.bot.snipes["deletes"][message.channel.id].append({
-                "author_name": f"{message.author.display_name} ({str(message.author)})",
-                "author_url": str(message.author.avatar_url_as(format=None,static_format='jpg', size=128)),
-                "mes_content": message.system_content,
-                "created_at": message.created_at,
-                "time_deleted": now
-            })
+            self.bot.snipes["deletes"][message.channel.id].append(custom_classes.SnipedMessage(message, now))
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
@@ -47,14 +41,9 @@ class EtcEvents(commands.Cog):
                 if not before.channel.id in self.bot.snipes["edits"].keys():
                     self.bot.snipes["edits"][before.channel.id] = []
                 
-                self.bot.snipes["edits"][before.channel.id].append({
-                    "author_name": f"{before.author.display_name} ({str(before.author)})",
-                    "author_url": str(before.author.avatar_url_as(format=None,static_format='jpg', size=128)),
-                    "mes_content": before.system_content,
-                    "created_at": before.created_at,
-                    "time_edited": now
-                })
+                self.bot.snipes["edits"][before.channel.id].append(custom_classes.SnipedMessage(before, now))
 
 def setup(bot):
     importlib.reload(utils)
+    importlib.reload(custom_classes)
     bot.add_cog(EtcEvents(bot))
