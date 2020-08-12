@@ -63,7 +63,7 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
         except IndexError:
             raise commands.BadArgument("There's nothing to snipe!")
             
-        send_embed = discord.Embed(colour=discord.Colour(0x4378fc), description=sniped_msg.msg_content, timestamp=sniped_msg.created_at)
+        send_embed = discord.Embed(colour=discord.Colour(0x4378fc), description=sniped_msg.content, timestamp=sniped_msg.created_at)
         send_embed.set_author(name=sniped_msg.author_name, icon_url=sniped_msg.author_url)
         send_embed.color = discord.Colour(0x4378fc)
         
