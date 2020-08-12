@@ -86,7 +86,7 @@ class SeraphimBot(commands.Bot):
         to get the command from - to _ and retries. Convient for the end user."""
 
         ctx = await super().get_context(message, cls=cls)
-        if ctx.command == None:
+        if ctx.command == None and ctx.invoked_with != None:
             ctx.command = self.all_commands.get(ctx.invoked_with.replace("-", "_"))
 
         return ctx
