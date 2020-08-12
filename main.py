@@ -3,6 +3,7 @@ import discord, os, asyncio
 import websockets, logging
 from discord.ext import commands
 from discord.ext.commands.view import StringView
+from discord.ext.commands.bot import _default as bot_default
 from datetime import datetime
 
 import common.utils as utils
@@ -20,7 +21,14 @@ def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
 
     return mention_prefixes + custom_prefixes
 
+def block_dms(ctx):
+    return ctx.guild is not None
+
 class SeraphimBot(commands.Bot):
+    def __init__(self, command_prefix, help_command=bot_default, description=None, **options):
+        super().__init__(command_prefix, help_command=help_command, description=description, **options)
+        self._checks.append(block_dms)
+
     async def on_ready(self):
         if self.init_load == True:
             self.starboard = {}
@@ -77,9 +85,6 @@ class SeraphimBot(commands.Bot):
             raise
         except BaseException as e:
             await utils.error_handle(bot, e)
-
-    async def block_dms(self, ctx):
-        return ctx.guild is not None
 
     async def get_context(self, message, *, cls=commands.Context):
         """A simple extension of get_content. If it doesn't manage to get a command, it changes the string used
