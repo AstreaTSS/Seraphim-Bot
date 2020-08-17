@@ -52,7 +52,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
         await ctx.send(f"Added {str(emoji)}!")
 
-    @commands.command(aliases=["getemojiurl", "get-emoji-url"])
+    @commands.command(aliases=["getemojiurl"])
     async def get_emoji_url(self, ctx, emoji: typing.Union[discord.PartialEmoji, str]):
         """Gets the emoji URL from an emoji.
         The emoji does not have to be from the server it's used in, but it does have to be an emoji, not a name or URL."""
