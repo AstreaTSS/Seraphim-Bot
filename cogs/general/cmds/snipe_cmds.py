@@ -90,7 +90,7 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
 
         await self.snipe_handle(ctx, chan, msg_num, "edits")
 
-    @commands.command(aliases=["clearsnipe", "snipeclear"])
+    @commands.command(aliases=["clearsnipe", "snipeclear", "cleansnipes"])
     @commands.check(utils.proper_permissions)
     async def clearsnipes(self, ctx, snipe_type = "both", chan: typing.Optional[discord.TextChannel] = None):
         """Clears all snipes of the type specified from the bot (defaults to both types), making them unable to be sniped. Useful for moderation.

@@ -14,14 +14,12 @@ load_dotenv()
 logging.basicConfig(filename=os.environ.get("LOG_FILE_PATH"), level=logging.INFO, format="%(asctime)s:%(levelname)s:%(name)s: %(message)s")
 
 def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
-    # rn this is more or less when_mentioned_or('s!'), but soon this will be expanded for custom prefixes
-
     mention_prefixes = [f"{bot.user.mention} ", f"<@!{bot.user.id}> "]
 
     try:
         custom_prefixes = bot.config[msg.guild.id]["prefixes"]
     except AttributeError:
-        # prefix handling runs before command checks, so there's a chane there's no guild
+        # prefix handling runs before command checks, so there's a chance there's no guild
         custom_prefixes = ["s!"]
 
     return mention_prefixes + custom_prefixes
@@ -93,7 +91,7 @@ class SeraphimBot(commands.Bot):
 
     async def get_context(self, message, *, cls=commands.Context):
         """A simple extension of get_content. If it doesn't manage to get a command, it changes the string used
-        to get the command from - to _ and retries. Convient for the end user."""
+        to get the command from - to _ and retries. Convenient for the end user."""
 
         ctx = await super().get_context(message, cls=cls)
         if ctx.command == None and ctx.invoked_with != None:

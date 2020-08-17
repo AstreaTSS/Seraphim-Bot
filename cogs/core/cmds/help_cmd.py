@@ -98,15 +98,15 @@ class PaginatedHelpCommand(commands.HelpCommand):
             await ctx.send(str(error.original))
 
     def get_command_signature(self, command):
-        parent = command.full_parent_name
+        parent = command.full_parent_name.replace("_", "-")
         if len(command.aliases) > 0:
             aliases = '|'.join(command.aliases)
-            fmt = f'[{command.name}|{aliases}]'
+            fmt = f'[{command.name.replace("_", "-")}|{aliases}]'
             if parent:
                 fmt = f'{parent} {fmt}'
             alias = fmt
         else:
-            alias = command.name if not parent else f'{parent} {command.name}'
+            alias = command.name.replace("_", "-") if not parent else f'{parent} {command.name.replace("_", "-")}'
         return f'{alias} {command.signature}'
 
     async def send_bot_help(self, mapping):
@@ -120,7 +120,7 @@ class PaginatedHelpCommand(commands.HelpCommand):
         total = 0
 
         for cog, commands in itertools.groupby(entries, key=key):
-            commands = sorted(commands, key=lambda c: c.name)
+            commands = sorted(commands, key=lambda c: c.name.replace("_", "-"))
             if len(commands) == 0:
                 continue
 
@@ -140,7 +140,7 @@ class PaginatedHelpCommand(commands.HelpCommand):
         await pages.paginate()
 
     async def send_cog_help(self, cog):
-        entries = await self.filter_commands(cog.get_commands(), sort=True)
+        entries = await self.filter_commands(cog.get_commands(), sort=True, key=lambda c: c.name.replace("_", "-"))
         pages = HelpPaginator(self, self.context, entries)
         pages.title = f'{cog.qualified_name} Commands'
         pages.description = cog.description
