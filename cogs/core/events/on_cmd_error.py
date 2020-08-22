@@ -19,7 +19,7 @@ class OnCMDError(commands.Cog):
             await ctx.send("You passed too many arguments to that command! Please make sure you're passing in a valid argument/subcommand.")
         elif isinstance(error, commands.CommandOnCooldown):
             delta_wait = datetime.timedelta(seconds=error.retry_after)
-            await ctx.send(f"You're doing that command too fast! Try again in `{humanize.precisedelta(delta_wait, format='%0.0f')}`.")
+            await ctx.send(f"You're doing that command too fast! Try again in `{humanize.precisedelta(delta_wait, format='%0.1f')}`.")
         elif isinstance(error, (commands.ConversionError, commands.UserInputError, commands.BadArgument)):
             await ctx.send(error)
         elif isinstance(error, utils.CustomCheckFailure):

@@ -132,7 +132,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             raise utils.CustomCheckFailure("There are no starboard entries for this server!")
 
     @sb.command()
-    @commands.cooldown(1, 5, commands.BucketType.guild)
+    @commands.cooldown(1, 2, commands.BucketType.guild)
     async def random(self, ctx):
         """Gets a random starboard entry from the server it's being run in.
         May not work 100% of the time, but it should be reliable enough."""

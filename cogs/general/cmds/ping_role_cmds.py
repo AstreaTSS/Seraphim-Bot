@@ -32,7 +32,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
 
         if now < next_use:
             till_next_time = next_use - now
-            time_text = humanize.precisedelta(till_next_time, format='%0.0f')
+            time_text = humanize.precisedelta(till_next_time, format='%0.1f')
             raise utils.CustomCheckFailure(f"You cannot ping that role yet! Please wait: `{time_text}` before trying to ping the role again.")
         else:
             await ctx.send(role_obj.mention, allowed_mentions=discord.AllowedMentions(roles=True))
@@ -55,7 +55,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
             period_delta = datetime.timedelta(seconds=ping_roles[role]['time_period'])
 
             if role_obj != None:
-                role_list.append(f"`{role_obj.name}, {humanize.precisedelta(period_delta, format='%0.0f')} cooldown`")
+                role_list.append(f"`{role_obj.name}, {humanize.precisedelta(period_delta, format='%0.1f')} cooldown`")
             else:
                 del ctx.bot.config[ctx.guild.id]["pingable_roles"][role]
 
