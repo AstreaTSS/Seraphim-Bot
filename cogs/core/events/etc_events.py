@@ -13,11 +13,13 @@ class EtcEvents(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
         if not guild.id in list(self.bot.config.keys()):
+            # TODO: make starboard into it's own sub category
             self.bot.config[guild.id] = {
                 "starboard_id": None,
                 "star_limit": None,
                 "star_blacklist": [],
                 "star_toggle": False,
+                "remove_reaction": False,
                 "pingable_roles": {},
                 "pin_config": {},
                 "prefixes": ["s!"],

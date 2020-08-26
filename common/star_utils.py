@@ -172,6 +172,15 @@ async def modify_stars(bot, mes, reactor_id, operation):
         ori_mes_id = starboard_entry["ori_mes_id_bac"]
         bot.starboard[ori_mes_id] = starboard_entry
 
+    elif bot.config[mes.guild.id]["remove_reaction"]:
+        # the previous if confirms this is the author who is reaction (simply by elimination), so...
+        try:
+            await mes.remove_reaction("⭐", mes.author)
+        except discord.HTTPException:
+            pass
+        except discord.InvalidArgument:
+            pass
+
 async def sync_prev_reactors(bot, mes, author_id, starboard_entry, type_of, remove=True):
     # syncs reactors stored in db with actual reactors on Discord
     reactions = mes.reactions

@@ -39,6 +39,16 @@ async def limit(ctx, limit: typing.Optional[int]):
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
+async def remove_reaction(ctx, toggle: typing.Optional[bool]):
+    """Allows you to either see if people who react to a star to their messages will have their reactions removed (no argument) or allows you to toggle that (with argument)."""
+    if toggle != None:
+        ctx.bot.config[ctx.guild.id]["remove_reaction"] = toggle
+        await ctx.send(f"Toggled remove reaction to {toggle} for this server!")
+    else:
+        await ctx.send(f"Remove reaction: {ctx.bot.config[ctx.guild.id]['remove_reaction']}")
+
+@main_cmd.command()
+@commands.check(utils.proper_permissions)
 async def toggle(ctx, toggle: typing.Optional[bool]):
     """Allows you to either see if all starboard-related commands and actions are on or off (no argument) or allows you to toggle that (with argument).
     If you wish to set the toggle, both the starboard channel and the star limit must be set first."""
