@@ -3,7 +3,7 @@ import discord, typing
 
 import common.utils as utils
 
-@commands.group(name="starboard", aliases=["sb"])
+@commands.group(name="starboard", aliases=["sb"], ignore_extra=False)
 @commands.check(utils.proper_permissions)
 async def main_cmd(ctx):
     """The base for messing around with the starboard. Check the subcommands for more info.
