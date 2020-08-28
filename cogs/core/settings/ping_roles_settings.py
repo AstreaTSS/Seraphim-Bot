@@ -4,7 +4,7 @@ import discord, datetime, humanize
 import common.utils as utils
 import common.classes
 
-@commands.group(name="ping_roles", ignore_extra=False)
+@commands.group(name="ping_roles")
 @commands.check(utils.proper_permissions)
 async def main_cmd(ctx):
     """The base command for managing all of the pingable roles. See the help for the subcommands for more info.
