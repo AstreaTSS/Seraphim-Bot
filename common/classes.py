@@ -13,7 +13,7 @@ class SnipedMessage():
     def __init__(self, message: discord.Message, now: datetime.datetime):
         self.author_name = f"{message.author.display_name} ({str(message.author)})"
         self.author_url = str(message.author.avatar_url_as(format=None,static_format='jpg', size=128))
-        self.content = message.system_content
+        self.content = utils.get_content(message)
         self.created_at = message.created_at
         self.time_modified = now
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import traceback, discord
+import traceback, discord, datetime
 import collections, os
 from pathlib import Path
 
@@ -119,6 +119,57 @@ def chan_perm_check(channel: discord.TextChannel, perms: discord.Permissions):
         resp = f"I cannot send embeds in {channel.mention}!"
 
     return resp
+
+def get_content(message: discord.Message):
+    """Because system_content isn't perfect.
+    More or less a copy of system_content with name being swapped with display_name."""
+
+    if message.type is discord.MessageType.default:
+        return message.content
+
+    if message.type is discord.MessageType.pins_add:
+        return '{0.display_name} pinned a message to this channel.'.format(message.author)
+
+    if message.type is discord.MessageType.new_member:
+        formats = [
+            "{0} joined the party.",
+            "{0} is here.",
+            "Welcome, {0}. We hope you brought pizza.",
+            "A wild {0} appeared.",
+            "{0} just landed.",
+            "{0} just slid into the server.",
+            "{0} just showed up!",
+            "Welcome {0}. Say hi!",
+            "{0} hopped into the server.",
+            "Everyone welcome {0}!",
+            "Glad you're here, {0}.",
+            "Good to see you, {0}.",
+            "Yay you made it, {0}!",
+        ]
+
+        # manually reconstruct the epoch with millisecond precision, because
+        # datetime.datetime.timestamp() doesn't return the exact posix
+        # timestamp with the precision that we need
+        created_at_ms = int((message.created_at - datetime.datetime(1970, 1, 1)).total_seconds() * 1000)
+        return formats[created_at_ms % len(formats)].format(message.author.display_name)
+
+    if message.type is discord.MessageType.premium_guild_subscription:
+        return '{0.author.display_name} just boosted the server!'.format(message)
+
+    if message.type is discord.MessageType.premium_guild_tier_1:
+        return '{0.author.display_name} just boosted the server! {0.guild} has achieved **Level 1!**'.format(message)
+
+    if message.type is discord.MessageType.premium_guild_tier_2:
+        return '{0.author.display_name} just boosted the server! {0.guild} has achieved **Level 2!**'.format(message)
+
+    if message.type is discord.MessageType.premium_guild_tier_3:
+        return '{0.author.display_name} just boosted the server! {0.guild} has achieved **Level 3!**'.format(message)
+
+    if message.type is discord.MessageType.channel_follow_add:
+        return '{0.author.display_name} has added {0.content} to this channel'.format(message)
+
+    else:
+        raise discord.InvalidArgument("This message has an invalid type!")
 
 class CustomCheckFailure(commands.CheckFailure):
     # custom classs for custom prerequisite failures outside of normal command checks

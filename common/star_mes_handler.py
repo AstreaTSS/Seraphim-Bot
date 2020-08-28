@@ -80,7 +80,7 @@ async def base_generate(bot, mes):
         send_embed.set_author(name=author, icon_url=icon)
         
     else:
-        content = mes.system_content
+        content = utils.get_content(mes)
         author = f"{mes.author.display_name} ({str(mes.author)})"
         icon = str(mes.author.avatar_url_as(format=None,static_format="jpg", size=128))
 
