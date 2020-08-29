@@ -12,7 +12,7 @@ class SnipedMessage():
 
     def __init__(self, message: discord.Message, now: datetime.datetime):
         self.author_name = f"{message.author.display_name} ({str(message.author)})"
-        self.author_url = str(message.author.avatar_url_as(format=None,static_format='jpg', size=128))
+        self.author_url = str(message.author.avatar_url_as(format=None,static_format='png', size=128))
         self.content = utils.get_content(message)
         self.created_at = message.created_at
         self.time_modified = now
@@ -99,7 +99,7 @@ class FuzzyConverter(commands.IDConverter):
         )
         selection_embed.set_author(
             name=f"{ctx.guild.me.name}", 
-            icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='jpg', size=128))}"
+            icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='png', size=128))}"
         )
         
         return selection_embed

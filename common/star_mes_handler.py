@@ -65,7 +65,7 @@ async def base_generate(bot, mes):
         else:
             author_str = f"{author.display_name} ({str(author)})"
 
-        icon = snipe_embed.author.icon_url if author == None else str(author.avatar_url_as(format=None,static_format="jpg",size=128))
+        icon = snipe_embed.author.icon_url if author == None else str(author.avatar_url_as(format=None,static_format="png",size=128))
         content = snipe_embed.description
 
         send_embed = discord.Embed(title="Sniped:", colour=discord.Colour(0xcfca76), 
@@ -74,7 +74,7 @@ async def base_generate(bot, mes):
 
     elif mes.embeds != [] and mes.embeds[0].description != discord.Embed.Empty and mes.embeds[0].type == "rich": # generic embed support
         author = f"{mes.author.display_name} ({str(mes.author)})"
-        icon = str(mes.author.avatar_url_as(format=None,static_format="jpg", size=128))
+        icon = str(mes.author.avatar_url_as(format=None,static_format="png", size=128))
 
         send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=mes.embeds[0].description, timestamp=mes.created_at)
         send_embed.set_author(name=author, icon_url=icon)
@@ -82,7 +82,7 @@ async def base_generate(bot, mes):
     else:
         content = utils.get_content(mes)
         author = f"{mes.author.display_name} ({str(mes.author)})"
-        icon = str(mes.author.avatar_url_as(format=None,static_format="jpg", size=128))
+        icon = str(mes.author.avatar_url_as(format=None,static_format="png", size=128))
 
         if content != "":
             send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=content, timestamp=mes.created_at)
