@@ -59,8 +59,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         assert url != None
 
         if args:
-            await utils.msg_to_owner(self.bot, args)
-            if args[0].lower() == "--noshrink":
+            if args[0].lower() in ("_noshrink", "__noshrink"):
                 shrink = False
             else:
                 await ctx.send("That's not a valid flag!")
