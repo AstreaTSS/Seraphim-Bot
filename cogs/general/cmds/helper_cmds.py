@@ -39,35 +39,32 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         return compress_image
 
     @commands.command()
-    async def compress(self, ctx, *args):
-        """Compresses down the image given, either a URL (first argument) or a file.
+    async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage], *args):
+        """Compresses down the image given.
         It must be an image of type GIF, JPG, PNG, or WEBP. It must also be under 8 MB.
         Image quality will take a hit, and the image will shrink down if it's too big (unless you specify to not shrink the image).
         Flags: --noshrink."""
 
         shrink = True
-        url = None
-        base = 0
 
-        if ctx.message.attachments:
-            if ctx.message.attachments[0].proxy_url.endswith(self.bot.image_extensions):
-                url = ctx.message.attachments[0].proxy_url
-            else:
-                raise commands.BadArgument("Invalid file type!")
-
-        if args:
-            if url == None:
-                url = await image_utils.URLToImage.convert(ctx, ctx, args[0])
-                base += 1
-            
-            if base + 1 <= len(args):
-                if args[base].lower() in ("-noshrink", "--noshrink"):
-                    shrink = False
+        if url == None:
+            if ctx.message.attachments:
+                if ctx.message.attachments[0].proxy_url.endswith(self.bot.image_extensions):
+                    url = ctx.message.attachments[0].proxy_url
                 else:
-                    await ctx.send("That's not a valid flag!")
-                    return
+                    raise commands.BadArgument("Attachment provided is not a valid image.")
+            else:
+                raise commands.BadArgument("No URL or image given!")
 
         assert url != None
+
+        if args:
+            await utils.msg_to_owner(self.bot, args)
+            if args[0].lower() == "--noshrink":
+                shrink = False
+            else:
+                await ctx.send("That's not a valid flag!")
+                return
 
         async with ctx.channel.typing():
             image_data = await image_utils.get_file_bytes(url, 8388608, equal_to=False) # 8 MiB
