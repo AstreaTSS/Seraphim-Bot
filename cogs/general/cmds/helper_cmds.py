@@ -12,17 +12,18 @@ class HelperCMDs(commands.Cog, name = "Helper"):
     def __init__(self, bot):
         self.bot = bot
 
-    def pil_compress(self, image, ext):
+    def pil_compress(self, image, ext, shrink):
         pil_image = Image.open(image)
         compress_image = io.BytesIO()
 
-        width = pil_image.width
-        height = pil_image.height
+        if shrink:
+            width = pil_image.width
+            height = pil_image.height
 
-        if width > 1920 or height > 1920:
-            bigger = width if width > height else height
-            factor = math.ceil(bigger / 1920)
-            pil_image = pil_image.reduce(factor=factor)
+            if width > 1920 or height > 1920:
+                bigger = width if width > height else height
+                factor = math.ceil(bigger / 1920)
+                pil_image = pil_image.reduce(factor=factor)
 
         if ext in ("gif", "png"):
             pil_image.save(compress_image, format=ext, optimize=True)
@@ -38,9 +39,13 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         return compress_image
 
     @commands.command()
-    async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage]):
+    async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage], *args):
         """Compresses down the image given.
-        It must be an image of type GIF, JPG, or PNG. It must also be under 8 MB."""
+        It must be an image of type GIF, JPG, PNG, or WEBP. It must also be under 8 MB.
+        Image quality will take a hit, and the image will shrink down if it's too big (unless you specify to not shrink the image).
+        Flags: --noshrink."""
+
+        shrink = True
 
         if url == None:
             if ctx.message.attachments:
@@ -53,6 +58,13 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
         assert url != None
 
+        if args:
+            if args[0].lower() in ("-noshrink", "--noshrink"):
+                shrink = False
+            else:
+                await ctx.send("That's not a valid flag!")
+                return
+
         async with ctx.channel.typing():
             image_data = await image_utils.get_file_bytes(url, 8388608, equal_to=False) # 8 MiB
             ori_image = io.BytesIO(image_data)
@@ -60,7 +72,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             mimetype = discord.utils._get_mime_type_for_image(image_data)
             ext = mimetype.split("/")[1]
 
-            compress = functools.partial(self.pil_compress, ori_image, ext)
+            compress = functools.partial(self.pil_compress, ori_image, ext, shrink)
             compress_image = await self.bot.loop.run_in_executor(None, compress)
 
             ori_image.close()
