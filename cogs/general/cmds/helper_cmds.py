@@ -1,6 +1,9 @@
 from discord.ext import commands
 import discord, importlib, typing
 
+import io, functools, math, os
+from PIL import Image
+
 import common.utils as utils
 import common.image_utils as image_utils
 
@@ -8,6 +11,62 @@ class HelperCMDs(commands.Cog, name = "Helper"):
     """A series of commands made for tasks that are usually difficult to do, especially on mobile."""
     def __init__(self, bot):
         self.bot = bot
+
+    def pil_compress(self, image, ext):
+        pil_image = Image.open(image)
+        compress_image = io.BytesIO()
+
+        width = pil_image.width
+        height = pil_image.height
+
+        if width > 1920 or height > 1920:
+            bigger = width if width > height else height
+            factor = math.ceil(bigger / 1920)
+            pil_image = pil_image.reduce(factor=factor)
+
+        if ext in ("gif", "png"):
+            pil_image.save(compress_image, format=ext, optimize=True)
+        elif ext == "jpeg":
+            pil_image.save(compress_image, format=ext, quality=70, optimize=True)
+        elif ext == "webp":
+            pil_image.save(compress_image, format=ext, quality=70)
+        else:
+            raise commands.BadArgument("Invalid file type!")
+
+        compress_image.seek(0, os.SEEK_SET)
+
+        return compress_image
+
+    @commands.command()
+    async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage]):
+        """Compresses down the image given.
+        It must be an image of type GIF, JPG, or PNG. It must also be under 8 MB."""
+
+        if url == None:
+            if ctx.message.attachments:
+                if ctx.message.attachments[0].proxy_url.endswith(self.bot.image_extensions):
+                    url = ctx.message.attachments[0].proxy_url
+                else:
+                    raise commands.BadArgument("Attachment provided is not a valid image.")
+            else:
+                raise commands.BadArgument("No URL or image given!")
+
+        assert url != None
+
+        async with ctx.channel.typing():
+            image_data = await image_utils.get_file_bytes(url, 8388608, equal_to=False) # 8 MiB
+            ori_image = io.BytesIO(image_data)
+
+            mimetype = discord.utils._get_mime_type_for_image(image_data)
+            ext = mimetype.split("/")[1]
+
+            compress = functools.partial(self.pil_compress, ori_image, ext)
+            compress_image = await self.bot.loop.run_in_executor(None, compress)
+
+            ori_image.close()
+
+            com_img_file = discord.File(compress_image, f"image.{ext}")
+            await ctx.send(file=com_img_file)
 
     @commands.command(aliases=["addemoji"])
     @commands.check(utils.proper_permissions)

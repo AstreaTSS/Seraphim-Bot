@@ -3,3 +3,4 @@ asyncpg
 fuzzywuzzy
 websockets
 git+https://github.com/jmoiron/humanize.git
+Pillow
