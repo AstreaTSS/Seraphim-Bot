@@ -35,22 +35,23 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         if emoji_count >= ctx.guild.emoji_limit:
             raise utils.CustomCheckFailure("This guild has no more emoji slots!")
 
-        emoji_data = await image_utils.get_file_bytes(url, 262144, equal_to=False) # 256 KiB, which I assume Discord uses
+        async with ctx.channel.typing():
+            emoji_data = await image_utils.get_file_bytes(url, 262144, equal_to=False) # 256 KiB, which I assume Discord uses
 
-        try:
-            emoji = await ctx.guild.create_custom_emoji(name=emoji_name, image=emoji_data, reason=f"Created by {str(ctx.author)}")
-        except discord.HTTPException as e:
-            await ctx.send("".join(
-                    ("I was unable to add this emoji! This might be due to me not having the ",
-                    "permissions or the name being improper in some way. Maybe this error will help you.\n",
-                    f"Error: {e}")
+            try:
+                emoji = await ctx.guild.create_custom_emoji(name=emoji_name, image=emoji_data, reason=f"Created by {str(ctx.author)}")
+            except discord.HTTPException as e:
+                await ctx.send("".join(
+                        ("I was unable to add this emoji! This might be due to me not having the ",
+                        "permissions or the name being improper in some way. Maybe this error will help you.\n",
+                        f"Error: {e}")
+                    )
                 )
-            )
-            return
-        finally:
-            del emoji_data
+                return
+            finally:
+                del emoji_data
 
-        await ctx.send(f"Added {str(emoji)}!")
+            await ctx.send(f"Added {str(emoji)}!")
 
     @commands.command(aliases=["getemojiurl"])
     async def get_emoji_url(self, ctx, emoji: typing.Union[discord.PartialEmoji, str]):
