@@ -28,9 +28,9 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         if ext in ("gif", "png"):
             pil_image.save(compress_image, format=ext, optimize=True)
         elif ext == "jpeg":
-            pil_image.save(compress_image, format=ext, quality=70, optimize=True)
+            pil_image.save(compress_image, format=ext, quality=80, optimize=True)
         elif ext == "webp":
-            pil_image.save(compress_image, format=ext, quality=70)
+            pil_image.save(compress_image, format=ext, quality=80)
         else:
             raise commands.BadArgument("Invalid file type!")
 
