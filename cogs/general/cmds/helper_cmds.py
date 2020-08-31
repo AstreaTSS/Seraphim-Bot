@@ -35,6 +35,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         elif ext == "webp":
             pil_image.save(compress_image, format=ext, quality=80)
         else:
+            compress_image.close()
             raise commands.BadArgument("Invalid file type!")
 
         compress_image.seek(0, os.SEEK_SET)
@@ -70,6 +71,9 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
             compress = functools.partial(self.pil_compress, ori_image, ext, flags)
             compress_image = await self.bot.loop.run_in_executor(None, compress)
+
+            if flags["jpg"]:
+                ext = "jpeg"
 
             ori_image.close()
 
