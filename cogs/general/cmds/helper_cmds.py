@@ -47,7 +47,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             raise
 
     @commands.command()
-    async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage], *, flags: typing.Optional[classes.FlagsConverter]):
+    async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage], *, flags: typing.Optional[classes.FlagsConverter] = {}):
         """Compresses down the image given.
         It must be an image of type GIF, JPG, PNG, or WEBP. It must also be under 8 MB.
         Image quality will take a hit, and the image will shrink down if it's too big (unless you specify to not shrink the image).
