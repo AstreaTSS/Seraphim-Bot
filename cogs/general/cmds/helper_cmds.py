@@ -155,6 +155,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
 def setup(bot):
     importlib.reload(utils)
+    importlib.reload(classes)
     importlib.reload(image_utils)
     
     bot.add_cog(HelperCMDs(bot))
