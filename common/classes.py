@@ -287,7 +287,10 @@ class FuzzyRoleConverter(FuzzyConverter):
 
 class FlagsConverter(commands.Converter):
     async def convert(self, ctx, argument):
-        flags = collections.defaultdict(default_factory=False)
+        def constant_factory(value):
+            return lambda: value
+
+        flags = collections.defaultdict(default_factory=constant_factory(False))
         args = shlex.split(argument)
 
         for index, arg in enumerate(args):
