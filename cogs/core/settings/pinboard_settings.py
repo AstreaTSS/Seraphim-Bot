@@ -2,8 +2,9 @@ from discord.ext import commands
 import discord, collections
 
 import common.utils as utils
+import common.groups as groups
 
-@commands.group(name="pinboard")
+@groups.group(name="pinboard")
 @commands.check(utils.proper_permissions)
 async def main_cmd(ctx):
     """Base command for managing the pinboard. See the subcommands below. 

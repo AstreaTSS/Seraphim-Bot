@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.7
-from discord.ext import commands
+from discord.ext import commands, flags
 import discord, importlib
 import datetime, humanize
 
@@ -15,6 +15,8 @@ class OnCMDError(commands.Cog):
             original = error.original
             if not isinstance(original, discord.HTTPException):
                 await utils.error_handle(self.bot, error, ctx)
+        elif isinstance(error, flags.ArgumentParsingError):
+            await ctx.send(error)
         elif isinstance(error, commands.TooManyArguments):
             await ctx.send("You passed too many arguments to that command! Please make sure you're passing in a valid argument/subcommand.")
         elif isinstance(error, commands.CommandOnCooldown):

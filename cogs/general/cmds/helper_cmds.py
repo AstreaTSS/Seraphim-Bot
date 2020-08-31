@@ -1,4 +1,4 @@
-from discord.ext import commands
+from discord.ext import commands, flags
 import discord, importlib, typing
 
 import io, functools, math, os
@@ -12,11 +12,11 @@ class HelperCMDs(commands.Cog, name = "Helper"):
     def __init__(self, bot):
         self.bot = bot
 
-    def pil_compress(self, image, ext, shrink):
+    def pil_compress(self, image, ext, flags):
         pil_image = Image.open(image)
         compress_image = io.BytesIO()
 
-        if shrink:
+        if not flags["noshrink"]:
             width = pil_image.width
             height = pil_image.height
 
@@ -25,10 +25,10 @@ class HelperCMDs(commands.Cog, name = "Helper"):
                 factor = math.ceil(bigger / 1920)
                 pil_image = pil_image.reduce(factor=factor)
 
-        if ext in ("gif", "png"):
-            pil_image.save(compress_image, format=ext, optimize=True)
-        elif ext == "jpeg":
+        if flags["jpg"] or flags["jpeg"] or ext == "jpeg": # honestly, i have no idea what the flag will return
             pil_image.save(compress_image, format=ext, quality=80, optimize=True)
+        elif ext in ("gif", "png"):
+            pil_image.save(compress_image, format=ext, optimize=True)
         elif ext == "webp":
             pil_image.save(compress_image, format=ext, quality=80)
         else:
@@ -38,14 +38,14 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
         return compress_image
 
-    @commands.command()
-    async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage], *args):
+    @flags.command()
+    @flags.add_flag("-noshrink", "--noshrink", action='store_true')
+    @flags.add_flag("-jpg", "--jpg", "-jpeg", "--jpeg", action='store_true')
+    async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage], **flags):
         """Compresses down the image given.
         It must be an image of type GIF, JPG, PNG, or WEBP. It must also be under 8 MB.
         Image quality will take a hit, and the image will shrink down if it's too big (unless you specify to not shrink the image).
-        Flags: --noshrink."""
-
-        shrink = True
+        Flags: --noshrink (to not shrink the image), --jpg (to make the files a jpg, which is more efficient in terms of file space)."""
 
         if url == None:
             if ctx.message.attachments:
@@ -58,13 +58,6 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
         assert url != None
 
-        if args:
-            if args[0].lower() in ("_noshrink", "__noshrink"):
-                shrink = False
-            else:
-                await ctx.send("That's not a valid flag!")
-                return
-
         async with ctx.channel.typing():
             image_data = await image_utils.get_file_bytes(url, 8388608, equal_to=False) # 8 MiB
             ori_image = io.BytesIO(image_data)
@@ -72,7 +65,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             mimetype = discord.utils._get_mime_type_for_image(image_data)
             ext = mimetype.split("/")[1]
 
-            compress = functools.partial(self.pil_compress, ori_image, ext, shrink)
+            compress = functools.partial(self.pil_compress, ori_image, ext, flags)
             compress_image = await self.bot.loop.run_in_executor(None, compress)
 
             ori_image.close()

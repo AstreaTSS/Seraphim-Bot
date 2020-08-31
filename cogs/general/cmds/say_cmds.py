@@ -1,5 +1,5 @@
 from discord.ext import commands
-import discord, re, asyncio, importlib
+import discord, re, asyncio, importlib, typings
 
 import common.utils as utils
 
@@ -38,17 +38,11 @@ class SayCMDS(commands.Cog, name = "Say"):
 
     @commands.command()
     @commands.check(utils.proper_permissions)
-    async def say(self, ctx, *, message):
+    async def say(self, ctx, optional_channel: typings.Optional[discord.TextChannel], *, message):
         """Allows people with Manage Server permissions to speak with the bot. You can provide a channel and upload any attachments you wish to use."""
 
         args = message.split(" ")
-        optional_channel = None
         files_sent = []
-
-        try:
-            optional_channel = await commands.TextChannelConverter().convert(ctx, args[0])
-        except commands.BadArgument:
-            pass
             
         if ctx.message.attachments is not None:
             for a_file in ctx.message.attachments:
@@ -57,13 +51,13 @@ class SayCMDS(commands.Cog, name = "Say"):
                 
         if files_sent == []:
             if optional_channel is not None:
-                await optional_channel.send(" ".join(args[1:]))
+                await optional_channel.send(" ".join(args))
                 await ctx.send(f"Done! Check out {optional_channel.mention}!")
             else:
                 await ctx.send(" ".join(args))
         else:
             if optional_channel is not None:
-                await optional_channel.send(content=" ".join(args[1:]), files=files_sent)
+                await optional_channel.send(content=" ".join(args), files=files_sent)
                 await ctx.send(f"Done! Check out {optional_channel.mention}!")
             else:
                 await ctx.send(content=" ".join(args), files=files_sent)

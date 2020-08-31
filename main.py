@@ -90,11 +90,14 @@ class SeraphimBot(commands.Bot):
             await utils.error_handle(bot, e)
 
     async def get_context(self, message, *, cls=commands.Context):
-        """A simple extension of get_content. Changes all - to _."""
+        """A simple extension of get_content. If it doesn't manage to get a command, it changes the string used
+        to get the command from - to _ and retries. Convenient for the end user."""
 
-        # dirty way of doing this, but it works, I guess
-        message.content = message.content.replace("-", "_")
-        return await super().get_context(message, cls=cls)
+        ctx = await super().get_context(message, cls=cls)
+        if ctx.command == None and ctx.invoked_with != None:
+            ctx.command = self.all_commands.get(ctx.invoked_with.replace("-", "_"))
+
+        return ctx
 
 
 bot = SeraphimBot(command_prefix=seraphim_prefixes, fetch_offline_members=True)

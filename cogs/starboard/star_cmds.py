@@ -7,6 +7,7 @@ import common.classes
 import common.star_utils as star_utils
 import common.utils as utils
 import common.star_mes_handler as star_mes
+import common.groups as groups
 
 class StarCMDs(commands.Cog, name = "Starboard"):
     """Commands for the starboard. See the settings command to set up the starboard."""
@@ -41,7 +42,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
     async def cog_check(self, ctx):
         return self.bot.config[ctx.guild.id]["star_toggle"]
 
-    @commands.group(invoke_without_command=True, aliases = ["starboard", "star"], ignore_extra=False)
+    @groups.group(invoke_without_command=True, aliases = ["starboard", "star"], ignore_extra=False)
     async def sb(self, ctx):
         """Base command for running starboard commands. Use the help command for this to get more info."""
         await ctx.send_help(ctx.command)
@@ -226,5 +227,6 @@ def setup(bot):
     importlib.reload(star_mes)
     importlib.reload(utils)
     importlib.reload(common.classes)
+    importlib.reload(groups)
     
     bot.add_cog(StarCMDs(bot))
