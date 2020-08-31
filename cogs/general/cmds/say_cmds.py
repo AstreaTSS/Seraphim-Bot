@@ -1,5 +1,5 @@
 from discord.ext import commands
-import discord, re, asyncio, importlib, typings
+import discord, re, asyncio, importlib, typing
 
 import common.utils as utils
 
@@ -38,7 +38,7 @@ class SayCMDS(commands.Cog, name = "Say"):
 
     @commands.command()
     @commands.check(utils.proper_permissions)
-    async def say(self, ctx, optional_channel: typings.Optional[discord.TextChannel], *, message):
+    async def say(self, ctx, optional_channel: typing.Optional[discord.TextChannel], *, message):
         """Allows people with Manage Server permissions to speak with the bot. You can provide a channel and upload any attachments you wish to use."""
 
         args = message.split(" ")
