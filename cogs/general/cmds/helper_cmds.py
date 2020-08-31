@@ -17,28 +17,33 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         pil_image = Image.open(image)
         compress_image = io.BytesIO()
 
-        if not flags["noshrink"]:
-            width = pil_image.width
-            height = pil_image.height
+        try:
+            if not flags["noshrink"]:
+                width = pil_image.width
+                height = pil_image.height
 
-            if width > 1920 or height > 1920:
-                bigger = width if width > height else height
-                factor = math.ceil(bigger / 1920)
-                pil_image = pil_image.reduce(factor=factor)
+                if width > 1920 or height > 1920:
+                    bigger = width if width > height else height
+                    factor = math.ceil(bigger / 1920)
+                    pil_image = pil_image.reduce(factor=factor)
 
-        if ext == "jpeg":
-            pil_image.save(compress_image, format=ext, quality=80, optimize=True)
-        elif ext in ("gif", "png"):
-            pil_image.save(compress_image, format=ext, optimize=True)
-        elif ext == "webp":
-            pil_image.save(compress_image, format=ext, quality=80)
-        else:
+            if ext == "jpeg":
+                pil_image.save(compress_image, format=ext, quality=80, optimize=True)
+            elif ext in ("gif", "png"):
+                pil_image.save(compress_image, format=ext, optimize=True)
+            elif ext == "webp":
+                pil_image.save(compress_image, format=ext, quality=80)
+            else:
+                compress_image.close()
+                raise commands.BadArgument("Invalid file type!")
+
+            compress_image.seek(0, os.SEEK_SET)
+
+            return compress_image
+            
+        except BaseException:
             compress_image.close()
-            raise commands.BadArgument("Invalid file type!")
-
-        compress_image.seek(0, os.SEEK_SET)
-
-        return compress_image
+            raise
 
     @commands.command()
     async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage], *, flags: typing.Optional[classes.FlagsConverter]):
