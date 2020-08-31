@@ -25,7 +25,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
                 factor = math.ceil(bigger / 1920)
                 pil_image = pil_image.reduce(factor=factor)
 
-        if flags["jpg"] or flags["jpeg"] or ext == "jpeg": # honestly, i have no idea what the flag will return
+        if flags["jpg"] or ext == "jpeg":
             pil_image.save(compress_image, format=ext, quality=80, optimize=True)
         elif ext in ("gif", "png"):
             pil_image.save(compress_image, format=ext, optimize=True)
