@@ -18,7 +18,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         compress_image = io.BytesIO()
 
         try:
-            noshrink = flags["noshrink"]
+            noshrink = "noshrink" in flags.keys()
             if not noshrink:
                 width = pil_image.width
                 height = pil_image.height
@@ -71,9 +71,9 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             mimetype = discord.utils._get_mime_type_for_image(image_data)
             ext = mimetype.split("/")[1]
 
-            jpg_flag = flags["jpg"]
+            jpg_flag = "jpg" in flags.keys()
             if not jpg_flag:
-                jpg_flag = flags["jpeg"]
+                jpg_flag = "jpeg" in flags.keys()
 
             if jpg_flag:
                 ext = "jpeg"
