@@ -4,7 +4,7 @@ from fuzzywuzzy import process, fuzz
 import common.utils as utils
 
 import discord, re, collections
-import datetime, asyncio
+import datetime, asyncio, shlex
 
 class SnipedMessage():
     """A special class for sniped messages, using slots to keep the memory usage to a minimum."""
@@ -284,3 +284,23 @@ class FuzzyRoleConverter(FuzzyConverter):
         if result == None:
             raise commands.BadArgument(f'Role "{argument}" not found.')
         return result
+
+class FlagsConverter(commands.Converter):
+    async def convert(self, ctx, argument):
+        flags = collections.defaultdict()
+        args = shlex.split(argument)
+
+        for index, arg in enumerate(args):
+            if arg.startswith("-"):
+                try:
+                    if not args[index + 1].startswith("-"):
+                        flags[arg.replace("-", "")] = args[index + 1]
+                    else:
+                        flags[arg.replace("-", "")] = True
+                except IndexError:
+                    flags[arg.replace("-", "")] = True
+
+        if not flags:
+            raise commands.BadArgument("No flags passed!")
+
+        return flags

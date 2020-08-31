@@ -1,10 +1,11 @@
-from discord.ext import commands, flags
+from discord.ext import commands
 import discord, importlib, typing
 
 import io, functools, math, os
 from PIL import Image
 
 import common.utils as utils
+import common.classes as classes
 import common.image_utils as image_utils
 
 class HelperCMDs(commands.Cog, name = "Helper"):
@@ -15,9 +16,6 @@ class HelperCMDs(commands.Cog, name = "Helper"):
     def pil_compress(self, image, ext, flags):
         pil_image = Image.open(image)
         compress_image = io.BytesIO()
-
-        if flags["jpg"]:
-            ext = "jpeg"
 
         if not flags["noshrink"]:
             width = pil_image.width
@@ -42,10 +40,8 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
         return compress_image
 
-    @flags.command()
-    @flags.add_flag("-noshrink", "--noshrink", action='store_true')
-    @flags.add_flag("-jpg", "--jpg", "-jpeg", "--jpeg", action='store_true')
-    async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage], **flags):
+    @commands.command()
+    async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage], *, flags: typing.Optional[classes.FlagsConverter]):
         """Compresses down the image given.
         It must be an image of type GIF, JPG, PNG, or WEBP. It must also be under 8 MB.
         Image quality will take a hit, and the image will shrink down if it's too big (unless you specify to not shrink the image).
@@ -69,11 +65,11 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             mimetype = discord.utils._get_mime_type_for_image(image_data)
             ext = mimetype.split("/")[1]
 
+            if flags["jpg"] or flags["jpeg"]:
+                ext = "jpeg"
+
             compress = functools.partial(self.pil_compress, ori_image, ext, flags)
             compress_image = await self.bot.loop.run_in_executor(None, compress)
-
-            if flags["jpg"]:
-                ext = "jpeg"
 
             ori_image.close()
 
