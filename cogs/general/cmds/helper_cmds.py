@@ -28,6 +28,8 @@ class HelperCMDs(commands.Cog, name = "Helper"):
                     pil_image = pil_image.reduce(factor=factor)
 
             if ext == "jpeg":
+                if not pil_image.mode == 'RGB':
+                    pil_image = pil_image.convert('RGB')
                 pil_image.save(compress_image, format=ext, quality=80, optimize=True)
             elif ext in ("gif", "png"):
                 pil_image.save(compress_image, format=ext, optimize=True)
