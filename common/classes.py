@@ -292,8 +292,6 @@ class BaseFlagsConverter(commands.Converter):
         self.argparser = argparse.ArgumentParser(add_help=False)
 
     async def convert(self, ctx, argument):
-        await utils.msg_to_owner(ctx.bot, argument)
-
         args = shlex.split(argument)
 
         try:

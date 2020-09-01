@@ -122,3 +122,5 @@ class URLToImage(commands.Converter):
                 return possible_url
             else:
                 raise BadArgument(f"Argument {argument} is not an image url.")
+
+        raise BadArgument(f"Argument {argument} is not an image url.")
