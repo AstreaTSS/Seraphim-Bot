@@ -3,7 +3,7 @@ from discord.ext import commands
 from fuzzywuzzy import process, fuzz
 import common.utils as utils
 
-import discord, re, collections
+import discord, re, collections, argparse
 import datetime, asyncio, shlex
 
 class SnipedMessage():
@@ -285,25 +285,18 @@ class FuzzyRoleConverter(FuzzyConverter):
             raise commands.BadArgument(f'Role "{argument}" not found.')
         return result
 
-class FlagsConverter(commands.Converter):
-    async def convert(self, ctx, argument):
-        def constant_factory(value):
-            return lambda: value
+class BaseFlagsConverter(commands.Converter):
+    """A base for converting flags. Any custom flags need to subclass this."""
 
-        flags = collections.defaultdict(default_factory=constant_factory(False))
+    def __init__(self):
+        self.argparser = argparse.ArgumentParser(add_help=False)
+
+    async def convert(self, ctx, argument):
         args = shlex.split(argument)
 
-        for index, arg in enumerate(args):
-            if arg.startswith("-"):
-                try:
-                    if not args[index + 1].startswith("-"):
-                        flags[arg.replace("-", "")] = args[index + 1]
-                    else:
-                        flags[arg.replace("-", "")] = True
-                except IndexError:
-                    flags[arg.replace("-", "")] = True
+        try:
+            flags = self.argparser.parse_args(args)
+        except argparse.ArgumentError as e:
+            raise commands.BadArgument(str(e))
 
-        if not flags:
-            raise commands.BadArgument("No flags passed!")
-
-        return flags
+        return vars(flags)

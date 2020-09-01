@@ -1,5 +1,5 @@
 from discord.ext import commands
-import discord, importlib, typing
+import discord, importlib, typing, argparse
 
 import io, functools, math, os
 from PIL import Image
@@ -18,7 +18,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         compress_image = io.BytesIO()
 
         try:
-            if not flags.get("noshrink", False):
+            if not flags["noshrink"]:
                 width = pil_image.width
                 height = pil_image.height
 
@@ -30,11 +30,11 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             if ext == "jpeg":
                 if not pil_image.mode == 'RGB':
                     pil_image = pil_image.convert('RGB')
-                pil_image.save(compress_image, format=ext, quality=80, optimize=True)
+                pil_image.save(compress_image, format=ext, quality=flags["quality"], optimize=True)
             elif ext in ("gif", "png"):
                 pil_image.save(compress_image, format=ext, optimize=True)
             elif ext == "webp":
-                pil_image.save(compress_image, format=ext, quality=80)
+                pil_image.save(compress_image, format=ext, quality=flags["quality"])
             else:
                 compress_image.close()
                 raise commands.BadArgument("Invalid file type!")
@@ -47,12 +47,21 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             compress_image.close()
             raise
 
+
+    class CompressFlagsConverter(classes.BaseFlagsConverter):
+        def __init__(self):
+            super().__init__()
+            self.argparser.add_argument("-noshrink", "--noshrink", action='store_true')
+            self.argparser.add_argument("-jpg", "--jpg", "-jpeg", "--jpeg", action='store_true')
+            self.argparser.add_argument("-quality", "--quality", default=80, type=int)
+
     @commands.command()
-    async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage], *, flags: typing.Optional[classes.FlagsConverter] = {}):
+    async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage], *, flags: typing.Optional[CompressFlagsConverter] = {}):
         """Compresses down the image given.
         It must be an image of type GIF, JPG, PNG, or WEBP. It must also be under 8 MB.
         Image quality will take a hit, and the image will shrink down if it's too big (unless you specify to not shrink the image).
-        Flags: --noshrink (to not shrink the image), --jpg (to make the files a jpg, which is more efficient in terms of file space)."""
+        Flags: --noshrink (to not shrink the image), --jpg (to make the files a jpg, which is more efficient in terms of file space), 
+        --quality <number> (specifies quality from 1-100, only works with some file types)."""
 
         if url == None:
             if ctx.message.attachments:
@@ -72,11 +81,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             mimetype = discord.utils._get_mime_type_for_image(image_data)
             ext = mimetype.split("/")[1]
 
-            jpg_flag = flags.get("jpg", False)
-            if not jpg_flag:
-                jpg_flag = flags.get("jpeg", False)
-
-            if jpg_flag:
+            if flags["jpg"]:
                 ext = "jpeg"
 
             compress = functools.partial(self.pil_compress, ori_image, ext, flags)
