@@ -95,9 +95,9 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             elif flags["webp"]:
                 ext = "webp"
             elif flags["png"]:
-                ext = "webp"
+                ext = "png"
             elif flags["gif"]:
-                ext = "webp"
+                ext = "gif"
 
             compress = functools.partial(self.pil_compress, ori_image, ext, flags)
             compress_image = await self.bot.loop.run_in_executor(None, compress)
