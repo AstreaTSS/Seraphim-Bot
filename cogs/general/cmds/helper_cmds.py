@@ -41,7 +41,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             elif ext in ("gif", "png"):
                 pil_image.save(compress_image, format=ext, optimize=True)
             elif ext == "webp":
-                pil_image.save(compress_image, format=ext, quality=flags["quality"])
+                pil_image.save(compress_image, format=ext, minimize_size=True, quality=flags["quality"])
             else:
                 compress_image.close()
                 raise commands.BadArgument("Invalid file type!")
@@ -57,13 +57,20 @@ class HelperCMDs(commands.Cog, name = "Helper"):
     @flags.command()
     @flags.add_flag("-noshrink", "--noshrink", action='store_true')
     @flags.add_flag("-jpg", "--jpg", "-jpeg", "--jpeg", action='store_true')
+    @flags.add_flag("-webp", "--webp", action='store_true')
+    @flags.add_flag("-png", "--png", action='store_true')
+    @flags.add_flag("-gif", "--gif", action='store_true')
     @flags.add_flag("-quality", "--quality", default=80, type=int)
     async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage], **flags):
         """Compresses down the image given.
         It must be an image of type GIF, JPG, PNG, or WEBP. It must also be under 8 MB.
         Image quality will take a hit, and the image will shrink down if it's too big (unless you specify to not shrink the image).
-        Flags: --noshrink (to not shrink the image), --jpg (to make the files a jpg, which is more efficient in terms of file space), 
-        --quality <number> (specifies quality from 1-100, only works with some file types)."""
+        Flags: --noshrink (to not shrink the image), --jpg (more compressed but removes transparency), --png (if you really wanted to), 
+        --gif (again, if you really wanted to), --webp (more compressed and keeps transparency, but not as compressed as JPG) 
+        --quality <number> (specifies quality from 0-100, only works with JPG and WEBP files)."""
+
+        if not 0 <= flags["quality"] <= 100:
+            raise commands.BadArgument("Quality must be a number between 0-100!")
 
         if url == None:
             if ctx.message.attachments:
@@ -85,6 +92,12 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
             if flags["jpg"]:
                 ext = "jpeg"
+            elif flags["webp"]:
+                ext = "webp"
+            elif flags["png"]:
+                ext = "webp"
+            elif flags["gif"]:
+                ext = "webp"
 
             compress = functools.partial(self.pil_compress, ori_image, ext, flags)
             compress_image = await self.bot.loop.run_in_executor(None, compress)
