@@ -90,15 +90,21 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             compress_image = await self.bot.loop.run_in_executor(None, compress)
 
             ori_size = self.get_size(ori_image)
-            compress_size = self.get_size(compress_image)
+            compressed_size = self.get_size(compress_image)
 
             ori_image.close()
-
-            com_img_file = discord.File(compress_image, f"image.{ext}")
-
-            content = (f"Original Size: {humanize.naturalsize(ori_image, binary=True)}\n" +
-            f"Reduced Size: {humanize.naturalsize(compress_size, binary=True)}\n" +
-            f"Size Saved: {round((1 - (compress_size / ori_size)), 2)}%")
+            
+            try:
+                com_img_file = discord.File(compress_image, f"image.{ext}")
+                
+                content = (f"Original Size: {humanize.naturalsize(ori_size, binary=True)}\n" +
+                f"Reduced Size: {humanize.naturalsize(compressed_size, binary=True)}\n" +
+                f"Size Saved: {round(((1 - (compressed_size / ori_size)) * 100), 2)}%")
+                
+            except BaseException:
+                compress_image.close()
+                raise
+            
             await ctx.send(content=content, file=com_img_file)
 
     @commands.command(aliases=["addemoji"])
