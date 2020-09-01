@@ -90,6 +90,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             mimetype = discord.utils._get_mime_type_for_image(image_data)
             ext = mimetype.split("/")[1]
 
+            # these can be stacked, but oh well
             if flags["jpg"]:
                 ext = "jpeg"
             elif flags["webp"]:
