@@ -1,5 +1,5 @@
 from discord.ext import commands, flags
-import discord, importlib, typing
+import discord, importlib, typing, humanize
 
 import io, functools, math, os
 from PIL import Image
@@ -11,6 +11,14 @@ class HelperCMDs(commands.Cog, name = "Helper"):
     """A series of commands made for tasks that are usually difficult to do, especially on mobile."""
     def __init__(self, bot):
         self.bot = bot
+
+    def get_size(self, image: io.BytesIO):
+        old_pos = image.tell()
+        image.seek(0, os.SEEK_END)
+        size = image.tell()
+        image.seek(old_pos, os.SEEK_SET)
+
+        return size
 
     def pil_compress(self, image, ext, flags):
         pil_image = Image.open(image)
@@ -81,10 +89,17 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             compress = functools.partial(self.pil_compress, ori_image, ext, flags)
             compress_image = await self.bot.loop.run_in_executor(None, compress)
 
+            ori_size = self.get_size(ori_image)
+            compress_size = self.get_size(compress_image)
+
             ori_image.close()
 
             com_img_file = discord.File(compress_image, f"image.{ext}")
-            await ctx.send(file=com_img_file)
+
+            content = (f"Original Size: {humanize.naturalsize(ori_image, binary=True)}\n" +
+            f"Reduced Size: {humanize.naturalsize(compress_size, binary=True)}\n" +
+            f"Size Saved: {round((1 - (compress_size / ori_size)), 2)}%")
+            await ctx.send(content=content, file=com_img_file)
 
     @commands.command(aliases=["addemoji"])
     @commands.check(utils.proper_permissions)
