@@ -3,7 +3,7 @@ from discord.ext import commands
 import discord, importlib, re, collections
 import datetime, typing, random
 
-import common.classes
+import common.fuzzys as fuzzys
 import common.star_utils as star_utils
 import common.utils as utils
 import common.star_mes_handler as star_mes
@@ -112,7 +112,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         The user can be mentioned, searched up by ID, or you can say their name and the bot will attempt to search for that person."""
 
         if user != None:
-            member = await common.classes.FuzzyMemberConverter().convert(ctx, user)
+            member = await fuzzys.FuzzyMemberConverter().convert(ctx, user)
         else:
             member = ctx.author
 
@@ -226,7 +226,7 @@ def setup(bot):
     importlib.reload(star_utils)
     importlib.reload(star_mes)
     importlib.reload(utils)
-    importlib.reload(common.classes)
+    importlib.reload(fuzzys)
     importlib.reload(groups)
     
     bot.add_cog(StarCMDs(bot))

@@ -3,7 +3,7 @@ import discord, datetime
 import importlib, humanize
 
 import common.utils as utils
-import common.classes
+import common.fuzzys as fuzzys
 
 class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
     """Commands for pingable roles. If you wish to add a pingable role, please view the settings command."""
@@ -12,7 +12,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         self.bot = bot
 
     @commands.command(aliases = ["pingrole", "roleping", "role_ping"])
-    async def ping_role(self, ctx, *, role_obj: common.classes.FuzzyRoleConverter):
+    async def ping_role(self, ctx, *, role_obj: fuzzys.FuzzyRoleConverter):
         """Pings the role specified if the role isn't on cooldown and has been added to a list."""
 
         ping_roles = self.bot.config[ctx.guild.id]["pingable_roles"]
@@ -67,6 +67,6 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
 
 def setup(bot):
     importlib.reload(utils)
-    importlib.reload(common.classes)
+    importlib.reload(fuzzys)
 
     bot.add_cog(PingRoleCMDs(bot))
