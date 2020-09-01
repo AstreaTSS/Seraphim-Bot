@@ -1,11 +1,10 @@
-from discord.ext import commands
-import discord, importlib, typing, argparse
+from discord.ext import commands, flags
+import discord, importlib, typing
 
 import io, functools, math, os
 from PIL import Image
 
 import common.utils as utils
-import common.classes as classes
 import common.image_utils as image_utils
 
 class HelperCMDs(commands.Cog, name = "Helper"):
@@ -47,16 +46,11 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             compress_image.close()
             raise
 
-
-    class CompressFlagsConverter(classes.BaseFlagsConverter):
-        def __init__(self):
-            super().__init__()
-            self.argparser.add_argument("-noshrink", "--noshrink", action='store_true')
-            self.argparser.add_argument("-jpg", "--jpg", "-jpeg", "--jpeg", action='store_true')
-            self.argparser.add_argument("-quality", "--quality", default=80, type=int)
-
-    @commands.command()
-    async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage], *, flags: typing.Optional[CompressFlagsConverter]):
+    @flags.command()
+    @flags.add_flag("-noshrink", "--noshrink", action='store_true')
+    @flags.add_flag("-jpg", "--jpg", "-jpeg", "--jpeg", action='store_true')
+    @flags.add_flag("-quality", "--quality", default=80, type=int)
+    async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage], **flags):
         """Compresses down the image given.
         It must be an image of type GIF, JPG, PNG, or WEBP. It must also be under 8 MB.
         Image quality will take a hit, and the image will shrink down if it's too big (unless you specify to not shrink the image).
@@ -171,7 +165,6 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
 def setup(bot):
     importlib.reload(utils)
-    importlib.reload(classes)
     importlib.reload(image_utils)
     
     bot.add_cog(HelperCMDs(bot))
