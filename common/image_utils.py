@@ -1,6 +1,5 @@
 from discord.ext import commands
-from discord.ext.commands.errors import BadArgument
-import asyncio, aiohttp, os, re, humanize
+import asyncio, aiohttp, os, re, humanize, discord
 
 async def type_from_url(url):
     # gets type of data from url
@@ -93,12 +92,12 @@ async def get_file_bytes(url: str, limit: int, equal_to = True):
                 try:
                     if equal_to:
                         await resp.content.readexactly(limit + 1) # we want this to error out even if the file is exactly the limit
-                        raise BadArgument(
+                        raise commands.BadArgument(
                             f"The file/URL given is over {humanize.naturalsize(limit, binary=True)}!"
                         )
                     else:
                         await resp.content.readexactly(limit)
-                        raise BadArgument(
+                        raise commands.BadArgument(
                             f"The file/URL given is at or over {humanize.naturalsize(limit, binary=True)}!"
                         )
 
@@ -107,7 +106,34 @@ async def get_file_bytes(url: str, limit: int, equal_to = True):
                     # the url given is less than the limit
                     return e.partial
             else:
-                raise BadArgument("I can't get this file/URL!")
+                raise commands.BadArgument("I can't get this file/URL!")
+
+def image_from_ctx(ctx: commands.Context):
+    """To be used with URLToImage. Gets image from context, via an embed or via its attachments."""
+    if (ctx.message.embeds != [] and ctx.message.embeds[0].type == "image" 
+    and ctx.message.embeds[0].thumbnail.url != discord.Embed.Empty):
+        return ctx.message.embeds[0].thumbnail.url
+
+    elif ctx.message.attachments:
+        if ctx.message.attachments[0].proxy_url.endswith(ctx.bot.image_extensions):
+            return ctx.message.attachments[0].proxy_url
+        else:
+            raise commands.BadArgument("Attachment provided is not a valid image.")
+
+    else:
+        raise commands.BadArgument("No URL or image given!")
+
+class ImageTypeChecker(commands.Converter):
+    # given image type to convert, checks to see if image type speciified is valid.
+
+    async def convert(self, ctx, argument: str):
+        img_type = argument.replace(".", "").replace("-", "").lower()
+        img_type = "jpeg" if img_type == "jpg" else img_type
+
+        if img_type in ctx.bot.image_extensions:
+            return img_type
+        else:
+            raise commands.BadArgument(f"Argument {argument} is not a valid image extension.")
 
 class URLToImage(commands.Converter):
     # gets either the URL or the image from an argument
@@ -121,6 +147,6 @@ class URLToImage(commands.Converter):
             if possible_url != None:
                 return possible_url
             else:
-                raise BadArgument(f"Argument {argument} is not an image url.")
+                raise commands.BadArgument(f"Argument {argument} is not an image url.")
 
-        raise BadArgument(f"Argument {argument} is not an image url.")
+        raise commands.BadArgument(f"Argument {argument} is not an image url.")
