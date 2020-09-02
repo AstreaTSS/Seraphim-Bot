@@ -110,11 +110,7 @@ async def get_file_bytes(url: str, limit: int, equal_to = True):
 
 def image_from_ctx(ctx: commands.Context):
     """To be used with URLToImage. Gets image from context, via an embed or via its attachments."""
-    if (ctx.message.embeds != [] and ctx.message.embeds[0].type == "image" 
-    and ctx.message.embeds[0].thumbnail.url != discord.Embed.Empty):
-        return ctx.message.embeds[0].thumbnail.url
-
-    elif ctx.message.attachments:
+    if ctx.message.attachments:
         if ctx.message.attachments[0].proxy_url.endswith(ctx.bot.image_extensions):
             return ctx.message.attachments[0].proxy_url
         else:
@@ -146,6 +142,9 @@ class URLToImage(commands.Converter):
             possible_url = await get_image_url(first_url)
             if possible_url != None:
                 return possible_url
+            elif (ctx.message.embeds != [] and ctx.message.embeds[0].type == "image" and 
+                ctx.message.embeds[0].thumbnail.url != discord.Embed.Empty):
+                return ctx.message.embeds[0].thumbnail.url # gotta get that imgur support
             else:
                 raise commands.BadArgument(f"Argument {argument} is not an image url.")
 
