@@ -64,7 +64,7 @@ class ImageCMDs(commands.Cog, name = "Image"):
     @flags.add_flag("-webp", "--webp", action='store_true')
     @flags.add_flag("-png", "--png", action='store_true')
     @flags.add_flag("-gif", "--gif", action='store_true')
-    @flags.add_flag("-quality", "--quality", default=80, type=int)
+    @flags.add_flag("-quality", "--quality", default=70, type=int)
     async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage], **flags):
         """Compresses down the image given.
         It must be an image of type GIF, JPG, PNG, or WEBP. It must also be under 8 MB.
