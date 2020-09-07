@@ -15,6 +15,9 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         """Toggles either the provided channel or the channel the command is used it on or off NSFW mode.
         Useful for mobile devices, which for some reason cannot do this."""
 
+        if channel == None:
+            channel = ctx.channel
+
         toggle = not channel.is_nsfw()
 
         try:
