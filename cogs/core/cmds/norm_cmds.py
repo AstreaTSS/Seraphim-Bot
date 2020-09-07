@@ -26,8 +26,8 @@ class NormCMDs(commands.Cog, name="Normal"):
     async def reverse(self, ctx, *, content):
         """Reverses the content given. Only will ping what you can ping."""
 
-        if len(content) < 1950:
-            allowed_mentions = utils.generate_mentions(ctx)
+        if len(content) < 1975:
+            allowed_mentions = utils.deny_mentions(ctx.author)
             await ctx.send(f"{ctx.author.mention}: {content[::-1]}", allowed_mentions=allowed_mentions)
         else:
             await ctx.send(f"{ctx.author.mention}, that message is too long!")

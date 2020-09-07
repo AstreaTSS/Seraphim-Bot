@@ -43,6 +43,7 @@ class SayCMDS(commands.Cog, name = "Say"):
 
         args = message.split(" ")
         files_sent = []
+        allowed_mentions = utils.generate_mentions(ctx)
             
         if ctx.message.attachments is not None:
             for a_file in ctx.message.attachments:
@@ -51,16 +52,16 @@ class SayCMDS(commands.Cog, name = "Say"):
                 
         if files_sent == []:
             if optional_channel is not None:
-                await optional_channel.send(" ".join(args))
+                await optional_channel.send(" ".join(args), allowed_mentions=allowed_mentions)
                 await ctx.send(f"Done! Check out {optional_channel.mention}!")
             else:
-                await ctx.send(" ".join(args))
+                await ctx.send(" ".join(args), allowed_mentions=allowed_mentions)
         else:
             if optional_channel is not None:
-                await optional_channel.send(content=" ".join(args), files=files_sent)
+                await optional_channel.send(content=" ".join(args), allowed_mentions=allowed_mentions, files=files_sent)
                 await ctx.send(f"Done! Check out {optional_channel.mention}!")
             else:
-                await ctx.send(content=" ".join(args), files=files_sent)
+                await ctx.send(content=" ".join(args), files=files_sent, allowed_mentions=allowed_mentions)
                 
     @commands.command()
     @commands.check(utils.proper_permissions)

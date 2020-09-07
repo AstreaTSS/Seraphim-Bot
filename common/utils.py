@@ -52,6 +52,10 @@ async def user_from_id(bot, guild, user_id):
                 user = None
 
     return user
+    
+def deny_mentions(user):
+    # generates an AllowedMentions object that only pings the user specified
+    return discord.AllowedMentions(everyone=False, users=[user], roles=False)
 
 def generate_mentions(ctx: commands.Context):
     # generates an AllowedMentions object that is similar to what a user can usually use

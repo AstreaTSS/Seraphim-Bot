@@ -9,6 +9,16 @@ class HelperCMDs(commands.Cog, name = "Helper"):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.command(aliases=["togglensfw"])
+    @commands.check(utils.proper_permissions)
+    async def toggle_nsfw(self, ctx, channel: typing.Optional[discord.TextChannel]):
+        """Toggles either the provided channel or the channel the command is used it on or off NSFW mode.
+        Useful for mobile devices, which for some reason cannot do this."""
+
+        toggle = not channel.is_nsfw()
+        await channel.edit(nsfw = toggle)
+        await ctx.send(f"{channel.mention} NSFW mode has been set to: {toggle}.")
+
     @commands.command(aliases=["addemoji"])
     @commands.check(utils.proper_permissions)
     async def add_emoji(self, ctx, emoji_name, url: typing.Optional[image_utils.URLToImage]):
