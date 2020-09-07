@@ -16,8 +16,18 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         Useful for mobile devices, which for some reason cannot do this."""
 
         toggle = not channel.is_nsfw()
-        await channel.edit(nsfw = toggle)
-        await ctx.send(f"{channel.mention} NSFW mode has been set to: {toggle}.")
+
+        try:
+            await channel.edit(nsfw = toggle)
+            await ctx.send(f"{channel.mention} NSFW mode has been set to: {toggle}.")
+        except discord.HTTPException as e:
+            await ctx.send("".join(
+                    ("I was unable to change this channel's NSFW mode! This might be due to me not having the ",
+                    "permissions to or some other weird funkyness with Discord. Maybe this error will help you.\n",
+                    f"Error: {e}")
+                )
+            )
+            return
 
     @commands.command(aliases=["addemoji"])
     @commands.check(utils.proper_permissions)
