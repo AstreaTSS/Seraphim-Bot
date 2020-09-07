@@ -22,7 +22,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
         try:
             await channel.edit(nsfw = toggle)
-            await ctx.send(f"{channel.mention} NSFW mode has been set to: {toggle}.")
+            await ctx.send(f"{channel.mention}'s' NSFW mode has been set to: {toggle}.")
         except discord.HTTPException as e:
             await ctx.send("".join(
                     ("I was unable to change this channel's NSFW mode! This might be due to me not having the ",
