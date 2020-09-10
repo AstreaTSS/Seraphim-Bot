@@ -34,7 +34,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
     @commands.command(aliases=["addemoji"])
     @commands.check(utils.proper_permissions)
-    async def add_emoji(self, ctx, emoji_name, emoji: typing.Optional[image_utils.URLToImage, discord.PartialEmoji]):
+    async def add_emoji(self, ctx, emoji_name, emoji: typing.Union[image_utils.URLToImage, discord.PartialEmoji, None]):
         """Adds the URL, emoji, or image given as an emoji to this server.
         If it's an URL or image, it must be of type GIF, JPG, or PNG. It must also be under 256 KB.
         If it's an emoji, it must not already be on the server the command is being used in.
