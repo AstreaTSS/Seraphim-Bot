@@ -52,7 +52,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             if possible_emoji != None and possible_emoji.guild_id == ctx.guild.id:
                 raise commands.BadArgument("This emoji already exists here!")
             else:
-                url = emoji.url
+                url = str(emoji.url)
         else:
             url = emoji
 
