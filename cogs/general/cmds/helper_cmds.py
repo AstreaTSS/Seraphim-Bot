@@ -47,7 +47,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
         if emoji == None:
             url = image_utils.image_from_ctx(ctx)
-        elif isinstance(url, discord.PartialEmoji):
+        elif isinstance(emoji, discord.PartialEmoji):
             possible_emoji = self.bot.get_emoji(emoji.id)
             if possible_emoji != None and possible_emoji.guild_id == ctx.guild.id:
                 raise commands.BadArgument("This emoji already exists here!")
