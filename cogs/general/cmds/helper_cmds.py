@@ -34,17 +34,27 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
     @commands.command(aliases=["addemoji"])
     @commands.check(utils.proper_permissions)
-    async def add_emoji(self, ctx, emoji_name, url: typing.Optional[image_utils.URLToImage]):
-        """Adds the image or URL given as an emoji to this server.
-        It must be an image of type GIF, JPG, or PNG. It must also be under 256 KB.
+    async def add_emoji(self, ctx, emoji_name, emoji: typing.Optional[image_utils.URLToImage, discord.PartialEmoji]):
+        """Adds the URL, emoji, or image given as an emoji to this server.
+        If it's an URL or image, it must be of type GIF, JPG, or PNG. It must also be under 256 KB.
+        If it's an emoji, it must not already be on the server the command is being used in.
         The name must be at least 2 characters.
-        Useful if you're on iOS and transparency gets the best of you or if you want to add an emoji from a URL."""
+        Useful if you're on iOS and transparency gets the best of you, you want to add an emoji from a URL, or
+        you want to... take an emoji from another server."""
 
         if len(emoji_name) < 2:
             raise commands.BadArgument("Emoji name must at least 2 characters!")
 
-        if url == None:
+        if emoji == None:
             url = image_utils.image_from_ctx(ctx)
+        elif isinstance(url, discord.PartialEmoji):
+            possible_emoji = self.bot.get_emoji(emoji.id)
+            if possible_emoji != None and possible_emoji.guild_id == ctx.guild.id:
+                raise commands.BadArgument("This emoji already exists here!")
+            else:
+                url = emoji.url
+        else:
+            url = emoji
 
         emoji_count = len(ctx.guild.emojis)
         if emoji_count >= ctx.guild.emoji_limit:
