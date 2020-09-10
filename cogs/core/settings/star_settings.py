@@ -68,7 +68,7 @@ async def toggle(ctx, toggle: typing.Optional[bool]):
 def star_toggle_check(ctx):
     return ctx.bot.config[ctx.guild.id]["star_toggle"]
 
-@main_cmd.group(aliases = ["bl"], ignore_extra=False)
+@main_cmd.group(aliases = ["bl"], ignore_extra=True)
 @commands.check(utils.proper_permissions)
 @commands.check(star_toggle_check)
 async def blacklist(ctx):
