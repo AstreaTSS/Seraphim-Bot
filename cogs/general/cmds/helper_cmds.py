@@ -1,5 +1,5 @@
 from discord.ext import commands, flags
-import discord, importlib, typing, os
+import discord, importlib, typing, os, datetime
 
 import common.utils as utils
 import common.image_utils as image_utils
@@ -8,6 +8,58 @@ class HelperCMDs(commands.Cog, name = "Helper"):
     """A series of commands made for tasks that are usually difficult to do, especially on mobile."""
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command()
+    @commands.check(utils.proper_permissions)
+    async def restore_roles(self, ctx, member: discord.Member):
+        """Restores the roles a user had before leaving, suggesting they left less than 15 minutes ago.
+        The user running this command must have Manage Server permissions.
+        Useful for... accidential leaves? Troll leaves? Yeah, not much, but Despair's Horizon wanted it."""
+
+        member_entry = self.bot.role_rolebacks.get(member.id)
+        if member_entry == None:
+            raise commands.BadArgument("That member did not leave in the last 15 minutes!")
+
+        now = datetime.datetime.utcnow()
+        fifteen_prior = now - datetime.timedelta(minutes=15)
+        
+        if member_entry["time"] < fifteen_prior:
+            del self.bot.role_rolebacks[member_entry["id"]]
+            raise commands.BadArgument("That member did not leave in the last 15 minutes!")
+
+        top_role = ctx.guild.me.top_role
+        unadded_roles = []
+        added_roles = []
+
+        for role in member_entry["roles"]:
+            if role.is_default():
+                continue
+            elif role > top_role or not role in ctx.guild.roles:
+                unadded_roles.append(role)
+            elif role in member.roles:
+                continue
+            else:
+                added_roles.append(role)
+
+        if added_roles:
+            try:
+                member.add_roles(added_roles, reason=f"Restoring old roles: done by {str(ctx.author)}.")
+            except discord.HTTPException as error:
+                raise utils.CustomCheckFailure("Something happened while trying to restore the roles this user had.\n" +
+                "This shouldn't be happening, and this should have been caught earlier by the bot. Try contacting the bot owner about it.\n" +
+                f"Error: {error}")
+        else:
+            raise commands.BadArgument("There were no roles to restore for this user!")
+
+        final_msg = []
+
+        final_msg.append(f"Roles restored: `{','.join([r.name for r in added_roles])}``.")
+
+        if unadded_roles:
+            final_msg.append(f"Roles not restored: `{','.join([r.name for r in unadded_roles])}`. " +
+            "This was most likely because these roles are higher than the bot's own role or the roles no longer exist.")
+
+        await ctx.send("\n\n".join(unadded_roles), allowed_mentions=utils.deny_mentions(ctx.author))
 
     @commands.command(aliases=["togglensfw"])
     @commands.check(utils.proper_permissions)

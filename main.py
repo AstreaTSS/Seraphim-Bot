@@ -42,6 +42,8 @@ class SeraphimBot(commands.Bot):
                 "edits": {}
             }
 
+            self.role_rolebacks = {}
+
             self.star_queue = {}
             self.star_lock = False
 
