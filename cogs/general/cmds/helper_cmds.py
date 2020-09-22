@@ -50,11 +50,11 @@ class HelperCMDs(commands.Cog, name = "Helper"):
                 f"Error: {error}")
         else:
             raise commands.BadArgument("There were no roles to restore for this user!")
+        
+        del self.bot.role_rolebacks[member_entry["id"]]
 
         final_msg = []
-
         final_msg.append(f"Roles restored: `{','.join([r.name for r in added_roles])}``.")
-
         if unadded_roles:
             final_msg.append(f"Roles not restored: `{','.join([r.name for r in unadded_roles])}`. " +
             "This was most likely because these roles are higher than the bot's own role or the roles no longer exist.")
