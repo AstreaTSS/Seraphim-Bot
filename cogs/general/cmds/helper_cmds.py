@@ -56,12 +56,13 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         del self.bot.role_rolebacks[member_entry["id"]]
 
         final_msg = []
-        final_msg.append(f"Roles restored: `{','.join([r.name for r in added_roles])}``.")
+        final_msg.append(f"Roles restored: `{', '.join([r.name for r in added_roles])}`.")
         if unadded_roles:
-            final_msg.append(f"Roles not restored: `{','.join([r.name for r in unadded_roles])}`. " +
+            final_msg.append(f"Roles not restored: `{', '.join([r.name for r in unadded_roles])}`. " +
             "This was most likely because these roles are higher than the bot's own role or the roles no longer exist.")
 
-        await ctx.send("\n\n".join(unadded_roles), allowed_mentions=utils.deny_mentions(ctx.author))
+        final_msg_str = "\n\n".join(final_msg)
+        await ctx.send(final_msg_str, allowed_mentions=utils.deny_mentions(ctx.author))
 
     @commands.command(aliases=["togglensfw"])
     @commands.check(utils.proper_permissions)
