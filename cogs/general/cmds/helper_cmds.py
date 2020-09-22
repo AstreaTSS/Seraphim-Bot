@@ -44,7 +44,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
         if added_roles:
             try:
-                await member.add_roles(*added_roles, reason=f"Restoring old roles: done by {str(ctx.author)}.")
+                await member.add_roles(*added_roles, reason=f"Restoring old roles: done by {str(ctx.author)}.", atomic=False)
             except discord.HTTPException as error:
                 await ctx.send("Something happened while trying to restore the roles this user had.\n" +
                 "This shouldn't be happening, and this should have been caught earlier by the bot. Try contacting the bot owner about it.\n" +
