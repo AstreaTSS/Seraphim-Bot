@@ -10,7 +10,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases="restoreroles")
+    @commands.command(aliases=["restoreroles"])
     @commands.check(utils.proper_permissions)
     async def restore_roles(self, ctx, member: discord.Member):
         """Restores the roles a user had before leaving, suggesting they left less than 15 minutes ago.
