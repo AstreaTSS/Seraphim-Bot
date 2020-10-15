@@ -35,7 +35,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         for role in member_entry["roles"]:
             if role.is_default():
                 continue
-            elif role > top_role or not role in ctx.guild.roles:
+            elif role > top_role or not role in ctx.guild.roles or role.managed:
                 unadded_roles.append(role)
             elif role in member.roles:
                 continue
@@ -59,7 +59,8 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         final_msg.append(f"Roles restored: `{', '.join([r.name for r in added_roles])}`.")
         if unadded_roles:
             final_msg.append(f"Roles not restored: `{', '.join([r.name for r in unadded_roles])}`. " +
-            "This was most likely because these roles are higher than the bot's own role or the roles no longer exist.")
+            "This was most likely because these roles are higher than the bot's own role, the roles no longer exist, " +
+            "or the role is managed by Discord and so the bot cannot add it.")
 
         final_msg_str = "\n\n".join(final_msg)
         await ctx.send(final_msg_str, allowed_mentions=utils.deny_mentions(ctx.author))
