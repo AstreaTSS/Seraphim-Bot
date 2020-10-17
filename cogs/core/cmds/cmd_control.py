@@ -27,7 +27,7 @@ class CmdControl(commands.Cog, name="Command Control"):
 
     @commands.check(utils.proper_permissions)
     @commands.command()
-    async def disable(self, ctx, member: discord.Member, *, command: self.CommandConverter):
+    async def disable(self, ctx, member: discord.Member, *, command: CommandConverter):
         """Disables the command specified for the specified user.
         You can disable all commands for a user too by specifing 'all' for a user.
         Can only be used by those who have Manage Server permissions, and cannot be used on yourself."""
@@ -55,7 +55,7 @@ class CmdControl(commands.Cog, name="Command Control"):
 
     @commands.check(utils.proper_permissions)
     @commands.command(aliases=["re_enable"])
-    async def reenable(self, ctx, member: discord.Member, *, command: self.CommandConverter):
+    async def reenable(self, ctx, member: discord.Member, *, command: CommandConverter):
         """Re-enables the command specified for the specified user.
         You can re-eanble all commands for a user too (if they were denied all commands) by specifing 'all' for a user.
         Can only be used by those who have Manage Server permissions, and cannot be used on yourself."""
