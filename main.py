@@ -24,13 +24,29 @@ def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
 
     return mention_prefixes + custom_prefixes
 
-def block_dms(ctx):
-    return ctx.guild is not None
+def global_checks(ctx):
+    if ctx.guild == None:
+        return False
+
+    if ctx.command == None:
+        return True
+
+    disable_entry = ctx.bot.config[ctx.guild.id]["disables"]["users"].get(str(ctx.author.id))
+    if disable_entry == None:
+        return True
+
+    if ctx.command.qualified_name in disable_entry:
+        return False
+
+    if "all" in disable_entry and not ctx.command.cog.qualified_name in ("Cog Control", "Eval", "Help"):
+        return False
+
+    return True
 
 class SeraphimBot(commands.Bot):
     def __init__(self, command_prefix, help_command=bot_default, description=None, **options):
         super().__init__(command_prefix, help_command=help_command, description=description, **options)
-        self._checks.append(block_dms)
+        self._checks.append(global_checks)
 
     async def on_ready(self):
         if self.init_load == True:
