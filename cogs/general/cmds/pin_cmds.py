@@ -34,6 +34,7 @@ class PinCMDs(commands.Cog, name = "Pinboard"):
 
         dif = len(pins) - chan_entry["limit"]
         pins_subset = pins[-dif:]
+        pins_subset.reverse()
 
         for pin in pins_subset:
             send_embed = await star_mes.star_generate(self.bot, pin)
