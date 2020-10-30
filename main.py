@@ -121,14 +121,11 @@ class SeraphimBot(commands.Bot):
 We need guilds as we need to know when the bot joins and leaves guilds for setup stuff. That's... mostly it.
 We need members for their roles and nicknames. Yes, this stuff isn't provided normally.
 Emojis are for the emoji helper commands, of course.
-Presences is mostly for the speedup in start times it provides. Weird, I know, but according to the 
-discord.py docs, it does provide a significant speedup: 
-https://discordpy.readthedocs.io/en/latest/intents.html#why-does-on-ready-take-so-long-to-fire
 Messages run the entire core of the bot itself. Of course we use them here. We might be able to
 turn off DM message intents, but for now they're here for safety.
 Reactions run the starboard of Seraphim, so of course that's here too. See above for why DMs."""
 intents = discord.Intents(guilds=True, members=True, 
-    emojis=True, presences=True, messages=True, reactions=True)
+    emojis=True, messages=True, reactions=True)
 
 bot = SeraphimBot(command_prefix=seraphim_prefixes, fetch_offline_members=True, intents=intents)
 
