@@ -69,6 +69,7 @@ class SeraphimBot(commands.Bot):
             application = await self.application_info()
             self.owner = application.owner
 
+            self.load_extension("jishaku")
             self.load_extension("cogs.db_handler")
             while self.config == {}:
                 await asyncio.sleep(0.1)
