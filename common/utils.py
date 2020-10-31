@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
 import traceback, discord, datetime
-import collections, os
+import collections
 from pathlib import Path
 
 async def proper_permissions(ctx):
@@ -14,6 +14,9 @@ async def fetch_needed(bot, payload):
     # fetches info from payload
     guild = bot.get_guild(payload.guild_id)
     user = guild.get_member(payload.user_id)
+    
+    if user == None: # rare, but it's happened
+        user = await guild.fetch_member(payload.user_id)
 
     channel = bot.get_channel(payload.channel_id)
     mes = await channel.fetch_message(payload.message_id)
