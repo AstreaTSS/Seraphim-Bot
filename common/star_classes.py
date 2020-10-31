@@ -11,7 +11,8 @@ class ReactorType(enum.Enum):
 class StarboardEntry():
     """A way of representing a starboard entry in an easy way."""
 
-    __slots__ = ("ori_mes_id", "ori_chan_id", "star_var_id", "author_id", "ori_reactors", "var_reactors", "guild_id", "forced", "updated")
+    __slots__ = ("ori_mes_id", "ori_chan_id", "star_var_id", "starboard_id", "author_id",
+         "ori_reactors", "var_reactors", "guild_id", "forced", "updated")
 
     def __repr__(self):
         return (f"<StarboardEntry ori_mes_id={self.ori_mes_id} ori_chan_id={self.ori_chan_id} star_var_id={self.star_var_id} " +

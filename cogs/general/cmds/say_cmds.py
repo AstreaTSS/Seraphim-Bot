@@ -1,5 +1,5 @@
 from discord.ext import commands
-import discord, re, asyncio, importlib, typing
+import discord, asyncio, importlib, typing
 
 import common.utils as utils
 

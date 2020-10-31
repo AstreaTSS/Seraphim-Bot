@@ -1,8 +1,7 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands, tasks
-import discord, datetime, io, importlib, typing
+import discord, datetime, importlib, typing
 
-import common.star_mes_handler as star_mes
 import common.utils as utils
 
 class SnipeCMDs(commands.Cog, name="Snipe"):

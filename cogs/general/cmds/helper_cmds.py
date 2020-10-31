@@ -1,6 +1,6 @@
 from discord.ext import commands, flags
 import discord, importlib, typing
-import os, datetime
+import datetime
 
 import common.utils as utils
 import common.image_utils as image_utils

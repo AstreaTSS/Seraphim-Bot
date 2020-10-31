@@ -47,8 +47,7 @@ class DBHandler(commands.Cog):
             entry = self.bot.starboard.get(entry_id)
             list_of_cmds.append(self.create_cmd("starboard", "UPDATE", entry))
         for entry_id in self.bot.starboard.removed:
-            entry = self.bot.starboard.get(entry_id)
-            list_of_cmds.append(self.create_cmd("starboard", "DELETE FROM", entry))
+            list_of_cmds.append(self.create_cmd("starboard", "DELETE FROM", entry_id))
 
         self.bot.starboard.reset_deltas()
 
@@ -116,7 +115,7 @@ class DBHandler(commands.Cog):
 
                     elif command["table"] == "starboard":
                         if command["type"] == "DELETE FROM":
-                            await conn.execute("DELETE FROM starboard WHERE ori_mes_id = $1", command["entry"].ori_mes_id)
+                            await conn.execute("DELETE FROM starboard WHERE ori_mes_id = $1", command["entry"])
                             continue
                         elif command["type"] == "INSERT INTO":
                             db_command = ("INSERT INTO starboard(ori_mes_id, data) VALUES($1, $2)")
