@@ -1,5 +1,5 @@
 from discord.ext import commands
-import discord, datetime, humanize
+import discord
 
 import common.utils as utils
 import common.fuzzys as fuzzys

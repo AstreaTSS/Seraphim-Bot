@@ -49,14 +49,14 @@ class Star(commands.Cog):
         if (not user.bot and not channel.id in self.bot.config[mes.guild.id]["star_blacklist"]):
 
             if mes.author.id != user.id:
-                star_variant = star_utils.get_star_entry(self.bot, mes.id, check_for_var=True)
+                star_variant = self.bot.starboard.get(mes.id, check_for_var=True)
 
-                if star_variant == []:
+                if not star_variant:
                     if channel.id != self.bot.config[mes.guild.id]["starboard_id"]:
                         await star_utils.modify_stars(self.bot, mes, payload.user_id, "ADD")
 
-                        star_entry = star_utils.get_star_entry(self.bot, mes.id)
-                        unique_stars = star_utils.get_num_stars(star_entry)
+                        star_entry = self.bot.starboard.get(mes.id)
+                        unique_stars = len(star_entry.get_reactors)
 
                         if unique_stars >= self.bot.config[mes.guild.id]["star_limit"]:
                             self.bot.star_queue[mes.id] = {
@@ -65,7 +65,7 @@ class Star(commands.Cog):
                                 "forced": False
                             }
                                 
-                elif user.id != star_variant["author_id"]:
+                elif user.id != star_variant.author_id:
                     await star_utils.modify_stars(self.bot, mes, payload.user_id, "ADD")
                     await star_utils.star_entry_refresh(self.bot, star_variant, mes.guild.id)
 
@@ -94,12 +94,12 @@ class Star(commands.Cog):
         if (not user.bot and mes.author.id != user.id
             and not channel.id in self.bot.config[mes.guild.id]["star_blacklist"]):
 
-            star_variant = star_utils.get_star_entry(self.bot, mes.id)
+            star_variant = self.bot.starboard.get(mes.id)
 
-            if star_variant != []:
+            if star_variant:
                 await star_utils.modify_stars(self.bot, mes, payload.user_id, "SUBTRACT")
 
-                if star_variant["star_var_id"] != None:
+                if star_variant.star_var_id != None:
                     await star_utils.star_entry_refresh(self.bot, star_variant, mes.guild.id)
         
 def setup(bot):

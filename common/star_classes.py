@@ -11,20 +11,23 @@ class ReactorType(enum.Enum):
 class StarboardEntry():
     """A way of representing a starboard entry in an easy way."""
 
-    __slots__ = ("ori_mes_id", "ori_chan_id", "star_var_id", "author_id", "ori_reactors", "var_reactors", "guild_id", "forced", "updated")
+    __slots__ = ("ori_mes_id", "ori_chan_id", "star_var_id", "starboard_id", "author_id",
+         "ori_reactors", "var_reactors", "guild_id", "forced", "updated")
 
     def __repr__(self):
         return (f"<StarboardEntry ori_mes_id={self.ori_mes_id} ori_chan_id={self.ori_chan_id} star_var_id={self.star_var_id} " +
-            f"author_id={self.author_id} ori_reactors={list(self.ori_reactors)} var_reactors={list(self.var_reactors)} " +
-            f"guild_id={self.guild_id} forced={self.forced} updated={self.updated}>")
+            f"starboard_id={self.starboard_id} author_id={self.author_id} ori_reactors={list(self.ori_reactors)} " +
+            f"var_reactors={list(self.var_reactors)} guild_id={self.guild_id} forced={self.forced} updated={self.updated}>")
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.ori_mes_id == other.ori_mes_id
 
-    def __init__(self, ori_mes_id, ori_chan_id, star_var_id, author_id, ori_reactors, var_reactors, guild_id, forced, updated = False):
+    def __init__(self, ori_mes_id, ori_chan_id, star_var_id, starboard_id,
+        author_id, ori_reactors, var_reactors, guild_id, forced, updated = False):
         self.ori_mes_id = ori_mes_id
         self.ori_chan_id = ori_chan_id
         self.star_var_id = star_var_id
+        self.starboard_id = starboard_id
         self.author_id = author_id
         self.ori_reactors = set(ori_reactors)
         self.var_reactors = set(var_reactors)
@@ -36,13 +39,13 @@ class StarboardEntry():
     def from_row(cls, row):
         """Returns an entry from a row."""
         data = row["data"]
-        return cls(row["ori_mes_id"], data["ori_chan_id"], data["star_var_id"], 
+        return cls(row["ori_mes_id"], data["ori_chan_id"], data["star_var_id"], data["starboard_id"],
             data["author_id"], data["ori_reactors"], data["var_reactors"], data["guild_id"], data["forced"])
 
     @classmethod
     def new_entry(cls, mes: discord.Message, author_id, reactor_id, forced = False):
         """Returns a new entry from base data."""
-        return cls(mes.id, mes.channel.id, None, author_id, {reactor_id}, set(), mes.guild.id, forced, updated=True)
+        return cls(mes.id, mes.channel.id, None, None, author_id, {reactor_id}, set(), mes.guild.id, forced, updated=True)
 
     def to_dict(self) -> dict:
         """Converts this class to a dict."""
@@ -54,28 +57,37 @@ class StarboardEntry():
 
         return result
 
-    def get_reactors(self) -> typing.List[int]:
+    def get_reactors(self) -> typing.Set[int]:
         """Gets the total reactors, a mix of ori and var reactors."""
-        return self.ori_reactors + self.var_reactors
+        return self.ori_reactors | self.var_reactors
 
     def get_reactors_from_type(self, type_of_reactor: ReactorType) -> typing.List[int]:
         """Gets the reactors for the type specified. Useful if you want the output to vary."""
-        if ReactorType.ORI_REACTORS:
+        if type_of_reactor == ReactorType.ORI_REACTORS:
             return self.ori_reactors
-        elif ReactorType.VAR_REACTORS:
+        elif type_of_reactor == ReactorType.VAR_REACTORS:
             return self.var_reactors
-        elif ReactorType.ALL_REACTORS:
+        elif type_of_reactor == ReactorType.ALL_REACTORS:
             return self.get_reactors()
+        else:
+            raise AttributeError("Invalid reactor type.")
+
+    def set_reactors_of_type(self, type_of_reactor: ReactorType, input: set):
+        """Sets the reactors for the type specified. Useful if you want the output to vary."""
+        if type_of_reactor == ReactorType.ORI_REACTORS:
+            self.ori_reactors = input
+        elif type_of_reactor == ReactorType.VAR_REACTORS:
+            self.var_reactors =  input
         else:
             raise AttributeError("Invalid reactor type.")
 
     def check_reactor(self, reactor_id, type_of_reactor = ReactorType.ALL_REACTORS) -> bool:
         """Sees if the reactor ID provided is in the reactors for the type specified. Useful if you want the output to vary."""
-        if ReactorType.ORI_REACTORS:
+        if type_of_reactor == ReactorType.ORI_REACTORS:
             return reactor_id in self.ori_reactors
-        elif ReactorType.VAR_REACTORS:
+        elif type_of_reactor == ReactorType.VAR_REACTORS:
             return reactor_id in self.var_reactors
-        elif ReactorType.ALL_REACTORS:
+        elif type_of_reactor == ReactorType.ALL_REACTORS:
             return reactor_id in self.get_reactors()
         else:
             raise AttributeError("Invalid reactor type.")
@@ -83,9 +95,9 @@ class StarboardEntry():
     def add_reactor(self, reactor_id, type_of_reactor: ReactorType):
         """Adds a reactor to the reactor type specified. Will silently fail if the entry already exists."""
         if not reactor_id in self.get_reactors():
-            if ReactorType.ORI_REACTORS:
+            if type_of_reactor == ReactorType.ORI_REACTORS:
                 self.ori_reactors.add(reactor_id)
-            elif ReactorType.VAR_REACTORS:
+            elif type_of_reactor == ReactorType.VAR_REACTORS:
                 self.var_reactors.add(reactor_id)
             else:
                 raise AttributeError("Invalid reactor type.")
@@ -107,6 +119,20 @@ class StarboardEntries():
         self.added = set()
         self.updated = set()
         self.removed = set()
+
+    def reset_deltas(self):
+        """Resets the deltas so that they have nothing."""
+        self.added = set()
+        self.updated = set()
+        self.removed = set()
+
+    def init_add(self, entry: StarboardEntry):
+        """Adds an entry to the list of entries during initialization. Or, well, the dict of entries.
+        Yes, it's a one-line difference"""
+        if self.entries[entry.ori_mes_id] == None:
+            self.entries[entry.ori_mes_id] = entry
+        else:
+            raise Exception(f"Entry {entry.ori_mes_id} already exists.")
 
     def add(self, entry: StarboardEntry):
         """Adds an entry to the list of entries. Or, well, the dict of entries."""
@@ -137,40 +163,22 @@ class StarboardEntries():
         else:
             raise KeyError(f"Entry {entry.ori_chan_id} does not exist in the current entries.")
 
-    def add_reactor(self, entry_id, reactor_id, type_of_reactor: ReactorType):
-        """Adds a reactor to the entry specified for the type specified.
-        Will error out if the entry ID is invalid, will silently fail if the reactor already is in there."""
-        if type_of_reactor == ReactorType.ALL_REACTORS:
-            raise AttributeError("Invalid reactor type.")
-
-        entry = self.get(entry_id)
-        if entry:
-            entry.add_reactor(reactor_id, type_of_reactor)
-        else:
-            raise KeyError(f"Entry {entry.ori_chan_id} does not exist in the current entries.")
-
-    def remove_reactor(self, entry_id, reactor_id):
-        """Removes a reactor to the entry specified.
-        Will error out if the entry ID is invalid, will silently fail if the reactor is not in there."""
-        entry = self.get(entry_id)
-        if entry:
-            entry.remove_reactor(reactor_id)
-        else:
-            raise KeyError(f"Entry {entry.ori_chan_id} does not exist in the current entries.")
-
-    def get(self, entry_id, ignore_star_var = False) -> typing.Optional[StarboardEntry]:
+    def get(self, entry_id, check_for_var = False) -> typing.Optional[StarboardEntry]:
         """Gets an entry based on the ID provides."""
         if self.entries[entry_id] != None:
-            return self.entries[entry_id]
-        elif not ignore_star_var:
-            entry = discord.utils.find(lambda e: e.star_var_id == entry_id, self.entries)
+            if not check_for_var or self.entries[entry_id].star_var_id != None:
+                return self.entries[entry_id]
+            else:
+                return None
+        else:
+            entry = discord.utils.find(lambda e: e != None and e.star_var_id == entry_id, self.entries.values())
             return entry
 
         return None
 
     def get_list(self, list_filter) -> typing.List[StarboardEntry]:
         """Gets specific entries based on the filter (a lambda or function) specified."""
-        return [e for e in self.entries.values() if list_filter(e)]
+        return [e for e in self.entries.values() if e != None and list_filter(e)]
 
     def get_random(self, list_filter) -> StarboardEntry:
         """Gets a random entry based on the filter (a lambda or function) specified."""

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import discord
 
 class EasterEggs(commands.Cog, name="Easter Egg", command_attrs=dict(hidden=True)):
     """Just a bunch of easter eggs since no one looks at the source code anyways."""

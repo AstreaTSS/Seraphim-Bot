@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import discord, importlib, os
+import importlib, os
 
 import common.utils as utils
 import common.groups as groups
