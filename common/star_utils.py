@@ -84,7 +84,7 @@ async def modify_stars(bot, mes: discord.Message, reactor_id, operation):
         starboard_entry = star_classes.StarboardEntry.new_entry(mes, author_id, reactor_id)
         bot.starboard.add(starboard_entry)
 
-        await sync_prev_reactors(bot, mes, author_id, starboard_entry, "ori_reactors", remove=False)
+        await sync_prev_reactors(bot, mes, author_id, starboard_entry, star_classes.ReactorType.ORI_REACTORS, remove=False)
 
     author_id = starboard_entry.author_id
 
