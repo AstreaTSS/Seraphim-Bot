@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import discord, datetime, os
+import datetime, os
 import importlib, asyncio, collections
 
 import common.utils as utils
@@ -19,45 +19,6 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
-
-    @commands.command(hidden=True)
-    async def load_extension(self, ctx, extension):
-        try:
-            self.bot.load_extension(extension)
-        except commands.ExtensionNotFound:
-            return await ctx.send(f"Extension '{extension}' not found!")
-        except commands.ExtensionAlreadyLoaded:
-            return await ctx.send(f"Extension '{extension}' already loaded!")
-        except commands.NoEntryPointError:
-            return await ctx.send(f"There was no entry point for '{extension}'!")
-        except commands.ExtensionFailed:
-            raise
-
-        await self.msg_handler(ctx, f"Extension '{extension}' loaded!")
-
-    @commands.command(hidden=True)
-    async def reload_extension(self, ctx, extension):
-        try:
-            self.bot.reload_extension(extension)
-        except commands.ExtensionNotFound:
-            return await ctx.send(f"Extension '{extension}' not found!")
-        except commands.ExtensionNotLoaded:
-            return await ctx.send(f"Extension '{extension}' not loaded!")
-        except commands.NoEntryPointError:
-            return await ctx.send(f"There was no entry point for '{extension}'!")
-        except commands.ExtensionFailed:
-            raise
-
-        await self.msg_handler(ctx, f"Extension '{extension}' reloaded!")
-
-    @commands.command(hidden=True)
-    async def unload_extension(self, ctx, extension):
-        try:
-            self.bot.unload_extension(extension)
-        except commands.ExtensionNotLoaded:
-            return await ctx.send(f"Extension '{extension}' is not loaded!'")
-
-        await self.msg_handler(ctx, f"Extension '{extension}' unloaded!")
 
     @commands.command(hidden=True)
     async def reload_all_extensions(self, ctx):

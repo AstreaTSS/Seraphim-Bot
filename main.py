@@ -24,13 +24,29 @@ def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
 
     return mention_prefixes + custom_prefixes
 
-def block_dms(ctx):
-    return ctx.guild is not None
+def global_checks(ctx):
+    if ctx.guild == None:
+        return False
+
+    if ctx.command == None:
+        return True
+
+    disable_entry = ctx.bot.config[ctx.guild.id]["disables"]["users"].get(str(ctx.author.id))
+    if disable_entry == None:
+        return True
+
+    if ctx.command.qualified_name in disable_entry:
+        return False
+
+    if "all" in disable_entry and not ctx.command.cog.qualified_name in ("Cog Control", "Eval", "Help"):
+        return False
+
+    return True
 
 class SeraphimBot(commands.Bot):
     def __init__(self, command_prefix, help_command=bot_default, description=None, **options):
         super().__init__(command_prefix, help_command=help_command, description=description, **options)
-        self._checks.append(block_dms)
+        self._checks.append(global_checks)
 
     async def on_ready(self):
         if self.init_load == True:
@@ -53,6 +69,7 @@ class SeraphimBot(commands.Bot):
             application = await self.application_info()
             self.owner = application.owner
 
+            self.load_extension("jishaku")
             self.load_extension("cogs.db_handler")
             while self.config == {}:
                 await asyncio.sleep(0.1)
@@ -105,14 +122,11 @@ class SeraphimBot(commands.Bot):
 We need guilds as we need to know when the bot joins and leaves guilds for setup stuff. That's... mostly it.
 We need members for their roles and nicknames. Yes, this stuff isn't provided normally.
 Emojis are for the emoji helper commands, of course.
-Presences is mostly for the speedup in start times it provides. Weird, I know, but according to the 
-discord.py docs, it does provide a significant speedup: 
-https://discordpy.readthedocs.io/en/latest/intents.html#why-does-on-ready-take-so-long-to-fire
 Messages run the entire core of the bot itself. Of course we use them here. We might be able to
 turn off DM message intents, but for now they're here for safety.
 Reactions run the starboard of Seraphim, so of course that's here too. See above for why DMs."""
 intents = discord.Intents(guilds=True, members=True, 
-    emojis=True, presences=True, messages=True, reactions=True)
+    emojis=True, messages=True, reactions=True)
 
 bot = SeraphimBot(command_prefix=seraphim_prefixes, fetch_offline_members=True, intents=intents)
 

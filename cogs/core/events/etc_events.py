@@ -41,6 +41,10 @@ class EtcEvents(commands.Cog):
                 "pingable_roles": {},
                 "pin_config": {},
                 "prefixes": ["s!"],
+                "disables": {
+                    "users": {},
+                    "channels": {}
+                },
 
                 "guild_id_bac": guild.id
             }

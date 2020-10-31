@@ -97,6 +97,12 @@ class PaginatedHelpCommand(commands.HelpCommand):
         if isinstance(error, commands.CommandInvokeError):
             await ctx.send(str(error.original))
 
+    async def command_callback(self, ctx, *, command=None):
+        if command != None:
+            command = command.replace("-", "_")
+
+        await super().command_callback(ctx, command=command)
+
     def get_command_signature(self, command):
         parent = command.full_parent_name.replace("_", "-")
         if len(command.aliases) > 0:
