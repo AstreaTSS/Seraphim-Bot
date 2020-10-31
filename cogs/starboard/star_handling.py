@@ -49,7 +49,7 @@ class Star(commands.Cog):
         if (not user.bot and not channel.id in self.bot.config[mes.guild.id]["star_blacklist"]):
 
             if mes.author.id != user.id:
-                star_variant = self.bot.starboard.get(mes.id, ignore_star_var=True)
+                star_variant = self.bot.starboard.get(mes.id, check_for_var=True)
 
                 if not star_variant:
                     if channel.id != self.bot.config[mes.guild.id]["starboard_id"]:

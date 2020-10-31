@@ -4,6 +4,7 @@ import discord, os, asyncio, importlib
 import copy, asyncpg, json
 
 import common.utils as utils
+import common.star_classes as star_classes
 
 class DBHandler(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -27,7 +28,8 @@ class DBHandler(commands.Cog):
         config_db = await self.fetch_table("seraphim_config")
 
         for row in starboard_db:
-            self.bot.starboard.from_row(row)
+            entry = star_classes.StarboardEntry.from_row(row)
+            self.bot.starboard.init_add(entry)
 
         config_dict = {}
         for row in config_db:

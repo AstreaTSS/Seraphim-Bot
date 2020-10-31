@@ -23,9 +23,9 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         if guild_entries != []:
             for entry in guild_entries:
                 if entry.author_id in user_star_dict.keys():
-                    user_star_dict[entry.author_id] += star_utils.get_num_stars(entry)
+                    user_star_dict[entry.author_id] += len(entry.get_reactors())
                 else:
-                    user_star_dict[entry.author_id] = star_utils.get_num_stars(entry)
+                    user_star_dict[entry.author_id] = len(entry.get_reactors())
 
             return user_star_dict.most_common(None)
         else:
@@ -138,7 +138,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         """Gets a random starboard entry from the server it's being run in.
         May not work 100% of the time, but it should be reliable enough."""
 
-        valid_entries = self.bot.starboard.get_list(lambda e: e.guild_id == ctx.guild.id and e["star_var_id"] != None)
+        valid_entries = self.bot.starboard.get_list(lambda e: e.guild_id == ctx.guild.id and e.star_var_id != None)
 
         if valid_entries:
             random_entry = random.choice(valid_entries)

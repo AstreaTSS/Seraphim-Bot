@@ -2,7 +2,6 @@
 import discord, os, asyncio
 import websockets, logging
 from discord.ext import commands
-from discord.ext.commands.view import StringView
 from discord.ext.commands.bot import _default as bot_default
 from datetime import datetime
 

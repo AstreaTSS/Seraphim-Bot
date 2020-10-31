@@ -104,7 +104,7 @@ async def modify_stars(bot, mes: discord.Message, reactor_id, operation):
             starboard_entry.add_reactor(reactor_id, type_of)
 
         elif operation == "SUBTRACT" and reactor_id in starboard_entry.get_reactors():
-            starboard_entry.remove_reactor(reactor_id, type_of)
+            starboard_entry.remove_reactor(reactor_id)
 
         bot.starboard.update(starboard_entry)
 
@@ -135,7 +135,7 @@ async def sync_prev_reactors(bot, mes: discord.Message, author_id,
         if remove:
             remove_ids = [i for i in starboard_entry.get_reactors_from_type(type_of) if i not in user_ids]
             for remove_id in remove_ids:
-                starboard_entry.remove_reactor(remove_id, type_of)
+                starboard_entry.remove_reactor(remove_id)
 
         bot.starboard.update(starboard_entry)
 
