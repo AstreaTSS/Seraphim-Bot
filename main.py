@@ -6,6 +6,7 @@ from discord.ext.commands.view import StringView
 from discord.ext.commands.bot import _default as bot_default
 from datetime import datetime
 
+import common.star_classes as star_classes
 import common.utils as utils
 
 from dotenv import load_dotenv
@@ -50,7 +51,7 @@ class SeraphimBot(commands.Bot):
 
     async def on_ready(self):
         if self.init_load == True:
-            self.starboard = {}
+            self.starboard = star_classes.StarboardEntries()
             self.config = {}
 
             self.snipes = {

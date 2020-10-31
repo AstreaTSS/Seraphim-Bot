@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
-import discord, re, os
-import aiohttp, collections
+import discord, re
+import collections
 
 import common.star_utils as star_utils
 import common.utils as utils
@@ -51,10 +51,10 @@ async def base_generate(bot, mes):
     and mes.embeds[0].author.name != bot.user.name)): # if message is sniped message that's supported
         snipe_embed = mes.embeds[0]
 
-        entry = star_utils.get_star_entry(bot, mes.id)
+        entry = bot.starboard.get(mes.id)
 
-        if entry != []:
-            author = await utils.user_from_id(bot, mes.guild, entry["author_id"])
+        if entry:
+            author = await utils.user_from_id(bot, mes.guild, entry.author_id)
         else:
             author_id = star_utils.get_author_id(mes, bot)
             author = await utils.user_from_id(bot, mes.guild, author_id)
@@ -133,8 +133,10 @@ async def send(bot, mes, unique_stars, forced = False):
     else:
         starred = await starboard.send(content=f"⭐ **{unique_stars}** | {mes.channel.mention} (Forced Entry)", embed=send_embed)
     await starred.add_reaction("⭐")
-    
-    bot.starboard[mes.id]["star_var_id"] = starred.id
-    bot.starboard[mes.id]["starboard_id"] = starred.channel.id
+
+    entry = bot.starboard.get(mes.id)
+    entry.star_var_id = starred.id
+    entry.starboard_id = starred.channel.id
+    bot.starboard.update(entry)
 
     return starred

@@ -6,7 +6,7 @@ import copy, asyncpg, json
 import common.utils as utils
 
 class DBHandler(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.commit_loop.start()
 
@@ -26,38 +26,31 @@ class DBHandler(commands.Cog):
         starboard_db = await self.fetch_table("starboard")
         config_db = await self.fetch_table("seraphim_config")
 
-        starboard_dict = {}
-        config_dict = {}
-
         for row in starboard_db:
-            starboard_dict[row["ori_mes_id"]] = row["data"]
-            starboard_dict[row["ori_mes_id"]]["updated"] = False
+            self.bot.starboard.from_row(row)
 
+        config_dict = {}
         for row in config_db:
             config_dict[row["guild_id"]] = row["config"]
 
-        self.bot.starboard = starboard_dict
         self.bot.config = config_dict
-        self.bot.starboard_bac = copy.deepcopy(starboard_dict)
         self.bot.config_bac = copy.deepcopy(config_dict)
 
     @tasks.loop(minutes=2.5)
     async def commit_loop(self):
         list_of_cmds = []
 
-        starboard = self.bot.starboard
-        star_bac = self.bot.starboard_bac
+        for entry_id in self.bot.starboard.added:
+            entry = self.bot.starboard.get(entry_id)
+            list_of_cmds.append(self.create_cmd("starboard", "INSERT INTO", entry))
+        for entry_id in self.bot.starboard.updated:
+            entry = self.bot.starboard.get(entry_id)
+            list_of_cmds.append(self.create_cmd("starboard", "UPDATE", entry))
+        for entry_id in self.bot.starboard.removed:
+            entry = self.bot.starboard.get(entry_id)
+            list_of_cmds.append(self.create_cmd("starboard", "DELETE FROM", entry))
 
-        for message in list(self.bot.starboard.keys()).copy():
-            if starboard[message]["ori_chan_id"] == None:
-                list_of_cmds.append(self.create_cmd("starboard", "DELETE FROM", starboard[message]))
-                del self.bot.starboard[message]
-            else:
-                if message in list(star_bac.keys()):
-                    if not starboard[message] == star_bac[message]:
-                        list_of_cmds.append(self.create_cmd("starboard", "UPDATE", starboard[message]))
-                else:
-                    list_of_cmds.append(self.create_cmd("starboard", "INSERT INTO", starboard[message]))
+        self.bot.starboard.reset_deltas()
 
         config = self.bot.config
         config_bac = self.bot.config_bac
@@ -72,7 +65,6 @@ class DBHandler(commands.Cog):
         if list_of_cmds != []:
             await self.run_commands(list_of_cmds)
 
-            self.bot.starboard_bac = copy.deepcopy(self.bot.starboard)
             self.bot.config_bac = copy.deepcopy(self.bot.config)
 
     @commit_loop.error
@@ -124,7 +116,7 @@ class DBHandler(commands.Cog):
 
                     elif command["table"] == "starboard":
                         if command["type"] == "DELETE FROM":
-                            await conn.execute("DELETE FROM starboard WHERE ori_mes_id = $1", command["entry"]["ori_mes_id_bac"])
+                            await conn.execute("DELETE FROM starboard WHERE ori_mes_id = $1", command["entry"].ori_mes_id)
                             continue
                         elif command["type"] == "INSERT INTO":
                             db_command = ("INSERT INTO starboard(ori_mes_id, data) VALUES($1, $2)")
@@ -132,7 +124,9 @@ class DBHandler(commands.Cog):
                             db_command = ("UPDATE starboard SET data = $2 WHERE ori_mes_id = $1")
 
                         if db_command != "":
-                            await conn.execute(db_command, command["entry"]["ori_mes_id_bac"], command["entry"])
+                            command["entry"].ori_reactors = list(command["entry"].ori_reactors)
+                            command["entry"].var_reactors = list(command["entry"].var_reactors)
+                            await conn.execute(db_command, command["entry"].ori_mes_id, command["entry"].to_dict())
         finally:
             await conn.close()
     

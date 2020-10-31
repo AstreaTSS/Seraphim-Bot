@@ -4,6 +4,7 @@ import datetime, os
 import importlib, asyncio, collections
 
 import common.utils as utils
+import common.star_classes as star_classes
 
 class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=True)):
     def __init__(self, bot):
@@ -100,7 +101,7 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
             self.bot.unload_extension(extension)
 
         self.bot.init_load = True
-        self.bot.starboard = {}
+        self.bot.starboard = star_classes.StarboardEntries()
         self.bot.config = {}
 
         self.bot.load_extension("cogs.db_handler")
