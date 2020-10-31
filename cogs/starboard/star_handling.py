@@ -56,7 +56,7 @@ class Star(commands.Cog):
                         await star_utils.modify_stars(self.bot, mes, payload.user_id, "ADD")
 
                         star_entry = self.bot.starboard.get(mes.id)
-                        unique_stars = len(star_entry.get_reactors)
+                        unique_stars = len(star_entry.get_reactors())
 
                         if unique_stars >= self.bot.config[mes.guild.id]["star_limit"]:
                             self.bot.star_queue[mes.id] = {

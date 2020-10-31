@@ -128,6 +128,8 @@ class DBHandler(commands.Cog):
                             command["entry"].ori_reactors = list(command["entry"].ori_reactors)
                             command["entry"].var_reactors = list(command["entry"].var_reactors)
                             await conn.execute(db_command, command["entry"].ori_mes_id, command["entry"].to_dict())
+                            command["entry"].ori_reactors = set(command["entry"].ori_reactors)
+                            command["entry"].var_reactors = set(command["entry"].var_reactors)
         finally:
             await conn.close()
     

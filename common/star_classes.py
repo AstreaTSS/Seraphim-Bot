@@ -16,8 +16,8 @@ class StarboardEntry():
 
     def __repr__(self):
         return (f"<StarboardEntry ori_mes_id={self.ori_mes_id} ori_chan_id={self.ori_chan_id} star_var_id={self.star_var_id} " +
-            f"starboard_id={self.starboard_id} author_id={self.author_id} ori_reactors={list(self.ori_reactors)} " +
-            f"var_reactors={list(self.var_reactors)} guild_id={self.guild_id} forced={self.forced} updated={self.updated}>")
+            f"starboard_id={self.starboard_id} author_id={self.author_id} ori_reactors={(self.ori_reactors)} " +
+            f"var_reactors={(self.var_reactors)} guild_id={self.guild_id} forced={self.forced} updated={self.updated}>")
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.ori_mes_id == other.ori_mes_id
