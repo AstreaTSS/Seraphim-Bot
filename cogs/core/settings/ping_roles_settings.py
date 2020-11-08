@@ -3,9 +3,10 @@ import discord
 
 import common.utils as utils
 import common.fuzzys as fuzzys
+import common.groups as groups
 import common.classes
 
-@commands.group(name="ping_roles")
+@groups.group(name="ping_roles")
 @commands.check(utils.proper_permissions)
 async def main_cmd(ctx):
     """The base command for managing all of the pingable roles. See the help for the subcommands for more info.
