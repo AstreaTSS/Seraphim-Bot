@@ -6,7 +6,7 @@ import common.fuzzys as fuzzys
 import common.groups as groups
 import common.classes
 
-@groups.group(name="ping_roles")
+@groups.group(name="ping_roles", aliases=["pingroles", "pingrole", "rolepings", "roleping"])
 @commands.check(utils.proper_permissions)
 async def main_cmd(ctx):
     """The base command for managing all of the pingable roles. See the help for the subcommands for more info.
