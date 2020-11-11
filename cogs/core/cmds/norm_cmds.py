@@ -35,6 +35,7 @@ class NormCMDs(commands.Cog, name="Normal"):
     @commands.command()
     async def invite(self, ctx):
         """Gives an invite link to invite the bot."""
+        
         await ctx.send("Invite:\nhttps://discord.com/api/oauth2/authorize?client_id=700857077672706120&permissions=8&scope=bot")
 
     @commands.command()
