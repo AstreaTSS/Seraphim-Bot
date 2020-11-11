@@ -35,7 +35,6 @@ class NormCMDs(commands.Cog, name="Normal"):
     @commands.command()
     async def invite(self, ctx):
         """Gives an invite link to invite the bot."""
-        
         await ctx.send("Invite:\nhttps://discord.com/api/oauth2/authorize?client_id=700857077672706120&permissions=8&scope=bot")
 
     @commands.command()
@@ -73,11 +72,6 @@ class NormCMDs(commands.Cog, name="Normal"):
         )
 
         await ctx.send(embed=about_embed)
-
-    @commands.command()
-    async def invite(self, ctx):
-        await ctx.send("Sorry, you cannot invite me currently. Usually, Sonic49 invites me to one of his servers on his own, " +
-        "but you might be able to convince him, although unlikely, to get me on your server.")
 
     @commands.group(invoke_without_command=True, aliases=["prefix"], ignore_extra=False)
     async def prefixes(self, ctx):
