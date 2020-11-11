@@ -33,6 +33,10 @@ class NormCMDs(commands.Cog, name="Normal"):
             await ctx.send(f"{ctx.author.mention}, that message is too long!")
 
     @commands.command()
+    async def invite(self, ctx):
+        await ctx.send("Invite:\nhttps://discord.com/api/oauth2/authorize?client_id=700857077672706120&permissions=8&scope=bot")
+
+    @commands.command()
     async def about(self, ctx):
         """Gives information about the bot."""
 
@@ -43,8 +47,8 @@ class NormCMDs(commands.Cog, name="Normal"):
         "but I've since been expanded to other functions, too.")
         msg_list.append("I tend to have features that are either done poorly by other bots, or features of bots " +
         "that tend to be offline/unresponsive for a decent amount of time.")
-        msg_list.append("You cannot invite me to your server normally. Usually, Sonic49 invites me to one of his servers on his own, " +
-        "but you might be able to convince him, although unlikely, to get me on your server.") 
+        msg_list.append("If you want to invite me, you're in luck. The link is:")
+        msg_list.append("https://discord.com/api/oauth2/authorize?client_id=700857077672706120&permissions=8&scope=bot") 
 
         about_embed = discord.Embed(
             title = "About", 
