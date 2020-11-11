@@ -23,7 +23,7 @@ class ClearEvents(commands.Cog):
 
         if star_variant:
             if star_variant.star_var_id != payload.message_id:
-                self.bot.starboard.delete(star_variant)
+                self.bot.starboard.delete(star_variant.ori_mes_id)
             else:
                 star_variant.star_var_id = None
                 star_variant.forced = False
@@ -40,7 +40,7 @@ class ClearEvents(commands.Cog):
         if star_variants != []:
             for star_variant in star_variants:
                 if not star_variant.star_var_id in payload.message_ids:
-                    self.bot.starboard.delete(star_variant)
+                    self.bot.starboard.delete(star_variant.ori_mes_id)
                 else:
                     star_variant.star_var_id = None
                     star_variant.forced = False
