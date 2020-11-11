@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import importlib
+import importlib, discord
 
 import common.star_utils as star_utils
 
@@ -24,6 +24,15 @@ class ClearEvents(commands.Cog):
         if star_variant:
             if star_variant.star_var_id != payload.message_id:
                 self.bot.starboard.delete(star_variant.ori_mes_id)
+
+                if star_variant.star_var_id != None:
+                    star_chan = self.bot.get_channel(star_variant.starboard_id)
+                    if star_chan:
+                        try:
+                            star_mes = await star_chan.fetch_message(star_variant.star_var_id)
+                            await star_mes.delete()
+                        except discord.HTTPException:
+                            pass
             else:
                 star_variant.star_var_id = None
                 star_variant.forced = False
@@ -41,6 +50,15 @@ class ClearEvents(commands.Cog):
             for star_variant in star_variants:
                 if not star_variant.star_var_id in payload.message_ids:
                     self.bot.starboard.delete(star_variant.ori_mes_id)
+
+                    if star_variant.star_var_id != None:
+                        star_chan = self.bot.get_channel(star_variant.starboard_id)
+                        if star_chan:
+                            try:
+                                star_mes = await star_chan.fetch_message(star_variant.star_var_id)
+                                await star_mes.delete()
+                            except discord.HTTPException:
+                                pass
                 else:
                     star_variant.star_var_id = None
                     star_variant.forced = False
