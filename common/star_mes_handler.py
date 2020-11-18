@@ -27,7 +27,7 @@ def cant_display(embed: discord.Embed, attachments: list, index = 0):
 
     return embed
 
-async def base_generate(bot, mes):
+async def base_generate(bot, mes: discord.Message):
     # generates core of star messages
     image_url = ""
 
@@ -90,8 +90,46 @@ async def base_generate(bot, mes):
             send_embed = discord.Embed(colour=discord.Colour(0xcfca76), description=discord.Embed.Empty, timestamp=mes.created_at)
         send_embed.set_author(name=author, icon_url=icon)
 
+        if mes.type == discord.MessageType.default and mes.reference:
+            # checks if message has inline reply
+
+            ref_author = None
+            ref_auth_str = ""
+            ref_mes_url = ""
+
+            if mes.reference.cached_message:
+                # saves time fetching messages if possible
+                ref_author = mes.reference.cached_message.author
+                ref_mes_url = mes.reference.cached_message.jump_url
+            elif mes.reference.message_id:
+                # fetches message from info given by MessageReference
+                # note the message id might not be provided, so we check if it is
+                ref_chan = bot.get_channel(mes.reference.channel_id)
+                if ref_chan:
+                    try:
+                        ref_mes = await ref_chan.fetch_message(mes.reference.message_id)
+                        ref_author = ref_mes.author
+                        ref_mes_url = ref_mes.jump_url
+                    except discord.HTTPException:
+                        pass
+
+            if ref_author:
+                ref_auth_str = ref_author.display_name
+            else:
+                ref_auth_str = "a message"
+
+            if not ref_mes_url and mes.reference.message_id and mes.reference.guild_id:
+                ref_mes_url = f"https://discord.com/channels/{mes.reference.guild_id}/{mes.reference.channel_id}/{mes.reference.message_id}"
+
+            send_embed.title = f"{mes.author.display_name} replied to {ref_auth_str}:"
+            if ref_mes_url:
+                send_embed.url = ref_mes_url
+
         if mes.embeds != [] and mes.embeds[0].type == "image" and mes.embeds[0].thumbnail.url != discord.Embed.Empty:
             image_url = mes.embeds[0].thumbnail.url
+
+            if mes.attachments:
+                send_embed = cant_display(send_embed, mes.attachments, 0)
         elif mes.attachments != []:
             if mes.attachments[0].proxy_url.lower().endswith(bot.image_extensions) and not mes.attachments[0].is_spoiler():
                 image_url = mes.attachments[0].proxy_url
@@ -108,6 +146,9 @@ async def base_generate(bot, mes):
                 possible_url = await image_utils.get_image_url(first_url)
                 if possible_url != None:
                     image_url = possible_url
+
+            if mes.attachments:
+                send_embed = cant_display(send_embed, mes.attachments, 0)
 
     if image_url != "":
         send_embed.set_image(url=image_url)
