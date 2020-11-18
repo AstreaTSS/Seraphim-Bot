@@ -1,22 +1,14 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import common.utils as utils
-
 import discord, re, datetime
 
 class SnipedMessage():
     """A special class for sniped messages, using slots to keep the memory usage to a minimum."""
-    __slots__ = ("author_name", "author_url", "content", "created_at", "time_modified")
+    __slots__ = ("embed", "time_modified")
 
-    def __init__(self, message: discord.Message, now: datetime.datetime):
-        self.author_name = f"{message.author.display_name} ({str(message.author)})"
-        self.author_url = str(message.author.avatar_url_as(format=None,static_format='png', size=128))
-        self.content = utils.get_content(message)
-        self.created_at = message.created_at
-        self.time_modified = now
-
-    def __repr__(self):
-        return f"<SnipedMessage author_name={self.author_name} author_url={self.author_url} created_at={self.created_at} time_modified={self.time_modified}>"
+    def __init__(self, embed: discord.Embed):
+        self.embed = embed
+        self.time_modified = datetime.datetime.utcnow()
 
 class TimeDurationConverter(commands.Converter):
     """Converts a string to a time duration.

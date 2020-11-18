@@ -6,7 +6,6 @@ import common.star_utils as star_utils
 import common.utils as utils
 import common.image_utils as image_utils
 
-
 def cant_display(embed: discord.Embed, attachments: list, index = 0):
     attach_strs = collections.deque()
 
@@ -27,7 +26,7 @@ def cant_display(embed: discord.Embed, attachments: list, index = 0):
 
     return embed
 
-async def base_generate(bot, mes: discord.Message):
+async def base_generate(bot, mes: discord.Message, no_attachments = False):
     # generates core of star messages
     image_url = ""
 
@@ -128,9 +127,9 @@ async def base_generate(bot, mes: discord.Message):
         if mes.embeds != [] and mes.embeds[0].type == "image" and mes.embeds[0].thumbnail.url != discord.Embed.Empty:
             image_url = mes.embeds[0].thumbnail.url
 
-            if mes.attachments:
+            if not no_attachments and mes.attachments:
                 send_embed = cant_display(send_embed, mes.attachments, 0)
-        elif mes.attachments != []:
+        elif not no_attachments and mes.attachments != []:
             if mes.attachments[0].proxy_url.lower().endswith(bot.image_extensions) and not mes.attachments[0].is_spoiler():
                 image_url = mes.attachments[0].proxy_url
 
@@ -147,7 +146,7 @@ async def base_generate(bot, mes: discord.Message):
                 if possible_url != None:
                     image_url = possible_url
 
-            if mes.attachments:
+            if not no_attachments and mes.attachments:
                 send_embed = cant_display(send_embed, mes.attachments, 0)
 
     if image_url != "":

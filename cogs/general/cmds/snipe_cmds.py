@@ -58,15 +58,11 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
             raise commands.BadArgument("There's nothing to snipe!")
 
         try:
-            sniped_msg = self.bot.snipes[type_of][chan.id][-msg_num]
+            sniped_entry = self.bot.snipes[type_of][chan.id][-msg_num]
         except IndexError:
             raise commands.BadArgument("There's nothing to snipe!")
-            
-        send_embed = discord.Embed(colour=discord.Colour(0x4378fc), description=sniped_msg.content, timestamp=sniped_msg.created_at)
-        send_embed.set_author(name=sniped_msg.author_name, icon_url=sniped_msg.author_url)
-        send_embed.color = discord.Colour(0x4378fc)
         
-        await ctx.send(embed = send_embed)
+        await ctx.send(embed = sniped_entry.embed)
 
     def clear_snipes(self, type_of, chan_id):
         if not chan_id in self.bot.snipes[type_of] or self.bot.snipes[type_of][chan_id] == []:
