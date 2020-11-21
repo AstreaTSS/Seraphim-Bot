@@ -168,15 +168,18 @@ async def send(bot, mes, unique_stars, forced = False):
     send_embed = await star_generate(bot, mes)
     starboard = mes.guild.get_channel(bot.config[mes.guild.id]["starboard_id"])
 
-    if not forced:
-        starred = await starboard.send(content=f"⭐ **{unique_stars}** | {mes.channel.mention}", embed=send_embed)
-    else:
-        starred = await starboard.send(content=f"⭐ **{unique_stars}** | {mes.channel.mention} (Forced Entry)", embed=send_embed)
-    await starred.add_reaction("⭐")
+    if starboard:
+        if not forced:
+            starred = await starboard.send(content=f"⭐ **{unique_stars}** | {mes.channel.mention}", embed=send_embed)
+        else:
+            starred = await starboard.send(content=f"⭐ **{unique_stars}** | {mes.channel.mention} (Forced Entry)", embed=send_embed)
+        await starred.add_reaction("⭐")
 
-    entry = bot.starboard.get(mes.id)
-    entry.star_var_id = starred.id
-    entry.starboard_id = starred.channel.id
-    bot.starboard.update(entry)
+        entry = bot.starboard.get(mes.id)
+        entry.star_var_id = starred.id
+        entry.starboard_id = starred.channel.id
+        bot.starboard.update(entry)
 
-    return starred
+        return starred
+
+    return None

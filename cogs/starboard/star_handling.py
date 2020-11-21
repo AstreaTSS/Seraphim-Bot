@@ -101,6 +101,49 @@ class Star(commands.Cog):
 
                 if star_variant.star_var_id != None:
                     await star_utils.star_entry_refresh(self.bot, star_variant, mes.guild.id)
+
+    
+    @commands.Cog.listener()
+    async def on_raw_message_edit(self, payload: discord.RawMessageUpdateEvent):
+        # So, okay, this is going to be a bit weird.
+        # I need to use raw message edit because I want to make sure I don't need to rely on the cache...
+        # but at the same time, this means I have 0 clue about what was exactly edited.
+        # Suggesting a LOT can trigger this... trigger, this is not that great when we only want to know
+        # if the message contents were update.
+        # The best I can do is see if the raw data has the content in it, and just assume if it does,
+        # that it means that it's a valid edit.
+
+        if payload.data.get("content") != None:
+            # So we passed that initial check, but now we actually need the message
+            # (we could use the raw data, but better safe than sorry). Sometimes we might not
+            # have to waste API calls on it, but sometimes we do.
+
+            mes = payload.cached_message
+            if not mes:
+                chan = self.bot.get_channel(payload.channel_id)
+                if chan:
+                    try:
+                        mes = await chan.fetch_message(payload.message_id)
+                    except discord.HTTPException:
+                        pass
+            
+            # if message exists and the edit message toggle is on
+            if mes and self.bot.config[mes.guild.id]['star_edit_messages']:
+                starboard_entry = self.bot.starboard.get(mes.id, check_for_var = True)
+
+                # if the starboard entry exists and the star variant of the entry is not the message edited
+                if starboard_entry and starboard_entry.star_var_id != mes.id:
+                    new_embed = await star_mes.star_generate(self.bot, mes)
+
+                    star_chan = mes.guild.get_channel(starboard_entry.starboard_id)
+                    if star_chan:
+                        try:
+                            starboard_mes = await star_chan.fetch_message(starboard_entry.star_var_id)
+                            starboard_content = starboard_mes.content
+                            await starboard_mes.edit(content=starboard_content, embed=new_embed)
+                        except discord.HTTPException:
+                            pass
+
         
 def setup(bot):
     importlib.reload(utils)

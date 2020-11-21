@@ -34,6 +34,7 @@ class EtcEvents(commands.Cog):
                 "star_blacklist": [],
                 "star_toggle": False,
                 "remove_reaction": False,
+                "star_edit_messages": True,
                 "pingable_roles": {},
                 "pin_config": {},
                 "prefixes": ["s!"],

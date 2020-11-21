@@ -64,6 +64,18 @@ async def toggle(ctx, toggle: typing.Optional[bool]):
     else:
         await ctx.send(f"Star toggle: {ctx.bot.config[ctx.guild.id]['star_toggle']}")
 
+@main_cmd.command(aliases=["edit_messages, editmessage, editmessages"])
+@commands.check(utils.proper_permissions)
+async def edit_message(ctx, toggle: typing.Optional[bool]):
+    """Controls if the starboard message is edited when the original is. Defaults to being on.
+    Displays the current option if no argument is given, sets the current option to the argument (yes/no) if given."""
+
+    if toggle != None:
+        ctx.bot.config[ctx.guild.id]["star_edit_messages"] = toggle
+        await ctx.send(f"Toggled starboard message editing to {toggle} for this server!")
+    else:
+        await ctx.send(f"Star toggle: {ctx.bot.config[ctx.guild.id]['star_edit_messages']}")
+
 
 def star_toggle_check(ctx):
     return ctx.bot.config[ctx.guild.id]["star_toggle"]
