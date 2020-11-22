@@ -169,10 +169,11 @@ async def send(bot, mes, unique_stars, forced = False):
     starboard = mes.guild.get_channel(bot.config[mes.guild.id]["starboard_id"])
 
     if starboard:
+        star_emoji = star_utils.get_star_emoji(unique_stars)
         if not forced:
-            starred = await starboard.send(content=f"⭐ **{unique_stars}** | {mes.channel.mention}", embed=send_embed)
+            starred = await starboard.send(content=f"{star_emoji} **{unique_stars}** | {mes.channel.mention}", embed=send_embed)
         else:
-            starred = await starboard.send(content=f"⭐ **{unique_stars}** | {mes.channel.mention} (Forced Entry)", embed=send_embed)
+            starred = await starboard.send(content=f"{star_emoji} **{unique_stars}** | {mes.channel.mention} (Forced Entry)", embed=send_embed)
         await starred.add_reaction("⭐")
 
         entry = bot.starboard.get(mes.id)

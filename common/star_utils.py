@@ -13,6 +13,17 @@ def clear_stars(bot, starboard_entry: star_classes.StarboardEntry, mes_id):
 
     bot.starboard.update(starboard_entry)
 
+def get_star_emoji(num_stars):
+    # TODO: make this customizable
+    if num_stars <= 6:
+        return '⭐'
+    elif num_stars <= 12:
+        return '🌟'
+    elif num_stars <= 18:
+        return '💫'
+    else:
+        return '✨'
+
 def get_author_id(mes, bot):
     # gets author id from message
     author_id = None
@@ -167,7 +178,8 @@ async def star_entry_refresh(bot, starboard_entry: star_classes.StarboardEntry, 
     parts = star_var_mes.content.split(" | ")
 
     if unique_stars >= bot.config[guild_id]["star_limit"] or bool(starboard_entry.forced):
-        await star_var_mes.edit(content=f"⭐ **{unique_stars}** | {(parts)[1]}", embed=ori_starred)
+        star_emoji = get_star_emoji(unique_stars)
+        await star_var_mes.edit(content=f"{star_emoji} **{unique_stars}** | {(parts)[1]}", embed=ori_starred)
     else:
         starboard_entry.star_var_id = None
         bot.starboard.update(starboard_entry)
