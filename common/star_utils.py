@@ -114,7 +114,7 @@ async def modify_stars(bot, mes: discord.Message, reactor_id, operation):
         if not reactor_id in starboard_entry.get_reactors() and operation == "ADD":
             starboard_entry.add_reactor(reactor_id, type_of)
 
-        elif operation == "SUBTRACT" and reactor_id in starboard_entry.get_reactors():
+        elif operation == "SUBTRACT" and reactor_id in starboard_entry.get_reactors_from_type(type_of):
             starboard_entry.remove_reactor(reactor_id)
 
         bot.starboard.update(starboard_entry)
