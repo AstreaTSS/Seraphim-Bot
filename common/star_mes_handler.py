@@ -156,7 +156,7 @@ async def base_generate(bot, mes: discord.Message, no_attachments = False):
                     image_url = possible_url
 
             # if the image url is still blank and the message has a gifv embed
-            if image_url == "" and mes.embeds[0] and mes.embeds[0].type == "gifv":
+            if image_url == "" and mes.embeds != [] and mes.embeds[0].type == "gifv":
                 if mes.embeds[0].thumbnail.url != discord.Embed.Empty: # if there is a thumbnail url
                     image_url = mes.embeds[0].thumbnail.url
 
