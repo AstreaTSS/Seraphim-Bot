@@ -2,6 +2,8 @@
 import discord, re
 import collections
 
+from discord import embeds
+
 import common.star_utils as star_utils
 import common.utils as utils
 import common.image_utils as image_utils
@@ -71,7 +73,14 @@ async def base_generate(bot, mes: discord.Message, no_attachments = False):
         description=content, timestamp=mes.created_at)
         send_embed.set_author(name=author_str, icon_url=icon)
 
-    elif mes.embeds != [] and mes.embeds[0].description != discord.Embed.Empty and mes.embeds[0].type == "rich": # generic embed support
+    # generic embed support. we make sure the message is from a bot to make sure that
+    # discord-generated embeds do not hopefully get picked up... it's not perfect, though.
+    # the final check checks if the embed is not a twitter embed, which annoyingly can blend in as any other embed
+    # the check, of course, is far from perfect. twitter embed support is planned out for later
+    elif (mes.author.bot and mes.embeds != [] and mes.embeds[0].description != discord.Embed.Empty 
+        and mes.embeds[0].type == "rich" and (mes.embeds[0].footer.url != "https://abs.twimg.com/icons/apple-touch-icon-192x192.png"
+        and mes.embeds[0].footer.text != "Twitter")):
+
         author = f"{mes.author.display_name} ({str(mes.author)})"
         icon = str(mes.author.avatar_url_as(format=None,static_format="png", size=128))
 
@@ -145,6 +154,11 @@ async def base_generate(bot, mes: discord.Message, no_attachments = False):
                 possible_url = await image_utils.get_image_url(first_url)
                 if possible_url != None:
                     image_url = possible_url
+
+            # if the image url is still blank and the message has a gifv embed
+            if image_url == "" and mes.embeds[0] and mes.embeds[0].type == "gifv":
+                if mes.embeds[0].thumbnail.url != discord.Embed.Empty: # if there is a thumbnail url
+                    image_url = mes.embeds[0].thumbnail.url
 
             if not no_attachments and mes.attachments:
                 send_embed = cant_display(send_embed, mes.attachments, 0)
