@@ -66,7 +66,7 @@ def generate_mentions(ctx: commands.Context):
     permissions = ctx.author.guild_permissions
     # i assume mention_everyone also means they can ping all roles
     can_mention = (permissions.administrator or permissions.mention_everyone
-    or ctx.guild.owner.id == ctx.author.id)
+    or ctx.guild.owner_id == ctx.author.id)
 
     if can_mention:
         # i could use a default AllowedMentions object, but this is more clear
