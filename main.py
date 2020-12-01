@@ -128,7 +128,8 @@ Reactions run the starboard of Seraphim, so of course that's here too. See above
 intents = discord.Intents(guilds=True, members=True, 
     emojis=True, messages=True, reactions=True)
 
-member_cache = discord.MemberCacheFlags(joined=True) # forcing this as the bot is picky for some reason
+# forcing this as the bot is picky for some reason
+member_cache = discord.MemberCacheFlags(joined=True, online=False, voice=False)
 
 bot = SeraphimBot(command_prefix=seraphim_prefixes, chunk_guilds_at_startup=True, member_cache_flags=member_cache, intents=intents)
 
