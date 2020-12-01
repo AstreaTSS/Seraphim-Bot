@@ -21,6 +21,9 @@ def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
     except AttributeError:
         # prefix handling runs before command checks, so there's a chance there's no guild
         custom_prefixes = ["s!"]
+    except KeyError:
+        # rare possibility, but you know
+        custom_prefixes = ["s!"]
 
     return mention_prefixes + custom_prefixes
 
@@ -85,7 +88,7 @@ class SeraphimBot(commands.Bot):
         else:
             # attempts to re-chunk guilds? not sure if this will work, but it's worth a shot
             try:
-                await asyncio.wait(*(guild.chunk() for guild in bot.guilds if not guild.chunked))
+                await asyncio.wait((guild.chunk() for guild in bot.guilds if not guild.chunked))
             except asyncio.TimeoutError:
                 pass
 
