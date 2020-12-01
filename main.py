@@ -88,7 +88,7 @@ class SeraphimBot(commands.Bot):
         else:
             # attempts to re-chunk guilds? not sure if this will work, but it's worth a shot
             try:
-                await asyncio.wait((guild.chunk() for guild in bot.guilds if not guild.chunked))
+                await asyncio.wait([guild.chunk() for guild in bot.guilds if not guild.chunked])
             except asyncio.TimeoutError:
                 pass
 
