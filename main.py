@@ -87,10 +87,12 @@ class SeraphimBot(commands.Bot):
                         pass
         else:
             # attempts to re-chunk guilds? not sure if this will work, but it's worth a shot
-            try:
-                await asyncio.wait([guild.chunk() for guild in bot.guilds if not guild.chunked])
-            except asyncio.TimeoutError:
-                pass
+            chunk_list = [guild.chunk() for guild in bot.guilds if not guild.chunked]
+            if chunk_list:
+                try:
+                    await asyncio.wait(chunk_list)
+                except asyncio.TimeoutError:
+                    pass
 
         utcnow = datetime.utcnow()
         time_format = utcnow.strftime("%x %X UTC")
