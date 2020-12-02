@@ -59,7 +59,7 @@ class Star(commands.Cog):
 
                         if unique_stars >= self.bot.config[mes.guild.id]["star_limit"]:
                             # the queue is infinite, so we should be good there
-                            self.bot.star_queue.put_nowait([mes.channel.id, mes.id, mes.guild.id])
+                            self.bot.star_queue.put_nowait((mes.channel.id, mes.id, mes.guild.id))
                                 
                 elif user.id != star_variant.author_id:
                     await star_utils.modify_stars(self.bot, mes, payload.user_id, "ADD")

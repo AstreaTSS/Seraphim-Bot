@@ -191,7 +191,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         else:
             raise commands.BadArgument("This message is already on the starboard!")
         
-        self.bot.star_queue.put_nowait([msg.channel.id, msg.id, msg.guild.id])
+        self.bot.star_queue.put_nowait((msg.channel.id, msg.id, msg.guild.id))
         await ctx.send("Done! Please wait a couple of seconds for the message to appear.")
 
     @commands.command(hidden=True)
