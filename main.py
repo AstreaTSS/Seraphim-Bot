@@ -55,7 +55,7 @@ class SeraphimBot(commands.Bot):
     # methods for updating the custom cache, which is explained a bit more down below
     def get_members(self, guild_id: int):
         try:
-            return list(self.custom_cache[guild_id].values)
+            return list(self.custom_cache[guild_id].values())
         except KeyError:
             return None
 
