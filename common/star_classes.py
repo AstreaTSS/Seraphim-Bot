@@ -174,8 +174,6 @@ class StarboardEntries():
             entry = discord.utils.find(lambda e: e != None and e.star_var_id == entry_id, self.entries.values())
             return entry
 
-        return None
-
     def get_list(self, list_filter) -> typing.List[StarboardEntry]:
         """Gets specific entries based on the filter (a lambda or function) specified."""
         return [e for e in self.entries.values() if e != None and list_filter(e)]

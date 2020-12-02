@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.7
-from discord.ext import commands, tasks
+from discord.ext import commands
 import discord, importlib
 
 import common.utils as utils
@@ -9,29 +9,28 @@ import common.star_mes_handler as star_mes
 class Star(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.starboard_queue.start()
+        self.star_task = bot.loop.create_task(self.starboard_queue)
 
     def cog_unload(self):
-        self.starboard_queue.cancel()
+        self.star_task.cancel()
 
-    @tasks.loop(seconds=7)
     async def starboard_queue(self):
-        if self.bot.star_lock:
-            return
+        while True:
+            entry = await self.bot.star_queue.get()
 
-        self.bot.star_lock = True
+            chan = self.bot.get_channel(entry[0])
+            starboard_entry = self.bot.starboard.get(entry[1])
 
-        for entry_key in list(self.bot.star_queue.keys()).copy():
-            entry = self.bot.star_queue[entry_key]
-            await star_mes.send(self.bot, entry["mes"], entry["unique_stars"], entry["forced"])
+            # if the channel and the entry for the message exists in the bot and if the entry is above or at the required amount
+            # for that server
+            if chan and starboard_entry and len(starboard_entry.get_reactors) >= self.bot.config[entry[2]]["star_limit"]:
+                try:
+                    mes = chan.fetch_message(entry[1])
+                    await star_mes.send(self.bot, mes, len(starboard_entry.get_reactors), starboard_entry.forced)
+                except discord.HTTPException: # you never know
+                    pass
 
-        self.bot.star_queue = {}
-        self.bot.star_lock = False
-
-    @starboard_queue.error
-    async def error_handle(self, *args):
-        error = args[-1]
-        utils.error_handle(self.bot, error)
+            await self.bot.star_queue.task_done()
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
@@ -59,11 +58,7 @@ class Star(commands.Cog):
                         unique_stars = len(star_entry.get_reactors())
 
                         if unique_stars >= self.bot.config[mes.guild.id]["star_limit"]:
-                            self.bot.star_queue[mes.id] = {
-                                "mes": mes,
-                                "unique_stars": unique_stars,
-                                "forced": False
-                            }
+                            await self.bot.star_queue.put([mes.channel.id, mes.id, mes.guild.id])
                                 
                 elif user.id != star_variant.author_id:
                     await star_utils.modify_stars(self.bot, mes, payload.user_id, "ADD")

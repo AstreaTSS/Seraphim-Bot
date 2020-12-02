@@ -6,6 +6,7 @@ from discord.ext.commands.bot import _default as bot_default
 from datetime import datetime
 
 import common.star_classes as star_classes
+import common.classes as custom_classes
 import common.utils as utils
 
 from dotenv import load_dotenv
@@ -23,7 +24,7 @@ def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
         custom_prefixes = ["s!"]
     except KeyError:
         # rare possibility, but you know
-        custom_prefixes = ["s!"]
+        custom_prefixes = []
 
     return mention_prefixes + custom_prefixes
 
@@ -63,8 +64,7 @@ class SeraphimBot(commands.Bot):
 
             self.role_rolebacks = {}
 
-            self.star_queue = {}
-            self.star_lock = False
+            self.star_queue = custom_classes.SetAsyncQueue()
 
             image_endings = ("jpg", "jpeg", "png", "gif", "webp")
             self.image_extensions = tuple(image_endings) # no idea why I have to do this

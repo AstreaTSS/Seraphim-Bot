@@ -191,13 +191,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         else:
             raise commands.BadArgument("This message is already on the starboard!")
         
-        unique_stars = len(starboard_entry.get_reactors())
-        self.bot.star_queue[msg.id] = {
-            "mes": msg,
-            "unique_stars": unique_stars,
-            "forced": True
-        }
-
+        self.bot.star_queue.put([msg.channel.id, msg.id, msg.guild.id])
         await ctx.send("Done! Please wait a couple of seconds for the message to appear.")
 
     @commands.command(hidden=True)
