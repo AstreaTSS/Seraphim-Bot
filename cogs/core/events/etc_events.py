@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands, tasks
-import datetime
+import datetime, discord
 
 class EtcEvents(commands.Cog):
     def __init__(self, bot):
@@ -24,6 +24,28 @@ class EtcEvents(commands.Cog):
                 "id": member.id
             }
 
+        self.bot.remove_member(member)
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        self.bot.update_member(member)
+
+    @commands.Cog.listener()
+    async def on_member_update(self, before, after):
+        self.bot.update_member(after)
+
+    @commands.Cog.listener()
+    async def on_user_update(self, before, after):
+        for guild_id in self.bot.custom_cache.keys():
+            if self.bot.custom_cache[guild_id].get(after.id) != None:
+                guild = self.bot.get_guild(guild_id)
+                if guild:
+                    try:
+                        member = await guild.fetch_member(after.id)
+                        self.bot.update_member(member)
+                    except discord.HTTPException:
+                        pass
+
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
         if not guild.id in list(self.bot.config.keys()):
@@ -45,6 +67,10 @@ class EtcEvents(commands.Cog):
 
                 "guild_id_bac": guild.id
             }
+
+            self.bot.custom_cache[guild.id] = {}
+            for member in guild.members:
+                self.bot.update_member(member)
             
 def setup(bot):
     bot.add_cog(EtcEvents(bot))

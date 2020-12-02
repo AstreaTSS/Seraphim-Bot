@@ -52,25 +52,55 @@ class SeraphimBot(commands.Bot):
         super().__init__(command_prefix, help_command=help_command, description=description, **options)
         self._checks.append(global_checks)
 
+    # methods for updating the custom cache, which is explained a bit more down below
+    def get_members(self, guild_id: int):
+        try:
+            return list(self.custom_cache[guild_id].values)
+        except KeyError:
+            return None
+
+    def update_member(self, member: discord.Member):
+        try:
+            self.custom_cache[member.guild.id][member.id] = member
+        except KeyError:
+            pass
+
+    def remove_member(self, member: discord.Member):
+        try:
+            del self.custom_cache[member.guild.id][member.id]
+        except KeyError:
+            pass
+
     async def on_ready(self):
         if self.init_load == True:
             self.starboard = star_classes.StarboardEntries()
             self.config = {}
 
+            self.star_queue = custom_classes.SetAsyncQueue()
+
             self.snipes = {
                 "deletes": {},
                 "edits": {}
             }
-
             self.role_rolebacks = {}
-
-            self.star_queue = custom_classes.SetAsyncQueue()
 
             image_endings = ("jpg", "jpeg", "png", "gif", "webp")
             self.image_extensions = tuple(image_endings) # no idea why I have to do this
 
             application = await self.application_info()
             self.owner = application.owner
+
+            """Okay, let me explain myself here.
+            Basically, on every disconnect, for some reason, discord.py decides to throw away
+            every single member object it has if you don't have presences on.
+            What I'm doing here is storing a copy of that member cache, and then giving it back
+            to the bot after a disconnect. There's a better method, I know, but I don't have
+            the experience to code something more advanced."""
+            self.custom_cache = {}
+            for guild in self.guilds:
+                self.custom_cache[guild.id] = {}
+                for member in guild.members:
+                    self.update_member(member)
 
             self.load_extension("jishaku")
             self.load_extension("cogs.db_handler")
@@ -86,13 +116,12 @@ class SeraphimBot(commands.Bot):
                     except commands.NoEntryPointError:
                         pass
         else:
-            # attempts to re-chunk guilds? not sure if this will work, but it's worth a shot
-            chunk_list = [guild.chunk() for guild in bot.guilds if not guild.chunked]
-            if chunk_list:
-                try:
-                    await asyncio.wait(chunk_list)
-                except asyncio.TimeoutError:
-                    pass
+            for guild in self.guilds:
+                members = guild.members
+                cache_members = self.get_members(guild.id)
+                non_cache_members = [m for m in cache_members if not m in members]
+                for non_cache_member in non_cache_members:
+                    guild._add_member(non_cache_member) # dirty, but it has to be done
 
         utcnow = datetime.utcnow()
         time_format = utcnow.strftime("%x %X UTC")
@@ -139,10 +168,7 @@ Reactions run the starboard of Seraphim, so of course that's here too. See above
 intents = discord.Intents(guilds=True, members=True, 
     emojis=True, messages=True, reactions=True)
 
-# forcing this as the bot is picky for some reason
-member_cache = discord.MemberCacheFlags(joined=True, online=False, voice=False)
-
-bot = SeraphimBot(command_prefix=seraphim_prefixes, chunk_guilds_at_startup=True, member_cache_flags=member_cache, intents=intents)
+bot = SeraphimBot(command_prefix=seraphim_prefixes, chunk_guilds_at_startup=True, intents=intents)
 
 bot.init_load = True
 bot.run(os.environ.get("MAIN_TOKEN"))
