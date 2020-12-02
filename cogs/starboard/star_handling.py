@@ -9,7 +9,7 @@ import common.star_mes_handler as star_mes
 class Star(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.star_task = bot.loop.create_task(self.starboard_queue)
+        self.star_task = bot.loop.create_task(self.starboard_queue())
 
     def cog_unload(self):
         self.star_task.cancel()
