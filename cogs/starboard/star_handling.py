@@ -25,7 +25,7 @@ class Star(commands.Cog):
             # for that server
             if chan and starboard_entry and len(starboard_entry.get_reactors) >= self.bot.config[entry[2]]["star_limit"]:
                 try:
-                    mes = chan.fetch_message(entry[1])
+                    mes = await chan.fetch_message(entry[1])
                     await star_mes.send(self.bot, mes, len(starboard_entry.get_reactors), starboard_entry.forced)
                 except discord.HTTPException: # you never know
                     pass
