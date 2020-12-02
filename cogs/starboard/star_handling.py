@@ -30,7 +30,7 @@ class Star(commands.Cog):
                 except discord.HTTPException: # you never know
                     pass
 
-            await self.bot.star_queue.task_done()
+            self.bot.star_queue.task_done()
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
