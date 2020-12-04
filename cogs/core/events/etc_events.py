@@ -17,8 +17,14 @@ class EtcEvents(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        if not member.id in self.bot.role_rolebacks.keys():
-            self.bot.role_rolebacks[member.id] = {
+        guild_entry = self.bot.role_rolebacks.get(member.guild.id)
+
+        if not guild_entry:
+            self.bot.role_rolebacks[member.guild.id] = {}
+            guild_entry = {}
+
+        if not member.id in guild_entry.keys():
+            self.bot.role_rolebacks[member.guild.id][member.id] = {
                 "roles": member.roles, 
                 "time": datetime.datetime.utcnow(),
                 "id": member.id

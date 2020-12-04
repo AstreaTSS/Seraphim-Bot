@@ -17,7 +17,11 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         The user running this command must have Manage Server permissions.
         Useful for... accidential leaves? Troll leaves? Yeah, not much, but Despair's Horizon wanted it."""
 
-        member_entry = self.bot.role_rolebacks.get(member.id)
+        guild_entry = self.bot.role_rolebacks.get(ctx.guild.id)
+        if not guild_entry:
+            raise commands.BadArgument("That member did not leave in the last 15 minutes!")
+
+        member_entry = guild_entry.get(member.id)
         if member_entry == None:
             raise commands.BadArgument("That member did not leave in the last 15 minutes!")
 
@@ -25,7 +29,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         fifteen_prior = now - datetime.timedelta(minutes=15)
         
         if member_entry["time"] < fifteen_prior:
-            del self.bot.role_rolebacks[member_entry["id"]]
+            del self.bot.role_rolebacks[ctx.guild.id][member_entry["id"]]
             raise commands.BadArgument("That member did not leave in the last 15 minutes!")
 
         top_role = ctx.guild.me.top_role
@@ -53,7 +57,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         else:
             raise commands.BadArgument("There were no roles to restore for this user!")
         
-        del self.bot.role_rolebacks[member_entry["id"]]
+        del self.bot.role_rolebacks[ctx.guild.id][member_entry["id"]]
 
         final_msg = []
         final_msg.append(f"Roles restored: `{', '.join([r.name for r in added_roles])}`.")
