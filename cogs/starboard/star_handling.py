@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import discord, importlib
+import discord, importlib, asyncio
 
 import common.utils as utils
 import common.star_utils as star_utils
@@ -17,6 +17,7 @@ class Star(commands.Cog):
     async def starboard_queue(self):
         while True:
             entry = await self.bot.star_queue.get()
+            await asyncio.sleep(0.25)
 
             chan = self.bot.get_channel(entry[0])
             starboard_entry = self.bot.starboard.get(entry[1])
