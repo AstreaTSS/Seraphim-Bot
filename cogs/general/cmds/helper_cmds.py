@@ -116,9 +116,21 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         else:
             url = emoji
 
+        type_of = await image_utils.type_from_url(url) # a bit redundent, but i dont see any other good way
+        if not type_of in ("jpg", "jpeg", "png", "gif"): # webp exists
+            raise commands.BadArgument("This image's format is not valid for an emoji!")
+        
+        # emoji limits are based off if the emoji is animated or not, 
+        # and non-animated emojis have a seperate limit from animated ones
+        # so we need to check for that
+        if type_of == "gif":
+            emoji_count = len([e for e in ctx.guild.emojis if e.animated])
+        else:
+            emoji_count = len([e for e in ctx.guild.emojis if not e.animated])
+
         emoji_count = len(ctx.guild.emojis)
         if emoji_count >= ctx.guild.emoji_limit:
-            raise utils.CustomCheckFailure("This guild has no more emoji slots!")
+            raise utils.CustomCheckFailure("This guild has no more emoji slots for that type of emoji!")
 
         async with ctx.channel.typing():
             emoji_data = await image_utils.get_file_bytes(url, 262144, equal_to=False) # 256 KiB, which I assume Discord uses
