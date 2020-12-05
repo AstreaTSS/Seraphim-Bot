@@ -11,12 +11,8 @@ class OnCMDError(commands.Cog):
 
     def error_embed_generate(self, error_msg):
         error_embed = discord.Embed(
-            colour = discord.Colour.dark_red(),
+            colour = discord.Colour.red(),
             description = error_msg
-        )
-        error_embed.set_author(
-            name=f"{self.bot.user.name}", 
-            icon_url=f"{str(self.bot.user.avatar_url_as(format=None,static_format='png', size=128))}"
         )
 
         return error_embed
