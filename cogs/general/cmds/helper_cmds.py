@@ -128,7 +128,6 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         else:
             emoji_count = len([e for e in ctx.guild.emojis if not e.animated])
 
-        emoji_count = len(ctx.guild.emojis)
         if emoji_count >= ctx.guild.emoji_limit:
             raise utils.CustomCheckFailure("This guild has no more emoji slots for that type of emoji!")
 
