@@ -187,7 +187,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                 star_classes.ReactorType.ORI_REACTORS, remove=False)
         
         if starboard_entry.star_var_id == None:
-            starboard_entry.forced == True
+            starboard_entry.forced = True
             self.bot.starboard.update(starboard_entry)
         else:
             raise commands.BadArgument("This message is already on the starboard!")
