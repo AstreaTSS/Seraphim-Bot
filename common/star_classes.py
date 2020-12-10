@@ -45,7 +45,10 @@ class StarboardEntry():
     @classmethod
     def new_entry(cls, mes: discord.Message, author_id, reactor_id, forced = False):
         """Returns a new entry from base data."""
-        return cls(mes.id, mes.channel.id, None, None, author_id, {reactor_id}, set(), mes.guild.id, forced, updated=True)
+        if reactor_id:
+            return cls(mes.id, mes.channel.id, None, None, author_id, {reactor_id}, set(), mes.guild.id, forced, updated=True)
+        else:
+            return cls(mes.id, mes.channel.id, None, None, author_id, set(), set(), mes.guild.id, forced, updated=True)
 
     def to_dict(self) -> dict:
         """Converts this class to a dict."""

@@ -24,7 +24,8 @@ class Star(commands.Cog):
 
             # if the channel and the entry for the message exists in the bot and if the entry is above or at the required amount
             # for that server
-            if chan and starboard_entry and len(starboard_entry.get_reactors()) >= self.bot.config[entry[2]]["star_limit"]:
+            if chan and starboard_entry and (len(starboard_entry.get_reactors()) >= self.bot.config[entry[2]]["star_limit"]
+            or starboard_entry.forced):
                 try:
                     mes = await chan.fetch_message(entry[1])
                     await star_mes.send(self.bot, mes, len(starboard_entry.get_reactors()), starboard_entry.forced)
