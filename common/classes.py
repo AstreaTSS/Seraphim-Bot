@@ -15,10 +15,12 @@ class SetAsyncQueue(asyncio.Queue):
     Useful when we don't want duplicates."""
     def _init(self, maxsize):
         self._queue = set()
+        self._queuecopy = set()
     def _get(self):
         return self._queue.pop()
     def _put(self, item):
-        self._queue.add(item)
+        if not item in self._queuecopy:
+            self._queue.add(item)
 
 class TimeDurationConverter(commands.Converter):
     """Converts a string to a time duration.

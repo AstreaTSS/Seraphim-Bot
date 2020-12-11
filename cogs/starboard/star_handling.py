@@ -17,7 +17,6 @@ class Star(commands.Cog):
     async def starboard_queue(self):
         while True:
             entry = await self.bot.star_queue.get()
-            await asyncio.sleep(0.25)
 
             chan = self.bot.get_channel(entry[0])
             starboard_entry = self.bot.starboard.get(entry[1])
