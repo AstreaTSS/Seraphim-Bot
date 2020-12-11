@@ -21,6 +21,7 @@ class SetAsyncQueue(asyncio.Queue):
     def _put(self, item):
         if not item in self._queuecopy:
             self._queue.add(item)
+            self._queuecopy.add(item)
 
 class TimeDurationConverter(commands.Converter):
     """Converts a string to a time duration.
