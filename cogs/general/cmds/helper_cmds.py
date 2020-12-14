@@ -62,9 +62,10 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         final_msg = []
         final_msg.append(f"Roles restored: `{', '.join([r.name for r in added_roles])}`.")
         if unadded_roles:
-            final_msg.append(f"Roles not restored: `{', '.join([r.name for r in unadded_roles])}`. " +
+            final_msg.append(f"Roles not restored: `{', '.join([r.name for r in unadded_roles])}`.\n" +
             "This was most likely because these roles are higher than the bot's own role, the roles no longer exist, " +
             "or the role is managed by Discord and so the bot cannot add it.")
+        final_msg.append("Please wait a bit for the roles to appear; sometimes Discord is a bit slow.")
 
         final_msg_str = "\n\n".join(final_msg)
         await ctx.send(final_msg_str, allowed_mentions=utils.deny_mentions(ctx.author))

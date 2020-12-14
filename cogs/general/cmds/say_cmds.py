@@ -1,7 +1,9 @@
 from discord.ext import commands
-import discord, asyncio, importlib, typing
+import discord, asyncio, importlib
+import typing, io
 
 import common.utils as utils
+import common.image_utils as image_utils
 
 class SayCMDS(commands.Cog, name = "Say"):
     def __init__(self, bot):
@@ -42,15 +44,23 @@ class SayCMDS(commands.Cog, name = "Say"):
         """Allows people with Manage Server permissions to speak with the bot. You can provide a channel and upload any attachments you wish to use."""
 
         args = message.split(" ")
-        files_sent = []
+        file_to_send = None
+        file_io = None
         allowed_mentions = utils.generate_mentions(ctx)
             
         if ctx.message.attachments is not None:
-            for a_file in ctx.message.attachments:
-                to_file = await a_file.to_file()
-                files_sent.append(to_file)
+            if len(ctx.message.attachments) > 1:
+                raise utils.CustomCheckFailure("I cannot say messages with more than one attachment due to resource limits.")
+            
+        try:
+            image_data = await image_utils.get_file_bytes(ctx.message.attachments[0].url, 8388608, equal_to=False) # 8 MiB
+            file_io = io.BytesIO(image_data)
+            file_to_send = discord.File(file_io, filename=ctx.message.attachments[0].filename)
+        except:
+            if file_io:
+                file_io.close()
                 
-        if files_sent == []:
+        if file_to_send:
             if optional_channel is not None:
                 await optional_channel.send(" ".join(args), allowed_mentions=allowed_mentions)
                 await ctx.send(f"Done! Check out {optional_channel.mention}!")
@@ -58,10 +68,10 @@ class SayCMDS(commands.Cog, name = "Say"):
                 await ctx.send(" ".join(args), allowed_mentions=allowed_mentions)
         else:
             if optional_channel is not None:
-                await optional_channel.send(content=" ".join(args), allowed_mentions=allowed_mentions, files=files_sent)
+                await optional_channel.send(content=" ".join(args), allowed_mentions=allowed_mentions, file=file_to_send)
                 await ctx.send(f"Done! Check out {optional_channel.mention}!")
             else:
-                await ctx.send(content=" ".join(args), files=files_sent, allowed_mentions=allowed_mentions)
+                await ctx.send(content=" ".join(args), file=file_to_send, allowed_mentions=allowed_mentions)
                 
     @commands.command()
     @commands.check(utils.proper_permissions)

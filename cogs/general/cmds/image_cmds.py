@@ -110,7 +110,6 @@ class ImageCMDs(commands.Cog, name = "Image"):
                 content = (f"Original Size: {humanize.naturalsize(ori_size, binary=True)}\n" +
                 f"Reduced Size: {humanize.naturalsize(compressed_size, binary=True)}\n" +
                 f"Size Saved: {round(((1 - (compressed_size / ori_size)) * 100), 2)}%")
-                
             except BaseException:
                 compress_image.close()
                 raise
@@ -149,7 +148,6 @@ class ImageCMDs(commands.Cog, name = "Image"):
 
             try:
                 convert_img_file = discord.File(converted_image, f"image.{ext}")
-                
             except BaseException:
                 converted_image.close()
                 raise
