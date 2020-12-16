@@ -47,7 +47,7 @@ class EtcEvents(commands.Cog):
                 guild = self.bot.get_guild(guild_id)
                 if guild:
                     try:
-                        member = await guild.fetch_member(after.id)
+                        member = guild.get_member(after.id)
                         self.bot.update_member(member)
                     except discord.HTTPException:
                         pass
