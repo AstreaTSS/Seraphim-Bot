@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
 import traceback, discord, datetime
-import collections
+import collections, aiohttp
 from pathlib import Path
 
 async def proper_permissions(ctx):
@@ -25,7 +25,10 @@ async def fetch_needed(bot, payload):
 
 async def error_handle(bot, error, ctx = None):
     # handles errors and sends them to owner
-    error_str = error_format(error)
+    if isinstance(error, aiohttp.ServerDisconnectedError):
+        error_str = "Disconnected from server!"
+    else:
+        error_str = error_format(error)
 
     await msg_to_owner(bot, error_str)
 
