@@ -14,7 +14,8 @@ class SetupCMD(commands.Cog, name="Setup"):
     @commands.check(utils.proper_permissions)
     async def setup(self, ctx):
         """The base command for using the setup commands. See the help for the subcommands for more info.
-        Only people with Manage Server permissions or higher can use these commands."""
+        Only people with Manage Server permissions or higher can use these commands.
+        This command is in beta. It may be unstable."""
         
         if ctx.invoked_subcommand == None:
             await ctx.send_help(ctx.command)
@@ -22,6 +23,10 @@ class SetupCMD(commands.Cog, name="Setup"):
     @setup.command(aliases=["sb"])
     @commands.check(utils.proper_permissions)
     async def starboard(self, ctx: commands.Context):
+        """Allows you to set up the starboard for Seraphim in an easy-to-understand way.
+        Only people with Manage Server permissions or higher can use these commands.
+        This command is in beta. It may be unstable."""
+
         def check(m):
             return m.author == ctx.author and m.channel == ctx.channel
 
@@ -143,5 +148,4 @@ class SetupCMD(commands.Cog, name="Setup"):
         await ori_mes.edit(embed=setup_embed)
 
 def setup(bot):
-    pass
-    # bot.add_cog(SetupCMD(bot))
+    bot.add_cog(SetupCMD(bot))
