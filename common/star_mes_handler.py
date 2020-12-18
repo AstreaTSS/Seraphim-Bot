@@ -185,9 +185,9 @@ async def send(bot, mes: discord.Message, unique_stars, forced = False):
     if starboard:
         star_emoji = star_utils.get_star_emoji(unique_stars)
         if not forced:
-            starred = await starboard.send(content=f"{star_emoji} **{unique_stars}** | {mes.channel.mention} ({mes.channel.name})", embed=send_embed)
+            starred = await starboard.send(content=f"{star_emoji} **{unique_stars}** | {mes.channel.mention}", embed=send_embed)
         else:
-            starred = await starboard.send(content=f"{star_emoji} **{unique_stars}** (Forced Entry) | {mes.channel.mention} ({mes.channel.name})", embed=send_embed)
+            starred = await starboard.send(content=f"{star_emoji} **{unique_stars}** (Forced Entry) | {mes.channel.mention}", embed=send_embed)
         await starred.add_reaction("⭐")
 
         entry = bot.starboard.get(mes.id)
