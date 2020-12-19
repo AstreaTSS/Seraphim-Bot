@@ -62,6 +62,11 @@ class StarboardEntry():
 
     def get_reactors(self) -> typing.Set[int]:
         """Gets the total reactors, a mix of ori and var reactors."""
+        if not isinstance(self.ori_reactors, set):
+            self.ori_reactors = set(self.ori_reactors)
+        if not isinstance(self.var_reactors, set):
+            self.var_reactors = set(self.var_reactors)
+
         return self.ori_reactors | self.var_reactors
 
     def get_reactors_from_type(self, type_of_reactor: ReactorType) -> typing.List[int]:
