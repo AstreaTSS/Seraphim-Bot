@@ -169,7 +169,6 @@ intents = discord.Intents(guilds=True, members=True,
     emojis=True, messages=True, reactions=True)
 
 mentions = discord.AllowedMentions.all()
-mentions.replied_user = False # just a personal thing
 
 bot = SeraphimBot(command_prefix=seraphim_prefixes, chunk_guilds_at_startup=True, allowed_mentions=mentions, intents=intents)
 
