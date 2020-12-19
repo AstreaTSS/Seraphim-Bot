@@ -32,10 +32,10 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
 
         if now < next_use:
             till_next_time = next_use - now
-            time_text = humanize.precisedelta(till_next_time, format='%0.1f')
+            time_text = humanize.precisedelta(till_next_time, format='%0.0f')
             raise utils.CustomCheckFailure(f"You cannot ping that role yet! Please wait: `{time_text}` before trying to ping the role again.")
         else:
-            await ctx.send(role_obj.mention, allowed_mentions=discord.AllowedMentions(roles=True))
+            await ctx.reply(role_obj.mention, allowed_mentions=discord.AllowedMentions(roles=True))
 
             self.bot.config[ctx.guild.id]["pingable_roles"][str(role_obj.id)]["last_used"] = now.timestamp()
 
@@ -61,7 +61,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
 
         if role_list != []:
             role_str = ", ".join(role_list)
-            await ctx.send(f"Pingable roles: {role_str}")
+            await ctx.reply(f"Pingable roles: {role_str}")
         else:
             raise utils.CustomCheckFailure("There are no roles added!")
 

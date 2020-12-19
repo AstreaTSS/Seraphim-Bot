@@ -63,15 +63,15 @@ class SayCMDS(commands.Cog, name = "Say"):
         if file_to_send:
             if optional_channel is not None:
                 await optional_channel.send(" ".join(args), allowed_mentions=allowed_mentions)
-                await ctx.send(f"Done! Check out {optional_channel.mention}!")
+                await ctx.reply(f"Done! Check out {optional_channel.mention}!")
             else:
-                await ctx.send(" ".join(args), allowed_mentions=allowed_mentions)
+                await ctx.reply(" ".join(args), allowed_mentions=allowed_mentions)
         else:
             if optional_channel is not None:
                 await optional_channel.send(content=" ".join(args), allowed_mentions=allowed_mentions, file=file_to_send)
-                await ctx.send(f"Done! Check out {optional_channel.mention}!")
+                await ctx.reply(f"Done! Check out {optional_channel.mention}!")
             else:
-                await ctx.send(content=" ".join(args), file=file_to_send, allowed_mentions=allowed_mentions)
+                await ctx.reply(content=" ".join(args), file=file_to_send, allowed_mentions=allowed_mentions)
                 
     @commands.command()
     @commands.check(utils.proper_permissions)
@@ -81,7 +81,7 @@ class SayCMDS(commands.Cog, name = "Say"):
         optional_channel = None
         optional_color = None
 
-        ori = await ctx.send("```\nSetting up...\n```")
+        ori = await ctx.reply("```\nSetting up...\n```")
 
         reply = await self.setup_helper(ctx, ori, (
             "Because of this command's complexity, this command requires a little wizard.\n\n" +
@@ -133,9 +133,9 @@ class SayCMDS(commands.Cog, name = "Say"):
 
         if optional_channel != None:
             await optional_channel.send(embed = say_embed)
-            await ctx.send(f"Done! Check out {optional_channel.mention}!")
+            await ctx.reply(f"Done! Check out {optional_channel.mention}!")
         else:
-            await ctx.send(embed = say_embed)
+            await ctx.reply(embed = say_embed)
 
         await ori.edit(content = "```\nSetup complete.\n```")
         

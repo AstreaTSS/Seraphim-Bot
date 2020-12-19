@@ -43,7 +43,7 @@ class PinCMDs(commands.Cog, name = "Pinboard"):
             await des_chan.send(embed = send_embed)
             await pin.unpin()
 
-        await ctx.send("Done!")
+        await ctx.reply("Done!")
 
 def setup(bot):
     importlib.reload(utils)

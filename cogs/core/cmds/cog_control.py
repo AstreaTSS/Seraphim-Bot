@@ -11,7 +11,7 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
         self.bot = bot
 
     async def msg_handler(self, ctx, msg_str):
-        await ctx.send(msg_str)
+        await ctx.reply(msg_str)
 
         utcnow = datetime.datetime.utcnow()
         time_format = utcnow.strftime("%x %X UTC")
@@ -86,7 +86,7 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
     async def list_loaded_extensions(self, ctx):
         exten_list = [f"`{k}`" for k in self.bot.extensions.keys()]
         exten_str = ", ".join(exten_list)
-        await ctx.send(f"Extensions: {exten_str}")
+        await ctx.reply(f"Extensions: {exten_str}")
 
     @commands.command(hidden=True)
     async def reload_database(self, ctx):

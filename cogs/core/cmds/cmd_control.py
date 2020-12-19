@@ -49,9 +49,9 @@ class CmdControl(commands.Cog, name="Command Control"):
             self.bot.config[ctx.guild.id]["disables"]["users"][str(member.id)].append(command)
         
         if command != "all":
-            await ctx.send(f"Command `{command}` disabled for {member.display_name}.")
+            await ctx.reply(f"Command `{command}` disabled for {member.display_name}.")
         else:
-            await ctx.send(f"All commands disabled for {member.display_name}.")
+            await ctx.reply(f"All commands disabled for {member.display_name}.")
 
     @commands.check(utils.proper_permissions)
     @commands.command(aliases=["re_enable"])
@@ -70,9 +70,9 @@ class CmdControl(commands.Cog, name="Command Control"):
             self.bot.config[ctx.guild.id]["disables"]["users"][str(member.id)].remove(command)
             
             if command != "all":
-                await ctx.send(f"Command `{command}` re-enabled for {member.display_name}.")
+                await ctx.reply(f"Command `{command}` re-enabled for {member.display_name}.")
             else:
-                await ctx.send(f"All commands re-enabled for {member.display_name}.")
+                await ctx.reply(f"All commands re-enabled for {member.display_name}.")
 
         except KeyError:
             raise commands.BadArgument("This user doesn't have that command disabled!")

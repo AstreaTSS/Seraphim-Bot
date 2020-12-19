@@ -2,7 +2,7 @@ git+https://github.com/Rapptz/discord.py.git
 asyncpg
 fuzzywuzzy
 websockets
-git+https://github.com/jmoiron/humanize.git
+humanize
 Pillow
 discord-flags
 jishaku

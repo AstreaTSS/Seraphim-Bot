@@ -34,6 +34,7 @@ class Pages:
     """
     def __init__(self, ctx, *, entries, per_page=12, show_entry_count=True):
         self.bot = ctx.bot
+        self.context = ctx
         self.entries = entries
         self.message = ctx.message
         self.channel = ctx.channel
@@ -112,13 +113,13 @@ class Pages:
         embed = self.get_embed(entries, page, first=first)
 
         if not self.paginating:
-            return await self.channel.send(content=content, embed=embed)
+            return await self.context.reply(content=content, embed=embed)
 
         if not first:
             await self.message.edit(content=content, embed=embed)
             return
 
-        self.message = await self.channel.send(content=content, embed=embed)
+        self.message = await self.context.reply(content=content, embed=embed)
         for (reaction, _) in self.reaction_emojis:
             if self.maximum_pages == 2 and reaction in ('\u23ed', '\u23ee'):
                 # no |<< or >>| buttons if we only have two pages

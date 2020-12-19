@@ -19,11 +19,11 @@ async def channel(ctx, channel: typing.Optional[discord.TextChannel]):
 
     if channel != None:
         ctx.bot.config[ctx.guild.id]["starboard_id"] = channel.id
-        await ctx.send(f"Set channel to {channel.mention}!")
+        await ctx.reply(f"Set channel to {channel.mention}!")
     else:
         starboard_id = ctx.bot.config[ctx.guild.id]['starboard_id']
         starboard_mention = f"<#{starboard_id}>" if starboard_id != None else "None"
-        await ctx.send(f"Starboard channel: {starboard_mention}")
+        await ctx.reply(f"Starboard channel: {starboard_mention}")
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
@@ -32,11 +32,11 @@ async def limit(ctx, limit: typing.Optional[int]):
     if limit != None:
         if limit > 0:
             ctx.bot.config[ctx.guild.id]["star_limit"] = int(limit)
-            await ctx.send(f"Set limit to {limit}!")
+            await ctx.reply(f"Set limit to {limit}!")
         else:
             raise commands.BadArgument("The limit needs to be greater than 0!")
     else:
-        await ctx.send(f"Star limit: {ctx.bot.config[ctx.guild.id]['star_limit']}")
+        await ctx.reply(f"Star limit: {ctx.bot.config[ctx.guild.id]['star_limit']}")
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
@@ -44,9 +44,9 @@ async def remove_reaction(ctx, toggle: typing.Optional[bool]):
     """Allows you to either see if people who react to a star to their messages will have their reactions removed (no argument) or allows you to toggle that (with argument)."""
     if toggle != None:
         ctx.bot.config[ctx.guild.id]["remove_reaction"] = toggle
-        await ctx.send(f"Toggled remove reaction to {toggle} for this server!")
+        await ctx.reply(f"Toggled remove reaction to {toggle} for this server!")
     else:
-        await ctx.send(f"Remove reaction: {ctx.bot.config[ctx.guild.id]['remove_reaction']}")
+        await ctx.reply(f"Remove reaction: {ctx.bot.config[ctx.guild.id]['remove_reaction']}")
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
@@ -58,11 +58,11 @@ async def toggle(ctx, toggle: typing.Optional[bool]):
         guild_config = ctx.bot.config[ctx.guild.id]
         if guild_config["starboard_id"] != None and guild_config["star_limit"] != None:
             ctx.bot.config[ctx.guild.id]["star_toggle"] = toggle
-            await ctx.send(f"Toggled starboard to {toggle} for this server!")
+            await ctx.reply(f"Toggled starboard to {toggle} for this server!")
         else:
             raise utils.CustomCheckFailure("Either you forgot to set the starboard channel or the star limit. Please try again.")
     else:
-        await ctx.send(f"Star toggle: {ctx.bot.config[ctx.guild.id]['star_toggle']}")
+        await ctx.reply(f"Star toggle: {ctx.bot.config[ctx.guild.id]['star_toggle']}")
 
 @main_cmd.command(aliases=["edit_messages, editmessage, editmessages"])
 @commands.check(utils.proper_permissions)
@@ -72,9 +72,9 @@ async def edit_message(ctx, toggle: typing.Optional[bool]):
 
     if toggle != None:
         ctx.bot.config[ctx.guild.id]["star_edit_messages"] = toggle
-        await ctx.send(f"Toggled starboard message editing to {toggle} for this server!")
+        await ctx.reply(f"Toggled starboard message editing to {toggle} for this server!")
     else:
-        await ctx.send(f"Star toggle: {ctx.bot.config[ctx.guild.id]['star_edit_messages']}")
+        await ctx.reply(f"Star toggle: {ctx.bot.config[ctx.guild.id]['star_edit_messages']}")
 
 
 def star_toggle_check(ctx):
@@ -109,7 +109,7 @@ async def _list(ctx):
                 ctx.bot.config[ctx.guild.id]["star_blacklist"].remove(channel_id)
 
         if channel_mentions != []:
-            await ctx.send(f"Blacklisted channels: {', '.join(channel_mentions)}")
+            await ctx.reply(f"Blacklisted channels: {', '.join(channel_mentions)}")
             return
             
     raise utils.CustomCheckFailure("There's no blacklisted channels for this guild!")
@@ -130,7 +130,7 @@ async def add(ctx, channel: discord.TextChannel):
     if not channel.id in channel_id_list:
         channel_id_list.append(channel.id)
         ctx.bot.config[ctx.guild.id]["blacklist"] = channel_id_list
-        await ctx.send(f"Addded {channel.mention} to the blacklist!")
+        await ctx.reply(f"Addded {channel.mention} to the blacklist!")
     else:
         raise commands.BadArgument("That channel's already in the blacklist!")
 
@@ -145,6 +145,6 @@ async def remove(ctx, channel: discord.TextChannel):
     if channel.id in channel_id_list:
         channel_id_list.remove(channel.id)
         ctx.bot.config[ctx.guild.id]["blacklist"] = channel_id_list
-        await ctx.send(f"Removed {channel.mention} from the blacklist!")
+        await ctx.reply(f"Removed {channel.mention} from the blacklist!")
     else:
         raise commands.BadArgument("That channel's not in the blacklist!")

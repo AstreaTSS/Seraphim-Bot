@@ -62,7 +62,7 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
         except IndexError:
             raise commands.BadArgument("There's nothing to snipe!")
         
-        await ctx.send(embed = sniped_entry.embed)
+        await ctx.reply(embed = sniped_entry.embed)
 
     def clear_snipes(self, type_of, chan_id):
         if not chan_id in self.bot.snipes[type_of] or self.bot.snipes[type_of][chan_id] == []:
@@ -98,11 +98,11 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
 
         if lowered in ("edit", "edits", "edited", "editsnipe", "editsnipes"):
             self.clear_snipes("edits", chan.id)
-            await ctx.send(f"Cleared all edit snipes for {chan.mention}!")
+            await ctx.reply(f"Cleared all edit snipes for {chan.mention}!")
 
         elif lowered in ("delete", "deleted", "deletes", "snipe", "snipes"):
             self.bot.snipes["deletes"][chan.id] = []
-            await ctx.send(f"Cleared all deleted snipes for {chan.mention}!")
+            await ctx.reply(f"Cleared all deleted snipes for {chan.mention}!")
 
         elif lowered in ("both", "all"):
             error_count = 0 # we don't want it screaming at our faces if there's at least one valid snipe to clear
@@ -120,7 +120,7 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
             if error_count >= 2:
                 raise commands.BadArgument("This channel doesn't have any snipes to clear!")
 
-            await ctx.send(f"Cleared all snipes for {chan.mention}!")
+            await ctx.reply(f"Cleared all snipes for {chan.mention}!")
 
         else:
             raise commands.BadArgument("Incorrect snipe type!")

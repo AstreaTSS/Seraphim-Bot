@@ -40,7 +40,7 @@ async def add(ctx, role: fuzzys.FuzzyRoleConverter, *, cooldown: common.classes.
         "last_used": 0
     }
 
-    await ctx.send("Role added!")
+    await ctx.reply("Role added!")
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
@@ -56,7 +56,7 @@ async def cooldown(ctx, role: fuzzys.FuzzyRoleConverter, *, cooldown: common.cla
 
     ctx.bot.config[ctx.guild.id]["pingable_roles"][str(role.id)]["time_period"] = period
 
-    await ctx.send("Role cooldown changed!")
+    await ctx.reply("Role cooldown changed!")
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
@@ -74,4 +74,4 @@ async def remove(ctx, *, role: fuzzys.FuzzyRoleConverter):
 
     del ctx.bot.config[ctx.guild.id]["pingable_roles"][str(role.id)]
 
-    await ctx.send(f"Deleted {role.mention}!", allowed_mentions=discord.AllowedMentions(roles=False))
+    await ctx.reply(f"Deleted {role.mention}!", allowed_mentions=discord.AllowedMentions(roles=False))

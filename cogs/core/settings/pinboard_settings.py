@@ -36,7 +36,7 @@ async def _list(ctx):
 
     if entries_list != []:
         entries_str = "\n".join(entries_list)
-        await ctx.send(f"Channels mapped:\n\n{entries_str}")
+        await ctx.reply(f"Channels mapped:\n\n{entries_str}")
     else:
         raise utils.CustomCheckFailure("There are no entries for this server!")
 
@@ -61,7 +61,7 @@ async def _map(ctx, entry: discord.TextChannel, destination: discord.TextChannel
         "limit": limit
     }
 
-    await ctx.send(f"Overflowing pins from {entry.mention} will now appear in {destination.mention}.")
+    await ctx.reply(f"Overflowing pins from {entry.mention} will now appear in {destination.mention}.")
 
 @main_cmd.command(aliases = ["pinlimit"])
 @commands.check(utils.proper_permissions)
@@ -69,7 +69,7 @@ async def pin_limit(ctx, entry: discord.TextChannel, limit: int):
     """Changes the max limit of the entry channel to the provided limit."""
 
     ctx.bot.config[ctx.guild.id]["pin_config"][str(entry.id)]["limit"] = limit
-    await ctx.send(f"The pin limit for {entry.mention} is now set to {limit}.")
+    await ctx.reply(f"The pin limit for {entry.mention} is now set to {limit}.")
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
@@ -78,6 +78,6 @@ async def unmap(ctx, entry: discord.TextChannel):
 
     try:
         del ctx.bot.config[ctx.guild.id]["pin_config"][str(entry.id)]
-        await ctx.send(f"Unmapped {entry.mention}.")
+        await ctx.reply(f"Unmapped {entry.mention}.")
     except KeyError:
         raise commands.BadArgument("That channel wasn't mapped in the first place!")

@@ -76,7 +76,7 @@ class FuzzyConverter(commands.IDConverter):
 
     async def unsure_select_handler(self, ctx, item):
         selection_embed = self.unsure_embed_gen(ctx, item)
-        await ctx.send(embed = selection_embed)
+        await ctx.reply(embed = selection_embed)
 
         def check(m):
             return m.channel == ctx.channel and m.author == ctx.author
@@ -100,7 +100,7 @@ class FuzzyConverter(commands.IDConverter):
     async def selection_handler(self, ctx, options):
         entries = [o[0] for o in options]
         selection_embed = self.norm_embed_gen(ctx, entries)
-        await ctx.send(embed = selection_embed)
+        await ctx.reply(embed = selection_embed)
         
         def check(m):
             return m.channel == ctx.channel and m.author == ctx.author

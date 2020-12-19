@@ -114,7 +114,7 @@ class ImageCMDs(commands.Cog, name = "Image"):
                 compress_image.close()
                 raise
             
-            await ctx.send(content=content, file=com_img_file)
+            await ctx.reply(content=content, file=com_img_file)
 
     @flags.command(aliases=["image_convert"])
     @flags.add_flag("-shrink", "--shrink", action='store_true')
@@ -152,7 +152,7 @@ class ImageCMDs(commands.Cog, name = "Image"):
                 converted_image.close()
                 raise
             
-            await ctx.send(file=convert_img_file)
+            await ctx.reply(file=convert_img_file)
 
 def setup(bot):
     importlib.reload(utils)

@@ -18,27 +18,27 @@ class OnCMDError(commands.Cog):
         return error_embed
             
     @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
+    async def on_command_error(self, ctx: commands.Context, error):
         if isinstance(error, commands.CommandInvokeError):
             original = error.original
             if not isinstance(original, discord.HTTPException):
                 await utils.error_handle(self.bot, error, ctx)
         elif isinstance(error, flags.ArgumentParsingError):
-            await ctx.send(embed=self.error_embed_generate(str(error)))
+            await ctx.reply(embed=self.error_embed_generate(str(error)))
         elif isinstance(error, commands.TooManyArguments):
-            await ctx.send(embed=self.error_embed_generate("You passed too many arguments to that command! Please make sure you're " +
+            await ctx.reply(embed=self.error_embed_generate("You passed too many arguments to that command! Please make sure you're " +
             "passing in a valid argument/subcommand."))
         elif isinstance(error, commands.CommandOnCooldown):
             delta_wait = datetime.timedelta(seconds=error.retry_after)
-            await ctx.send(embed=self.error_embed_generate("You're doing that command too fast! " +
-            f"Try again in `{humanize.precisedelta(delta_wait, format='%0.1f')}`."))
+            await ctx.reply(embed=self.error_embed_generate("You're doing that command too fast! " +
+            f"Try again in `{humanize.precisedelta(delta_wait, format='%0.0f')}`."))
         elif isinstance(error, (commands.ConversionError, commands.UserInputError, commands.BadArgument)):
-            await ctx.send(embed=self.error_embed_generate(str(error)))
+            await ctx.reply(embed=self.error_embed_generate(str(error)))
         elif isinstance(error, utils.CustomCheckFailure):
-            await ctx.send(embed=self.error_embed_generate(str(error)))
+            await ctx.reply(embed=self.error_embed_generate(str(error)))
         elif isinstance(error, commands.CheckFailure):
             if ctx.guild != None:
-                await ctx.send(embed=self.error_embed_generate("You do not have the proper permissions to use that command."))
+                await ctx.reply(embed=self.error_embed_generate("You do not have the proper permissions to use that command."))
         elif isinstance(error, commands.CommandNotFound):
             pass
         else:

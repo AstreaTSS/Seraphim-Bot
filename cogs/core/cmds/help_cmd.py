@@ -95,7 +95,7 @@ class PaginatedHelpCommand(commands.HelpCommand):
 
     async def on_help_command_error(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
-            await ctx.send(str(error.original))
+            await ctx.reply(str(error.original))
 
     async def command_callback(self, ctx, *, command=None):
         if command != None:
@@ -164,7 +164,7 @@ class PaginatedHelpCommand(commands.HelpCommand):
         # No pagination necessary for a single command.
         embed = discord.Embed(colour=discord.Colour(0x4378fc))
         self.common_command_formatting(embed, command)
-        await self.context.send(embed=embed)
+        await self.context.reply(embed=embed)
 
     async def send_group_help(self, group):
         subcommands = group.commands

@@ -15,7 +15,7 @@ class NormCMDs(commands.Cog, name="Normal"):
         start_time = time.perf_counter()
         ping_discord = round((self.bot.latency * 1000), 2)
 
-        mes = await ctx.send(f"Pong!\n`{ping_discord}` ms from Discord.\nCalculating personal ping...")
+        mes = await ctx.reply(f"Pong!\n`{ping_discord}` ms from Discord.\nCalculating personal ping...")
         
         end_time = time.perf_counter()
         ping_personal = round(((end_time - start_time) * 1000), 2)
@@ -28,19 +28,19 @@ class NormCMDs(commands.Cog, name="Normal"):
 
         if len(content) < 1975:
             allowed_mentions = utils.deny_mentions(ctx.author)
-            await ctx.send(f"{ctx.author.mention}: {content[::-1]}", allowed_mentions=allowed_mentions)
+            await ctx.reply(f"{ctx.author.mention}: {content[::-1]}", allowed_mentions=allowed_mentions)
         else:
-            await ctx.send(f"{ctx.author.mention}, that message is too long!")
+            await ctx.reply(f"{ctx.author.mention}, that message is too long!")
 
     @commands.command()
     async def support(self, ctx):
         """Gives an invite link to the support server."""
-        await ctx.send("Support server:\nhttps://discord.gg/NSdetwGjpK")
+        await ctx.reply("Support server:\nhttps://discord.gg/NSdetwGjpK")
 
     @commands.command()
     async def invite(self, ctx):
         """Gives an invite link to invite the bot."""
-        await ctx.send("Invite:\nhttps://discord.com/api/oauth2/authorize?client_id=700857077672706120&permissions=8&scope=bot")
+        await ctx.reply("Invite:\nhttps://discord.com/api/oauth2/authorize?client_id=700857077672706120&permissions=8&scope=bot")
 
     @commands.command()
     async def about(self, ctx):
@@ -77,13 +77,13 @@ class NormCMDs(commands.Cog, name="Normal"):
             inline = False
         )
 
-        await ctx.send(embed=about_embed)
+        await ctx.reply(embed=about_embed)
 
     @commands.group(invoke_without_command=True, aliases=["prefix"], ignore_extra=False)
     async def prefixes(self, ctx):
         """A way of getting all of the prefixes for this server. You can also add and remove prefixes via this command."""
         prefixes = [f'"{p}"' for p in self.bot.config[ctx.guild.id]["prefixes"]]
-        await ctx.send(f"My prefixes for this server are: `{', '.join(prefixes)}`, but you can also mention me.")
+        await ctx.reply(f"My prefixes for this server are: `{', '.join(prefixes)}`, but you can also mention me.")
 
     @prefixes.command(ignore_extra=False)
     @commands.check(utils.proper_permissions)
@@ -96,7 +96,7 @@ class NormCMDs(commands.Cog, name="Normal"):
 
         if not prefix in self.bot.config[ctx.guild.id]["prefixes"]:
             self.bot.config[ctx.guild.id]["prefixes"].append(prefix)
-            await ctx.send(f"Added `{prefix}`!")
+            await ctx.reply(f"Added `{prefix}`!")
         else:
             raise commands.BadArgument("The server already has this prefix!")
 
@@ -108,7 +108,7 @@ class NormCMDs(commands.Cog, name="Normal"):
 
         try:
             self.bot.config[ctx.guild.id]["prefixes"].remove(prefix)
-            await ctx.send(f"Removed `{prefix}`!")
+            await ctx.reply(f"Removed `{prefix}`!")
         except ValueError:
             raise commands.BadArgument("The server doesn't have that prefix, so I can't delete it!")
 

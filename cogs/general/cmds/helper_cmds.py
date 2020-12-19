@@ -50,7 +50,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             try:
                 await member.add_roles(*added_roles, reason=f"Restoring old roles: done by {str(ctx.author)}.", atomic=False)
             except discord.HTTPException as error:
-                await ctx.send("Something happened while trying to restore the roles this user had.\n" +
+                await ctx.reply("Something happened while trying to restore the roles this user had.\n" +
                 "This shouldn't be happening, and this should have been caught earlier by the bot. Try contacting the bot owner about it.\n" +
                 f"Error: {error}")
                 return
@@ -68,7 +68,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         final_msg.append("Please wait a bit for the roles to appear; sometimes Discord is a bit slow.")
 
         final_msg_str = "\n\n".join(final_msg)
-        await ctx.send(final_msg_str, allowed_mentions=utils.deny_mentions(ctx.author))
+        await ctx.reply(final_msg_str, allowed_mentions=utils.deny_mentions(ctx.author))
 
     @commands.command(aliases=["togglensfw"])
     @commands.check(utils.proper_permissions)
@@ -83,9 +83,9 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
         try:
             await channel.edit(nsfw = toggle)
-            await ctx.send(f"{channel.mention}'s' NSFW mode has been set to: {toggle}.")
+            await ctx.reply(f"{channel.mention}'s' NSFW mode has been set to: {toggle}.")
         except discord.HTTPException as e:
-            await ctx.send("".join(
+            await ctx.reply("".join(
                     ("I was unable to change this channel's NSFW mode! This might be due to me not having the ",
                     "permissions to or some other weird funkyness with Discord. Maybe this error will help you.\n",
                     f"Error: {e}")
@@ -138,7 +138,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             try:
                 emoji = await ctx.guild.create_custom_emoji(name=emoji_name, image=emoji_data, reason=f"Created by {str(ctx.author)}")
             except discord.HTTPException as e:
-                await ctx.send("".join(
+                await ctx.reply("".join(
                         ("I was unable to add this emoji! This might be due to me not having the ",
                         "permissions or the name being improper in some way. Maybe this error will help you.\n",
                         f"Error: {e}")
@@ -148,7 +148,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             finally:
                 del emoji_data
 
-            await ctx.send(f"Added {str(emoji)}!")
+            await ctx.reply(f"Added {str(emoji)}!")
 
     @commands.command(aliases=["getemojiurl"])
     async def get_emoji_url(self, ctx, emoji: typing.Union[discord.PartialEmoji, str]):
@@ -159,7 +159,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             raise commands.BadArgument("The argument provided is not a custom emoji!")
 
         if emoji.is_custom_emoji():
-            await ctx.send(f"URL: {str(emoji.url)}")
+            await ctx.reply(f"URL: {str(emoji.url)}")
         else:
             # this shouldn't happen due to how the PartialEmoji converter works, but you never know
             raise commands.BadArgument("This emoji is not a custom emoji!")

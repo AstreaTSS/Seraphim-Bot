@@ -49,7 +49,7 @@ class SetupCMD(commands.Cog, name="Setup"):
         )
         setup_embed.set_footer(text="If you wish to stop this setup at any time, just type in 'exit'.")
 
-        ori_mes = await ctx.send(embed=setup_embed)
+        ori_mes = await ctx.reply(embed=setup_embed)
 
         try:
             reply = await self.bot.wait_for('message', check=check, timeout=120.0)

@@ -74,7 +74,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
                 top_embed.add_field(name=f"#{i+1}: {num_stars} ⭐ from {author_str}", value=f"[Message]({url})\n", inline=False)
 
-            await ctx.send(embed=top_embed)
+            await ctx.reply(embed=top_embed)
         else:
             raise utils.CustomCheckFailure("There are no starboard entries for this server!")
 
@@ -101,7 +101,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                 top_embed.add_field(name=f"#{i+1}: {author_str}", value=f"{num_stars} ⭐\n", inline=False)
 
             top_embed.set_footer(text=f"Your {self.get_user_placing(user_star_list, ctx.author.id)}")
-            await ctx.send(embed=top_embed)
+            await ctx.reply(embed=top_embed)
         else:
             raise utils.CustomCheckFailure("There are no starboard entries for this server!")
 
@@ -128,7 +128,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             place_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='png',size=128))}")
             place_embed.set_footer(text="Sent")
 
-            await ctx.send(embed=place_embed)
+            await ctx.reply(embed=place_embed)
         else:
             raise utils.CustomCheckFailure("There are no starboard entries for this server!")
 
@@ -152,7 +152,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                 star_mes = await starboard_chan.fetch_message(random_entry.star_var_id)
             except discord.HTTPException:
                 ori_url = f"https://discordapp.com/channels/{ctx.guild.id}/{random_entry.ori_chan_id}/{random_entry.ori_mes_id}"
-                await ctx.send("I picked an entry, but I couldn't get the starboard message.\n" +
+                await ctx.reply("I picked an entry, but I couldn't get the starboard message.\n" +
                 f"This might be the message I was trying to get: {ori_url}")
                 return
 
@@ -161,9 +161,9 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
             star_embed.add_field(name="Starboard Variant", value=f"[Jump]({star_mes.jump_url})", inline=True)
 
-            await ctx.send(star_content, embed=star_embed)
+            await ctx.reply(star_content, embed=star_embed)
         else:
-            await ctx.send("There are no starboard entries for me to pick!")
+            await ctx.reply("There are no starboard entries for me to pick!")
 
     @sb.command()
     @commands.check(utils.proper_permissions)
@@ -193,13 +193,13 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             raise commands.BadArgument("This message is already on the starboard!")
         
         self.bot.star_queue.put_nowait((msg.channel.id, msg.id, msg.guild.id))
-        await ctx.send("Done! Please wait a couple of seconds for the message to appear.")
+        await ctx.reply("Done! Please wait a couple of seconds for the message to appear.")
 
     @commands.command(hidden=True)
     @commands.is_owner()
     async def debug_star_mes(self, ctx, msg: discord.Message):
         send_embed = await star_mes.star_generate(self.bot, msg)
-        await ctx.send(embed=send_embed)
+        await ctx.reply(embed=send_embed)
 
 def setup(bot):
     importlib.reload(star_utils)
