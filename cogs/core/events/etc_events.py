@@ -46,11 +46,9 @@ class EtcEvents(commands.Cog):
             if self.bot.custom_cache[guild_id].get(after.id) != None:
                 guild = self.bot.get_guild(guild_id)
                 if guild:
-                    try:
-                        member = guild.get_member(after.id)
+                    member = guild.get_member(after.id)
+                    if member:
                         self.bot.update_member(member)
-                    except discord.HTTPException:
-                        pass
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
