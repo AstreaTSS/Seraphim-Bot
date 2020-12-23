@@ -28,5 +28,10 @@ class EasterEggs(commands.Cog, name="Easter Egg", command_attrs=dict(hidden=True
         can be found here: https://creativecommons.org/licenses/by/2.0/"""
         await ctx.reply("https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Tomato_soup%2C_plant-based_%2844040252791%29.jpg/1280px-Tomato_soup%2C_plant-based_%2844040252791%29.jpg")
 
+    @commands.command()
+    async def gitty(self, ctx):
+        """Gitty (a user, that's all you need to know) won a challenge that I did, so this is part of her reward."""
+        await ctx.reply("https://cdn.discordapp.com/attachments/741011094155296780/791382459186937886/hello.png")
+
 def setup(bot):
     bot.add_cog(EasterEggs(bot))
