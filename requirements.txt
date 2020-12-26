@@ -6,3 +6,4 @@ humanize
 Pillow
 discord-flags
 jishaku
+discord-py-slash-command
