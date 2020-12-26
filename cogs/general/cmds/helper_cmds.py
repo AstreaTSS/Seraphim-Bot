@@ -2,6 +2,8 @@ from discord.ext import commands, flags
 import discord, importlib, typing
 import datetime
 
+from discord.ext.commands.core import command
+
 import common.utils as utils
 import common.image_utils as image_utils
 
@@ -15,7 +17,8 @@ class HelperCMDs(commands.Cog, name = "Helper"):
     async def restore_roles(self, ctx, member: discord.Member):
         """Restores the roles a user had before leaving, suggesting they left less than 15 minutes ago.
         The user running this command must have Manage Server permissions.
-        Useful for... accidential leaves? Troll leaves? Yeah, not much, but Despair's Horizon wanted it."""
+        Useful for... accidential leaves? Troll leaves? Yeah, not much, but Despair's Horizon wanted it.
+        Requires Manage Server permissions or higher."""
 
         guild_entry = self.bot.role_rolebacks.get(ctx.guild.id)
         if not guild_entry:
@@ -74,7 +77,8 @@ class HelperCMDs(commands.Cog, name = "Helper"):
     @commands.check(utils.proper_permissions)
     async def toggle_nsfw(self, ctx, channel: typing.Optional[discord.TextChannel]):
         """Toggles either the provided channel or the channel the command is used it on or off NSFW mode.
-        Useful for mobile devices, which for some reason cannot do this."""
+        Useful for mobile devices, which for some reason cannot do this.
+        Requires Manage Server permissions or higher."""
 
         if channel == None:
             channel = ctx.channel
@@ -96,12 +100,13 @@ class HelperCMDs(commands.Cog, name = "Helper"):
     @commands.command(aliases=["addemoji"])
     @commands.check(utils.proper_permissions)
     async def add_emoji(self, ctx, emoji_name, emoji: typing.Union[image_utils.URLToImage, discord.PartialEmoji, None]):
-        """Adds the URL, emoji, or image given as an emoji to this server.
+        """Adds the URL, emoji, or image given as an emoji to this server with the given name.
         If it's an URL or image, it must be of type GIF, JPG, or PNG. It must also be under 256 KB.
         If it's an emoji, it must not already be on the server the command is being used in.
         The name must be at least 2 characters.
         Useful if you're on iOS and transparency gets the best of you, you want to add an emoji from a URL, or
-        you want to... take an emoji from another server."""
+        you want to... take an emoji from another server.
+        Requires Manage Server permissions or higher."""
 
         if len(emoji_name) < 2:
             raise commands.BadArgument("Emoji name must at least 2 characters!")
@@ -110,7 +115,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             url = image_utils.image_from_ctx(ctx)
         elif isinstance(emoji, discord.PartialEmoji):
             possible_emoji = self.bot.get_emoji(emoji.id)
-            if possible_emoji != None and possible_emoji.guild_id == ctx.guild.id:
+            if possible_emoji and possible_emoji.guild_id == ctx.guild.id:
                 raise commands.BadArgument("This emoji already exists here!")
             else:
                 url = str(emoji.url)
@@ -149,6 +154,23 @@ class HelperCMDs(commands.Cog, name = "Helper"):
                 del emoji_data
 
             await ctx.reply(f"Added {str(emoji)}!")
+
+    @commands.command(aliases=["stealemoji"])
+    @commands.check(utils.proper_permissions)
+    async def steal_emoji(self, ctx, emoji: discord.PartialEmoji):
+        """Adds the emoji given to the server the command is run in, thus 'stealing' it.
+        Useful if you have Discord Nitro and want to add some emojis from other servers into yours.
+        This is essentially just the add-emoji command but if it only accepted an emoji and if it did not require you to put in a name.
+        Thus, the same limitations as that command apply.
+        Requires Manage Server permissions or higher."""
+
+        add_emoji_cmd = self.bot.get_command("add_emoji")
+        if not add_emoji_cmd: # this should never happen
+            raise utils.CustomCheckFailure("For some reason, I cannot get the add-emoji command, which is needed for this. Please contact Sonic about this.")
+        
+        # uses the internal function for add_emoji to do this
+        # somewhat unsafe, but it should be okay here
+        await add_emoji_cmd.__call__(ctx, emoji.name, emoji)
 
     @commands.command(aliases=["getemojiurl"])
     async def get_emoji_url(self, ctx, emoji: typing.Union[discord.PartialEmoji, str]):
