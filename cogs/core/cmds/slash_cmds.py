@@ -34,7 +34,7 @@ class SlashCMDS(commands.Cog):
     async def snipe_handle(self, ctx, chan, msg_num, type_of):
         # probably a better way of doing this
         if not ctx.guild:
-            await ctx.send("You have to run this command in a guild for this to work.")
+            await ctx.send(content="You have to run this command in a guild for this to work.")
             return
 
         chan = chan if isinstance(chan, discord.TextChannel) else discord.Object(chan)
@@ -43,17 +43,17 @@ class SlashCMDS(commands.Cog):
         self.snipe_cleanup(type_of, chan.id)
 
         if msg_num == 0:
-            await ctx.send("You can't snipe the 0th to last message no matter how hard you try.", complete_hidden=True)
+            await ctx.send(content="You can't snipe the 0th to last message no matter how hard you try.", complete_hidden=True)
             return
 
         if not chan.id in self.bot.snipes[type_of].keys():
-            await ctx.send("There's nothing to snipe!", complete_hidden=True)
+            await ctx.send(content="There's nothing to snipe!", complete_hidden=True)
             return
 
         try:
             sniped_entry = self.bot.snipes[type_of][chan.id][-msg_num]
         except IndexError:
-            await ctx.send("There's nothing to snipe!", complete_hidden=True)
+            await ctx.send(content="There's nothing to snipe!", complete_hidden=True)
             return
         
         await ctx.send(embed = sniped_entry.embed)
@@ -61,7 +61,7 @@ class SlashCMDS(commands.Cog):
     @cog_ext.cog_slash(name="reverse", auto_convert={"content": "STRING"})
     async def reverse(self, ctx: SlashContext, content):
         """Reverses the content given."""
-        await ctx.send(f"{content[::-1]}", complete_hidden=True)
+        await ctx.send(content=f"{content[::-1]}", complete_hidden=True)
 
     @cog_ext.cog_slash(name="snipe")
     async def snipe(self, ctx: SlashContext):
