@@ -34,7 +34,7 @@ class SlashCMDS(commands.Cog):
     async def snipe_handle(self, ctx, chan, msg_num, type_of):
         # probably a better way of doing this
         if not ctx.guild:
-            await ctx.send(content="You have to run this command in a guild for this to work.")
+            await ctx.send(content="You have to run this command in a guild for this to work.", hidden=True)
             return
 
         chan = chan if isinstance(chan, discord.TextChannel) else discord.Object(chan)
@@ -43,17 +43,17 @@ class SlashCMDS(commands.Cog):
         self.snipe_cleanup(type_of, chan.id)
 
         if msg_num == 0:
-            await ctx.send(content="You can't snipe the 0th to last message no matter how hard you try.", complete_hidden=True)
+            await ctx.send(content="You can't snipe the 0th to last message no matter how hard you try.", hidden=True)
             return
 
         if not chan.id in self.bot.snipes[type_of].keys():
-            await ctx.send(content="There's nothing to snipe!", complete_hidden=True)
+            await ctx.send(content="There's nothing to snipe!", hidden=True)
             return
 
         try:
             sniped_entry = self.bot.snipes[type_of][chan.id][-msg_num]
         except IndexError:
-            await ctx.send(content="There's nothing to snipe!", complete_hidden=True)
+            await ctx.send(content="There's nothing to snipe!", hidden=True)
             return
         
         await ctx.send(embeds = [sniped_entry.embed])
@@ -62,12 +62,11 @@ class SlashCMDS(commands.Cog):
         "type": 3,
         "name": "content",
         "description": "The content of the message that you wish to reverse.",
-        "default": True,
         "required": True
     }
-    @cog_ext.cog_slash(name="reverse", description="Reverses the content given.", options=[content_option])
+    @cog_ext.cog_slash(name="reverse", description="Reverses the content given.", options=[content_option], guild_ids=[775912554928144384])
     async def reverse(self, ctx: SlashContext, content):
-        await ctx.send(content=f"{content[::-1]}", complete_hidden=True)
+        await ctx.send(content=f"{content[::-1]}", hidden=True)
 
     snipe_desc = """Allows you to get the last deleted message from the channel this was used in."""
     @cog_ext.cog_slash(name="snipe", description=snipe_desc)
