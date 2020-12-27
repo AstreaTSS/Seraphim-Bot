@@ -58,10 +58,14 @@ class SlashCMDS(commands.Cog):
         
         await ctx.send(embeds = [sniped_entry.embed])
 
-    content_convert = {
-        "option_content": 3
+    content_option = {
+        "type": 3,
+        "name": "content",
+        "description": "The content of the message that you wish to reverse.",
+        "default": True,
+        "required": True
     }
-    @cog_ext.cog_slash(name="reverse", description="Reverses the content given.", auto_convert=content_convert)
+    @cog_ext.cog_slash(name="reverse", description="Reverses the content given.", options=[content_option])
     async def reverse(self, ctx: SlashContext, content):
         await ctx.send(content=f"{content[::-1]}", complete_hidden=True)
 
