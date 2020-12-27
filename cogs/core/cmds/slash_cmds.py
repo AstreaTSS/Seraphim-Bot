@@ -37,7 +37,7 @@ class SlashCMDS(commands.Cog):
             await ctx.send("You have to run this command in a guild for this to work.")
             return
 
-        chan = chan if isinstance(chan, discord.Channel) else discord.Object(chan)
+        chan = chan if isinstance(chan, discord.TextChannel) else discord.Object(chan)
         msg_num = abs(msg_num)
 
         self.snipe_cleanup(type_of, chan.id)
@@ -58,7 +58,7 @@ class SlashCMDS(commands.Cog):
         
         await ctx.send(embed = sniped_entry.embed)
 
-    @cog_ext.cog_slash(name="reverse", auto_convert={"content", "STRING"})
+    @cog_ext.cog_slash(name="reverse", auto_convert={"content": "STRING"})
     async def reverse(self, ctx: SlashContext, content):
         """Reverses the content given."""
         await ctx.send(f"{content[::-1]}", complete_hidden=True)
