@@ -58,22 +58,28 @@ class SlashCMDS(commands.Cog):
         
         await ctx.send(embeds = [sniped_entry.embed])
 
-    @cog_ext.cog_slash(name="reverse", auto_convert={"content": "STRING"})
+    content_convert = {
+        "option_content": 3
+    }
+    @cog_ext.cog_slash(name="reverse", description="Reverses the content given.", auto_convert=content_convert)
     async def reverse(self, ctx: SlashContext, content):
-        """Reverses the content given."""
         await ctx.send(content=f"{content[::-1]}", complete_hidden=True)
 
-    @cog_ext.cog_slash(name="snipe")
+    snipe_desc = """Allows you to get the last deleted message from the channel this was used in.
+    Any message that had been deleted over a minute ago will not be able to be sniped."""
+    @cog_ext.cog_slash(name="snipe", description=snipe_desc)
     async def snipe(self, ctx: SlashContext):
-        """Allows you to get the last deleted message from the channel this was used in.
-        Any message that had been deleted over a minute ago will not be able to be sniped."""
         await self.snipe_handle(ctx, ctx.channel, 1, "deletes")
 
-    @cog_ext.cog_slash(name="editsnipe")
+    editsnipe_desc = """Allows you to get the last edited message from the channel this was used in.
+    Any message that had been edited over a minute ago will not be able to be sniped."""
+    @cog_ext.cog_slash(name="editsnipe", description=editsnipe_desc)
     async def editsnipe(self, ctx: SlashContext):
-        """Allows you to get the last edited message from the channel this was used in.
-        Any message that had been edited over a minute ago will not be able to be sniped."""
         await self.snipe_handle(ctx, ctx.channel, 1, "edits")
+
+    @commands.Cog.listener()
+    async def on_slash_command_error(self, ctx, ex):
+        await utils.error_handle(self.bot, ex, ctx)
 
 def setup(bot):
     importlib.reload(utils)

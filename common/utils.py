@@ -33,7 +33,10 @@ async def error_handle(bot, error, ctx = None):
     await msg_to_owner(bot, error_str)
 
     if ctx != None:
-        await ctx.reply("An internal error has occured. The bot owner has been notified.")
+        if hasattr(ctx, "reply"):
+            await ctx.reply("An internal error has occured. The bot owner has been notified.")
+        else:
+            await ctx.send(content="An internal error has occured. The bot owner has been notified.")
 
 async def msg_to_owner(bot, content):
     # sends a message to the owner
