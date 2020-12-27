@@ -56,7 +56,7 @@ class SlashCMDS(commands.Cog):
             await ctx.send("There's nothing to snipe!", complete_hidden=True)
             return
         
-        await ctx.reply(embed = sniped_entry.embed)
+        await ctx.send(embed = sniped_entry.embed)
 
     @cog_ext.cog_slash(name="reverse", auto_convert={"content", "STRING"})
     async def reverse(self, ctx: SlashContext, content):
