@@ -65,14 +65,12 @@ class SlashCMDS(commands.Cog):
     async def reverse(self, ctx: SlashContext, content):
         await ctx.send(content=f"{content[::-1]}", complete_hidden=True)
 
-    snipe_desc = """Allows you to get the last deleted message from the channel this was used in.
-    Any message that had been deleted over a minute ago will not be able to be sniped."""
+    snipe_desc = """Allows you to get the last deleted message from the channel this was used in."""
     @cog_ext.cog_slash(name="snipe", description=snipe_desc)
     async def snipe(self, ctx: SlashContext):
         await self.snipe_handle(ctx, ctx.channel, 1, "deletes")
 
-    editsnipe_desc = """Allows you to get the last edited message from the channel this was used in.
-    Any message that had been edited over a minute ago will not be able to be sniped."""
+    editsnipe_desc = """Allows you to get the last edited message from the channel this was used in."""
     @cog_ext.cog_slash(name="editsnipe", description=editsnipe_desc)
     async def editsnipe(self, ctx: SlashContext):
         await self.snipe_handle(ctx, ctx.channel, 1, "edits")
