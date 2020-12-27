@@ -115,6 +115,8 @@ class SeraphimBot(commands.Bot):
                         self.load_extension(cog)
                     except commands.NoEntryPointError:
                         pass
+
+            await bot.slash.register_all_commands()
         else:
             for guild in self.guilds:
                 members = guild.members
