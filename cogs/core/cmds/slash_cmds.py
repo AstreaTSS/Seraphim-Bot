@@ -66,7 +66,7 @@ class SlashCMDS(commands.Cog):
     }
     @cog_ext.cog_slash(name="reverse", description="Reverses the content given.", options=[content_option])
     async def reverse(self, ctx: SlashContext, content):
-        await ctx.send(content=f"{content[::-1]}", hidden=True)
+        await ctx.send(content=f"{content[::-1]}", complete_hidden=True)
 
     snipe_desc = """Allows you to get the last deleted message from the channel this was used in."""
     @cog_ext.cog_slash(name="snipe", description=snipe_desc)
