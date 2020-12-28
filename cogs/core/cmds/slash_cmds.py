@@ -64,7 +64,7 @@ class SlashCMDS(commands.Cog):
         "description": "The content of the message that you wish to reverse.",
         "required": True
     }
-    @cog_ext.cog_slash(name="reverse", description="Reverses the content given.", options=[content_option], guild_ids=[775912554928144384])
+    @cog_ext.cog_slash(name="reverse", description="Reverses the content given.", options=[content_option])
     async def reverse(self, ctx: SlashContext, content):
         await ctx.send(content=f"{content[::-1]}", hidden=True)
 
