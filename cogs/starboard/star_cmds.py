@@ -1,7 +1,9 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
 import discord, importlib, collections
-import datetime, random
+import datetime, random, typing
+
+from discord.message import Message
 
 import common.fuzzys as fuzzys
 import common.star_utils as star_utils
@@ -152,9 +154,8 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                 star_mes = await starboard_chan.fetch_message(random_entry.star_var_id)
             except discord.HTTPException:
                 ori_url = f"https://discordapp.com/channels/{ctx.guild.id}/{random_entry.ori_chan_id}/{random_entry.ori_mes_id}"
-                await ctx.reply("I picked an entry, but I couldn't get the starboard message.\n" +
+                raise utils.CustomCheckFailure("I picked an entry, but I couldn't get the starboard message.\n" +
                 f"This might be the message I was trying to get: {ori_url}")
-                return
 
             star_content = star_mes.content
             star_embed = star_mes.embeds[0]
@@ -163,8 +164,50 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
             await ctx.reply(star_content, embed=star_embed)
         else:
-            await ctx.reply("There are no starboard entries for me to pick!")
+            raise utils.CustomCheckFailure("There are no starboard entries for me to pick!")
 
+    class UsableIDConverter(commands.IDConverter):
+        async def convert(self, ctx: commands.Context, argument: str):
+            match = self._get_id_match(argument)
+            try:
+                return int(match.group(1))
+            except:
+                raise commands.MessageNotFound(argument)
+
+    @sb.command()
+    @commands.cooldown(1, 2, commands.BucketType.guild)
+    async def search(self, ctx: commands.Context, msg: typing.Union[discord.Message, UsableIDConverter]):
+        """Searches for a message that is in the starboard.
+        The message either needs to be a message ID of a message in the guild the command is being run in,
+        a {channel id}-{message id} format, or the message link itself.
+        The message can either be the original message or the starboard variant message."""
+
+        msg_id = msg.id if isinstance(msg, discord.Message) else msg
+        starboard_entry = self.bot.starboard.get(msg_id, check_for_var=True)
+
+        if not starboard_entry or starboard_entry.guild_id != ctx.guild.id:
+            raise commands.BadArgument("This message does not have a starboard entry here!")
+
+        ori_url = f"https://discordapp.com/channels/{ctx.guild.id}/{starboard_entry.ori_chan_id}/{starboard_entry.ori_mes_id}"
+        
+        starboard_chan = ctx.guild.get_channel(starboard_entry.starboard_id)
+        if starboard_chan == None:
+            raise utils.CustomCheckFailure("I found an entry, but I couldn't get the starboard message.\n" +
+            f"This might be the message I was trying to get: {ori_url}")
+
+        try:
+            star_mes = await starboard_chan.fetch_message(starboard_chan.star_var_id)
+        except discord.HTTPException:
+            raise utils.CustomCheckFailure("I found an entry, but I couldn't get the starboard message.\n" +
+            f"This might be the message I was trying to get: {ori_url}")
+
+        star_content = star_mes.content
+        star_embed = star_mes.embeds[0]
+
+        star_embed.add_field(name="Starboard Variant", value=f"[Jump]({star_mes.jump_url})", inline=True)
+
+        await ctx.reply(star_content, embed=star_embed)
+        
     @sb.command()
     @commands.check(utils.proper_permissions)
     async def force(self, ctx, msg: discord.Message):
