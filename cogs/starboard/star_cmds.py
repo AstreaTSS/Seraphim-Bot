@@ -196,7 +196,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             f"This might be the message I was trying to get: {ori_url}")
 
         try:
-            star_mes = await starboard_chan.fetch_message(starboard_chan.star_var_id)
+            star_mes = await starboard_chan.fetch_message(starboard_entry.star_var_id)
         except discord.HTTPException:
             raise utils.CustomCheckFailure("I found an entry, but I couldn't get the starboard message.\n" +
             f"This might be the message I was trying to get: {ori_url}")
