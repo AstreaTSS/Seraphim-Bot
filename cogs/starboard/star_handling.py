@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import discord, importlib, asyncio
+import discord, importlib
 
 import common.utils as utils
 import common.star_utils as star_utils

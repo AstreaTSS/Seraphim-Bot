@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands, tasks
-import datetime, discord
+import datetime
 
 class EtcEvents(commands.Cog):
     def __init__(self, bot):

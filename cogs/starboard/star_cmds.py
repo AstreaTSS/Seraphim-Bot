@@ -3,8 +3,6 @@ from discord.ext import commands
 import discord, importlib, collections
 import datetime, random, typing
 
-from discord.message import Message
-
 import common.fuzzys as fuzzys
 import common.star_utils as star_utils
 import common.utils as utils

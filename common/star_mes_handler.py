@@ -2,8 +2,6 @@
 import discord, re
 import collections
 
-from discord import embeds
-
 import common.star_utils as star_utils
 import common.utils as utils
 import common.image_utils as image_utils

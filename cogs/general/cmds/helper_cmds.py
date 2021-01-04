@@ -1,8 +1,6 @@
-from discord.ext import commands, flags
+from discord.ext import commands
 import discord, importlib, typing
 import datetime
-
-from discord.ext.commands.core import command
 
 import common.utils as utils
 import common.image_utils as image_utils
@@ -53,10 +51,9 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             try:
                 await member.add_roles(*added_roles, reason=f"Restoring old roles: done by {str(ctx.author)}.", atomic=False)
             except discord.HTTPException as error:
-                await ctx.reply("Something happened while trying to restore the roles this user had.\n" +
+                raise utils.CustomCheckFailure("Something happened while trying to restore the roles this user had.\n" +
                 "This shouldn't be happening, and this should have been caught earlier by the bot. Try contacting the bot owner about it.\n" +
                 f"Error: {error}")
-                return
         else:
             raise commands.BadArgument("There were no roles to restore for this user!")
         

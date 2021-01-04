@@ -1,5 +1,6 @@
 from discord.ext import commands
-import asyncio, aiohttp, os, re, humanize, discord
+import asyncio, aiohttp, os
+import re, humanize, discord
 
 async def type_from_url(url):
     # gets type of data from url
