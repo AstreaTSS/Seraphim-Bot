@@ -155,10 +155,10 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
             await ctx.reply(f"Added {str(emoji)}!")
 
-    @commands.command(aliases=["stealemoji"])
+    @commands.command(aliases=["copyemoji", "steal_emoji", "stealemoji"])
     @commands.check(utils.proper_permissions)
-    async def steal_emoji(self, ctx, emoji: discord.PartialEmoji):
-        """Adds the emoji given to the server the command is run in, thus 'stealing' it.
+    async def copy_emoji(self, ctx, emoji: discord.PartialEmoji):
+        """Adds the emoji given to the server the command is run in, thus copying it.
         Useful if you have Discord Nitro and want to add some emojis from other servers into yours.
         This is essentially just the add-emoji command but if it only accepted an emoji and if it did not require you to put in a name.
         Thus, the same limitations as that command apply.
