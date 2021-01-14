@@ -1,4 +1,4 @@
-import discord, importlib, datetime
+import discord, importlib, datetime, random
 from discord.ext import commands
 from discord_slash import cog_ext
 from discord_slash import SlashCommand
@@ -34,7 +34,7 @@ class SlashCMDS(commands.Cog):
     async def snipe_handle(self, ctx, chan, msg_num, type_of):
         # probably a better way of doing this
         if not ctx.guild:
-            await ctx.send(content="You have to run this command in a guild for this to work.")
+            await ctx.channel.send(content="You have to run this command in a guild for this to work.")
             return
 
         chan = chan if isinstance(chan, discord.TextChannel) else discord.Object(chan)
@@ -43,28 +43,28 @@ class SlashCMDS(commands.Cog):
         self.snipe_cleanup(type_of, chan.id)
 
         if msg_num == 0:
-            await ctx.send(content="You can't snipe the 0th to last message no matter how hard you try.")
+            await ctx.channel.send(content="You can't snipe the 0th to last message no matter how hard you try.")
             return
 
         if not chan.id in self.bot.snipes[type_of].keys():
-            await ctx.send(content="There's nothing to snipe!")
+            await ctx.channel.send(content="There's nothing to snipe!")
             return
 
         try:
             sniped_entry = self.bot.snipes[type_of][chan.id][-msg_num]
         except IndexError:
-            await ctx.send(content="There's nothing to snipe!")
+            await ctx.channel.send(content="There's nothing to snipe!")
             return
         
-        await ctx.send(embeds = [sniped_entry.embed])
+        await ctx.channel.send(embeds = [sniped_entry.embed])
 
-    content_option = {
+    reverse_content_option = {
         "type": 3,
         "name": "content",
         "description": "The content of the message that you wish to reverse.",
         "required": True
     }
-    @cog_ext.cog_slash(name="reverse", description="Reverses the content given.", options=[content_option])
+    @cog_ext.cog_slash(name="reverse", description="Reverses the content given.", options=[reverse_content_option])
     async def reverse(self, ctx: SlashContext, content):
         await ctx.send(content=f"{content[::-1]}", complete_hidden=True)
 
@@ -77,6 +77,39 @@ class SlashCMDS(commands.Cog):
     @cog_ext.cog_slash(name="editsnipe", description=editsnipe_desc)
     async def editsnipe(self, ctx: SlashContext):
         await self.snipe_handle(ctx, ctx.channel, 1, "edits")
+
+    user_option = {
+        "type": 6,
+        "name": "user",
+        "description": "The user to kill.",
+        "required": True
+    }
+    killcmd_desc = "Allows you to kill the user specified using the iconic Minecraft kill command messages."
+    @cog_ext.cog_slash(name="kill", description=killcmd_desc)
+    async def kill(self, ctx: SlashContext, user):
+        kill_msg = random.choice(self.bot.death_messages)
+
+        if isinstance(user, discord.Member):
+            user_str = user.display_name
+        else:
+            user_str = f"<@{user}>"
+
+
+        if isinstance(ctx.author, discord.Member):
+            author_str = ctx.author.display_name
+        else:
+            author_str = f"<@{ctx.author}>"
+
+        kill_msg = kill_msg.replace("%1$s", user_str)
+        kill_msg = kill_msg.replace("%2$s", author_str)
+        kill_msg = kill_msg.replace("%3$s", self.bot.user.name)
+
+        kill_embed = discord.Embed(
+            colour = discord.Colour.red(),
+            description = kill_msg
+        )
+
+        await ctx.channel.send(embed=kill_embed)
 
     @commands.Cog.listener()
     async def on_slash_command_error(self, ctx, ex):

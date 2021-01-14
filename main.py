@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.7
 import discord, os, asyncio
-import websockets, logging
+import websockets, logging, aiohttp
 from discord.ext import commands
 from discord.ext.commands.bot import _default as bot_default
 from datetime import datetime
@@ -89,6 +89,17 @@ class SeraphimBot(commands.Bot):
 
             application = await self.application_info()
             self.owner = application.owner
+
+            # is this overboard for a joke? yes.
+            self.death_messages = []
+            mc_en_us_url = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/master/assets/minecraft/lang/en_us.json"
+            async with aiohttp.ClientSession() as session:
+                async with session.get(mc_en_us_url) as resp:
+                    mc_en_us_config = await resp.json(content_type='text/plain')
+
+                    for key, value in mc_en_us_config.items():
+                        if key.startswith("death.") and key not in ("death.attack.message_too_long", "death.attack.netherBed.link"):
+                            self.death_messages.append(value)
 
             """Okay, let me explain myself here.
             Basically, on every disconnect, for some reason, discord.py decides to throw away
