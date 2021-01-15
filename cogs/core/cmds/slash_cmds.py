@@ -90,13 +90,13 @@ class SlashCMDS(commands.Cog):
         kill_msg = random.choice(self.bot.death_messages)
 
         if isinstance(user, (discord.Member, discord.User)):
-            user_str = user.display_name
+            user_str = f"**{user.display_name}**"
         else:
             user_str = f"<@{user}>"
 
 
         if isinstance(ctx.author, (discord.Member, discord.User)):
-            author_str = ctx.author.display_name
+            author_str = f"**{ctx.author.display_name}**"
         else:
             author_str = f"<@{ctx.author}>"
 
