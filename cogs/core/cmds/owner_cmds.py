@@ -130,14 +130,14 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
 
             if "options" in entry.keys():
                 entry_str_list.append("") # inserting new line
-                entry_str_list.append("*Options:*")
+                entry_str_list.append("Options:")
 
                 for option in entry["options"]:
                     option_type = discord_slash.SlashCommandOptionType(option["type"]).name
                     required_txt = ", required" if option["required"] else ""
                     entry_str_list.append(f"{option['name']} (type {option_type}{required_txt}) - {option['description']}")
 
-            entry_str_list.append("")
+            entry_str_list.append("** **")
 
             slash_entries.append( (f"{entry['name']} - ID {entry['id']}", "\n".join(entry_str_list)) )
 
