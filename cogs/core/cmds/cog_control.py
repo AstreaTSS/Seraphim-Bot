@@ -18,7 +18,7 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
         for extension in extensions:
             self.bot.reload_extension(extension)
 
-        await self.msg_handler(ctx, f"All extensions reloaded!")
+        await ctx.reply("All extensions reloaded!")
 
     @commands.command(hidden=True)
     async def refresh_extensions(self, ctx):
