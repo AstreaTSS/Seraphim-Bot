@@ -200,7 +200,11 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         obj_creation = discord.utils.snowflake_time(obj_id)
         time_format = obj_creation.strftime("%x %X UTC")
 
-        if hasattr(argument, "name"):
+        if isinstance(argument, discord.Role) and argument.is_default():
+            # the @everyone role has the same id as the guild
+            # most people are probably looking for the guilds creation date, so...
+            obj_name = argument.guild.name
+        elif hasattr(argument, "name"):
             obj_name = f"`{argument.name}`"
         else:
             obj_name = "This"
