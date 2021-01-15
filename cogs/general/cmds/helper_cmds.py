@@ -204,6 +204,8 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             # the @everyone role has the same id as the guild it's in
             # most people are probably looking for the guilds creation date, so...
             obj_name = f"`{argument.guild.name}`"
+        elif isinstance(argument, (discord.Member, discord.User)):
+            obj_name = f"`{str(argument)}`"
         elif hasattr(argument, "name"):
             obj_name = f"`{argument.name}`"
         else:

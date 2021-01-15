@@ -20,44 +20,6 @@ class SlashCMDS(commands.Cog):
     def cog_unload(self):
         self.bot.slash.remove_cog_commands(self)
 
-    def snipe_cleanup(self, type_of, chan_id):
-        now = datetime.datetime.utcnow()
-        one_minute = datetime.timedelta(minutes=1)
-        one_minute_ago = now - one_minute
-
-        if chan_id in self.bot.snipes[type_of]:
-            snipes_copy = self.bot.snipes[type_of][chan_id].copy()
-            for entry in snipes_copy:
-                if entry.time_modified < one_minute_ago:
-                    self.bot.snipes[type_of][chan_id].remove(entry)
-
-    async def snipe_handle(self, ctx, chan, msg_num, type_of):
-        # probably a better way of doing this
-        if not ctx.guild:
-            await ctx.send(content="You have to run this command in a guild for this to work.")
-            return
-
-        chan = chan if isinstance(chan, discord.TextChannel) else discord.Object(chan)
-        msg_num = abs(msg_num)
-
-        self.snipe_cleanup(type_of, chan.id)
-
-        if msg_num == 0:
-            await ctx.send(content="You can't snipe the 0th to last message no matter how hard you try.")
-            return
-
-        if not chan.id in self.bot.snipes[type_of].keys():
-            await ctx.send(content="There's nothing to snipe!")
-            return
-
-        try:
-            sniped_entry = self.bot.snipes[type_of][chan.id][-msg_num]
-        except IndexError:
-            await ctx.send(content="There's nothing to snipe!")
-            return
-        
-        await ctx.send(embeds = [sniped_entry.embed])
-
     reverse_content_option = {
         "type": 3,
         "name": "content",
@@ -67,16 +29,6 @@ class SlashCMDS(commands.Cog):
     @cog_ext.cog_slash(name="reverse", description="Reverses the content given.", options=[reverse_content_option])
     async def reverse(self, ctx: SlashContext, content):
         await ctx.send(content=f"{content[::-1]}", complete_hidden=True)
-
-    snipe_desc = """Allows you to get the last deleted message from the channel this was used in."""
-    @cog_ext.cog_slash(name="snipe", description=snipe_desc)
-    async def snipe(self, ctx: SlashContext):
-        await self.snipe_handle(ctx, ctx.channel, 1, "deletes")
-
-    editsnipe_desc = """Allows you to get the last edited message from the channel this was used in."""
-    @cog_ext.cog_slash(name="editsnipe", description=editsnipe_desc)
-    async def editsnipe(self, ctx: SlashContext):
-        await self.snipe_handle(ctx, ctx.channel, 1, "edits")
 
     user_option = {
         "type": 6,
