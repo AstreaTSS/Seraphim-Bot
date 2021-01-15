@@ -85,7 +85,7 @@ class SlashCMDS(commands.Cog):
         "required": True
     }
     killcmd_desc = "Allows you to kill the user specified using the iconic Minecraft kill command messages."
-    @cog_ext.cog_slash(name="kill", description=killcmd_desc)
+    @cog_ext.cog_slash(name="kill", description=killcmd_desc, options=[user_option])
     async def kill(self, ctx: SlashContext, user):
         kill_msg = random.choice(self.bot.death_messages)
 
