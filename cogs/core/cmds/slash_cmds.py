@@ -34,7 +34,7 @@ class SlashCMDS(commands.Cog):
     async def snipe_handle(self, ctx, chan, msg_num, type_of):
         # probably a better way of doing this
         if not ctx.guild:
-            await ctx.channel.send(content="You have to run this command in a guild for this to work.")
+            await ctx.send(content="You have to run this command in a guild for this to work.")
             return
 
         chan = chan if isinstance(chan, discord.TextChannel) else discord.Object(chan)
@@ -43,20 +43,20 @@ class SlashCMDS(commands.Cog):
         self.snipe_cleanup(type_of, chan.id)
 
         if msg_num == 0:
-            await ctx.channel.send(content="You can't snipe the 0th to last message no matter how hard you try.")
+            await ctx.send(content="You can't snipe the 0th to last message no matter how hard you try.")
             return
 
         if not chan.id in self.bot.snipes[type_of].keys():
-            await ctx.channel.send(content="There's nothing to snipe!")
+            await ctx.send(content="There's nothing to snipe!")
             return
 
         try:
             sniped_entry = self.bot.snipes[type_of][chan.id][-msg_num]
         except IndexError:
-            await ctx.channel.send(content="There's nothing to snipe!")
+            await ctx.send(content="There's nothing to snipe!")
             return
         
-        await ctx.channel.send(embeds = [sniped_entry.embed])
+        await ctx.send(embeds = [sniped_entry.embed])
 
     reverse_content_option = {
         "type": 3,
@@ -110,7 +110,7 @@ class SlashCMDS(commands.Cog):
             description = kill_msg
         )
 
-        await ctx.channel.send(embed=kill_embed)
+        await ctx.send(embed=kill_embed)
 
     @commands.Cog.listener()
     async def on_slash_command_error(self, ctx, ex):
