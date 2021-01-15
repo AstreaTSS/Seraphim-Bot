@@ -66,13 +66,12 @@ class SlashCMDS(commands.Cog):
 
     @commands.Cog.listener()
     async def on_slash_command_error(self, ctx, ex):
-        if isinstance(ex, discord.NotFound):
+        if isinstance(ex, discord.NotFound) and ex.text == "Unknown interaction":
             if isinstance(ctx.author, (discord.Member, discord.User)):
                 author_str = ctx.author.mention
             else:
                 author_str = f"<@{ctx.author}>"
-            await ctx.channel.send(f"{author_str}, the bot is a bit slow right now and so cannot do slash commands right now. Please wait a bit and try again.",delete_after=3)
-            await utils.msg_to_owner(self.bot, ex.text)
+            await ctx.channel.send(f"{author_str}, the bot is a bit slow and so cannot do slash commands right now. Please wait a bit and try again.",delete_after=3)
         else:
             await utils.error_handle(self.bot, ex, ctx)
 
