@@ -47,7 +47,7 @@ async def base_generate(bot, mes: discord.Message, no_attachments = False):
 
     elif mes.embeds != [] and ((mes.author.id in (270904126974590976, 499383056822435840) 
     and mes.embeds[0].author.name != discord.Embed.Empty) or (mes.author.id == bot.user.id 
-    and mes.embeds[0].author.name != bot.user.name)): # if message is sniped message that's supported
+    and mes.embeds[0].author.name != bot.user.name and mes.embeds[0].color.value == 0x4378fc)): # if message is sniped message that's supported
         snipe_embed = mes.embeds[0]
 
         entry = bot.starboard.get(mes.id)
