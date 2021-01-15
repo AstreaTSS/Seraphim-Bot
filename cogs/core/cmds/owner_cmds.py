@@ -129,7 +129,7 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
                 entry_str_list.append("No description provided.")
 
             if "options" in entry.keys():
-                entry_str_list.append("Arguments:")
+                entry_str_list.append("__Arguments:__")
 
                 for option in entry["options"]:
                     option_type = discord_slash.SlashCommandOptionType(option["type"]).name
