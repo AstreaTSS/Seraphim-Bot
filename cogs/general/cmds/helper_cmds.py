@@ -201,9 +201,9 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         time_format = obj_creation.strftime("%x %X UTC")
 
         if isinstance(argument, discord.Role) and argument.is_default():
-            # the @everyone role has the same id as the guild
+            # the @everyone role has the same id as the guild it's in
             # most people are probably looking for the guilds creation date, so...
-            obj_name = argument.guild.name
+            obj_name = f"`{argument.guild.name}`"
         elif hasattr(argument, "name"):
             obj_name = f"`{argument.name}`"
         else:
