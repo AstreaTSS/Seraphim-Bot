@@ -102,7 +102,7 @@ class SlashCMDS(commands.Cog):
 
         kill_msg = kill_msg.replace("%1$s", user_str)
         kill_msg = kill_msg.replace("%2$s", author_str)
-        kill_msg = kill_msg.replace("%3$s", self.bot.user.name)
+        kill_msg = kill_msg.replace("%3$s", "*Seraphim*")
         kill_msg = f"{kill_msg}."
 
         kill_embed = discord.Embed(
