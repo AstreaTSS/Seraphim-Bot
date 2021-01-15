@@ -201,7 +201,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         time_format = obj_creation.strftime("%x %X UTC")
 
         if hasattr(argument, "name"):
-            obj_name = f"`{str(argument)}`"
+            obj_name = f"`{argument.name}`"
         else:
             obj_name = "This"
 
