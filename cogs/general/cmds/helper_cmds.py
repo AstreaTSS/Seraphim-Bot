@@ -185,8 +185,8 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             raise commands.BadArgument("This emoji is not a custom emoji!")
 
     @commands.command()
-    async def created(self, ctx, *, argument: typing.Union[custom_classes.UsableIDConverter, discord.Member, discord.User, discord.Message, 
-    discord.TextChannel, discord.VoiceChannel, discord.CategoryChannel, discord.Role, discord.PartialEmoji]):
+    async def created(self, ctx, *, argument: typing.Union[discord.Member, discord.User, discord.Message, discord.TextChannel,
+    discord.VoiceChannel, discord.CategoryChannel, discord.Role, discord.PartialEmoji, custom_classes.UsableIDConverter]):
         """Gets the creation date and time of many, MANY Discord related things, like members, emojis, messages, and much more.
         It would be too numberous to list what all can be converted (but usually, anything with a Discord ID will work) and how you input them.
         Names, IDs, mentions... try it out and see.
