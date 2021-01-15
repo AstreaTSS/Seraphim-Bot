@@ -9,6 +9,7 @@ import common.utils as utils
 import common.star_mes_handler as star_mes
 import common.star_classes as star_classes
 import common.groups as groups
+import common.classes as custom_classes
 
 class StarCMDs(commands.Cog, name = "Starboard"):
     """Commands for the starboard. See the settings command to set up the starboard."""
@@ -164,17 +165,9 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         else:
             raise utils.CustomCheckFailure("There are no starboard entries for me to pick!")
 
-    class UsableIDConverter(commands.IDConverter):
-        async def convert(self, ctx: commands.Context, argument: str):
-            match = self._get_id_match(argument)
-            try:
-                return int(match.group(1))
-            except:
-                raise commands.MessageNotFound(argument)
-
     @sb.command()
     @commands.cooldown(1, 2, commands.BucketType.guild)
-    async def search(self, ctx: commands.Context, msg: typing.Union[discord.Message, UsableIDConverter]):
+    async def search(self, ctx: commands.Context, msg: typing.Union[discord.Message, custom_classes.UsableIDConverter]):
         """Searches for a message that is in the starboard.
         The message either needs to be a message ID of a message in the guild the command is being run in,
         a {channel id}-{message id} format, or the message link itself.
@@ -248,5 +241,6 @@ def setup(bot):
     importlib.reload(utils)
     importlib.reload(fuzzys)
     importlib.reload(groups)
+    importlib.reload(custom_classes)
     
     bot.add_cog(StarCMDs(bot))

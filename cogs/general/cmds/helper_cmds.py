@@ -4,6 +4,7 @@ import datetime
 
 import common.utils as utils
 import common.image_utils as image_utils
+import common.classes as custom_classes
 
 class HelperCMDs(commands.Cog, name = "Helper"):
     """A series of commands made for tasks that are usually difficult to do, especially on mobile."""
@@ -183,8 +184,32 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             # this shouldn't happen due to how the PartialEmoji converter works, but you never know
             raise commands.BadArgument("This emoji is not a custom emoji!")
 
+    @commands.command()
+    async def created(self, ctx, *, argument: typing.Union[custom_classes.UsableIDConverter, discord.Member, discord.User, discord.Message, 
+    discord.TextChannel, discord.VoiceChannel, discord.CategoryChannel, discord.Role, discord.PartialEmoji]):
+        """Gets the creation date and time of many, MANY Discord related things, like members, emojis, messages, and much more.
+        It would be too numberous to list what all can be converted (but usually, anything with a Discord ID will work) and how you input them.
+        Names, IDs, mentions... try it out and see.
+        Will return the time in UTC in MM/DD/YY HH:MM:SS in 24-hour time."""
+
+        if not isinstance(argument, int):
+            obj_id = argument.id
+        else:
+            obj_id = argument
+
+        obj_creation = discord.utils.snowflake_time(obj_id)
+        time_format = obj_creation.strftime("%x %X UTC")
+
+        if hasattr(argument, "name"):
+            obj_name = f"`{str(argument)}`"
+        else:
+            obj_name = "This"
+
+        await ctx.reply(f"{obj_name} was created at: `{time_format}`")
+
 def setup(bot):
     importlib.reload(utils)
     importlib.reload(image_utils)
+    importlib.reload(custom_classes)
     
     bot.add_cog(HelperCMDs(bot))

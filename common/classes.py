@@ -10,6 +10,15 @@ class SnipedMessage():
         self.embed = embed
         self.time_modified = datetime.datetime.utcnow()
 
+class UsableIDConverter(commands.IDConverter):
+    """The internal ID converter, but usable."""
+    async def convert(self, ctx: commands.Context, argument: str):
+        match = self._get_id_match(argument)
+        try:
+            return int(match.group(1))
+        except:
+            raise commands.MessageNotFound(argument)
+
 class SetAsyncQueue(asyncio.Queue):
     """A special type of async queue that uses a set instead of a queue.
     Useful when we don't want duplicates."""

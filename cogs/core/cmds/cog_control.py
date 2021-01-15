@@ -1,7 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
-import datetime, os
-import importlib, asyncio, collections
+import os, importlib, asyncio, collections
 
 import common.utils as utils
 import common.star_classes as star_classes
@@ -9,14 +8,6 @@ import common.star_classes as star_classes
 class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
-
-    async def msg_handler(self, ctx, msg_str):
-        await ctx.reply(msg_str)
-
-        utcnow = datetime.datetime.utcnow()
-        time_format = utcnow.strftime("%x %X UTC")
-
-        await utils.msg_to_owner(ctx.bot, f"`{time_format}`: {msg_str}")
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
@@ -80,7 +71,7 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
         if not_loaded != []:
             msg_content.append(f"Didn't load: {ext_str(not_loaded)}")
             
-        await self.msg_handler(ctx, "\n".join(msg_content))
+        await ctx.reply("\n".join(msg_content))
 
     @commands.command(hidden=True)
     async def list_loaded_extensions(self, ctx):
@@ -113,7 +104,7 @@ class CogControl(commands.Cog, name="Cog Control", command_attrs=dict(hidden=Tru
                 self.bot.load_extension(extension)
 
         self.bot.init_load = False
-        await self.msg_handler(ctx, f"Database reloaded!")
+        await ctx.reply(f"Database reloaded!")
 
 def setup(bot):
     importlib.reload(utils)
