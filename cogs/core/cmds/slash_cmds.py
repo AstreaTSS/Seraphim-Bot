@@ -110,7 +110,7 @@ class SlashCMDS(commands.Cog):
             description = kill_msg
         )
 
-        await ctx.send(embed=kill_embed)
+        await ctx.send(embeds=[kill_embed])
 
     @commands.Cog.listener()
     async def on_slash_command_error(self, ctx, ex):
