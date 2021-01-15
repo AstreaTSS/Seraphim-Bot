@@ -111,10 +111,10 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
         self.bot.init_load = False
         await ctx.reply(f"Database reloaded!")
 
-    @commands.command(hidden=True, aliases=["get_slash_commands", "getslashcmds"])
-    async def get_slash_cmds(self, ctx, guild_id: typing.Optional[custom_classes.UsableIDConverter]):
+    @commands.command(hidden=True, aliases=["list_slash_commands", "listslashcmds"])
+    async def list_slash_cmds(self, ctx, guild_id: typing.Optional[custom_classes.UsableIDConverter]):
         slash_cmds = await discord_slash.utils.manage_commands.get_all_commands(self.bot.user.id, self.bot.http.token, guild_id)
-        slash_entries = {}
+        slash_entries = []
 
         if not slash_cmds:
             raise commands.BadArgument("This guild does not have any specific slash commands.")
@@ -137,7 +137,7 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
                     required_txt = ", required" if option["required"] else ""
                     entry_str_list.append(f"{option['name']} (type {option_type}{required_txt}) - {option['description']}")
 
-            slash_entries[f"**{entry['name']}** - ID {entry['id']}"] = "\n".join(entry_str_list)
+            slash_entries.append( (f"**{entry['name']}** - ID {entry['id']}", "\n".join(entry_str_list)) )
 
         pages = paginator.FieldPages(ctx, entries=slash_entries)
         await pages.paginate()
