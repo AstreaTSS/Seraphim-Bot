@@ -40,7 +40,7 @@ class NormCMDs(commands.Cog, name="Normal"):
     @commands.command()
     async def invite(self, ctx):
         """Gives an invite link to invite the bot."""
-        await ctx.reply("Invite:\nhttps://discord.com/api/oauth2/authorize?client_id=700857077672706120&permissions=8&scope=bot")
+        await ctx.reply("Invite:\nhttps://discord.com/api/oauth2/authorize?client_id=700857077672706120&permissions=8&scope=bot%20applications.commands")
 
     @commands.command()
     async def about(self, ctx):
@@ -54,7 +54,7 @@ class NormCMDs(commands.Cog, name="Normal"):
         msg_list.append("I tend to have features that are either done poorly by other bots, or features of bots " +
         "that tend to be offline/unresponsive for a decent amount of time.")
         msg_list.append("If you want to invite me, you're in luck. The link is:")
-        msg_list.append("https://discord.com/api/oauth2/authorize?client_id=700857077672706120&permissions=8&scope=bot")
+        msg_list.append("https://discord.com/api/oauth2/authorize?client_id=700857077672706120&permissions=8&scope=bot%20applications.commands")
         msg_list.append("For more support about me, maybe take a look at the support server here:\nhttps://discord.gg/NSdetwGjpK")
 
         about_embed = discord.Embed(
