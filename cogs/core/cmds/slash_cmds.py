@@ -74,7 +74,9 @@ class SlashCMDS(commands.Cog):
     killcmd_desc = "Allows you to kill the victim specified using the iconic Minecraft kill command messages."
     @cog_ext.cog_slash(name="kill", description=killcmd_desc, options=[kill_content_option])
     async def kill(self, ctx: SlashContext, content: str):
-        kill_msg = random.choice(self.bot.death_messages)
+        if len(content) > 1900:
+            await ctx.send(complete_hidden=True, content="The content you provided is too long.")
+            return
 
         user = None
         if isinstance(ctx.guild, discord.Guild):
@@ -83,15 +85,17 @@ class SlashCMDS(commands.Cog):
             except:
                 pass
 
-        if isinstance(user, (discord.Member, discord.User)):
+        if user:
             victim_str = f"**{user.display_name}**"
         else:
-            victim_str = content
+            victim_str = f"**{discord.utils.escape_markdown(content)}**"
 
         if isinstance(ctx.author, (discord.Member, discord.User)):
             author_str = f"**{ctx.author.display_name}**"
         else:
             author_str = f"<@{ctx.author}>"
+
+        kill_msg = random.choice(self.bot.death_messages)
 
         kill_msg = kill_msg.replace("%1$s", victim_str)
         kill_msg = kill_msg.replace("%2$s", author_str)
