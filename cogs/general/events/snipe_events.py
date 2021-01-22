@@ -14,7 +14,11 @@ class SnipeEvents(commands.Cog):
             if not message.channel.id in self.bot.snipes["deletes"].keys():
                 self.bot.snipes["deletes"][message.channel.id] = []
             
-            snipe_embed = await star_mes.base_generate(self.bot, message, no_attachments=True)
+            try:
+                snipe_embed = await star_mes.base_generate(self.bot, message, no_attachments=True)
+            except discord.InvalidArgument:
+                return
+
             snipe_embed.color = discord.Colour(0x4378fc)
             self.bot.snipes["deletes"][message.channel.id].append(custom_classes.SnipedMessage(snipe_embed))
 
@@ -25,7 +29,11 @@ class SnipeEvents(commands.Cog):
                 if not before.channel.id in self.bot.snipes["edits"].keys():
                     self.bot.snipes["edits"][before.channel.id] = []
 
-                snipe_embed = await star_mes.base_generate(self.bot, before, no_attachments=True)
+                try:
+                    snipe_embed = await star_mes.base_generate(self.bot, before, no_attachments=True)
+                except discord.InvalidArgument:
+                    return
+                
                 snipe_embed.color = discord.Colour(0x4378fc)
                 self.bot.snipes["edits"][before.channel.id].append(custom_classes.SnipedMessage(snipe_embed))
 

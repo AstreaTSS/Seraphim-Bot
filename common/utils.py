@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands
 import traceback, discord, datetime
-import collections, aiohttp
+import collections, aiohttp, os
 from pathlib import Path
 
 async def proper_permissions(ctx):
@@ -167,16 +167,16 @@ def get_content(message: discord.Message):
         return formats[created_at_ms % len(formats)].format(message.author.display_name)
 
     if message.type is discord.MessageType.premium_guild_subscription:
-        return '{0.author.display_name} just boosted the server!'.format(message)
+        return f'{os.environ.get("BOOST_EMOJI_NAME")} {message.author.display_name} just boosted the server!'
 
     if message.type is discord.MessageType.premium_guild_tier_1:
-        return '{0.author.display_name} just boosted the server! {0.guild} has achieved **Level 1!**'.format(message)
+        return f'{os.environ.get("BOOST_EMOJI_NAME")} {message.author.display_name} just boosted the server! {message.guild} has achieved **Level 1!**'
 
     if message.type is discord.MessageType.premium_guild_tier_2:
-        return '{0.author.display_name} just boosted the server! {0.guild} has achieved **Level 2!**'.format(message)
+        return f'{os.environ.get("BOOST_EMOJI_NAME")} {message.author.display_name} just boosted the server! {message.guild} has achieved **Level 2!**'
 
     if message.type is discord.MessageType.premium_guild_tier_3:
-        return '{0.author.display_name} just boosted the server! {0.guild} has achieved **Level 3!**'.format(message)
+        return f'{os.environ.get("BOOST_EMOJI_NAME")} {message.author.display_name} just boosted the server! {message.guild} has achieved **Level 3!**'
 
     if message.type is discord.MessageType.channel_follow_add:
         return '{0.author.display_name} has added {0.content} to this channel'.format(message)
