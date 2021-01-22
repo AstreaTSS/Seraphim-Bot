@@ -66,7 +66,7 @@ class SetupCMD(commands.Cog, name="Setup"):
                 return
 
         try:
-            star_chan = await commands.TextChannelConverter().convert(ctx, reply)
+            star_chan = await commands.TextChannelConverter().convert(ctx, reply.content)
         except commands.BadArgument:
             setup_embed.description = "Invalid input. Exiting..."
             setup_embed.set_footer(text=discord.Embed.Empty)
@@ -99,7 +99,7 @@ class SetupCMD(commands.Cog, name="Setup"):
                 return
 
         try:
-            limit = int(reply)
+            limit = int(reply.content)
         except TypeError:
             setup_embed.description = "Invalid input. Exiting..."
             setup_embed.set_footer(text=discord.Embed.Empty)
