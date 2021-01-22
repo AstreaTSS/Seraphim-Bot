@@ -155,7 +155,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
     @commands.command(aliases=["copyemoji", "steal_emoji", "stealemoji"])
     @commands.check(utils.proper_permissions)
-    async def copy_emoji(self, ctx, emoji: discord.PartialEmoji):
+    async def copy_emoji(self, ctx: commands.Context, emoji: discord.PartialEmoji):
         """Adds the emoji given to the server the command is run in, thus copying it.
         Useful if you have Discord Nitro and want to add some emojis from other servers into yours.
         This is essentially just the add-emoji command but if it only accepted an emoji and if it did not require you to put in a name.
@@ -166,9 +166,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         if not add_emoji_cmd: # this should never happen
             raise utils.CustomCheckFailure("For some reason, I cannot get the add-emoji command, which is needed for this. Please contact Sonic about this.")
         
-        # uses the internal function for add_emoji to do this
-        # somewhat unsafe, but it should be okay here
-        await add_emoji_cmd.__call__(ctx, emoji.name, emoji)
+        await ctx.invoke(add_emoji_cmd, emoji.name, emoji)
 
     @commands.command(aliases=["getemojiurl"])
     async def get_emoji_url(self, ctx, emoji: typing.Union[discord.PartialEmoji, str]):

@@ -48,6 +48,21 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         """Base command for running starboard commands. Use the help command for this to get more info."""
         await ctx.send_help(ctx.command)
 
+    @sb.command()
+    @commands.check(utils.proper_permissions)
+    async def setup(self, ctx: commands.Context):
+        """An alias for `setup starboard`. Use the help command for that for more information."""
+        sb_setup_cmd: typing.Optional[commands.Command] = ctx.bot.get_command("setup starboard")
+        if not sb_setup_cmd:
+            raise utils.CustomCheckFailure("I couldn't find the command `setup starboard`. This should never happen, so DM Sonic about this.")
+
+        try:
+            await sb_setup_cmd.can_run(ctx)
+        except commands.CommandError:
+            raise commands.CheckFailure
+
+        await ctx.invoke(sb_setup_cmd)
+
     @sb.command(aliases = ["msg_top"])
     @commands.cooldown(1, 5, commands.BucketType.member)
     async def msgtop(self, ctx):
