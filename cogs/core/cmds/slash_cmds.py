@@ -1,4 +1,4 @@
-import discord, importlib, datetime, random
+import discord, importlib, re, random
 from discord.ext import commands
 from discord_slash import cog_ext
 from discord_slash import SlashCommand
@@ -8,6 +8,41 @@ import common.utils as utils
 
 """Just going to note that these are still going to be rather limited for now.
 Slash commands still need a lot of work before I can rely on them."""
+
+class SlashMemberConverter(commands.MemberConverter):
+    """A special, slightly slimed down version of MemberConverter that can be used for slash commands."""
+    async def convert(self, ctx: SlashContext, argument: str) -> discord.Member:
+        bot = ctx._discord
+        match = self._get_id_match(argument) or re.match(r'<@!?([0-9]+)>$', argument)
+        guild = ctx.guild
+        result = None
+        user_id = None
+        if match is None:
+            # not a mention...
+            if guild:
+                result = guild.get_member_named(argument)
+            else:
+                result = self._get_from_guilds(bot, 'get_member_named', argument)
+        else:
+            user_id = int(match.group(1))
+            if guild:
+                result = guild.get_member(user_id)
+            else:
+                result = commands._get_from_guilds(bot, 'get_member', user_id)
+
+        if result is None:
+            if guild is None:
+                raise commands.MemberNotFound(argument)
+
+            if user_id is not None:
+                result = await self.query_member_by_id(bot, guild, user_id)
+            else:
+                result = await self.query_member_named(guild, argument)
+
+            if not result:
+                raise commands.MemberNotFound(argument)
+
+        return result
 
 class SlashCMDS(commands.Cog):
     def __init__(self, bot):
@@ -30,29 +65,35 @@ class SlashCMDS(commands.Cog):
     async def reverse(self, ctx: SlashContext, content):
         await ctx.send(content=f"{content[::-1]}", complete_hidden=True)
 
-    user_option = {
-        "type": 6,
-        "name": "user",
-        "description": "The user to kill.",
+    kill_content_option = {
+        "type": 3,
+        "name": "content",
+        "description": "The victim to kill.",
         "required": True
     }
-    killcmd_desc = "Allows you to kill the user specified using the iconic Minecraft kill command messages."
-    @cog_ext.cog_slash(name="kill", description=killcmd_desc, options=[user_option])
-    async def kill(self, ctx: SlashContext, user):
+    killcmd_desc = "Allows you to kill the victim specified using the iconic Minecraft kill command messages."
+    @cog_ext.cog_slash(name="kill", description=killcmd_desc, options=[kill_content_option])
+    async def kill(self, ctx: SlashContext, content: str):
         kill_msg = random.choice(self.bot.death_messages)
 
-        if isinstance(user, (discord.Member, discord.User)):
-            user_str = f"**{user.display_name}**"
-        else:
-            user_str = f"<@{user}>"
+        user = None
+        if isinstance(ctx.guild, discord.Guild):
+            try:
+                user = await SlashMemberConverter().convert(ctx, content)
+            except:
+                pass
 
+        if isinstance(user, (discord.Member, discord.User)):
+            victim_str = f"**{user.display_name}**"
+        else:
+            victim_str = content
 
         if isinstance(ctx.author, (discord.Member, discord.User)):
             author_str = f"**{ctx.author.display_name}**"
         else:
             author_str = f"<@{ctx.author}>"
 
-        kill_msg = kill_msg.replace("%1$s", user_str)
+        kill_msg = kill_msg.replace("%1$s", victim_str)
         kill_msg = kill_msg.replace("%2$s", author_str)
         kill_msg = kill_msg.replace("%3$s", "*Seraphim*")
         kill_msg = f"{kill_msg}."
