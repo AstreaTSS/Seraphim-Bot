@@ -113,7 +113,7 @@ class WizardManager():
         self.questions = []
         self.ori_mes = typing.Optional[discord.Message]
 
-    def add_question(self, question: str, converter: function, action: function):
+    def add_question(self, question: str, converter, action):
         self.questions.append((question, converter, action))
 
     async def run(self, ctx: commands.Context):
