@@ -111,7 +111,7 @@ class WizardManager():
         self.color = color
 
         self.questions = []
-        self.ori_mes = typing.Optional[discord.Message]
+        self.ori_mes: typing.Optional[discord.Message] = None
 
     def add_question(self, question: str, converter, action):
         self.questions.append((question, converter, action))
