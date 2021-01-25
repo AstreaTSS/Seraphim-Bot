@@ -201,11 +201,11 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         if isinstance(argument, discord.Role) and argument.is_default():
             # the @everyone role has the same id as the guild it's in
             # most people are probably looking for the guilds creation date, so...
-            obj_name = f"`{argument.guild.name}`"
+            obj_name = f"`{discord.utils.escape_markdown(argument.guild.name)}`"
         elif isinstance(argument, (discord.Member, discord.User)):
-            obj_name = f"`{str(argument)}`"
+            obj_name = f"`{discord.utils.escape_markdown(str(argument))}`"
         elif hasattr(argument, "name"):
-            obj_name = f"`{argument.name}`"
+            obj_name = f"`{discord.utils.escape_markdown(argument.name)}`"
         else:
             obj_name = "This"
 
