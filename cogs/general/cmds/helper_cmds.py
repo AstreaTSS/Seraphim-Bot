@@ -212,7 +212,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
         allowed_mentions = discord.AllowedMentions.none()
         allowed_mentions.replied_user = True
 
-        await ctx.reply(f"{obj_name} was created at: `{time_format}`", allowed_mentions=allowed_mentions)
+        await ctx.reply(f"{obj_name} was created at: `{time_format}` (MM/DD/YY HH:MM:SS)", allowed_mentions=allowed_mentions)
 
 def setup(bot):
     importlib.reload(utils)
