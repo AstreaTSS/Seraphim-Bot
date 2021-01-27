@@ -104,10 +104,12 @@ async def base_generate(bot, mes: discord.Message, no_attachments = False):
             ref_auth_str = ""
             ref_mes_url = ""
 
-            if mes.reference.cached_message:
+            if (mes.reference.resolved and isinstance(mes.reference.resolved, discord.Message)) or mes.reference.cached_message:
                 # saves time fetching messages if possible
-                ref_author = mes.reference.cached_message.author
-                ref_mes_url = mes.reference.cached_message.jump_url
+                reply_mes = mes.reference.cached_message if mes.reference.cached_message else mes.reference.resolved
+                ref_author = reply_mes.author
+                ref_mes_url = reply_mes.jump_url
+
             elif mes.reference.message_id:
                 # fetches message from info given by MessageReference
                 # note the message id might not be provided, so we check if it is
