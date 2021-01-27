@@ -87,13 +87,30 @@ class HelperCMDs(commands.Cog, name = "Helper"):
             await channel.edit(nsfw = toggle)
             await ctx.reply(f"{channel.mention}'s' NSFW mode has been set to: {toggle}.")
         except discord.HTTPException as e:
-            await ctx.reply("".join(
+            raise utils.CustomCheckFailure("".join(
                     ("I was unable to change this channel's NSFW mode! This might be due to me not having the ",
                     "permissions to or some other weird funkyness with Discord. Maybe this error will help you.\n",
                     f"Error: {e}")
-                )
-            )
-            return
+                ))
+
+    @commands.command()
+    @commands.check(utils.proper_permissions)
+    async def unsuppress(self, ctx, msg: discord.Message):
+        """Unsuppresses any embeds that were previously suppressed, if there were any.
+        Yes, this is something bots can do, but for some reason, normal users can't.
+        Requires Manage Server permissions or higher."""
+        if not msg.flags.suppress_embeds:
+            raise commands.BadArgument("This message does not have any suppressed embeds!")
+
+        try:
+            await msg.edit(suppress = False)
+            await ctx.reply("The message has successfully been unsuppressed.")
+        except discord.HTTPException as e:
+            raise utils.CustomCheckFailure("".join(
+                ("I was unable to unsuppress this message! This might be due to me not having the ",
+                "permissions to or some other weird funkyness with Discord. Maybe this error will help you.\n",
+                f"Error: {e}")
+            ))
 
     @commands.command(aliases=["addemoji"])
     @commands.check(utils.proper_permissions)
