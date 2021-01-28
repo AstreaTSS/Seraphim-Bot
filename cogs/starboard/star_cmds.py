@@ -234,7 +234,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             "",
             f"**Has Starboard Entry:** {bool(starboard_entry.star_var_id)}",
             f"**Starboard Message ID:** {starboard_entry.star_var_id}",
-            f"**Starboard Channel:** <#{starboard_entry.starboard_id}>",
+            f"**Starboard Channel:** <#{starboard_entry.starboard_id if starboard_entry.star_var_id else None}>",
             f"**Starboard Message Link:** {star_url}",
             "",
             f"**Forced:** {starboard_entry.forced}",
