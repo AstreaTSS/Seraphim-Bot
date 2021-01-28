@@ -17,10 +17,11 @@ class PinCMDs(commands.Cog, name = "Pinboard"):
         Useful if you just mapped a channel and need to move old pin entries.
         Requires Manage Server permissions or higher."""
 
-        if not str(ctx.channel.id) in self.bot.config[ctx.guild.id]["pin_config"].keys():
-            raise commands.BadArgument("This channel isn't mapped!")
-
-        chan_entry = self.bot.config[ctx.guild.id]["pin_config"][str(ctx.channel.id)]
+        chan_entry = self.bot.config[ctx.guild.id]["pin_config"].get(str(ctx.channel.id))
+        if not chan_entry:
+            chan_entry = self.bot.config[ctx.guild.id]["pin_config"].get("default")
+            if not chan_entry:
+                raise commands.BadArgument("This channel isn't mapped!")
 
         pins = await ctx.channel.pins()
         pins.reverse() # pins are retrived newest -> oldest, we want to do the opposite

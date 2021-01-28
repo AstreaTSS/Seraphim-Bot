@@ -4,6 +4,7 @@ import importlib, humanize
 
 import common.utils as utils
 import common.fuzzys as fuzzys
+import common.paginator as paginator
 
 class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
     """Commands for pingable roles. If you wish to add a pingable role, please view the settings command."""
@@ -52,21 +53,36 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
 
         for role in ping_roles.keys():
             role_obj = ctx.guild.get_role(int(role))
-            period_delta = datetime.timedelta(seconds=ping_roles[role]['time_period'])
 
             if role_obj != None:
-                role_list.append(f"`{role_obj.name}, {humanize.precisedelta(period_delta, format='%0.1f')} cooldown`")
+                period_delta = datetime.timedelta(seconds=ping_roles[role]['time_period'])
+                time_text = None
+
+                now = datetime.datetime.utcnow()
+                last_used = datetime.datetime.utcfromtimestamp(ping_roles[role]["last_used"])
+                next_use = last_used + period_delta
+
+                if now < next_use:
+                    till_next_time = next_use - now
+                    time_text = humanize.precisedelta(till_next_time, format='%0.1f')
+
+                if time_text:
+                    role_list.append((role_obj.name, f"{humanize.precisedelta(period_delta, format='%0.1f')} cooldown\n{time_text} until next use"))
+                else:
+                    role_list.append((role_obj.name, f"{humanize.precisedelta(period_delta, format='%0.1f')} cooldown"))
+
             else:
                 del ctx.bot.config[ctx.guild.id]["pingable_roles"][role]
 
         if role_list != []:
-            role_str = ", ".join(role_list)
-            await ctx.reply(f"Pingable roles: {role_str}")
+            to_pag = paginator.FieldPages(ctx, entries=role_list)
+            await to_pag.paginate()
         else:
             raise utils.CustomCheckFailure("There are no roles added!")
 
 def setup(bot):
     importlib.reload(utils)
     importlib.reload(fuzzys)
+    importlib.reload(paginator)
 
     bot.add_cog(PingRoleCMDs(bot))

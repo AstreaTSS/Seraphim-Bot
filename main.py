@@ -9,9 +9,6 @@ import common.star_classes as star_classes
 import common.classes as custom_classes
 import common.utils as utils
 
-from dotenv import load_dotenv
-load_dotenv()
-
 logging.basicConfig(filename=os.environ.get("LOG_FILE_PATH"), level=logging.INFO, format="%(asctime)s:%(levelname)s:%(name)s: %(message)s")
 
 def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):

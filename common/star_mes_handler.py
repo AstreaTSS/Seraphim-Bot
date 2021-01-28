@@ -177,25 +177,22 @@ async def star_generate(bot, mes):
 
     return send_embed
 
-async def send(bot, mes: discord.Message, unique_stars, forced = False):
+async def send(bot, mes: discord.Message):
     # sends message to starboard channel
 
     send_embed = await star_generate(bot, mes)
-    starboard = mes.guild.get_channel(bot.config[mes.guild.id]["starboard_id"])
+    star_entry = bot.starboard.get(mes.id)
+    starboard_chan = mes.guild.get_channel(bot.config[mes.guild.id]["starboard_id"])
 
-    if starboard:
-        star_emoji = star_utils.get_star_emoji(unique_stars)
-        if not forced:
-            starred = await starboard.send(content=f"{star_emoji} **{unique_stars}** | {mes.channel.mention}", embed=send_embed)
-        else:
-            starred = await starboard.send(content=f"{star_emoji} **{unique_stars}** (Forced Entry) | {mes.channel.mention}", embed=send_embed)
+    if starboard_chan:
+        content = star_utils.generate_content_str(star_entry)
+        starred = await starboard_chan.send(content=content, embed=send_embed)
         await starred.add_reaction("⭐")
 
-        entry = bot.starboard.get(mes.id)
-        entry.star_var_id = starred.id
-        entry.starboard_id = starred.channel.id
-        bot.starboard.update(entry)
+        star_entry.star_var_id = starred.id
+        star_entry.starboard_id = starred.channel.id
+        bot.starboard.update(star_entry)
 
         return starred
 
-    return None
+    raise discord.NotFound("Unable to find starboard channel.")

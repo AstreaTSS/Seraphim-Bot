@@ -29,7 +29,7 @@ class DBHandler(commands.Cog):
 
         for row in starboard_db:
             entry = star_classes.StarboardEntry.from_row(row)
-            self.bot.starboard.init_add(entry)
+            self.bot.starboard.add(entry, init=True)
 
         config_dict = {}
         for row in config_db:

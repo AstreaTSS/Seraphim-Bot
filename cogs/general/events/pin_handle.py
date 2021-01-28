@@ -13,10 +13,11 @@ class PinHandler(commands.Cog):
         if (not msg.type == discord.MessageType.pins_add) or msg.guild == None:
             return
 
-        if not str(msg.channel.id) in self.bot.config[msg.guild.id]["pin_config"].keys():
-            return
-
-        chan_entry = self.bot.config[msg.guild.id]["pin_config"][str(msg.channel.id)]
+        chan_entry = self.bot.config[self.bot.guild.id]["pin_config"].get(str(msg.channel.id))
+        if not chan_entry:
+            chan_entry = self.bot.config[self.bot.guild.id]["pin_config"].get("default")
+            if not chan_entry:
+                return
 
         pins = await msg.channel.pins()
 

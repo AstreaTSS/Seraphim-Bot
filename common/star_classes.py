@@ -12,7 +12,7 @@ class StarboardEntry():
     """A way of representing a starboard entry in an easy way."""
 
     __slots__ = ("ori_mes_id", "ori_chan_id", "star_var_id", "starboard_id", "author_id",
-         "ori_reactors", "var_reactors", "guild_id", "forced", "updated")
+         "ori_reactors", "var_reactors", "guild_id", "forced", "updated", "frozen", "trashed")
 
     def __repr__(self):
         return (f"<StarboardEntry ori_mes_id={self.ori_mes_id} ori_chan_id={self.ori_chan_id} star_var_id={self.star_var_id} " +
@@ -23,7 +23,7 @@ class StarboardEntry():
         return isinstance(other, self.__class__) and self.ori_mes_id == other.ori_mes_id
 
     def __init__(self, ori_mes_id, ori_chan_id, star_var_id, starboard_id,
-        author_id, ori_reactors, var_reactors, guild_id, forced, updated = False):
+        author_id, ori_reactors, var_reactors, guild_id, forced, frozen, trashed, updated = False):
         self.ori_mes_id = ori_mes_id
         self.ori_chan_id = ori_chan_id
         self.star_var_id = star_var_id
@@ -33,6 +33,8 @@ class StarboardEntry():
         self.var_reactors = set(var_reactors)
         self.guild_id = guild_id
         self.forced = forced
+        self.frozen = frozen
+        self.trashed = trashed
         self.updated = updated
 
     @classmethod
@@ -40,15 +42,18 @@ class StarboardEntry():
         """Returns an entry from a row."""
         data = row["data"]
         return cls(row["ori_mes_id"], data["ori_chan_id"], data["star_var_id"], data["starboard_id"],
-            data["author_id"], data["ori_reactors"], data["var_reactors"], data["guild_id"], data["forced"])
+            data["author_id"], data["ori_reactors"], data["var_reactors"], data["guild_id"], data["forced"],
+            data["frozen"], data["trashed"])
 
     @classmethod
     def new_entry(cls, mes: discord.Message, author_id, reactor_id, forced = False):
         """Returns a new entry from base data."""
         if reactor_id:
-            return cls(mes.id, mes.channel.id, None, None, author_id, {reactor_id}, set(), mes.guild.id, forced, updated=True)
+            return cls(mes.id, mes.channel.id, None, None, author_id, {reactor_id}, set(), mes.guild.id, forced, 
+            False, False, updated=True)
         else:
-            return cls(mes.id, mes.channel.id, None, None, author_id, set(), set(), mes.guild.id, forced, updated=True)
+            return cls(mes.id, mes.channel.id, None, None, author_id, set(), set(), mes.guild.id, forced, 
+            False, False, updated=True)
 
     def to_dict(self) -> dict:
         """Converts this class to a dict."""
@@ -134,19 +139,12 @@ class StarboardEntries():
         self.updated = set()
         self.removed = set()
 
-    def init_add(self, entry: StarboardEntry):
-        """Adds an entry to the list of entries during initialization. Or, well, the dict of entries.
-        Yes, it's a one-line difference"""
-        if self.entries[entry.ori_mes_id] == None:
-            self.entries[entry.ori_mes_id] = entry
-        else:
-            raise Exception(f"Entry {entry.ori_mes_id} already exists.")
-
-    def add(self, entry: StarboardEntry):
+    def add(self, entry: StarboardEntry, init = False):
         """Adds an entry to the list of entries. Or, well, the dict of entries."""
         if self.entries[entry.ori_mes_id] == None:
             self.entries[entry.ori_mes_id] = entry
-            self.added.add(entry.ori_mes_id)
+            if not init:
+                self.added.add(entry.ori_mes_id)
         else:
             raise Exception(f"Entry {entry.ori_mes_id} already exists.")
 

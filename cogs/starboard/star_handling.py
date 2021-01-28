@@ -27,7 +27,7 @@ class Star(commands.Cog):
             or starboard_entry.forced):
                 try:
                     mes = await chan.fetch_message(entry[1])
-                    await star_mes.send(self.bot, mes, len(starboard_entry.get_reactors()), starboard_entry.forced)
+                    await star_mes.send(self.bot, mes)
                 except discord.HTTPException: # you never know
                     pass
 
@@ -49,22 +49,30 @@ class Star(commands.Cog):
         if (not user.bot and not channel.id in self.bot.config[mes.guild.id]["star_blacklist"]):
 
             if mes.author.id != user.id:
-                star_variant = self.bot.starboard.get(mes.id, check_for_var=True)
+                starboard_entry = self.bot.starboard.get(mes.id)
 
-                if not star_variant:
+                if starboard_entry.frozen or starboard_entry.trashed:
+                    return
+
+                if not starboard_entry or not starboard_entry.star_var_id:
                     if channel.id != self.bot.config[mes.guild.id]["starboard_id"]:
                         await star_utils.modify_stars(self.bot, mes, payload.user_id, "ADD")
 
-                        star_entry = self.bot.starboard.get(mes.id)
-                        unique_stars = len(star_entry.get_reactors())
+                        unique_stars = len(starboard_entry.get_reactors())
 
                         if unique_stars >= self.bot.config[mes.guild.id]["star_limit"]:
                             # the queue is infinite, so we should be good there
                             self.bot.star_queue.put_nowait((mes.channel.id, mes.id, mes.guild.id))
                                 
-                elif user.id != star_variant.author_id:
+                elif user.id != starboard_entry.author_id:
+                    old_stars = len(starboard_entry.get_reactors())
+
                     await star_utils.modify_stars(self.bot, mes, payload.user_id, "ADD")
-                    await star_utils.star_entry_refresh(self.bot, star_variant, mes.guild.id)
+
+                    new_entry = self.bot.starboard.get(mes.id)
+                    new_stars = len(new_entry.get_reactors())
+                    if old_stars != new_stars: # we don't want to refresh too often
+                        await star_utils.star_entry_refresh(self.bot, starboard_entry, mes.guild.id)
 
             elif self.bot.config[mes.guild.id]["remove_reaction"]:
                 # the previous if confirms this is the author who is reaction (simply by elimination), so...
@@ -93,10 +101,10 @@ class Star(commands.Cog):
 
             star_variant = self.bot.starboard.get(mes.id)
 
-            if star_variant:
+            if star_variant and not (star_variant.frozen or star_variant.trashed):
                 await star_utils.modify_stars(self.bot, mes, payload.user_id, "SUBTRACT")
 
-                if star_variant.star_var_id != None:
+                if star_variant.star_var_id:
                     await star_utils.star_entry_refresh(self.bot, star_variant, mes.guild.id)
 
     

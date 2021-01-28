@@ -85,6 +85,22 @@ def get_author_id(mes, bot):
 
     return author_id
 
+def generate_content_str(entry: star_classes.StarboardEntry):
+    unique_stars = len(entry.get_reactors())
+    star_emoji = get_star_emoji(unique_stars)
+    ori_chan_mention = f"<#{entry.ori_chan_id}>"
+
+    modifiers = []
+    if entry.forced:
+        modifiers.append("forced")
+    if entry.frozen:
+        modifiers.append("frozen")
+
+    if modifiers:
+        return f"{star_emoji} **{unique_stars}** ({', '.join(modifiers)}) | {ori_chan_mention}"
+    else:
+        return f"{star_emoji} **{unique_stars}** | {ori_chan_mention}"
+
 async def modify_stars(bot, mes: discord.Message, reactor_id, operation):
     # TODO: this method probably needs to be split up
     # modifies stars and creates an starboard entry if it doesn't exist already
@@ -95,14 +111,14 @@ async def modify_stars(bot, mes: discord.Message, reactor_id, operation):
         starboard_entry = star_classes.StarboardEntry.new_entry(mes, author_id, reactor_id)
         bot.starboard.add(starboard_entry)
 
-        await sync_prev_reactors(bot, mes, author_id, starboard_entry, star_classes.ReactorType.ORI_REACTORS, remove=False)
+        await sync_prev_reactors(bot, author_id, starboard_entry, remove=False)
 
     author_id = starboard_entry.author_id
 
     if not starboard_entry.updated:
         # TODO: make it sync both reactors instead of only doing one
         type_of = get_reactor_type(mes.id, starboard_entry)
-        await sync_prev_reactors(bot, mes, author_id, starboard_entry, type_of)
+        await sync_prev_reactors(bot, author_id, starboard_entry)
 
         starboard_entry = bot.starboard.get(starboard_entry.ori_mes_id)
         starboard_entry.updated = True
@@ -128,29 +144,49 @@ async def modify_stars(bot, mes: discord.Message, reactor_id, operation):
         except discord.InvalidArgument:
             pass
 
-async def sync_prev_reactors(bot, mes: discord.Message, author_id, 
-    starboard_entry: star_classes.StarboardEntry, type_of: star_classes.ReactorType, remove=True):
+async def sync_prev_reactors(bot, author_id, starboard_entry: star_classes.StarboardEntry, remove=True):
     # syncs reactors stored in db with actual reactors on Discord
-    reactions = mes.reactions
-    for reaction in reactions:
-        if str(reaction) != "⭐":
-            continue
 
-        users = await reaction.users().flatten()
-        user_ids = [u.id for u in users if u.id != author_id and not u.bot]
+    async def sync_reactors(bot, mes, starboard_entry, type_of, remove):
+        reactions = mes.reactions
+        for reaction in reactions:
+            if str(reaction) != "⭐":
+                continue
 
-        add_ids = [i for i in user_ids if i not in starboard_entry.get_reactors_from_type(type_of)]
-        for add_id in add_ids:
-            starboard_entry.add_reactor(add_id, type_of)
+            users = await reaction.users().flatten()
+            user_ids = [u.id for u in users if u.id != author_id and not u.bot]
 
-        if remove:
-            remove_ids = [i for i in starboard_entry.get_reactors_from_type(type_of) if i not in user_ids]
-            for remove_id in remove_ids:
-                starboard_entry.remove_reactor(remove_id)
+            add_ids = [i for i in user_ids if i not in starboard_entry.get_reactors_from_type(type_of)]
+            for add_id in add_ids:
+                starboard_entry.add_reactor(add_id, type_of)
 
-        bot.starboard.update(starboard_entry)
+            if remove:
+                remove_ids = [i for i in starboard_entry.get_reactors_from_type(type_of) if i not in user_ids]
+                for remove_id in remove_ids:
+                    starboard_entry.remove_reactor(remove_id)
 
-        return starboard_entry
+            bot.starboard.update(starboard_entry)
+
+    ori_mes = None
+    star_mes = None
+
+    ori_mes_chan = bot.get_channel(starboard_entry.ori_chan_id)
+    if ori_mes_chan:
+        try:
+            ori_mes = await ori_mes_chan.fetch_message(starboard_entry.ori_mes_id)
+            await sync_reactors(bot, ori_mes, starboard_entry, star_classes.ReactorType.ORI_REACTORS, remove)
+        except:
+            pass
+
+    starboard_chan = bot.get_channel(starboard_entry.starboard_id)
+    if starboard_chan:
+        try:
+            star_mes = await starboard_chan.fetch_message(starboard_entry.star_var_id)
+            await sync_reactors(bot, star_mes, starboard_entry, star_classes.ReactorType.VAR_REACTORS, remove)
+        except:
+            pass
+
+    return starboard_entry
 
 async def star_entry_refresh(bot, starboard_entry: star_classes.StarboardEntry, guild_id):
     # refreshes a starboard entry mes
@@ -173,18 +209,21 @@ async def star_entry_refresh(bot, starboard_entry: star_classes.StarboardEntry, 
 
             import common.star_mes_handler # very dirty import, i know
             star_var_mes = await common.star_mes_handler.send(bot, ori_mes, unique_stars)
+        else:
+            raise(e)
 
     ori_starred = star_var_mes.embeds[0]
-    parts = star_var_mes.content.split(" | ")
 
-    if unique_stars >= bot.config[guild_id]["star_limit"] or bool(starboard_entry.forced):
-        star_emoji = get_star_emoji(unique_stars)
-        await star_var_mes.edit(content=f"{star_emoji} **{unique_stars}** | {(parts)[1]}", embed=ori_starred)
+    if unique_stars >= bot.config[guild_id]["star_limit"] or starboard_entry.forced:
+        new_content = generate_content_str(starboard_entry)
+        await star_var_mes.edit(content=new_content, embed=ori_starred)
     else:
         starboard_entry.star_var_id = None
+        starboard_entry.starboard_id = None
         bot.starboard.update(starboard_entry)
 
         await star_var_mes.delete()
+        bot.star_queue.remove_from_copy((starboard_entry.ori_chan_id, starboard_entry.ori_mes_id, starboard_entry.guild_id))
 
 def star_check(bot, payload):
     # basic check for starboard stuff: is it in a guild, and is the starboard enabled here?

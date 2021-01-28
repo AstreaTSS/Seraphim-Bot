@@ -16,6 +16,12 @@ async def main_cmd(ctx):
         await ctx.send_help(ctx.command)
 
 @main_cmd.command()
+async def list(ctx: commands.Context):
+    """Lists the pingable roles. It does the same as the pingroles command."""
+    ping_roles_cmd = ctx.bot.get_command("ping_roles")
+    await ping_roles_cmd.invoke(ctx)
+
+@main_cmd.command()
 @commands.check(utils.proper_permissions)
 async def add(ctx, role: fuzzys.FuzzyRoleConverter, *, cooldown: common.classes.TimeDurationConverter):
     """Adds the role to the roles able to be pinged. 

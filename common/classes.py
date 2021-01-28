@@ -32,6 +32,8 @@ class SetAsyncQueue(asyncio.Queue):
         if not item in self._queuecopy:
             self._queue.add(item)
             self._queuecopy.add(item)
+    def remove_from_copy(self, item):
+        self._queuecopy.discard(item)
 
 class TimeDurationConverter(commands.Converter):
     """Converts a string to a time duration.

@@ -124,7 +124,6 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
 
             if "description" in entry.keys():
                 entry_str_list.append(entry['description'])
-                # slash_entries[f"**{entry['name']}** - ID {entry['id']}"] = f"Description: {entry['description']}"
             else:
                 entry_str_list.append("No description provided.")
 
@@ -155,6 +154,15 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
         )
 
         await ctx.reply("Removed command.")
+
+    @commands.command(hidden=True)
+    async def git_update(self, ctx):
+        shell_cmd: commands.Command = self.bot.get_command("jsk shell")
+        if not shell_cmd:
+            raise utils.CustomCheckFailure("WTF jsk shell isn't here.")
+        
+        command = f"cd {os.environ.get('DIRECTORY_OF_FILE')} && git reset --hard HEAD && git pull"
+        shell_cmd.__call__(ctx, command)
 
 def setup(bot):
     importlib.reload(utils)
