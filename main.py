@@ -92,13 +92,13 @@ class SeraphimBot(commands.Bot):
 
             # is this overboard for a joke? yes.
             self.death_messages = []
-            mc_en_us_url = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/master/assets/minecraft/lang/en_us.json"
+            mc_en_us_url = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.16.5/assets/minecraft/lang/en_us.json"
             async with aiohttp.ClientSession() as session:
                 async with session.get(mc_en_us_url) as resp:
                     mc_en_us_config = await resp.json(content_type='text/plain')
 
                     for key, value in mc_en_us_config.items():
-                        if key.startswith("death.") and key not in ("death.attack.message_too_long", "death.attack.netherBed.link"):
+                        if key.startswith("death.") and key not in ("death.attack.message_too_long", "death.attack.badRespawnPoint.link"):
                             self.death_messages.append(value)
 
             """Okay, let me explain myself here.
