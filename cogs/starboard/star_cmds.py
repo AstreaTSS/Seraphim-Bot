@@ -246,7 +246,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
     @sb.command()
     async def reactors(self, ctx: commands.Context, msg: typing.Union[discord.Message, custom_classes.UsableIDConverter]):
-        """Gets the star reactors for a message. The message must had at least one star at some point, but does not need to be on the starboard.
+        """Gets the first 50 star reactors for a message. The message must had at least one star at some point, but does not need to be on the starboard.
         The message either needs to be a message ID of a message in the guild the command is being run in,
         a {channel id}-{message id} format, or the message link itself.
         The message can either be the original message or the starboard variant message."""
@@ -257,8 +257,8 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         if not starboard_entry or starboard_entry.guild_id != ctx.guild.id:
             raise commands.BadArgument("This message does not have an entry here internally.")
 
-        ori_reactors_list = [f"<@{reactor}>" for reactor in starboard_entry.ori_reactors]
-        var_reactors_list = [f"<@{reactor}>" for reactor in starboard_entry.var_reactors]
+        ori_reactors_list = [f"<@{reactor}>" for reactor in starboard_entry.ori_reactors][:50]
+        var_reactors_list = [f"<@{reactor}>" for reactor in starboard_entry.var_reactors][:50]
 
         star_embed = discord.Embed(colour=discord.Colour(0xcfca76), title="Reactors for message given:", timestamp=datetime.datetime.utcnow())
         star_embed.description = "\n".join((
