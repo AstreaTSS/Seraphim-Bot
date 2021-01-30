@@ -162,7 +162,7 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
             raise utils.CustomCheckFailure("WTF jsk shell isn't here.")
         
         command = f"cd {os.environ.get('DIRECTORY_OF_FILE')} && git reset --hard HEAD && git pull"
-        await shell_cmd.callback(ctx, command)
+        await shell_cmd.callback(ctx, argument=command)
 
 def setup(bot):
     importlib.reload(utils)
