@@ -268,17 +268,28 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
         await ctx.reply(embed=star_embed)
 
+
     async def initial_get(self, ctx, msg, forced=False, do_not_create = False) -> star_classes.StarboardEntry:
         if not ctx.bot.config[ctx.guild.id]["star_toggle"]:
             raise utils.CustomCheckFailure("Starboard is not turned on for this server!")
 
-        starboard_entry = ctx.bot.starboard.get(msg.id)
-        if not starboard_entry and not do_not_create:
-            author_id = star_utils.get_author_id(msg, ctx.bot)
-            starboard_entry = star_classes.StarboardEntry.new_entry(msg, author_id, None, forced=forced)
-            ctx.bot.starboard.add(starboard_entry)
+        if isinstance(msg, int):
+            if do_not_create:
+                raise commands.BadArgument("The message must be in the channel the command is being run in.")
+            msg_id = msg
+        else:
+            msg_id = msg.id
 
-            await star_utils.sync_prev_reactors(ctx.bot, author_id, starboard_entry, remove=False)
+        starboard_entry = ctx.bot.starboard.get(msg_id)
+        if not starboard_entry:
+            if not do_not_create:
+                author_id = star_utils.get_author_id(msg, ctx.bot)
+                starboard_entry = star_classes.StarboardEntry.new_entry(msg, author_id, None, forced=forced)
+                ctx.bot.starboard.add(starboard_entry)
+
+                await star_utils.sync_prev_reactors(ctx.bot, author_id, starboard_entry, remove=False)
+            else:
+                raise commands.BadArgument("This message does not have an entry here internally.")
 
         return starboard_entry
         
@@ -321,10 +332,10 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
     @sb.command()
     @commands.check(utils.proper_permissions)
-    async def trash(self, ctx, msg: discord.Message):
+    async def trash(self, ctx, msg: typing.Union[discord.Message, custom_classes.UsableIDConverter]):
         """Removes a message from the starboard and prevents it from being starred again until untrashed.
         The message needs to a message that is on the starboard. It can be either the original or the starred message.
-        The message either needs to be a message ID of a message in the channel the command is being run in,
+        The message either needs to be a message ID of a message,
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
 
@@ -351,9 +362,9 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
     @sb.command()
     @commands.check(utils.proper_permissions)
-    async def unfreeze(self, ctx, msg: discord.Message):
+    async def unfreeze(self, ctx, msg: typing.Union[discord.Message, custom_classes.UsableIDConverter]):
         """Unfreezes a message's star count. The message must have been frozen before.
-        The message either needs to be a message ID of a message in the channel the command is being run in,
+        The message either needs to be a message ID of a message
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
 
@@ -371,9 +382,9 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
     @sb.command()
     @commands.check(utils.proper_permissions)
-    async def untrash(self, ctx, msg: discord.Message):
+    async def untrash(self, ctx, msg: typing.Union[discord.Message, custom_classes.UsableIDConverter]):
         """Untrashes a message, allowing it to be starred and put on the starboard. The message must have been trashed before.
-        The message either needs to be a message ID of a message in the channel the command is being run in,
+        The message either needs to be a message ID of a message,
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
 
