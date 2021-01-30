@@ -41,7 +41,7 @@ async def _list(ctx):
             if entry == "default":
                 entry_text = entry
             else:
-                raise utils.CustomCheckFailure("Something weird happened when trying to run this command, and I couldn't get something. DM Sonic.")
+                raise utils.CustomCheckFailure("Something weird happened when trying to run this command, and I couldn't get something. Join the support server to report this.")
 
         des_chan = ctx.bot.get_channel(ctx.bot.config[ctx.guild.id]["pin_config"][entry]["destination"])
 

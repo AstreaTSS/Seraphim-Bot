@@ -161,6 +161,13 @@ async def base_generate(bot, mes: discord.Message, no_attachments = False):
                 if mes.embeds[0].thumbnail.url != discord.Embed.Empty: # if there is a thumbnail url
                     image_url = mes.embeds[0].thumbnail.url
 
+            # if the image url is STILL blank and the message has a sticker
+            if image_url == "" and mes.stickers:
+                if mes.stickers[0].image_url: # its possible for this to be None if its a weird format
+                    image_url = str(mes.stickers[0].image_url)
+                else: # as of right now, you cannot send content with a sticker, so we might as well
+                    send_embed.description = "*This message is a sticker that I cannot display. Please view the original message to see it.*"
+
             if not no_attachments and mes.attachments:
                 send_embed = cant_display(send_embed, mes.attachments, 0)
 

@@ -181,7 +181,7 @@ class HelperCMDs(commands.Cog, name = "Helper"):
 
         add_emoji_cmd = self.bot.get_command("add_emoji")
         if not add_emoji_cmd: # this should never happen
-            raise utils.CustomCheckFailure("For some reason, I cannot get the add-emoji command, which is needed for this. Please contact Sonic about this.")
+            raise utils.CustomCheckFailure("For some reason, I cannot get the add-emoji command, which is needed for this. Join the support server to report this.")
         
         await ctx.invoke(add_emoji_cmd, emoji.name, emoji)
 

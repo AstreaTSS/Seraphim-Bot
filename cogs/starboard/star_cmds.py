@@ -54,7 +54,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         """An alias for `setup starboard`. Use the help command for that for more information."""
         sb_setup_cmd: typing.Optional[commands.Command] = ctx.bot.get_command("setup starboard")
         if not sb_setup_cmd:
-            raise utils.CustomCheckFailure("I couldn't find the command `setup starboard`. This should never happen, so DM Sonic about this.")
+            raise utils.CustomCheckFailure("I couldn't find the command `setup starboard`. This should never happen, so join the support server to report this.")
 
         try:
             await sb_setup_cmd.can_run(ctx)
@@ -71,7 +71,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
         base_sb_cmd: typing.Optional[commands.Command] = ctx.bot.get_command("sb")
         if not base_sb_cmd:
-            raise utils.CustomCheckFailure("I was unable to do... something. DM Sonic about this - tell him it's about sb settings.")
+            raise utils.CustomCheckFailure("I was unable to do... something. Join the support server to report this - tell that it's about sb settings.")
         
         # a bit of a hack, but basically...
         # we replace any way this command could be represented with 'settings starboard'
