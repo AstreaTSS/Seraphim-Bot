@@ -155,15 +155,6 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
 
         await ctx.reply("Removed command.")
 
-    @commands.command(hidden=True)
-    async def git_update(self, ctx):
-        shell_cmd: commands.Command = self.bot.get_command("jsk shell")
-        if not shell_cmd:
-            raise utils.CustomCheckFailure("WTF jsk shell isn't here.")
-        
-        command = f"cd {os.environ.get('DIRECTORY_OF_FILE')} && git reset --hard HEAD && git pull"
-        await shell_cmd.callback(ctx, argument=command)
-
 def setup(bot):
     importlib.reload(utils)
     importlib.reload(star_classes)
