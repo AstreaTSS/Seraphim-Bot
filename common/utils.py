@@ -26,11 +26,25 @@ async def fetch_needed(bot, payload):
 async def error_handle(bot, error, ctx = None):
     # handles errors and sends them to owner
     if isinstance(error, aiohttp.ServerDisconnectedError):
-        error_str = "Disconnected from server!"
+        to_send = "Disconnected from server!"
+        split = True
     else:
         error_str = error_format(error)
 
-    await msg_to_owner(bot, error_str)
+        error_split = error_str.splitlines()
+        chunks = [error_split[x:x+20] for x in range(0, len(error_split), 20)]
+        for i in range(len(chunks)):
+            chunks[i][0] = f"```py\n{chunks[i][0]}"
+            chunks[i][len(chunks[i])-1] += "\n```"
+
+        final_chunks = []
+        for chunk in chunks:
+            final_chunks.append("\n".join(chunk))
+
+        to_send = final_chunks
+        split = False
+
+    await msg_to_owner(bot, to_send, split)
 
     if ctx != None:
         if hasattr(ctx, "reply"):
@@ -38,12 +52,15 @@ async def error_handle(bot, error, ctx = None):
         else:
             await ctx.channel.send(content="An internal error has occured. The bot owner has been notified.")
 
-async def msg_to_owner(bot, content):
+async def msg_to_owner(bot, content, split=True):
     # sends a message to the owner
     owner = bot.owner
     string = str(content)
 
-    str_chunks = string_split(string)
+    if split:
+        str_chunks = string_split(string)
+    else:
+        str_chunks = content
 
     for chunk in str_chunks:
         await owner.send(f"{chunk}")

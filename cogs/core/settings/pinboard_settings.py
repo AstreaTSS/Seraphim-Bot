@@ -54,7 +54,7 @@ async def _list(ctx):
 
     if entries_list != []:
         entries_str = "\n".join(entries_list)
-        to_pagniate = pagniator.TextPages(ctx, entries_str)
+        to_pagniate = pagniator.TextPages(ctx, entries_str, prefix="", suffix="")
         await to_pagniate.paginate()
     else:
         raise utils.CustomCheckFailure("There are no entries for this server!")

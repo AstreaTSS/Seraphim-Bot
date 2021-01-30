@@ -229,7 +229,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             f"**Original Message Link:** [Here!]({ori_url})",
             "",
             f"**Total Stars:** {len(starboard_entry.get_reactors())}",
-            f"**Stars on Original Message:** {len(starboard_entry.ori_reactors)}"
+            f"**Stars on Original Message:** {len(starboard_entry.ori_reactors)}",
             f"**Stars on Starred Varient:** {len(starboard_entry.var_reactors)}",
             "",
             f"**Has Starboard Entry:** {bool(starboard_entry.star_var_id)}",
