@@ -268,7 +268,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
         await ctx.reply(embed=star_embed)
 
-    async def initial_get(ctx, msg, forced=False, do_not_create = False) -> star_classes.StarboardEntry:
+    async def initial_get(self, ctx, msg, forced=False, do_not_create = False) -> star_classes.StarboardEntry:
         if not ctx.bot.config[ctx.guild.id]["star_toggle"]:
             raise utils.CustomCheckFailure("Starboard is not turned on for this server!")
 
@@ -310,7 +310,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
 
-        starboard_entry = await self.initial_get(self, ctx, msg)
+        starboard_entry = await self.initial_get(ctx, msg)
         starboard_entry.frozen = True
         starboard_entry.updated = False
         self.bot.starboard.update(starboard_entry)
@@ -328,7 +328,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
 
-        starboard_entry = await self.initial_get(self, ctx, msg, do_not_create=True)
+        starboard_entry = await self.initial_get(ctx, msg, do_not_create=True)
 
         if starboard_entry.star_var_id:
             starboard_entry.trashed = True
@@ -355,7 +355,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
 
-        starboard_entry = await self.initial_get(self, ctx, msg, do_not_create=True)
+        starboard_entry = await self.initial_get(ctx, msg, do_not_create=True)
         if not starboard_entry.frozen:
             raise commands.BadArgument("This message is not frozen.")
 
@@ -375,7 +375,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
 
-        starboard_entry = await self.initial_get(self, ctx, msg, do_not_create=True)
+        starboard_entry = await self.initial_get(ctx, msg, do_not_create=True)
         if not starboard_entry.trashed:
             raise commands.BadArgument("This message is not trashed.")
 
