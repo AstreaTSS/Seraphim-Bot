@@ -315,7 +315,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         starboard_entry.updated = False
         self.bot.starboard.update(starboard_entry)
         if starboard_entry.star_var_id:
-            star_utils.star_entry_refresh(self.bot, starboard_entry, ctx.guild.id)
+            await star_utils.star_entry_refresh(self.bot, starboard_entry, ctx.guild.id)
 
         await ctx.reply("The message's star count has been frozen.")
 
@@ -363,7 +363,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         starboard_entry.updated = False
         self.bot.starboard.update(starboard_entry)
         if starboard_entry.star_var_id:
-            star_utils.star_entry_refresh(self.bot, starboard_entry, ctx.guild.id)
+            await star_utils.star_entry_refresh(self.bot, starboard_entry, ctx.guild.id)
 
         await ctx.reply("The message's star count has been unfrozen.")
 
