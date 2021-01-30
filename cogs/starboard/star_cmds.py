@@ -332,6 +332,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
         if starboard_entry.star_var_id:
             starboard_entry.trashed = True
+            starboard_entry.var_reactors = set()
             starboard_entry.updated = False
             self.bot.starboard.update(starboard_entry)
 

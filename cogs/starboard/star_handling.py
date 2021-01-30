@@ -51,7 +51,7 @@ class Star(commands.Cog):
             if mes.author.id != user.id:
                 starboard_entry = self.bot.starboard.get(mes.id)
 
-                if starboard_entry.frozen or starboard_entry.trashed:
+                if starboard_entry and (starboard_entry.frozen or starboard_entry.trashed):
                     return
 
                 if not starboard_entry or not starboard_entry.star_var_id:
