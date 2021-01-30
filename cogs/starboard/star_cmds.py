@@ -341,10 +341,11 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                 try:
                     mes = await chan.fetch_message(starboard_entry.star_var_id)
                     await mes.delete()
+                    self.bot.star_queue.remove_from_copy((starboard_entry.ori_chan_id, starboard_entry.ori_mes_id, starboard_entry.guild_id))
                 except discord.HTTPException:
                     pass
         else:
-            await commands.BadArgument("That message is not on the starboard!")
+            raise commands.BadArgument("That message is not on the starboard!")
 
         await ctx.reply("The message has been trashed.")
 
