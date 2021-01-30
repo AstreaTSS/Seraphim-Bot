@@ -234,7 +234,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             "",
             f"**Has Starboard Entry:** {bool(starboard_entry.star_var_id)}",
             f"**Starboard Message ID:** {starboard_entry.star_var_id}",
-            f"**Starboard Channel:** <#{starboard_entry.starboard_id if starboard_entry.star_var_id else None}>",
+            f"**Starboard Channel:** {f'<#{starboard_entry.starboard_id}>' if starboard_entry.star_var_id else None}",
             f"**Starboard Message Link:** {star_url}",
             "",
             f"**Forced:** {starboard_entry.forced}",
@@ -383,7 +383,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         starboard_entry.updated = False
         self.bot.starboard.update(starboard_entry)
 
-        await ctx.reply("The message's star count has been untrashed.")
+        await ctx.reply("The message has been untrashed.")
 
     @commands.command(hidden=True)
     @commands.is_owner()
