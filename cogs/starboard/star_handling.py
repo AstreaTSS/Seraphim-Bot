@@ -57,6 +57,9 @@ class Star(commands.Cog):
                 if not starboard_entry or not starboard_entry.star_var_id:
                     if channel.id != self.bot.config[mes.guild.id]["starboard_id"]:
                         await star_utils.modify_stars(self.bot, mes, payload.user_id, "ADD")
+                        starboard_entry = self.bot.starboard.get(mes.id)
+                        if not starboard_entry:
+                            return
 
                         unique_stars = len(starboard_entry.get_reactors())
 
