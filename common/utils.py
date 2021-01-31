@@ -41,12 +41,15 @@ async def error_handle(bot, error, ctx = None):
         for chunk in chunks:
             final_chunks.append("\n".join(chunk))
 
+        if ctx and hasattr(ctx, "message"):
+            final_chunks.insert(0, ctx.message.jump_url)
+
         to_send = final_chunks
         split = False
 
     await msg_to_owner(bot, to_send, split)
 
-    if ctx != None:
+    if ctx:
         if hasattr(ctx, "reply"):
             await ctx.reply("An internal error has occured. The bot owner has been notified.")
         else:
