@@ -130,7 +130,7 @@ async def base_generate(bot, mes: discord.Message, no_attachments = False):
             if not ref_mes_url and mes.reference.message_id and mes.reference.guild_id:
                 ref_mes_url = f"https://discord.com/channels/{mes.reference.guild_id}/{mes.reference.channel_id}/{mes.reference.message_id}"
 
-            send_embed.title = f"{mes.author.display_name} replied to {ref_auth_str}:"
+            send_embed.title = f"Replying to {ref_auth_str}:"
             if ref_mes_url:
                 send_embed.url = ref_mes_url
 
