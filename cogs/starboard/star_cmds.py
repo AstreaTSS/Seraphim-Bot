@@ -202,7 +202,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         else:
             raise utils.CustomCheckFailure("There are no starboard entries for me to pick!")
 
-    @sb.command()
+    @sb.command(aliases=["info", "information"])
     async def stats(self, ctx: commands.Context, msg: typing.Union[discord.Message, custom_classes.UsableIDConverter]):
         """Gets the starboard stats for a message. The message must had at least one star at some point, but does not need to be on the starboard.
         The message either needs to be a message ID of a message in the guild the command is being run in,
