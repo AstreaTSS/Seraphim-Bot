@@ -185,5 +185,11 @@ mentions = discord.AllowedMentions.all()
 
 bot = SeraphimBot(command_prefix=seraphim_prefixes, chunk_guilds_at_startup=True, allowed_mentions=mentions, intents=intents)
 
+try:
+    import uvloop
+    uvloop.install()
+except ImportError:
+    pass
+
 bot.init_load = True
 bot.run(os.environ.get("MAIN_TOKEN"))
