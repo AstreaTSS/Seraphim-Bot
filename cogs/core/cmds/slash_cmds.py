@@ -12,7 +12,7 @@ Slash commands still need a lot of work before I can rely on them."""
 class SlashMemberConverter(commands.MemberConverter):
     """A special, slightly slimed down version of MemberConverter that can be used for slash commands."""
     async def convert(self, ctx: SlashContext, argument: str) -> discord.Member:
-        bot = ctx._discord
+        bot = ctx.bot
         match = self._get_id_match(argument) or re.match(r'<@!?([0-9]+)>$', argument)
         guild = ctx.guild
         result = None
@@ -46,14 +46,7 @@ class SlashMemberConverter(commands.MemberConverter):
 
 class SlashCMDS(commands.Cog):
     def __init__(self, bot):
-        if not hasattr(bot, "slash"):
-            # Creates new SlashCommand instance to bot if bot doesn't have.
-            bot.slash = SlashCommand(bot, override_type=True)
         self.bot = bot
-        self.bot.slash.get_cog_commands(self)
-
-    def cog_unload(self):
-        self.bot.slash.remove_cog_commands(self)
 
     reverse_content_option = {
         "type": 3,
@@ -63,7 +56,8 @@ class SlashCMDS(commands.Cog):
     }
     @cog_ext.cog_slash(name="reverse", description="Reverses the content given.", options=[reverse_content_option])
     async def reverse(self, ctx: SlashContext, content):
-        await ctx.send(content=f"{content[::-1]}", complete_hidden=True)
+        await ctx.respond(eat=True)
+        await ctx.send(content=f"{content[::-1]}", hidden=True)
 
     kill_content_option = {
         "type": 3,
@@ -74,12 +68,14 @@ class SlashCMDS(commands.Cog):
     killcmd_desc = "Allows you to kill the victim specified using the iconic Minecraft kill command messages."
     @cog_ext.cog_slash(name="kill", description=killcmd_desc, options=[kill_content_option])
     async def kill(self, ctx: SlashContext, content: str):
+        await ctx.respond()
+
         if len(content) > 1900:
             await ctx.send(complete_hidden=True, content="The content you provided is too long.")
             return
 
         user = None
-        if isinstance(ctx.guild, discord.Guild):
+        if ctx.guild:
             try:
                 user = await SlashMemberConverter().convert(ctx, content)
             except:
@@ -90,10 +86,12 @@ class SlashCMDS(commands.Cog):
         else:
             victim_str = f"**{discord.utils.escape_markdown(content)}**"
 
-        if isinstance(ctx.author, (discord.Member, discord.User)):
+        if ctx.author:
             author_str = f"**{ctx.author.display_name}**"
+        elif ctx.author_id:
+            author_str = f"<@{ctx.author_id}>"
         else:
-            author_str = f"<@{ctx.author}>"
+            raise commands.CommandError("Somehow there isn't an author or an author ID? How does that work?")
 
         kill_msg = random.choice(self.bot.death_messages)
 

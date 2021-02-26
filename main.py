@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.7
-import discord, os, asyncio
+import discord, os, asyncio, discord_slash
 import websockets, logging, aiohttp
 from discord.ext import commands
 from discord.ext.commands.bot import _default as bot_default
@@ -184,6 +184,7 @@ intents = discord.Intents(guilds=True, members=True,
 mentions = discord.AllowedMentions.all()
 
 bot = SeraphimBot(command_prefix=seraphim_prefixes, chunk_guilds_at_startup=True, allowed_mentions=mentions, intents=intents)
+slash = discord_slash.SlashCommand(bot, override_type = True, sync_commands = True, sync_on_cog_reload = True)
 
 try:
     import uvloop
