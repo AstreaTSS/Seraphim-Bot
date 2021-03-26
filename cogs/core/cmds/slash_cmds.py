@@ -56,7 +56,6 @@ class SlashCMDS(commands.Cog):
     }
     @cog_ext.cog_slash(name="reverse", description="Reverses the content given.", options=[reverse_content_option])
     async def reverse(self, ctx: SlashContext, content):
-        await ctx.respond(eat=True)
         await ctx.send(content=f"{content[::-1]}", hidden=True)
 
     kill_content_option = {
@@ -68,8 +67,6 @@ class SlashCMDS(commands.Cog):
     killcmd_desc = "Allows you to kill the victim specified using the iconic Minecraft kill command messages."
     @cog_ext.cog_slash(name="kill", description=killcmd_desc, options=[kill_content_option])
     async def kill(self, ctx: SlashContext, content: str):
-        await ctx.respond()
-
         if len(content) > 1900:
             await ctx.send(complete_hidden=True, content="The content you provided is too long.")
             return
