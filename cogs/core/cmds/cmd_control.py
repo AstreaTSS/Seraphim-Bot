@@ -15,8 +15,8 @@ class CmdControl(commands.Cog, name="Command Control"):
                 return command_name
 
             command = ctx.bot.get_command(command_name)
-            if command == None:
-                # one day, i might implement cog disabling, but for not, this is what the bot does
+            if not command:
+                # one day, i might implement cog disabling, but for now, this is what the bot does
                 raise commands.BadArgument("This command does not exist!")
 
             if command.cog.qualified_name in ("Cog Control", "Eval", "Help"):
@@ -36,7 +36,7 @@ class CmdControl(commands.Cog, name="Command Control"):
             raise commands.BadArgument("You cannot blacklist yourself!")
         
         # if the user doesnt already have a disables entry
-        if self.bot.config[ctx.guild.id]["disables"]["users"].get(str(member.id)) == None:
+        if not self.bot.config[ctx.guild.id]["disables"]["users"].get(str(member.id)):
             self.bot.config[ctx.guild.id]["disables"]["users"][str(member.id)] = [command]
 
         # checks if command or 'all' have already been disabled for this user
@@ -63,7 +63,7 @@ class CmdControl(commands.Cog, name="Command Control"):
         if ctx.author == member:
             raise commands.BadArgument("You cannot blacklist yourself!")
 
-        if self.bot.config[ctx.guild.id]["disables"]["users"].get(str(member.id)) == None:
+        if not self.bot.config[ctx.guild.id]["disables"]["users"].get(str(member.id)):
             raise commands.BadArgument("This user doesn't have that command disabled!")
 
         try:

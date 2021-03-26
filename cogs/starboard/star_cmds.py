@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.7
-from discord.ext import commands
+from discord.ext import commands, flags
 import discord, importlib, collections
 import datetime, random, typing
 
@@ -19,9 +19,10 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
     def get_star_rankings(self, ctx):
         user_star_dict = collections.Counter()
+        
         guild_entries = self.bot.starboard.get_list(lambda e: e.guild_id == ctx.guild.id)
 
-        if guild_entries != []:
+        if guild_entries:
             for entry in guild_entries:
                 if entry.author_id in user_star_dict.keys():
                     user_star_dict[entry.author_id] += len(entry.get_reactors())
@@ -34,7 +35,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
     def get_user_placing(self, user_star_list, author_id):
         author_entry = discord.utils.find(lambda e: e[0] == author_id, user_star_list)
-        if author_entry != None:
+        if author_entry:
             author_index = user_star_list.index(author_entry)
             return f"position: #{author_index + 1} with {author_entry[1]} ⭐"
         else:
@@ -85,79 +86,114 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         
         await self.bot.process_commands(msg)
 
-    @sb.command(aliases = ["msg_top", "msglb", "msg_lb"])
+    @flags.add_flag("-user", "--user", type=discord.Member)
+    @flags.add_flag("-nobots", "--nobots", action='store_true')
+    @sb.command(cls = flags.FlagCommand, aliases = ["msg_top", "msglb", "msg_lb"])
     @commands.cooldown(1, 5, commands.BucketType.member)
-    async def msgtop(self, ctx):
-        """Allows you to view the top 10 starred messages on a server. Cooldown of once every 5 seconds per user."""
+    async def msgtop(self, ctx, **flags):
+        """Allows you to view the top 10 starred messages on a server. Cooldown of once every 5 seconds per user.
+        Flags: --user <user>: allows you to view the top starred messages by the user specified.
+        --nobots: allows you to filter out bots."""
 
-        guild_entries = self.bot.starboard.get_list(lambda e: e.guild_id == ctx.guild.id)
-        if guild_entries != []:
-            top_embed = discord.Embed(title=f"Top starred messages in {ctx.guild.name}", colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow())
+        optional_member: typing.Optional[discord.Member] = flags["user"]
+
+        if flags["user"] and flags["user"].bot and flags["nobots"]:
+            raise commands.BadArgument("You can't just specify a user who is a bot and then filter out bots.")
+
+        if not optional_member:
+            guild_entries = self.bot.starboard.get_list(lambda e: e.guild_id == ctx.guild.id)
+        else:
+            guild_entries = self.bot.starboard.get_list(lambda e: e.guild_id == ctx.guild.id and e.author_id == optional_member.id)
+
+        if guild_entries:
+            if not optional_member:
+                top_embed = discord.Embed(title=f"Top starred messages in {ctx.guild.name}", colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow())
+            else:
+                top_embed = discord.Embed(title=f"Top starred messages in {ctx.guild.name} by {optional_member.display_name} ({str(optional_member)})", 
+                    colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow()
+                )
             top_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='png', size=128))}")
             top_embed.set_footer(text="As of")
 
             guild_entries.sort(reverse=True, key=lambda e: len(e.get_reactors()))
-
-            for i in range(len(guild_entries)):
-                if i > 9:
+            
+            actual_entry_count = 0
+            for entry in guild_entries:
+                if actual_entry_count > 9:
                     break
 
-                entry = guild_entries[i]
                 starboard_id = entry.starboard_id
 
                 url = f"https://discordapp.com/channels/{ctx.guild.id}/{starboard_id}/{entry.star_var_id}"
                 num_stars = len(entry.get_reactors())
-                member = await utils.user_from_id(self.bot, ctx.guild, entry.author_id)
-                author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry.author_id}"
+                member = await utils.user_from_id(self.bot, ctx.guild, entry.author_id) if not optional_member else optional_member
 
-                top_embed.add_field(name=f"#{i+1}: {num_stars} ⭐ from {author_str}", value=f"[Message]({url})\n", inline=False)
+                if not flags["nobots"] or not member.bot:
+                    author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry.author_id}"
+
+                    top_embed.add_field(name=f"#{actual_entry_count+1}: {num_stars} ⭐ from {author_str}", value=f"[Message]({url})\n", inline=False)
+                    actual_entry_count += 1
 
             await ctx.reply(embed=top_embed)
         else:
-            raise utils.CustomCheckFailure("There are no starboard entries for this server!")
+            raise utils.CustomCheckFailure("There are no starboard entries for this server and/or for this user!")
 
+    @flags.add_flag("-nobots", "--nobots", action='store_true')
     @sb.command(name = "top", aliases = ["leaderboard", "lb"])
     @commands.cooldown(1, 5, commands.BucketType.member)
-    async def top(self, ctx):
+    async def top(self, ctx, **flags):
         """Allows you to view the top 10 people with the most stars on a server. Cooldown of once every 5 seconds per user."""
 
         user_star_list = self.get_star_rankings(ctx)
 
-        if user_star_list != None:
+        if user_star_list:
             top_embed = discord.Embed(title=f"Star Leaderboard for {ctx.guild.name}", colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow())
             top_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='png', size=128))}")
+            
+            actual_entry_count = 0
+            nobot_star_list = []
 
-            for i in range(len(user_star_list)):
-                if i > 9:
+            for entry in user_star_list:
+                if actual_entry_count > 9 and not flags["nobots"]:
                     break
-                entry = user_star_list[i]
 
                 member = await utils.user_from_id(self.bot, ctx.guild, entry[0])
-                num_stars = entry[1]
-                author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry[0]}"
 
-                top_embed.add_field(name=f"#{i+1}: {author_str}", value=f"{num_stars} ⭐\n", inline=False)
+                if not flags["nobots"] or not member.bot:
+                    if actual_entry_count > 9:
+                        nobot_star_list.append(entry)
+                    else:
+                        num_stars = entry[1]
+                        author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry[0]}"
 
-            top_embed.set_footer(text=f"Your {self.get_user_placing(user_star_list, ctx.author.id)}")
+                        top_embed.add_field(name=f"#{actual_entry_count+1}: {author_str}", value=f"{num_stars} ⭐\n", inline=False)
+                        actual_entry_count += 1
+
+            if top_embed.fields == discord.Embed.Empty:
+                raise utils.CustomCheckFailure("There are no non-bot starboard entries for this server!")
+            elif not flags["nobots"]:
+                top_embed.set_footer(text=f"Your {self.get_user_placing(user_star_list, ctx.author.id)}")
+            else:
+                top_embed.set_footer(text=f"Your {self.get_user_placing(nobot_star_list, ctx.author.id)}")
             await ctx.reply(embed=top_embed)
         else:
             raise utils.CustomCheckFailure("There are no starboard entries for this server!")
 
     @sb.command(aliases = ["position", "place", "placing"])
     @commands.cooldown(1, 5, commands.BucketType.member)
-    async def pos(self, ctx, *, user = None):
+    async def pos(self, ctx, *, user: typing.Optional[fuzzys.FuzzyMemberConverter]):
         """Allows you to get either your or whoever you mentioned’s position in the star leaderboard (like the top command, but only for one person).
         The user can be mentioned, searched up by ID, or you can say their name and the bot will attempt to search for that person."""
 
-        if user != None:
-            member = await fuzzys.FuzzyMemberConverter().convert(ctx, user)
-        else:
+        if not user:
             member = ctx.author
+        else:
+            member = user
 
         user_star_list = self.get_star_rankings(ctx)
 
-        if user_star_list != None:
-            if user != None:
+        if user_star_list:
+            if user:
                 placing = f"{member.display_name}'s {self.get_user_placing(user_star_list, member.id)}"
             else:
                 placing = f"Your {self.get_user_placing(user_star_list, member.id)}"

@@ -127,6 +127,8 @@ class SeraphimBot(commands.Bot):
                     except commands.NoEntryPointError:
                         pass
 
+            await self.slash.sync_all_commands() # need to do this as otherwise things wont work
+
         else:
             for guild in self.guilds:
                 members = guild.members
