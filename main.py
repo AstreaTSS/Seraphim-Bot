@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.7
 import discord, os, asyncio, discord_slash
 import websockets, logging, aiohttp
+import asyncpg, json
 from discord.ext import commands
 from discord.ext.commands.bot import _default as bot_default
 from datetime import datetime
@@ -113,6 +114,13 @@ class SeraphimBot(commands.Bot):
                 for member in guild.members:
                     self.update_member(member)
 
+            if not hasattr(self, "pool"):
+                async def add_json_converter(conn):
+                    await conn.set_type_codec('jsonb', encoder=discord.utils.to_json, decoder=json.loads, schema='pg_catalog')
+
+                db_url = os.environ.get("DB_URL")
+                self.pool = await asyncpg.create_pool(db_url, init=add_json_converter)
+
             self.load_extension("jishaku")
             self.load_extension("cogs.db_handler")
             while self.config == {}:
@@ -194,4 +202,9 @@ except ImportError:
     pass
 
 bot.init_load = True
-bot.run(os.environ.get("MAIN_TOKEN"))
+
+try:
+    bot.run(os.environ.get("MAIN_TOKEN"))
+finally:
+    if hasattr(bot, "pool"):
+        bot.pool.close()

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands, tasks
-import discord, os, asyncio, importlib
-import copy, asyncpg, json
+import asyncio, importlib, copy
 
 import common.utils as utils
 import common.star_classes as star_classes
@@ -13,15 +12,6 @@ class DBHandler(commands.Cog):
 
     def cog_unload(self):
         self.commit_loop.cancel()
-
-    def create_cmd(self, table, a_type, entry):
-        cmd = {
-            "table": table,
-            "type": a_type,
-            "entry": entry
-        }
-
-        return cmd
 
     async def get_dbs(self):
         starboard_db = await self.fetch_table("starboard")
@@ -38,18 +28,35 @@ class DBHandler(commands.Cog):
         self.bot.config = config_dict
         self.bot.config_bac = copy.deepcopy(config_dict)
 
+    def get_required_from_entry(self, entry):
+        entry.ori_reactors = list(entry.ori_reactors)
+        entry.var_reactors = list(entry.var_reactors)
+        
+        necessary = (entry.ori_mes_id, entry.to_dict())
+
+        entry.ori_reactors = set(entry.ori_reactors)
+        entry.var_reactors = set(entry.var_reactors)
+        
+        return necessary
+
     @tasks.loop(minutes=2.5)
     async def commit_loop(self):
-        list_of_cmds = []
+        insert_config = []
+        update_config = []
+        delete_sb = []
+        insert_sb = []
+        update_sb = []
 
         for entry_id in self.bot.starboard.added:
             entry = self.bot.starboard.get(entry_id)
-            list_of_cmds.append(self.create_cmd("starboard", "INSERT INTO", entry))
+            insert_sb.append(self.get_required_from_entry(entry))
+
         for entry_id in self.bot.starboard.updated:
             entry = self.bot.starboard.get(entry_id)
-            list_of_cmds.append(self.create_cmd("starboard", "UPDATE", entry))
+            update_sb.append(self.get_required_from_entry(entry))
+
         for entry_id in self.bot.starboard.removed:
-            list_of_cmds.append(self.create_cmd("starboard", "DELETE FROM", entry_id))
+            delete_sb.append(entry_id)
 
         self.bot.starboard.reset_deltas()
 
@@ -59,12 +66,12 @@ class DBHandler(commands.Cog):
         for guild in list(self.bot.config.keys()).copy():
             if guild in list(config_bac.keys()):
                 if not config[guild] == config_bac[guild]:
-                    list_of_cmds.append(self.create_cmd("seraphim_config", "UPDATE", config[guild]))
+                    update_config.append((config["guild"]["guild_id_bac"], config["guild"]))
             else:
-                list_of_cmds.append(self.create_cmd("seraphim_config", "INSERT INTO", config[guild]))
+                insert_config.append((config["guild"]["guild_id_bac"], config["guild"]))
 
-        if list_of_cmds != []:
-            await self.run_commands(list_of_cmds)
+        if insert_config or update_config or delete_sb or insert_sb or update_sb:
+            await self.update_db(insert_config, update_config, delete_sb, insert_sb, update_sb)
 
             self.bot.config_bac = copy.deepcopy(self.bot.config)
 
@@ -81,57 +88,28 @@ class DBHandler(commands.Cog):
             while self.bot.config == {}:
                 await asyncio.sleep(0.1)
 
-        await asyncio.sleep(60)
+        await asyncio.sleep(90)
 
     async def fetch_table(self, table):
-        db_url = os.environ.get("DB_URL")
-        conn = await asyncpg.connect(db_url)
-
-        try:
-            await conn.set_type_codec('jsonb', encoder=discord.utils.to_json, decoder=json.loads, schema='pg_catalog')
+        async with self.bot.pool.acquire() as conn:
             data = await conn.fetch(f"SELECT * FROM {table}")
-        finally:
-            await conn.close()
 
         return data
 
-    async def run_commands(self, commands):
-        db_url = os.environ.get("DB_URL")
-        conn = await asyncpg.connect(db_url)
-
-        try:
-            await conn.set_type_codec('jsonb', encoder=discord.utils.to_json, decoder=json.loads, schema='pg_catalog')
-
+    async def update_db(self, insert_config, update_config, delete_sb, insert_sb, update_sb):
+        async with self.bot.pool.acquire() as conn:
             async with conn.transaction():
-                for command in commands:
-                    db_command = ""
+                if insert_config:
+                    await conn.executemany("INSERT INTO seraphim_config(guild_id, config) VALUES($1, $2)", args=insert_config)
+                if update_config:
+                    await conn.executemany("UPDATE seraphim_config SET config = $2 WHERE guild_id = $1", args=update_config)
 
-                    if command["table"] == "seraphim_config":
-                        if command["type"] == "INSERT INTO":
-                            db_command = ("INSERT INTO seraphim_config(guild_id, config) VALUES($1, $2)")
-                        elif command["type"] == "UPDATE":
-                            db_command = ("UPDATE seraphim_config SET config = $2 WHERE guild_id = $1")
-                        
-                        if db_command != "":
-                            await conn.execute(db_command, command["entry"]["guild_id_bac"], command["entry"])
-
-                    elif command["table"] == "starboard":
-                        if command["type"] == "DELETE FROM":
-                            await conn.execute("DELETE FROM starboard WHERE ori_mes_id = $1", command["entry"])
-                            continue
-                        elif command["type"] == "INSERT INTO":
-                            db_command = ("INSERT INTO starboard(ori_mes_id, data) VALUES($1, $2)")
-                        elif command["type"] == "UPDATE":
-                            db_command = ("UPDATE starboard SET data = $2 WHERE ori_mes_id = $1")
-
-                        if db_command != "":
-                            command["entry"].ori_reactors = list(command["entry"].ori_reactors)
-                            command["entry"].var_reactors = list(command["entry"].var_reactors)
-                            await conn.execute(db_command, command["entry"].ori_mes_id, command["entry"].to_dict())
-                            command["entry"].ori_reactors = set(command["entry"].ori_reactors)
-                            command["entry"].var_reactors = set(command["entry"].var_reactors)
-        finally:
-            await conn.close()
+                if delete_sb:
+                    await conn.executemany("DELETE FROM starboard WHERE ori_mes_id = $1", args=delete_sb)
+                if insert_sb:
+                    await conn.executemany("INSERT INTO starboard(ori_mes_id, data) VALUES($1, $2)", args=insert_sb)
+                if update_sb:
+                    await conn.executemany("UPDATE starboard SET data = $2 WHERE ori_mes_id = $1", args=update_sb)
     
 def setup(bot):
     importlib.reload(utils)
