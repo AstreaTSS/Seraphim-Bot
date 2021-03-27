@@ -139,7 +139,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             raise utils.CustomCheckFailure("There are no starboard entries for this server and/or for this user!")
 
     @flags.add_flag("-nobots", "--nobots", action='store_true')
-    @sb.command(name = "top", aliases = ["leaderboard", "lb"])
+    @sb.command(cls = flags.FlagCommand, name = "top", aliases = ["leaderboard", "lb"])
     @commands.cooldown(1, 5, commands.BucketType.member)
     async def top(self, ctx, **flags):
         """Allows you to view the top 10 people with the most stars on a server. Cooldown of once every 5 seconds per user."""
