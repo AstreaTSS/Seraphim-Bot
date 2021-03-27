@@ -119,7 +119,11 @@ class SeraphimBot(commands.Bot):
                     await conn.set_type_codec('jsonb', encoder=discord.utils.to_json, decoder=json.loads, schema='pg_catalog')
 
                 db_url = os.environ.get("DB_URL")
-                self.pool = await asyncpg.create_pool(db_url, init=add_json_converter)
+                self.pool = await asyncpg.create_pool(db_url, 
+                    min_size=2,
+                    max_size=5,
+                    init=add_json_converter
+                )
 
             self.load_extension("jishaku")
             self.load_extension("cogs.db_handler")
