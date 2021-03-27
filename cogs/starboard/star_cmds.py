@@ -338,7 +338,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         This message cannot be taken off the starboard unless it is deleted from it manually.
         You must have Manage Server permissions or higher to run this command."""
 
-        starboard_entry = await self.initial_get(self, ctx, msg, forced=True)
+        starboard_entry = await self.initial_get(ctx, msg, forced=True)
         
         if not starboard_entry.star_var_id:
             starboard_entry.forced = True
