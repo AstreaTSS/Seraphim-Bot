@@ -39,7 +39,7 @@ class DBHandler(commands.Cog):
         
         return necessary
 
-    @tasks.loop(minutes=2.5)
+    @tasks.loop(minutes=2)
     async def commit_loop(self):
         insert_config = []
         update_config = []
@@ -66,9 +66,9 @@ class DBHandler(commands.Cog):
         for guild in list(self.bot.config.keys()).copy():
             if guild in list(config_bac.keys()):
                 if not config[guild] == config_bac[guild]:
-                    update_config.append((config["guild"]["guild_id_bac"], config["guild"]))
+                    update_config.append((config[guild]["guild_id_bac"], config[guild]))
             else:
-                insert_config.append((config["guild"]["guild_id_bac"], config["guild"]))
+                insert_config.append((config[guild]["guild_id_bac"], config[guild]))
 
         if insert_config or update_config or delete_sb or insert_sb or update_sb:
             await self.update_db(insert_config, update_config, delete_sb, insert_sb, update_sb)
@@ -88,7 +88,7 @@ class DBHandler(commands.Cog):
             while self.bot.config == {}:
                 await asyncio.sleep(0.1)
 
-        await asyncio.sleep(90)
+        await asyncio.sleep(60)
 
     async def fetch_table(self, table):
         async with self.bot.pool.acquire() as conn:
