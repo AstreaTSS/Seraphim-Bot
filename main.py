@@ -206,9 +206,8 @@ except ImportError:
     pass
 
 bot.init_load = True
-
 try:
     bot.run(os.environ.get("MAIN_TOKEN"))
 finally:
     if hasattr(bot, "pool"):
-        bot.pool.close()
+        asyncio.get_running_loop().run_until_complete(bot.pool.close)
