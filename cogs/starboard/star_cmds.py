@@ -141,6 +141,8 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                             else:
                                 cache[member] = optional_role in member.roles
                                 check = cache[member]
+                        else:
+                            check = False
                     else:
                         check = True
 
