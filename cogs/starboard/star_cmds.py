@@ -96,19 +96,22 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         Flags: --user <user>: allows you to view the top starred messages by the user specified.
         --nobots: allows you to filter out bots."""
 
-        role_cache = None
         optional_member: typing.Optional[discord.Member] = flags["user"]
         optional_role: typing.Optional[discord.Role] = flags["role"]
         if optional_role:
-            role_cache = {}
+            temp_members = [r.id for r in optional_role.members]
+            role_members = frozenset(temp_members)
 
         if optional_member and optional_member.bot and flags["nobots"]:
             raise commands.BadArgument("You can't just specify a user who is a bot and then filter out bots.")
 
-        if not optional_member:
-            guild_entries = self.bot.starboard.get_list(lambda e: e.guild_id == ctx.guild.id)
-        else:
+        if optional_member:
             guild_entries = self.bot.starboard.get_list(lambda e: e.guild_id == ctx.guild.id and e.author_id == optional_member.id)
+        elif optional_role:
+            guild_entries = self.bot.starboard.get_list(lambda e: e.guild_id == ctx.guild.id and e.author_id in role_members)
+        else:
+            guild_entries = self.bot.starboard.get_list(lambda e: e.guild_id == ctx.guild.id)
+            
 
         if guild_entries:
             if optional_member:
@@ -138,24 +141,10 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                     member = await utils.user_from_id(self.bot, ctx.guild, entry.author_id) if not optional_member else optional_member
 
                 if not flags["nobots"] or not (member and member.bot):
-                    if optional_role:
-                        if member and isinstance(member, discord.Member):
-                            print(role_cache)
-                            if role_cache.get(member):
-                                check = role_cache[member]
-                            else:
-                                role_cache[member] = optional_role in set(member.roles)
-                                check = role_cache[member]
-                        else:
-                            check = False
-                    else:
-                        check = True
+                    author_str = f"{member.display_name} ({str(member)})" if member else f"User ID: {entry.author_id}"
 
-                    if check:
-                        author_str = f"{member.display_name} ({str(member)})" if member else f"User ID: {entry.author_id}"
-
-                        top_embed.add_field(name=f"#{actual_entry_count+1}: {num_stars} ⭐ from {author_str}", value=f"[Message]({url})\n", inline=False)
-                        actual_entry_count += 1
+                    top_embed.add_field(name=f"#{actual_entry_count+1}: {num_stars} ⭐ from {author_str}", value=f"[Message]({url})\n", inline=False)
+                    actual_entry_count += 1
 
             if top_embed.fields == discord.Embed.Empty:
                 raise utils.CustomCheckFailure("There are no non-bot starboard entries for this server!")
