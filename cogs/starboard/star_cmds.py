@@ -87,18 +87,24 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         await self.bot.process_commands(msg)
 
     @flags.add_flag("-user", "--user", type=discord.Member)
+    @flags.add_flag("-role", "--role", type=discord.Role)
     @flags.add_flag("-nobots", "--nobots", action='store_true')
     @sb.command(cls = flags.FlagCommand, aliases = ["msg_top", "msglb", "msg_lb"])
     @commands.cooldown(1, 5, commands.BucketType.member)
     async def msgtop(self, ctx, **flags):
         """Allows you to view the top 10 starred messages on a server. Cooldown of once every 5 seconds per user.
         Flags: --user <user>: allows you to view the top starred messages by the user specified.
+        --role <role>: allows you to view the top starred messages by people who have the role specified.
         --nobots: allows you to filter out bots."""
 
         optional_member: typing.Optional[discord.Member] = flags["user"]
+        optional_role: typing.Optional[discord.Role] = flags["role"]
 
-        if flags["user"] and flags["user"].bot and flags["nobots"]:
-            raise commands.BadArgument("You can't just specify a user who is a bot and then filter out bots.")
+        if optional_member:
+            if optional_member.bot and flags["nobots"]:
+                raise commands.BadArgument("You can't just specify a user who is a bot and then filter out bots.")
+            elif optional_role and not optional_role in optional_member.roles:
+                raise commands.BadArgument("You can't just specify a user and then specify a role which the user doesn't have.")
 
         if not optional_member:
             guild_entries = self.bot.starboard.get_list(lambda e: e.guild_id == ctx.guild.id)
@@ -128,22 +134,37 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                 num_stars = len(entry.get_reactors())
                 member = await utils.user_from_id(self.bot, ctx.guild, entry.author_id) if not optional_member else optional_member
 
-                if not flags["nobots"] or not member.bot:
+                # if we're not filtering bots out or if the user is not a bot
+                # or, either...
+                # optional role is empty (aka the flag was specified), or the user has the role specified
+                if (not flags["nobots"] or (not member or not member.bot)) and (
+                    not optional_role or (member and isinstance(member, discord.Member) and optional_role in member.roles)):
+                    
                     author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry.author_id}"
 
                     top_embed.add_field(name=f"#{actual_entry_count+1}: {num_stars} ⭐ from {author_str}", value=f"[Message]({url})\n", inline=False)
                     actual_entry_count += 1
+
+            if top_embed.fields == discord.Embed.Empty:
+                if optional_role:
+                    raise utils.CustomCheckFailure("There are no starboard entries for that role in this server!")
+                else:
+                    raise utils.CustomCheckFailure("There are no non-bot starboard entries for this server!")
 
             await ctx.reply(embed=top_embed)
         else:
             raise utils.CustomCheckFailure("There are no starboard entries for this server and/or for this user!")
 
     @flags.add_flag("-nobots", "--nobots", action='store_true')
+    @flags.add_flag("-role", "--role", type=discord.Role)
     @sb.command(cls = flags.FlagCommand, name = "top", aliases = ["leaderboard", "lb"])
     @commands.cooldown(1, 5, commands.BucketType.member)
     async def top(self, ctx, **flags):
-        """Allows you to view the top 10 people with the most stars on a server. Cooldown of once every 5 seconds per user."""
+        """Allows you to view the top 10 people with the most stars on a server. Cooldown of once every 5 seconds per user.
+        --role <role>: allows you to see the top 10 of people who have the role specified.
+        --nobots: allows you to filter out bots."""
 
+        optional_role: typing.Optional[discord.Role] = flags["role"]
         user_star_list = self.get_star_rankings(ctx)
 
         if user_star_list:
@@ -151,18 +172,23 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             top_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='png', size=128))}")
             
             actual_entry_count = 0
-            nobot_star_list = []
+            modified_star_list = []
 
             for entry in user_star_list:
-                if actual_entry_count > 9 and not flags["nobots"]:
+                if actual_entry_count > 9 and not (flags["nobots"] or optional_role):
                     break
 
                 member = await utils.user_from_id(self.bot, ctx.guild, entry[0])
 
-                if not flags["nobots"] or not member.bot:
-                    if actual_entry_count > 9:
-                        nobot_star_list.append(entry)
-                    else:
+                # if we're not filtering bots out or if the user is not a bot
+                # or, either...
+                # optional role is empty (aka the flag was specified), or the user has the role specified
+                if (not flags["nobots"] or (not member or not member.bot)) and (
+                    not optional_role or (member and isinstance(member, discord.Member) and optional_role in member.roles)):
+
+                    modified_star_list.append(entry)
+
+                    if actual_entry_count < 10:
                         num_stars = entry[1]
                         author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry[0]}"
 
@@ -170,11 +196,15 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                         actual_entry_count += 1
 
             if top_embed.fields == discord.Embed.Empty:
-                raise utils.CustomCheckFailure("There are no non-bot starboard entries for this server!")
-            elif not flags["nobots"]:
+                if optional_role:
+                    raise utils.CustomCheckFailure("There are no starboard entries for that role in this server!")
+                else:
+                    raise utils.CustomCheckFailure("There are no non-bot starboard entries for this server!")
+
+            elif not (flags["nobots"] or optional_role):
                 top_embed.set_footer(text=f"Your {self.get_user_placing(user_star_list, ctx.author.id)}")
             else:
-                top_embed.set_footer(text=f"Your {self.get_user_placing(nobot_star_list, ctx.author.id)}")
+                top_embed.set_footer(text=f"Your {self.get_user_placing(modified_star_list, ctx.author.id)}")
             await ctx.reply(embed=top_embed)
         else:
             raise utils.CustomCheckFailure("There are no starboard entries for this server!")
