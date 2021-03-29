@@ -1,6 +1,5 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands, flags
-from functools import lru_cache
 import discord, importlib, collections
 import datetime, random, typing
 
@@ -41,10 +40,6 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             return f"position: #{author_index + 1} with {author_entry[1]} ⭐"
         else:
             return "position: N/A - no stars found!"
-    
-    @lru_cache()
-    def test_function(self, role, some_set):
-        return role in some_set
     
     async def cog_check(self, ctx):
         return self.bot.config[ctx.guild.id]["star_toggle"]
@@ -91,6 +86,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         
         await self.bot.process_commands(msg)
 
+    @flags.add_flag("-role", "--role", type=discord.Role)
     @flags.add_flag("-user", "--user", type=discord.Member)
     @flags.add_flag("-nobots", "--nobots", action='store_true')
     @sb.command(cls = flags.FlagCommand, aliases = ["msg_top", "msglb", "msg_lb"])
@@ -100,7 +96,11 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         Flags: --user <user>: allows you to view the top starred messages by the user specified.
         --nobots: allows you to filter out bots."""
 
+        cache = None
         optional_member: typing.Optional[discord.Member] = flags["user"]
+        optional_role: typing.Optional[discord.Role] = flags["role"]
+        if optional_role:
+            cache = {}
 
         if optional_member and optional_member.bot and flags["nobots"]:
             raise commands.BadArgument("You can't just specify a user who is a bot and then filter out bots.")
@@ -111,12 +111,12 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             guild_entries = self.bot.starboard.get_list(lambda e: e.guild_id == ctx.guild.id and e.author_id == optional_member.id)
 
         if guild_entries:
-            if not optional_member:
-                top_embed = discord.Embed(title=f"Top starred messages in {ctx.guild.name}", colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow())
-            else:
+            if optional_member:
                 top_embed = discord.Embed(title=f"Top starred messages in {ctx.guild.name} by {optional_member.display_name} ({str(optional_member)})", 
                     colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow()
                 )
+            else:
+                top_embed = discord.Embed(title=f"Top starred messages in {ctx.guild.name}", colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow())
             top_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='png', size=128))}")
             top_embed.set_footer(text="As of")
 
@@ -134,14 +134,27 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                 member = await utils.user_from_id(self.bot, ctx.guild, entry.author_id) if not optional_member else optional_member
 
                 if not flags["nobots"] or not (member and member.bot):
-                    author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry.author_id}"
+                    if optional_role:
+                        if cache.get(member):
+                            check = cache[member]
+                        else:
+                            cache[member] = role in member.roles
+                            check = cache[member]
+                    else:
+                        check = True
 
-                    top_embed.add_field(name=f"#{actual_entry_count+1}: {num_stars} ⭐ from {author_str}", value=f"[Message]({url})\n", inline=False)
-                    actual_entry_count += 1
+                    if check:
+                        author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry.author_id}"
+
+                        top_embed.add_field(name=f"#{actual_entry_count+1}: {num_stars} ⭐ from {author_str}", value=f"[Message]({url})\n", inline=False)
+                        actual_entry_count += 1
 
             if top_embed.fields == discord.Embed.Empty:
                 raise utils.CustomCheckFailure("There are no non-bot starboard entries for this server!")
             await ctx.reply(embed=top_embed)
+
+            if cache:
+                del cache
         else:
             raise utils.CustomCheckFailure("There are no starboard entries for this server and/or for this user!")
 
