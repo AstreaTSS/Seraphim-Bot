@@ -102,15 +102,6 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         if optional_role:
             role_cache = {}
 
-        user_cache = {}
-
-        async def get_user(ctx, id):
-            if user_cache.get(id):
-                return user_cache[id]
-            else:
-                user_cache[id] = await utils.user_from_id(self.bot, ctx.guild, id)
-                return user_cache[id]
-
         if optional_member and optional_member.bot and flags["nobots"]:
             raise commands.BadArgument("You can't just specify a user who is a bot and then filter out bots.")
 
@@ -140,7 +131,11 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
                 url = f"https://discordapp.com/channels/{ctx.guild.id}/{starboard_id}/{entry.star_var_id}"
                 num_stars = len(entry.get_reactors())
-                member = await get_user(ctx, entry.author_id) if not optional_member else optional_member
+
+                if optional_role:
+                    member = ctx.guild.get_member(entry.author_id) if not optional_member else optional_member
+                else:
+                    member = await utils.user_from_id(self.bot, ctx.guild, entry.author_id) if not optional_member else optional_member
 
                 if not flags["nobots"] or not (member and member.bot):
                     if optional_role:
