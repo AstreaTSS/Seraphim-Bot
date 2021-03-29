@@ -96,11 +96,20 @@ class StarCMDs(commands.Cog, name = "Starboard"):
         Flags: --user <user>: allows you to view the top starred messages by the user specified.
         --nobots: allows you to filter out bots."""
 
-        cache = None
+        role_cache = None
         optional_member: typing.Optional[discord.Member] = flags["user"]
         optional_role: typing.Optional[discord.Role] = flags["role"]
         if optional_role:
-            cache = {}
+            role_cache = {}
+
+        user_cache = {}
+
+        async def get_user(ctx, id):
+            if user_cache.get(id):
+                return user_cache[id]
+            else:
+                user_cache[id] = await utils.user_from_id(self.bot, ctx.guild, id)
+                return user_cache[id]
 
         if optional_member and optional_member.bot and flags["nobots"]:
             raise commands.BadArgument("You can't just specify a user who is a bot and then filter out bots.")
@@ -131,16 +140,17 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
                 url = f"https://discordapp.com/channels/{ctx.guild.id}/{starboard_id}/{entry.star_var_id}"
                 num_stars = len(entry.get_reactors())
-                member = await utils.user_from_id(self.bot, ctx.guild, entry.author_id) if not optional_member else optional_member
+                member = await get_user(ctx, entry.author_id) if not optional_member else optional_member
 
                 if not flags["nobots"] or not (member and member.bot):
                     if optional_role:
                         if member and isinstance(member, discord.Member):
-                            if cache.get(member):
-                                check = cache[member]
+                            print(role_cache)
+                            if role_cache.get(member):
+                                check = role_cache[member]
                             else:
-                                cache[member] = optional_role in member.roles
-                                check = cache[member]
+                                role_cache[member] = optional_role in set(member.roles)
+                                check = role_cache[member]
                         else:
                             check = False
                     else:
@@ -155,9 +165,6 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             if top_embed.fields == discord.Embed.Empty:
                 raise utils.CustomCheckFailure("There are no non-bot starboard entries for this server!")
             await ctx.reply(embed=top_embed)
-
-            if cache:
-                del cache
         else:
             raise utils.CustomCheckFailure("There are no starboard entries for this server and/or for this user!")
 
