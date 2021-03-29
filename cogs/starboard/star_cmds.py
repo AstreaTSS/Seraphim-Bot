@@ -134,7 +134,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                 member = await utils.user_from_id(self.bot, ctx.guild, entry.author_id) if not optional_member else optional_member
 
                 if not flags["nobots"] or not (member and member.bot):
-                    if optional_role:
+                    if optional_role and member:
                         if cache.get(member):
                             check = cache[member]
                         else:
@@ -144,7 +144,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                         check = True
 
                     if check:
-                        author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry.author_id}"
+                        author_str = f"{member.display_name} ({str(member)})" if member else f"User ID: {entry.author_id}"
 
                         top_embed.add_field(name=f"#{actual_entry_count+1}: {num_stars} ⭐ from {author_str}", value=f"[Message]({url})\n", inline=False)
                         actual_entry_count += 1
