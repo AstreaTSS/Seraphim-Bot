@@ -85,6 +85,57 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                 msg.content = msg.content.replace(f"{sb_name} {this_name}", "settings starboard", 1)
         
         await self.bot.process_commands(msg)
+    
+    @flags.add_flag("-user", "--user", type=discord.Member)
+    @flags.add_flag("-nobots", "--nobots", action='store_true')
+    @sb.command(cls = flags.FlagCommand, hidden=True)
+    @commands.is_owner()
+    async def debug_msgtop(self, ctx, role: discord.Role, **flags):
+        optional_member: typing.Optional[discord.Member] = flags["user"]
+
+        if optional_member and optional_member.bot and flags["nobots"]:
+            raise commands.BadArgument("You can't just specify a user who is a bot and then filter out bots.")
+
+        if not optional_member:
+            guild_entries = self.bot.starboard.get_list(lambda e: e.guild_id == ctx.guild.id)
+        else:
+            guild_entries = self.bot.starboard.get_list(lambda e: e.guild_id == ctx.guild.id and e.author_id == optional_member.id)
+
+        if guild_entries:
+            if not optional_member:
+                top_embed = discord.Embed(title=f"Top starred messages in {ctx.guild.name}", colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow())
+            else:
+                top_embed = discord.Embed(title=f"Top starred messages in {ctx.guild.name} by {optional_member.display_name} ({str(optional_member)})", 
+                    colour=discord.Colour(0xcfca76), timestamp=datetime.datetime.utcnow()
+                )
+            top_embed.set_author(name=f"{self.bot.user.name}", icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='png', size=128))}")
+            top_embed.set_footer(text="As of")
+
+            guild_entries.sort(reverse=True, key=lambda e: len(e.get_reactors()))
+            
+            actual_entry_count = 0
+            for entry in guild_entries:
+                if actual_entry_count > 9:
+                    break
+
+                starboard_id = entry.starboard_id
+
+                url = f"https://discordapp.com/channels/{ctx.guild.id}/{starboard_id}/{entry.star_var_id}"
+                num_stars = len(entry.get_reactors())
+                member = await utils.user_from_id(self.bot, ctx.guild, entry.author_id) if not optional_member else optional_member
+
+                if (not flags["nobots"] or (not member or not member.bot)) and (
+                    not role or (member and isinstance(member, discord.Member) and role in member.roles)):
+                    author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry.author_id}"
+
+                    top_embed.add_field(name=f"#{actual_entry_count+1}: {num_stars} ⭐ from {author_str}", value=f"[Message]({url})\n", inline=False)
+                    actual_entry_count += 1
+
+            if top_embed.fields == discord.Embed.Empty:
+                raise utils.CustomCheckFailure("There are no non-bot starboard entries for this server!")
+            await ctx.reply(embed=top_embed)
+        else:
+            raise utils.CustomCheckFailure("There are no starboard entries for this server and/or for this user!")
 
     @flags.add_flag("-user", "--user", type=discord.Member)
     @flags.add_flag("-nobots", "--nobots", action='store_true')
@@ -128,7 +179,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                 num_stars = len(entry.get_reactors())
                 member = await utils.user_from_id(self.bot, ctx.guild, entry.author_id) if not optional_member else optional_member
 
-                if not flags["nobots"] or not member.bot:
+                if not flags["nobots"] or not (member and member.bot):
                     author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry.author_id}"
 
                     top_embed.add_field(name=f"#{actual_entry_count+1}: {num_stars} ⭐ from {author_str}", value=f"[Message]({url})\n", inline=False)
@@ -162,7 +213,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
                 member = await utils.user_from_id(self.bot, ctx.guild, entry[0])
 
-                if not flags["nobots"] or not member.bot:
+                if not flags["nobots"] or not (member and member.bot):
                     nobot_star_list.append(entry)
                     
                     if actual_entry_count < 10:
