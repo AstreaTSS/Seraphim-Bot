@@ -134,12 +134,13 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                 member = await utils.user_from_id(self.bot, ctx.guild, entry.author_id) if not optional_member else optional_member
 
                 if not flags["nobots"] or not (member and member.bot):
-                    if optional_role and member and isinstance(member, discord.Member):
-                        if cache.get(member):
-                            check = cache[member]
-                        else:
-                            cache[member] = optional_role in member.roles
-                            check = cache[member]
+                    if optional_role:
+                        if member and isinstance(member, discord.Member):
+                            if cache.get(member):
+                                check = cache[member]
+                            else:
+                                cache[member] = optional_role in member.roles
+                                check = cache[member]
                     else:
                         check = True
 
