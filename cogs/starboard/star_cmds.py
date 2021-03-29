@@ -1,5 +1,6 @@
 #!/usr/bin/env python3.7
 from discord.ext import commands, flags
+from functools import lru_cache
 import discord, importlib, collections
 import datetime, random, typing
 
@@ -40,6 +41,10 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             return f"position: #{author_index + 1} with {author_entry[1]} ⭐"
         else:
             return "position: N/A - no stars found!"
+    
+    @lru_cache()
+    def test_function(self, role, some_set):
+        return role in some_set
     
     async def cog_check(self, ctx):
         return self.bot.config[ctx.guild.id]["star_toggle"]
@@ -125,7 +130,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                 member = await utils.user_from_id(self.bot, ctx.guild, entry.author_id) if not optional_member else optional_member
 
                 if (not flags["nobots"] or (not member or not member.bot)) and (
-                    not role or (member and isinstance(member, discord.Member) and role in frozenset(member.roles))):
+                    not role or (member and isinstance(member, discord.Member) and self.test_function(member, frozenset(member.roles)))):
                     author_str = f"{member.display_name} ({str(member)})" if member != None else f"User ID: {entry.author_id}"
 
                     top_embed.add_field(name=f"#{actual_entry_count+1}: {num_stars} ⭐ from {author_str}", value=f"[Message]({url})\n", inline=False)
