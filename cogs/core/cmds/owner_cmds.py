@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.7
+#!/usr/bin/env python3.8
 import typing
 from discord.ext import commands
 import os, importlib, asyncio, collections

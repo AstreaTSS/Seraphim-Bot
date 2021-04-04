@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.7
+#!/usr/bin/env python3.8
 import discord, os, asyncio, discord_slash
 import websockets, logging, aiohttp
 import asyncpg, json

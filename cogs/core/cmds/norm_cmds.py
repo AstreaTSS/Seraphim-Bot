@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.7
+#!/usr/bin/env python3.8
 from discord.ext import commands
 import discord, time, importlib, collections
 

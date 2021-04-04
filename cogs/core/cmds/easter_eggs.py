@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.7
+#!/usr/bin/env python3.8
 from discord.ext import commands
 
 class EasterEggs(commands.Cog, name="Easter Egg", command_attrs=dict(hidden=True)):
