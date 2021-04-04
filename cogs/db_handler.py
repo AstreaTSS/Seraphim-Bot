@@ -21,12 +21,8 @@ class DBHandler(commands.Cog):
             entry = star_classes.StarboardEntry.from_row(row)
             self.bot.starboard.add(entry, init=True)
 
-        config_dict = {}
         for row in config_db:
-            config_dict[row["guild_id"]] = row["config"]
-
-        self.bot.config = config_dict
-        self.bot.config_bac = copy.deepcopy(config_dict)
+            self.bot.config.import_entry(row)
 
     def get_required_from_entry(self, entry):
         entry.ori_reactors = list(entry.ori_reactors)
@@ -50,30 +46,21 @@ class DBHandler(commands.Cog):
         for entry_id in self.bot.starboard.added:
             entry = self.bot.starboard.get(entry_id)
             insert_sb.append(self.get_required_from_entry(entry))
-
         for entry_id in self.bot.starboard.updated:
             entry = self.bot.starboard.get(entry_id)
             update_sb.append(self.get_required_from_entry(entry))
-
         for entry_id in self.bot.starboard.removed:
             delete_sb.append(entry_id)
-
         self.bot.starboard.reset_deltas()
 
-        config = self.bot.config
-        config_bac = self.bot.config_bac
-
-        for guild in list(self.bot.config.keys()).copy():
-            if guild in list(config_bac.keys()):
-                if not config[guild] == config_bac[guild]:
-                    update_config.append((config[guild]["guild_id_bac"], config[guild]))
-            else:
-                insert_config.append((config[guild]["guild_id_bac"], config[guild]))
+        for guild_id in self.bot.config.added:
+            insert_config.append((guild_id, self.bot.config.get(guild_id).to_dict()))
+        for guild_id in self.bot.config.updated:
+            update_config.append((guild_id, self.bot.config.get(guild_id).to_dict()))
+        self.bot.config.reset_deltas()
 
         if insert_config or update_config or delete_sb or insert_sb or update_sb:
             await self.update_db(insert_config, update_config, delete_sb, insert_sb, update_sb)
-
-            self.bot.config_bac = copy.deepcopy(self.bot.config)
 
     @commit_loop.error
     async def error_handle(self, *args):
@@ -85,7 +72,7 @@ class DBHandler(commands.Cog):
         if self.bot.init_load:
             await self.get_dbs()
 
-            while self.bot.config == {}:
+            while self.bot.config.entries == {}:
                 await asyncio.sleep(0.1)
 
         await asyncio.sleep(60)

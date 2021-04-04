@@ -45,7 +45,7 @@ class SetupCMD(commands.Cog, name="Setup"):
             "say the channel name exactly as is, or put the ID of it."
         ))
         def set_chan(ctx, converted):
-            ctx.bot.config[ctx.guild.id]["starboard_id"] = converted.id
+            ctx.bot.config.setattr(ctx.guild.id, starboard_id=converted.id)
         wizard.add_question(question_str, commands.TextChannelConverter().convert, set_chan)
 
         question_str = "".join((
@@ -56,7 +56,7 @@ class SetupCMD(commands.Cog, name="Setup"):
         def int_convert(ctx, content):
             return int(content)
         def set_limit(ctx, converted):
-            ctx.bot.config[ctx.guild.id]["star_limit"] = converted
+            ctx.bot.config.setattr(ctx.guild.id, star_limit=converted)
         wizard.add_question(question_str, int_convert, set_limit)
 
         question_str = "Final question: do you want to enable the starboard? A simple 'yes' or 'no' will do."
@@ -70,7 +70,7 @@ class SetupCMD(commands.Cog, name="Setup"):
                 raise discord.InvalidArgument
         def set_toggle(ctx, converted):
             if converted:
-                ctx.bot.config[ctx.guild.id]["star_toggle"] = True
+                ctx.bot.config.setattr(ctx.guild.id, star_toggle=True)
         wizard.add_question(question_str, bool_convert, set_toggle)
 
         await wizard.run(ctx)

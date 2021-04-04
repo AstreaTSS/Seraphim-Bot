@@ -42,7 +42,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
             return "position: N/A - no stars found!"
     
     async def cog_check(self, ctx):
-        return self.bot.config[ctx.guild.id]["star_toggle"]
+        return self.bot.config.getattr(ctx.guild.id, "star_toggle")
 
     @groups.group(invoke_without_command=True, aliases = ["starboard", "star"], ignore_extra=False)
     async def sb(self, ctx):
@@ -201,7 +201,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
                 top_embed.set_footer(text=f"Your {self.get_user_placing(filtered_star_list, ctx.author.id)}")
             await ctx.reply(embed=top_embed)
         else:
-            raise utils.CustomCheckFailure("There are no starboard entries for this server!")
+            raise utils.CustomCheckFailure("There are no starboard entries for this server/role!")
 
     @sb.command(aliases = ["position", "place", "placing"])
     @commands.cooldown(1, 5, commands.BucketType.member)
@@ -330,7 +330,7 @@ class StarCMDs(commands.Cog, name = "Starboard"):
 
 
     async def initial_get(self, ctx, msg, forced=False, do_not_create = False) -> star_classes.StarboardEntry:
-        if not ctx.bot.config[ctx.guild.id]["star_toggle"]:
+        if not ctx.bot.config.getattr(ctx.guild.id, "star_toggle"):
             raise utils.CustomCheckFailure("Starboard is not turned on for this server!")
 
         if isinstance(msg, int):

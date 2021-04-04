@@ -189,7 +189,7 @@ async def send(bot, mes: discord.Message):
 
     send_embed = await star_generate(bot, mes)
     star_entry = bot.starboard.get(mes.id)
-    starboard_chan = mes.guild.get_channel(bot.config[mes.guild.id]["starboard_id"])
+    starboard_chan = mes.guild.get_channel(bot.config.getattr(mes.guild.id, "starboard_id"))
 
     if starboard_chan:
         content = star_utils.generate_content_str(star_entry)

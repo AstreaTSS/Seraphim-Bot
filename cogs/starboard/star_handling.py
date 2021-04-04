@@ -23,7 +23,7 @@ class Star(commands.Cog):
 
             # if the channel and the entry for the message exists in the bot and if the entry is above or at the required amount
             # for that server
-            if chan and starboard_entry and (len(starboard_entry.get_reactors()) >= self.bot.config[entry[2]]["star_limit"]
+            if chan and starboard_entry and (len(starboard_entry.get_reactors()) >= self.bot.config.getattr(entry[2], "star_limit")
             or starboard_entry.forced):
                 try:
                     mes = await chan.fetch_message(entry[1])
@@ -46,7 +46,7 @@ class Star(commands.Cog):
             utils.msg_to_owner(self.bot, f"{payload.message_id}: could not find Message object. Channel: {payload.channel_id}")
             return
 
-        if (not user.bot and not channel.id in self.bot.config[mes.guild.id]["star_blacklist"]):
+        if (not user.bot and not channel.id in self.bot.config.getattr(mes.guild.id, "star_blacklist")):
 
             if mes.author.id != user.id:
                 starboard_entry = self.bot.starboard.get(mes.id)
@@ -55,7 +55,7 @@ class Star(commands.Cog):
                     return
 
                 if not starboard_entry or not starboard_entry.star_var_id:
-                    if channel.id != self.bot.config[mes.guild.id]["starboard_id"]:
+                    if channel.id != self.bot.config.getattr(mes.guild.id, "starboard_id"):
                         await star_utils.modify_stars(self.bot, mes, payload.user_id, "ADD")
                         starboard_entry = self.bot.starboard.get(mes.id)
                         if not starboard_entry:
@@ -63,7 +63,7 @@ class Star(commands.Cog):
 
                         unique_stars = len(starboard_entry.get_reactors())
 
-                        if unique_stars >= self.bot.config[mes.guild.id]["star_limit"]:
+                        if unique_stars >= self.bot.config.getattr(mes.guild.id, "star_limit"):
                             # the queue is infinite, so we should be good there
                             self.bot.star_queue.put_nowait((mes.channel.id, mes.id, mes.guild.id))
                                 
@@ -77,7 +77,7 @@ class Star(commands.Cog):
                     if old_stars != new_stars: # we don't want to refresh too often
                         await star_utils.star_entry_refresh(self.bot, starboard_entry, mes.guild.id)
 
-            elif self.bot.config[mes.guild.id]["remove_reaction"]:
+            elif self.bot.config.getattr(mes.guild.id, "remove_reaction"):
                 # the previous if confirms this is the author who is reaction (simply by elimination), so...
                 try:
                     await mes.remove_reaction("⭐", mes.author)
@@ -100,7 +100,7 @@ class Star(commands.Cog):
             return
 
         if (not user.bot and mes.author.id != user.id
-            and not channel.id in self.bot.config[mes.guild.id]["star_blacklist"]):
+            and not channel.id in self.bot.config.getattr(mes.guild.id, "star_blacklist")):
 
             star_variant = self.bot.starboard.get(mes.id)
 
@@ -136,7 +136,7 @@ class Star(commands.Cog):
                         pass
             
             # if message exists and the edit message toggle is on
-            if mes and self.bot.config[mes.guild.id]['star_edit_messages']:
+            if mes and self.bot.config.getattr(mes.guild.id, 'star_edit_messages'):
                 starboard_entry = self.bot.starboard.get(mes.id, check_for_var = True)
 
                 # if the starboard entry exists and the star variant of the entry is not the message edited

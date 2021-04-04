@@ -26,13 +26,15 @@ async def main_cmd(ctx):
 async def _list(ctx):
     """Returns a list of channels that have their pins mapped to another channel, and the max limit before they overflow to that other channel."""
 
-    if ctx.bot.config[ctx.guild.id]["pin_config"] == {}:
+    pin_config = ctx.bot.config.getattr(ctx.guild.id, "pin_config")
+
+    if pin_config == {}:
         raise utils.CustomCheckFailure("There are no entries for this server!")
 
     entries_list = collections.deque()
     entries_list.append("Channels mapped:\n")
 
-    for entry in ctx.bot.config[ctx.guild.id]["pin_config"].keys():
+    for entry in pin_config.keys():
         entry_text = None
         try:
             entry_chan = ctx.bot.get_channel(int(entry))
@@ -43,14 +45,15 @@ async def _list(ctx):
             else:
                 raise utils.CustomCheckFailure("Something weird happened when trying to run this command, and I couldn't get something. Join the support server to report this.")
 
-        des_chan = ctx.bot.get_channel(ctx.bot.config[ctx.guild.id]["pin_config"][entry]["destination"])
+        des_chan = ctx.bot.get_channel(pin_config[entry]["destination"])
 
-        if not (entry_text == None or des_chan == None):
-            limit = ctx.bot.config[ctx.guild.id]["pin_config"][entry]["limit"]
+        if not entry_text or des_chan:
+            limit = pin_config[entry]["limit"]
 
             entries_list.append(f"{entry_text} -> {des_chan.mention} (Limit: {limit})")
         else:
-            del ctx.bot.config[ctx.guild.id]["pin_config"][entry]
+            del pin_config[entry]
+            ctx.bot.config.setattr(ctx.guild.id, pin_config=pin_config)
 
     if entries_list != []:
         entries_str = "\n".join(entries_list)
@@ -77,18 +80,20 @@ async def _map(ctx, entry: typing.Union[discord.TextChannel, DefaultValidator], 
     if dest_check != "OK":
         raise utils.CustomCheckFailure(dest_check)
 
+    pin_config = ctx.bot.config.getattr(ctx.guild.id, "pin_config")
     if isinstance(entry, discord.TextChannel):
-        ctx.bot.config[ctx.guild.id]["pin_config"][str(entry.id)] = {
+        pin_config[str(entry.id)] = {
             "destination": destination.id,
             "limit": limit
         }
         await ctx.reply(f"Overflowing pins from {entry.mention} will now appear in {destination.mention}.")
     else:
-        ctx.bot.config[ctx.guild.id]["pin_config"]["default"] = {
+        pin_config["default"] = {
             "destination": destination.id,
             "limit": limit
         }
         await ctx.reply(f"Overflowing pins from channels that are not mapped to any other channels will now appear in {destination.mention}.")
+    ctx.bot.config.setattr(ctx.guild.id, pin_config=pin_config)
 
 @main_cmd.command(aliases = ["pinlimit"])
 @commands.check(utils.proper_permissions)
@@ -98,12 +103,14 @@ async def pin_limit(ctx, entry: typing.Union[discord.TextChannel, DefaultValidat
     Requires Manage Server permissions or higher."""
 
     try:
+        pin_config = ctx.bot.config.getattr(ctx.guild.id, "pin_config")
         if isinstance(entry, discord.TextChannel):
-            ctx.bot.config[ctx.guild.id]["pin_config"][str(entry.id)]["limit"] = limit
+            pin_config[str(entry.id)]["limit"] = limit
             await ctx.reply(f"The pin limit for {entry.mention} is now set to {limit}.")
         else:
-            ctx.bot.config[ctx.guild.id]["pin_config"]["default"]["limit"] = limit
+            pin_config["default"]["limit"] = limit
             await ctx.reply(f"The pin limit for channels that are not mapped to any other channels is now set to {limit}.")
+        ctx.bot.config.setattr(ctx.guild.id, pin_config=pin_config)
     except KeyError:
         raise commands.BadArgument("That channel hasn't been mapped before!")
 
@@ -115,11 +122,13 @@ async def unmap(ctx, entry: typing.Union[discord.TextChannel, DefaultValidator])
     Requires Manage Server permissions or higher."""
 
     try:
+        pin_config = ctx.bot.config.getattr(ctx.guild.id, "pin_config")
         if isinstance(entry, discord.TextChannel):
-            del ctx.bot.config[ctx.guild.id]["pin_config"][str(entry.id)]
+            del pin_config[str(entry.id)]
             await ctx.reply(f"Unmapped {entry.mention}.")
         else:
-            del ctx.bot.config[ctx.guild.id]["pin_config"]["default"]
+            del pin_config["default"]
             await ctx.reply(f"Unmapped default pinboard channel.")
+        ctx.bot.config.setattr(ctx.guild.id, pin_config=pin_config)
     except KeyError:
         raise commands.BadArgument("That channel wasn't mapped in the first place!")

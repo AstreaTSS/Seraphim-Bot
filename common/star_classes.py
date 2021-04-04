@@ -141,7 +141,7 @@ class StarboardEntries():
 
     def add(self, entry: StarboardEntry, init = False):
         """Adds an entry to the list of entries. Or, well, the dict of entries."""
-        if self.entries[entry.ori_mes_id] == None:
+        if not self.entries[entry.ori_mes_id]:
             self.entries[entry.ori_mes_id] = entry
             if not init:
                 self.added.add(entry.ori_mes_id)
@@ -161,7 +161,7 @@ class StarboardEntries():
 
     def update(self, entry: StarboardEntry):
         """Updates an entry in the dict of entries."""
-        if self.entries[entry.ori_mes_id] != None:
+        if self.entries[entry.ori_mes_id]:
             self.entries[entry.ori_mes_id] = entry
 
             if not entry.ori_mes_id in self.added:
@@ -171,18 +171,18 @@ class StarboardEntries():
 
     def get(self, entry_id, check_for_var = False) -> typing.Optional[StarboardEntry]:
         """Gets an entry based on the ID provides."""
-        if self.entries[entry_id] != None:
-            if not check_for_var or self.entries[entry_id].star_var_id != None:
+        if self.entries[entry_id]:
+            if not check_for_var or self.entries[entry_id].star_var_id:
                 return self.entries[entry_id]
             else:
                 return None
         else:
-            entry = discord.utils.find(lambda e: e != None and e.star_var_id == entry_id, self.entries.values())
+            entry = discord.utils.find(lambda e: e and e.star_var_id == entry_id, self.entries.values())
             return entry
 
     def get_list(self, list_filter) -> typing.List[StarboardEntry]:
         """Gets specific entries based on the filter (a lambda or function) specified."""
-        return [e for e in self.entries.values() if e != None and list_filter(e)]
+        return [e for e in self.entries.values() if e and list_filter(e)]
 
     def get_random(self, list_filter) -> StarboardEntry:
         """Gets a random entry based on the filter (a lambda or function) specified."""

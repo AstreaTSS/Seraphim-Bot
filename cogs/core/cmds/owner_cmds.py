@@ -84,33 +84,6 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
         exten_str = ", ".join(exten_list)
         await ctx.reply(f"Extensions: {exten_str}")
 
-    @commands.command(hidden=True)
-    async def reload_database(self, ctx):
-        loc_split = __file__.split("cogs")
-        start_path = loc_split[0]
-
-        this_cog = utils.file_to_ext(__file__, start_path)
-        
-        extensions = [ex for ex in self.bot.extensions.keys() if ex != this_cog]
-
-        for extension in extensions:
-            self.bot.unload_extension(extension)
-
-        self.bot.init_load = True
-        self.bot.starboard = star_classes.StarboardEntries()
-        self.bot.config = {}
-
-        self.bot.load_extension("cogs.db_handler")
-        while self.bot.config == {}:
-            await asyncio.sleep(0.1)
-
-        for extension in extensions:
-            if extension != "cogs.db_handler":
-                self.bot.load_extension(extension)
-
-        self.bot.init_load = False
-        await ctx.reply(f"Database reloaded!")
-
     @commands.command(hidden=True, aliases=["list_slash_commands", "listslashcmds"])
     async def list_slash_cmds(self, ctx, guild_id: typing.Optional[custom_classes.UsableIDConverter]):
         slash_cmds = await discord_slash.utils.manage_commands.get_all_commands(self.bot.user.id, self.bot.http.token, guild_id)

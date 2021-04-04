@@ -9,6 +9,7 @@ from datetime import datetime
 import common.star_classes as star_classes
 import common.classes as custom_classes
 import common.utils as utils
+import common.configs as configs
 
 logging.basicConfig(filename=os.environ.get("LOG_FILE_PATH"), level=logging.INFO, format="%(asctime)s:%(levelname)s:%(name)s: %(message)s")
 
@@ -19,7 +20,7 @@ def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
     mention_prefixes = [f"{bot.user.mention} ", f"<@!{bot.user.id}> "]
 
     try:
-        custom_prefixes = bot.config[msg.guild.id]["prefixes"]
+        custom_prefixes = bot.config.getattr(msg.guild.id, "prefixes")
     except AttributeError:
         # prefix handling runs before command checks, so there's a chance there's no guild
         custom_prefixes = ["s!"]
@@ -30,14 +31,14 @@ def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
     return mention_prefixes + custom_prefixes
 
 def global_checks(ctx):
-    if ctx.guild == None:
+    if not ctx.guild:
         return False
 
-    if ctx.command == None:
+    if not ctx.command:
         return True
 
-    disable_entry = ctx.bot.config[ctx.guild.id]["disables"]["users"].get(str(ctx.author.id))
-    if disable_entry == None:
+    disable_entry = ctx.bot.config.getattr(ctx.guild.id, "disables")["users"].get(str(ctx.author.id))
+    if not disable_entry:
         return True
 
     if ctx.command.qualified_name in disable_entry:
@@ -73,9 +74,9 @@ class SeraphimBot(commands.Bot):
             pass
 
     async def on_ready(self):
-        if self.init_load == True:
+        if self.init_load:
             self.starboard = star_classes.StarboardEntries()
-            self.config = {}
+            self.config = configs.GuildConfigManager()
 
             self.star_queue = custom_classes.SetAsyncQueue()
 
@@ -127,7 +128,7 @@ class SeraphimBot(commands.Bot):
 
             self.load_extension("jishaku")
             self.load_extension("cogs.db_handler")
-            while self.config == {}:
+            while self.config.entries == {}:
                 await asyncio.sleep(0.1)
 
             cogs_list = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))
@@ -179,7 +180,7 @@ class SeraphimBot(commands.Bot):
         to get the command from - to _ and retries. Convenient for the end user."""
 
         ctx = await super().get_context(message, cls=cls)
-        if ctx.command == None and ctx.invoked_with != None:
+        if ctx.command == None and ctx.invoked_with:
             ctx.command = self.all_commands.get(ctx.invoked_with.replace("-", "_"))
 
         return ctx
@@ -210,4 +211,4 @@ try:
     bot.run(os.environ.get("MAIN_TOKEN"))
 finally:
     if hasattr(bot, "pool"):
-        asyncio.get_running_loop().run_until_complete(bot.pool.close)
+        asyncio.run(bot.pool.close())

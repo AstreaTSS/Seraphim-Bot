@@ -16,7 +16,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
     async def ping_role(self, ctx, *, role_obj: fuzzys.FuzzyRoleConverter):
         """Pings the role specified if the role isn't on cooldown and has been added to a list."""
 
-        ping_roles = self.bot.config[ctx.guild.id]["pingable_roles"]
+        ping_roles = self.bot.config.getattr(ctx.guild.id, "pingable_roles")
 
         if ping_roles == {}:
             raise utils.CustomCheckFailure("There are no roles for you to ping!")
@@ -38,13 +38,14 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         else:
             await ctx.reply(role_obj.mention, allowed_mentions=discord.AllowedMentions(roles=True))
 
-            self.bot.config[ctx.guild.id]["pingable_roles"][str(role_obj.id)]["last_used"] = now.timestamp()
+            ping_roles[str(role_obj.id)]["last_used"] = now.timestamp()
+            self.bot.config.setattr(ctx.guild.id, pingable_roles=ping_roles)
 
     @commands.command(aliases = ["list_ping_roles", "list_pingroles", "pingroles",
     "list_rolepings", "rolepings", "list_role_pings", "role_pings"])
     async def ping_roles(self, ctx):
         """Returns a list of roles that have been made pingable and their cooldown."""
-        ping_roles = ctx.bot.config[ctx.guild.id]["pingable_roles"]
+        ping_roles = self.bot.config.getattr(ctx.guild.id, "pingable_roles")
 
         if ping_roles == {}:
             raise utils.CustomCheckFailure("There are no roles added!")
@@ -54,7 +55,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         for role in ping_roles.keys():
             role_obj = ctx.guild.get_role(int(role))
 
-            if role_obj != None:
+            if role_obj:
                 period_delta = datetime.timedelta(seconds=ping_roles[role]['time_period'])
                 time_text = None
 
@@ -72,9 +73,10 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
                     role_list.append((role_obj.name, f"{humanize.precisedelta(period_delta, format='%0.1f')} cooldown"))
 
             else:
-                del ctx.bot.config[ctx.guild.id]["pingable_roles"][role]
+                del ping_roles["pingable_roles"][role]
+                self.bot.config.setattr(ctx.guild.id, pingable_roles=ping_roles)
 
-        if role_list != []:
+        if role_list:
             to_pag = paginator.FieldPages(ctx, entries=role_list)
             await to_pag.paginate()
         else:

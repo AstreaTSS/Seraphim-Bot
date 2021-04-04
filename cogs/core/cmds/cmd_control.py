@@ -31,22 +31,26 @@ class CmdControl(commands.Cog, name="Command Control"):
         """Disables the command specified for the specified user.
         You can disable all commands for a user too by specifing 'all' for a user.
         Can only be used by those who have Manage Server permissions, and cannot be used on yourself."""
+        
+        disables = self.bot.config.getattr(ctx.guild.id, "disables")
 
         if ctx.author == member:
             raise commands.BadArgument("You cannot blacklist yourself!")
         
         # if the user doesnt already have a disables entry
-        if not self.bot.config[ctx.guild.id]["disables"]["users"].get(str(member.id)):
-            self.bot.config[ctx.guild.id]["disables"]["users"][str(member.id)] = [command]
+        if not disables["users"].get(str(member.id)):
+            disables["users"][str(member.id)] = [command]
 
         # checks if command or 'all' have already been disabled for this user
-        elif command in self.bot.config[ctx.guild.id]["disables"]["users"][str(member.id)]:
+        elif command in disables["users"][str(member.id)]:
             raise commands.BadArgument("That user already has that command disabled!")
-        elif "all" in self.bot.config[ctx.guild.id]["disables"]["users"][str(member.id)]:
+        elif "all" in disables["users"][str(member.id)]:
             raise commands.BadArgument("That user already has all commands disabled!")
 
         else:
-            self.bot.config[ctx.guild.id]["disables"]["users"][str(member.id)].append(command)
+            disables["users"][str(member.id)].append(command)
+
+        self.bot.config.setattr(ctx.guild.id, disables=disables)
         
         if command != "all":
             await ctx.reply(f"Command `{command}` disabled for {member.display_name}.")
@@ -63,11 +67,14 @@ class CmdControl(commands.Cog, name="Command Control"):
         if ctx.author == member:
             raise commands.BadArgument("You cannot blacklist yourself!")
 
-        if not self.bot.config[ctx.guild.id]["disables"]["users"].get(str(member.id)):
+        disables = self.bot.config.getattr(ctx.guild.id, "disables")
+
+        if not disables["users"].get(str(member.id)):
             raise commands.BadArgument("This user doesn't have that command disabled!")
 
         try:
-            self.bot.config[ctx.guild.id]["disables"]["users"][str(member.id)].remove(command)
+            disables["users"][str(member.id)].remove(command)
+            self.bot.config.setattr(ctx.guild.id, disables=disables)
             
             if command != "all":
                 await ctx.reply(f"Command `{command}` re-enabled for {member.display_name}.")

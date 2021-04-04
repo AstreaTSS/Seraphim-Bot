@@ -17,9 +17,10 @@ class PinCMDs(commands.Cog, name = "Pinboard"):
         Useful if you just mapped a channel and need to move old pin entries.
         Requires Manage Server permissions or higher."""
 
-        chan_entry = self.bot.config[ctx.guild.id]["pin_config"].get(str(ctx.channel.id))
+        pin_config = self.bot.config.getattr(ctx.guild.id, "pin_config")
+        chan_entry = pin_config.get(str(ctx.channel.id))
         if not chan_entry:
-            chan_entry = self.bot.config[ctx.guild.id]["pin_config"].get("default")
+            chan_entry = pin_config.get("default")
             if not chan_entry:
                 raise commands.BadArgument("This channel isn't mapped!")
 

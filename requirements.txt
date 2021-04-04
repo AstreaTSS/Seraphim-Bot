@@ -1,4 +1,4 @@
-git+https://github.com/Rapptz/discord.py.git
+discord.py
 asyncpg
 fuzzywuzzy
 websockets
@@ -7,3 +7,4 @@ Pillow
 discord-flags
 jishaku
 discord-py-slash-command
+python-dotenv

@@ -135,7 +135,7 @@ async def modify_stars(bot, mes: discord.Message, reactor_id, operation):
 
         bot.starboard.update(starboard_entry)
 
-    elif bot.config[mes.guild.id]["remove_reaction"]:
+    elif bot.config.getattr(mes.guild.id, "remove_reaction"):
         # the previous if confirms this is the author who is reaction (simply by elimination), so...
         try:
             await mes.remove_reaction("⭐", mes.author)
@@ -214,7 +214,7 @@ async def star_entry_refresh(bot, starboard_entry: star_classes.StarboardEntry, 
 
     ori_starred = star_var_mes.embeds[0]
 
-    if unique_stars >= bot.config[guild_id]["star_limit"] or starboard_entry.forced:
+    if unique_stars >= bot.config.getattr(guild_id, "star_limit") or starboard_entry.forced:
         new_content = generate_content_str(starboard_entry)
         await star_var_mes.edit(content=new_content, embed=ori_starred)
     else:
@@ -227,7 +227,7 @@ async def star_entry_refresh(bot, starboard_entry: star_classes.StarboardEntry, 
 
 def star_check(bot, payload):
     # basic check for starboard stuff: is it in a guild, and is the starboard enabled here?
-    if payload.guild_id != None and bot.config[payload.guild_id]["star_toggle"]:
+    if payload.guild_id and bot.config.getattr(payload.guild_id, "star_toggle"):
         return True
     
     return False

@@ -36,15 +36,18 @@ async def add(ctx, role: fuzzys.FuzzyRoleConverter, *, cooldown: common.classes.
             "my role is higher than the role you want to be pingable."
         )
 
-    if str(role.id) in ctx.bot.config[ctx.guild.id]["pingable_roles"]:
+    pingable_roles = ctx.bot.config.getattr(ctx.guild.id, "pingable_roles")
+
+    if str(role.id) in pingable_roles:
         raise utils.CustomCheckFailure("That role is already pingable!")
 
     period = cooldown.total_seconds()
 
-    ctx.bot.config[ctx.guild.id]["pingable_roles"][str(role.id)] = {
+    pingable_roles[str(role.id)] = {
         "time_period": period,
         "last_used": 0
     }
+    ctx.bot.config.setattr(ctx.guild.id, pingable_roles=pingable_roles)
 
     await ctx.reply("Role added!")
 
@@ -54,13 +57,16 @@ async def cooldown(ctx, role: fuzzys.FuzzyRoleConverter, *, cooldown: common.cla
     """Changes the cooldown of the role. 
     The role can be an ID, a mention, or a name. If it's a name and the name is more than one word, that it must be in quotes.
     The cooldown can be in seconds, minutes, hours, days, months, and/or years (ex. 1s, 1m, 1h 20.5m)."""
+    
+    pingable_roles = ctx.bot.config.getattr(ctx.guild.id, "pingable_roles")
 
-    if not str(role.id) in ctx.bot.config[ctx.guild.id]["pingable_roles"]:
+    if not str(role.id) in pingable_roles:
         raise commands.BadArgument("That's not a pingable role!")
 
     period = cooldown.total_seconds()
 
-    ctx.bot.config[ctx.guild.id]["pingable_roles"][str(role.id)]["time_period"] = period
+    pingable_roles[str(role.id)]["time_period"] = period
+    ctx.bot.config.setattr(ctx.guild.id, pingable_roles=pingable_roles)
 
     await ctx.reply("Role cooldown changed!")
 
@@ -70,7 +76,7 @@ async def remove(ctx, *, role: fuzzys.FuzzyRoleConverter):
     """Removes that role from the roles able to be pinged. 
     The role can be an ID, a mention, or a name. If it's a name, it does not need to be in quotes."""
 
-    ping_roles = ctx.bot.config[ctx.guild.id]["pingable_roles"]
+    ping_roles = ctx.bot.config.getattr(ctx.guild.id, "pingable_roles")
 
     if ping_roles == {}:
         raise utils.CustomCheckFailure("There are no pingable roles to remove!")
@@ -78,6 +84,7 @@ async def remove(ctx, *, role: fuzzys.FuzzyRoleConverter):
     if not str(role.id) in ping_roles.keys():
         raise commands.BadArgument("That role isn't on the ping list!")
 
-    del ctx.bot.config[ctx.guild.id]["pingable_roles"][str(role.id)]
+    del ping_roles[str(role.id)]
+    ctx.bot.config.setattr(ctx.guild.id, pingable_roles=pingable_roles)
 
     await ctx.reply(f"Deleted {role.mention}!", allowed_mentions=discord.AllowedMentions(roles=False))

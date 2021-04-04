@@ -81,7 +81,7 @@ class NormCMDs(commands.Cog, name="Normal"):
     @commands.group(invoke_without_command=True, aliases=["prefix"], ignore_extra=False)
     async def prefixes(self, ctx):
         """A way of getting all of the prefixes for this server. You can also add and remove prefixes via this command."""
-        prefixes = [f'"{p}"' for p in self.bot.config[ctx.guild.id]["prefixes"]]
+        prefixes = [f'"{p}"' for p in self.bot.config.getattr(ctx.guild.id, "prefixes")]
         await ctx.reply(f"My prefixes for this server are: `{', '.join(prefixes)}`, but you can also mention me.")
 
     @prefixes.command(ignore_extra=False)
@@ -90,11 +90,14 @@ class NormCMDs(commands.Cog, name="Normal"):
         """Addes the prefix to the bot for the server this command is used in, allowing it to be used for commands of the bot.
         If it's more than one word or has a space at the end, surround the prefix with quotes so it doesn't get lost."""
 
-        if len(self.bot.config[ctx.guild.id]["prefixes"]) >= 10:
+        prefixes = self.bot.config.getattr(ctx.guild.id, "prefixes")
+
+        if len(prefixes) >= 10:
             raise utils.CustomCheckFailure("You have too many prefixes! You can only have up to 10 prefixes.")
 
-        if not prefix in self.bot.config[ctx.guild.id]["prefixes"]:
-            self.bot.config[ctx.guild.id]["prefixes"].append(prefix)
+        if not prefix in prefixes:
+            prefixes.append(prefix)
+            self.bot.config.setattr(ctx.guild.id, prefixes=prefixes)
             await ctx.reply(f"Added `{prefix}`!")
         else:
             raise commands.BadArgument("The server already has this prefix!")
@@ -106,7 +109,9 @@ class NormCMDs(commands.Cog, name="Normal"):
         If it's more than one word or has a space at the end, surround the prefix with quotes so it doesn't get lost."""
 
         try:
-            self.bot.config[ctx.guild.id]["prefixes"].remove(prefix)
+            prefixes = self.bot.config.getattr(ctx.guild.id, "prefixes")
+            prefixes.remove(prefix)
+            self.bot.config.setattr(ctx.guild.id, prefixes=prefixes)
             await ctx.reply(f"Removed `{prefix}`!")
         except ValueError:
             raise commands.BadArgument("The server doesn't have that prefix, so I can't delete it!")
