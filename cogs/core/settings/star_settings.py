@@ -56,7 +56,7 @@ async def toggle(ctx, toggle: typing.Optional[bool]):
 
     if toggle:
         guild_config = ctx.bot.config.get(ctx.guild.id)
-        if guild_config["starboard_id"] and guild_config["star_limit"]:
+        if guild_config.starboard_id and guild_config.star_limit:
             ctx.bot.config.setattr(ctx.guild.id, star_toggle=toggle)
             await ctx.reply(f"Toggled starboard to {toggle} for this server!")
         else:
