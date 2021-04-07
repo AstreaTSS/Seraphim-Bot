@@ -99,7 +99,7 @@ class GuildConfigManager():
     def update(self, entry: GuildConfig):
         if self.entries[entry.guild_id]:
             self.entries[entry.guild_id] = entry
-            self.updated(entry.guild_id)
+            self.updated.add(entry.guild_id)
         else:
             raise Exception(f"Entry {entry.guild_id} does not exists.")
 
