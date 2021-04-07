@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.8
 import discord, os, asyncio, discord_slash
 import websockets, logging, aiohttp
-import asyncpg, json
+import asyncpg, json, sys
 from discord.ext import commands
 from discord.ext.commands.bot import _default as bot_default
 from datetime import datetime
@@ -170,10 +170,8 @@ class SeraphimBot(commands.Bot):
         await self.change_presence(activity = activity)
 
     async def on_error(self, event, *args, **kwargs):
-        try:
-            raise
-        except BaseException as e:
-            await utils.error_handle(bot, e)
+        error_tuple = sys.exc_info()
+        await utils.error_handle(bot, error_tuple[1])
 
     async def get_context(self, message, *, cls=commands.Context):
         """A simple extension of get_content. If it doesn't manage to get a command, it changes the string used

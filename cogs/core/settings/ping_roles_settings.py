@@ -85,6 +85,6 @@ async def remove(ctx, *, role: fuzzys.FuzzyRoleConverter):
         raise commands.BadArgument("That role isn't on the ping list!")
 
     del ping_roles[str(role.id)]
-    ctx.bot.config.setattr(ctx.guild.id, pingable_roles=pingable_roles)
+    ctx.bot.config.setattr(ctx.guild.id, pingable_roles=ping_roles)
 
     await ctx.reply(f"Deleted {role.mention}!", allowed_mentions=discord.AllowedMentions(roles=False))

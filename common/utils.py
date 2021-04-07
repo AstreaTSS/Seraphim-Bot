@@ -42,7 +42,7 @@ async def error_handle(bot, error, ctx = None):
             final_chunks.append("\n".join(chunk))
 
         if ctx and hasattr(ctx, "message"):
-            final_chunks.insert(0, ctx.message.jump_url)
+            final_chunks.insert(0, f"Error on: {ctx.message.jump_url}")
 
         to_send = final_chunks
         split = False

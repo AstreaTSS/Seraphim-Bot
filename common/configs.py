@@ -91,7 +91,7 @@ class GuildConfigManager():
         guild_id = db_entry["guild_id"]
 
         if not self.entries[guild_id]:
-            import_entry = GuildConfig.from_db(db_entry)
+            import_entry = GuildConfig.from_db(db_entry["config"])
             self.entries[guild_id] = import_entry
         else:
             raise Exception(f"Entry {guild_id} already exists.")

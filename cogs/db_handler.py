@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.8
 from discord.ext import commands, tasks
-import asyncio, importlib, copy
+import asyncio, importlib
 
 import common.utils as utils
 import common.star_classes as star_classes
