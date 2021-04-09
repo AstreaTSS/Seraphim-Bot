@@ -50,9 +50,9 @@ async def remove_reaction(ctx, toggle: typing.Optional[bool]):
 
     if toggle != None:
         ctx.bot.config.setattr(ctx.guild.id, remove_reaction=toggle)
-        await ctx.reply(f"Toggled remove reaction to {toggle} for this server!")
+        await ctx.reply(f"Toggled remove reaction {utils.bool_friendly_str(toggle)} for this server!")
     else:
-        await ctx.reply(f"Remove reaction: {ctx.bot.config.getattr(ctx.guild.id, 'remove_reaction')}")
+        await ctx.reply(f"Remove self-reactions: **{utils.bool_friendly_str(toggle)(ctx.bot.config.getattr(ctx.guild.id, 'remove_reaction'))}**")
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
@@ -64,11 +64,11 @@ async def toggle(ctx, toggle: typing.Optional[bool]):
         guild_config = ctx.bot.config.get(ctx.guild.id)
         if guild_config.starboard_id and guild_config.star_limit:
             ctx.bot.config.setattr(ctx.guild.id, star_toggle=toggle)
-            await ctx.reply(f"Toggled starboard to {toggle} for this server!")
+            await ctx.reply(f"Turned starboard **{utils.bool_friendly_str(toggle)}** for this server!")
         else:
             raise utils.CustomCheckFailure("Either you forgot to set the starboard channel or the star limit. Please try again.")
     else:
-        await ctx.reply(f"Star toggle: {ctx.bot.config.getattr(ctx.guild.id, 'star_toggle')}")
+        await ctx.reply(f"Starboard: **{utils.bool_friendly_str(ctx.bot.config.getattr(ctx.guild.id, 'star_toggle'))}**")
 
 @main_cmd.command(aliases=["edit_messages, editmessage, editmessages"])
 @commands.check(utils.proper_permissions)
@@ -78,9 +78,9 @@ async def edit_message(ctx, toggle: typing.Optional[bool]):
 
     if toggle != None:
         ctx.bot.config.setattr(ctx.guild.id, star_edit_messages=toggle)
-        await ctx.reply(f"Toggled starboard message editing to {toggle} for this server!")
+        await ctx.reply(f"Toggled starboard message editing **{utils.bool_friendly_str(toggle)}** for this server!")
     else:
-        await ctx.reply(f"Star toggle: {ctx.bot.config.getattr(ctx.guild.id, 'star_edit_messages')}")
+        await ctx.reply(f"Starboard message editing: **{utils.bool_friendly_str(ctx.bot.config.getattr(ctx.guild.id, 'star_edit_messages'))}**")
 
 
 def star_toggle_check(ctx):

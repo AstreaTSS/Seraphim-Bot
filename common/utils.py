@@ -204,6 +204,12 @@ def get_content(message: discord.Message):
     else:
         raise discord.InvalidArgument("This message has an invalid type!")
 
+def bool_friendly_str(bool_to_convert):
+    if bool_to_convert == True:
+        return "on"
+    else:
+        return "off"
+
 class CustomCheckFailure(commands.CheckFailure):
     # custom classs for custom prerequisite failures outside of normal command checks
     # this class is so minor i'm not going to bother to migrate it to classes.py
