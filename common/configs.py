@@ -5,7 +5,8 @@ class GuildConfig:
 
     __slots__ = ("guild_id", "starboard_id", "star_limit", "star_blacklist",
                 "star_toggle", "remove_reaction", "star_edit_messages",
-                "pingable_roles", "pin_config", "prefixes", "disables", "mer")
+                "pingable_roles", "pin_config", "prefixes", "disables", "mer",
+                "restore_roles_toggle", "default_perms_check", "custom_perm_roles")
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.guild_id == other.guild_id

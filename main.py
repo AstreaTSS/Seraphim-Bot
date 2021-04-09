@@ -215,5 +215,4 @@ try:
     bot.run(os.environ.get("MAIN_TOKEN"))
 finally:
     if hasattr(bot, "pool"):
-        asyncio.set_event_loop(asyncio.new_event_loop())
-        asyncio.run(bot.pool.close())
+        asyncio.new_event_loop().run_until_complete(bot.pool.close)
