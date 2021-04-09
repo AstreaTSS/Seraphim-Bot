@@ -11,7 +11,11 @@ import common.classes as custom_classes
 import common.utils as utils
 import common.configs as configs
 
-logging.basicConfig(filename=os.environ.get("LOG_FILE_PATH"), level=logging.INFO, format="%(asctime)s:%(levelname)s:%(name)s: %(message)s")
+logger = logging.getLogger('discord')
+logger.setLevel(logging.ERROR)
+handler = logging.FileHandler(filename=os.environ.get("LOG_FILE_PATH"), encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -170,8 +174,10 @@ class SeraphimBot(commands.Bot):
         await self.change_presence(activity = activity)
 
     async def on_error(self, event, *args, **kwargs):
-        error_tuple = sys.exc_info()
-        await utils.error_handle(bot, error_tuple[1])
+        try:
+            raise
+        except BaseException as e:
+            await utils.error_handle(bot, e)
 
     async def get_context(self, message, *, cls=commands.Context):
         """A simple extension of get_content. If it doesn't manage to get a command, it changes the string used

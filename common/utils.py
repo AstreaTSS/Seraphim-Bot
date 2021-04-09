@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.8
 from discord.ext import commands
 import traceback, discord, datetime
-import collections, aiohttp, os
+import collections, aiohttp, os, logging
 from pathlib import Path
 
 async def proper_permissions(ctx):
@@ -30,6 +30,7 @@ async def error_handle(bot, error, ctx = None):
         split = True
     else:
         error_str = error_format(error)
+        logging.error(error_str)
 
         error_split = error_str.splitlines()
         chunks = [error_split[x:x+20] for x in range(0, len(error_split), 20)]
