@@ -26,6 +26,11 @@ class GuildConfig:
         self.disables = disables
         self.mer = mer
 
+        # values to be used later
+        self.restore_roles_toggle = False
+        self.default_perms_check = False
+        self.custom_perm_roles = []
+
     @classmethod
     def from_db(cls, entry: dict):
         return cls(entry["guild_id"], entry["starboard_id"], entry["star_limit"], 
