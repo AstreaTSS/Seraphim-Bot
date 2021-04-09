@@ -4,6 +4,19 @@ import discord, typing
 import common.utils as utils
 import common.groups as groups
 
+class BoolConverter(commands.Converter):
+    """Because Discord is weird."""
+    async def convert(self, ctx, argument):
+        lowered = argument.lower()
+
+        if lowered in ('yes', 'y', 'true', 't', '1', 'enable', 'on'):
+            return True
+        elif lowered in ('no', 'n', 'false', 'f', '0', 'disable', 'off'):
+            return False
+        else:
+            raise commands.BadBoolArgument
+
+
 @groups.group(name="starboard", aliases=["sb"])
 @commands.check(utils.proper_permissions)
 async def main_cmd(ctx):
@@ -40,7 +53,7 @@ async def limit(ctx, limit: typing.Optional[int]):
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
-async def remove_reaction(ctx, toggle: typing.Optional[bool]):
+async def remove_reaction(ctx, toggle: typing.Optional[BoolConverter]):
     """Allows you to either see if people who react to a star to their messages will have their reactions removed (no argument) or allows you to toggle that (with argument)."""
     if toggle:
         ctx.bot.config.setattr(ctx.guild.id, remove_reaction=toggle)
@@ -50,7 +63,7 @@ async def remove_reaction(ctx, toggle: typing.Optional[bool]):
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
-async def toggle(ctx, toggle: typing.Optional[bool]):
+async def toggle(ctx, toggle: typing.Optional[BoolConverter]):
     """Allows you to either see if all starboard-related commands and actions are on or off (no argument) or allows you to toggle that (with argument).
     If you wish to set the toggle, both the starboard channel and the star limit must be set first."""
 
@@ -66,7 +79,7 @@ async def toggle(ctx, toggle: typing.Optional[bool]):
 
 @main_cmd.command(aliases=["edit_messages, editmessage, editmessages"])
 @commands.check(utils.proper_permissions)
-async def edit_message(ctx, toggle: typing.Optional[bool]):
+async def edit_message(ctx, toggle: typing.Optional[BoolConverter]):
     """Controls if the starboard message is edited when the original is. Defaults to being on.
     Displays the current option if no argument is given, sets the current option to the argument (yes/no) if given."""
 
