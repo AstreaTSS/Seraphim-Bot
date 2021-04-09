@@ -4,19 +4,6 @@ import discord, typing
 import common.utils as utils
 import common.groups as groups
 
-class BoolConverter(commands.Converter):
-    """Because Discord is weird."""
-    async def convert(self, ctx, argument):
-        lowered = argument.lower()
-
-        if lowered in ('yes', 'y', 'true', 't', '1', 'enable', 'on'):
-            return True
-        elif lowered in ('no', 'n', 'false', 'f', '0', 'disable', 'off'):
-            return False
-        else:
-            raise commands.BadBoolArgument
-
-
 @groups.group(name="starboard", aliases=["sb"])
 @commands.check(utils.proper_permissions)
 async def main_cmd(ctx):
@@ -31,8 +18,13 @@ async def channel(ctx, channel: typing.Optional[discord.TextChannel]):
     """Allows you to either get the starboard channel (no argument) or set the starboard channel (with argument)."""
 
     if channel:
-        ctx.bot.config.setattr(ctx.guild.id, starboard_id=channel.id)
-        await ctx.reply(f"Set channel to {channel.mention}!")
+        resp = utils.chan_perm_check(channel, channel.permissions_for(ctx.guild.me))
+
+        if resp == "OK":
+            ctx.bot.config.setattr(ctx.guild.id, starboard_id=channel.id)
+            await ctx.reply(f"Set channel to {channel.mention}!")
+        else:
+            raise utils.CustomCheckFailure(resp)
     else:
         starboard_id = ctx.bot.config.getattr(ctx.guild.id, 'starboard_id')
         starboard_mention = f"<#{starboard_id}>" if starboard_id else "None"
@@ -53,9 +45,10 @@ async def limit(ctx, limit: typing.Optional[int]):
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
-async def remove_reaction(ctx, toggle: typing.Optional[BoolConverter]):
+async def remove_reaction(ctx, toggle: typing.Optional[bool]):
     """Allows you to either see if people who react to a star to their messages will have their reactions removed (no argument) or allows you to toggle that (with argument)."""
-    if toggle:
+
+    if toggle != None:
         ctx.bot.config.setattr(ctx.guild.id, remove_reaction=toggle)
         await ctx.reply(f"Toggled remove reaction to {toggle} for this server!")
     else:
@@ -63,11 +56,11 @@ async def remove_reaction(ctx, toggle: typing.Optional[BoolConverter]):
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
-async def toggle(ctx, toggle: typing.Optional[BoolConverter]):
+async def toggle(ctx, toggle: typing.Optional[bool]):
     """Allows you to either see if all starboard-related commands and actions are on or off (no argument) or allows you to toggle that (with argument).
     If you wish to set the toggle, both the starboard channel and the star limit must be set first."""
 
-    if toggle:
+    if toggle != None:
         guild_config = ctx.bot.config.get(ctx.guild.id)
         if guild_config.starboard_id and guild_config.star_limit:
             ctx.bot.config.setattr(ctx.guild.id, star_toggle=toggle)
@@ -79,11 +72,11 @@ async def toggle(ctx, toggle: typing.Optional[BoolConverter]):
 
 @main_cmd.command(aliases=["edit_messages, editmessage, editmessages"])
 @commands.check(utils.proper_permissions)
-async def edit_message(ctx, toggle: typing.Optional[BoolConverter]):
+async def edit_message(ctx, toggle: typing.Optional[bool]):
     """Controls if the starboard message is edited when the original is. Defaults to being on.
     Displays the current option if no argument is given, sets the current option to the argument (yes/no) if given."""
 
-    if toggle:
+    if toggle != None:
         ctx.bot.config.setattr(ctx.guild.id, star_edit_messages=toggle)
         await ctx.reply(f"Toggled starboard message editing to {toggle} for this server!")
     else:
