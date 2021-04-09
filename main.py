@@ -11,14 +11,14 @@ import common.classes as custom_classes
 import common.utils as utils
 import common.configs as configs
 
+from dotenv import load_dotenv
+load_dotenv()
+
 logger = logging.getLogger('discord')
 logger.setLevel(logging.ERROR)
 handler = logging.FileHandler(filename=os.environ.get("LOG_FILE_PATH"), encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
-
-from dotenv import load_dotenv
-load_dotenv()
 
 def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
     mention_prefixes = [f"{bot.user.mention} ", f"<@!{bot.user.id}> "]
