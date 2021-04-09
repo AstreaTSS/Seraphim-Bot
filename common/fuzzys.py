@@ -1,5 +1,5 @@
 from discord.ext import commands
-from fuzzywuzzy import process, fuzz
+from rapidfuzz import process, fuzz
 import discord, collections, asyncio, re
 
 import common.utils as utils
@@ -44,8 +44,8 @@ class FuzzyConverter(commands.IDConverter):
 
         for scorer in scorers:
             for processor in processors:
-                fuzzy_list = process.extractBests(argument, list_of_items, processor=processor, scorer=scorer, score_cutoff=80, limit=5)
-                if fuzzy_list != []:
+                fuzzy_list = process.extract(argument, list_of_items, processor=processor, scorer=scorer, score_cutoff=80, limit=5)
+                if fuzzy_list:
                     combined_entries = [e[0] for e in combined_list]
 
                     if processor == fuzz.WRatio: # WRatio isn't the best, so we add in extra filters to make sure everythings turns out ok

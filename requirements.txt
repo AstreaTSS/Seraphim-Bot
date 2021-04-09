@@ -1,6 +1,6 @@
 discord.py
 asyncpg
-fuzzywuzzy
+rapidfuzz
 websockets
 humanize
 Pillow
