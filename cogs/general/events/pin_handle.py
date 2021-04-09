@@ -10,10 +10,10 @@ class PinHandler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, msg):
-        if (not msg.type == discord.MessageType.pins_add) or msg.guild == None:
+        if not msg.type == discord.MessageType.pins_add or not msg.guild:
             return
 
-        pin_config = self.bot.config.getattr(msg.guild.id, "pingable_roles")
+        pin_config = self.bot.config.getattr(msg.guild.id, "pin_config")
         chan_entry = pin_config.get(str(msg.channel.id))
         if not chan_entry:
             chan_entry = pin_config.get("default")
