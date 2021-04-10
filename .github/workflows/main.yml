@@ -14,10 +14,14 @@ on:
   workflow_dispatch:
 
 jobs:
-  formatting:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      # Run reorder-python-imports + black formatter
-      - name: Black Code Formatter
-        uses: tdeboissiere/python-format-action@master
+      - uses: actions/checkout@v1
+      - uses: rahul-deepsource/pyaction@1.4.0
+        with:
+          use-pylint: false
+          use-pycodestyle: false
+          use-flake8: false
+          use-mypy: false
+          use-vulture: false
