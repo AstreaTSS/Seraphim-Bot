@@ -4,7 +4,8 @@ import importlib
 
 import discord
 import humanize
-from discord.ext import commands, flags
+from discord.ext import commands
+from discord.ext import flags
 
 import common.utils as utils
 

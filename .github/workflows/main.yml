@@ -1,27 +1,12 @@
-# This is a basic workflow to help you get started with Actions
+name: "PythonFormatting"
 
-name: Linting
-
-# Controls when the action will run. 
-on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+on: [push, pull_request]
 
 jobs:
-  build:
+  formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: rahul-deepsource/pyaction@1.4.0
-        with:
-          use-pylint: false
-          use-pycodestyle: false
-          use-flake8: false
-          use-mypy: false
-          use-vulture: false
+      - uses: actions/checkout@v2
+      # Run reorder-python-imports + black formatter
+      - name: Black Code Formatter
+        uses: tdeboissiere/python-format-action@master

@@ -4,7 +4,8 @@ import importlib
 import typing
 
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
+from discord.ext import tasks
 
 import common.utils as utils
 

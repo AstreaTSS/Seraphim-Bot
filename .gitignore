@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 
 discord.log
+.pre-commit-config.yaml

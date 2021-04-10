@@ -4,7 +4,8 @@ import re
 
 import discord
 from discord.ext import commands
-from rapidfuzz import fuzz, process
+from rapidfuzz import fuzz
+from rapidfuzz import process
 
 import common.utils as utils
 

@@ -1,4 +1,5 @@
-from discord.ext import commands, flags
+from discord.ext import commands
+from discord.ext import flags
 from discord.ext.commands.core import hooked_wrapped_callback
 
 

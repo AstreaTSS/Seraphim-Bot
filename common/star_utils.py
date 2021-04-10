@@ -1,6 +1,8 @@
 #!/usr/bin/env python3.8
 import collections
+
 import discord
+
 import common.star_classes as star_classes
 
 

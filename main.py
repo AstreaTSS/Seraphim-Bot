@@ -23,8 +23,12 @@ load_dotenv()
 
 logger = logging.getLogger("discord")
 logger.setLevel(logging.ERROR)
-handler = logging.FileHandler(filename=os.environ.get("LOG_FILE_PATH"), encoding="utf-8", mode="w")
-handler.setFormatter(logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s"))
+handler = logging.FileHandler(
+    filename=os.environ.get("LOG_FILE_PATH"), encoding="utf-8", mode="w"
+)
+handler.setFormatter(
+    logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
+)
 logger.addHandler(handler)
 
 
@@ -50,7 +54,9 @@ def global_checks(ctx):
     if not ctx.command:
         return True
 
-    disable_entry = ctx.bot.config.getattr(ctx.guild.id, "disables")["users"].get(str(ctx.author.id))
+    disable_entry = ctx.bot.config.getattr(ctx.guild.id, "disables")["users"].get(
+        str(ctx.author.id)
+    )
     if not disable_entry:
         return True
 
@@ -68,7 +74,9 @@ def global_checks(ctx):
 
 
 class SeraphimBot(commands.Bot):
-    def __init__(self, command_prefix, help_command=bot_default, description=None, **options):
+    def __init__(
+        self, command_prefix, help_command=bot_default, description=None, **options
+    ):
         super().__init__(
             command_prefix,
             help_command=help_command,
@@ -107,7 +115,9 @@ class SeraphimBot(commands.Bot):
             self.role_rolebacks = {}
 
             image_endings = ("jpg", "jpeg", "png", "gif", "webp")
-            self.image_extensions = tuple(image_endings)  # no idea why I have to do this
+            self.image_extensions = tuple(
+                image_endings
+            )  # no idea why I have to do this
             self.added_db_info = False
 
             application = await self.application_info()
@@ -150,7 +160,9 @@ class SeraphimBot(commands.Bot):
                     )
 
                 db_url = os.environ.get("DB_URL")
-                self.pool = await asyncpg.create_pool(db_url, min_size=2, max_size=5, init=add_json_converter)
+                self.pool = await asyncpg.create_pool(
+                    db_url, min_size=2, max_size=5, init=add_json_converter
+                )
 
             self.load_extension("jishaku")
             self.load_extension("cogs.db_handler")
@@ -179,12 +191,18 @@ class SeraphimBot(commands.Bot):
         utcnow = datetime.utcnow()
         time_format = utcnow.strftime("%x %X UTC")
 
-        connect_msg = f"Logged in at `{time_format}`!" if self.init_load == True else f"Reconnected at `{time_format}`!"
+        connect_msg = (
+            f"Logged in at `{time_format}`!"
+            if self.init_load == True
+            else f"Reconnected at `{time_format}`!"
+        )
         await self.owner.send(connect_msg)
 
         self.init_load = False
 
-        activity = discord.Activity(name="over a couple of servers", type=discord.ActivityType.watching)
+        activity = discord.Activity(
+            name="over a couple of servers", type=discord.ActivityType.watching
+        )
 
         try:
             await self.change_presence(activity=activity)
@@ -192,7 +210,9 @@ class SeraphimBot(commands.Bot):
             await utils.msg_to_owner(self, "Reconnecting...")
 
     async def on_resumed(self):
-        activity = discord.Activity(name="over a couple of servers", type=discord.ActivityType.watching)
+        activity = discord.Activity(
+            name="over a couple of servers", type=discord.ActivityType.watching
+        )
         await self.change_presence(activity=activity)
 
     async def on_error(self, event, *args, **kwargs):
@@ -219,7 +239,9 @@ Emojis are for the emoji helper commands, of course.
 Messages run the entire core of the bot itself. Of course we use them here. We might be able to
 turn off DM message intents, but for now they're here for safety.
 Reactions run the starboard of Seraphim, so of course that's here too. See above for why DMs."""
-intents = discord.Intents(guilds=True, members=True, emojis=True, messages=True, reactions=True)
+intents = discord.Intents(
+    guilds=True, members=True, emojis=True, messages=True, reactions=True
+)
 
 mentions = discord.AllowedMentions.all()
 
@@ -229,7 +251,9 @@ bot = SeraphimBot(
     allowed_mentions=mentions,
     intents=intents,
 )
-slash = discord_slash.SlashCommand(bot, override_type=True, sync_commands=True, sync_on_cog_reload=True)
+slash = discord_slash.SlashCommand(
+    bot, override_type=True, sync_commands=True, sync_on_cog_reload=True
+)
 
 try:
     import uvloop

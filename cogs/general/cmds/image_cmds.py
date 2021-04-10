@@ -7,7 +7,8 @@ import typing
 
 import discord
 import humanize
-from discord.ext import commands, flags
+from discord.ext import commands
+from discord.ext import flags
 from PIL import Image
 
 import common.image_utils as image_utils

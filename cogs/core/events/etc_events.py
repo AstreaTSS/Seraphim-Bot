@@ -2,7 +2,8 @@
 import datetime
 
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
+from discord.ext import tasks
 
 
 class EtcEvents(commands.Cog):

@@ -2,9 +2,11 @@
 import asyncio
 import importlib
 
+from discord.ext import commands
+from discord.ext import tasks
+
 import common.star_classes as star_classes
 import common.utils as utils
-from discord.ext import commands, tasks
 
 
 class DBHandler(commands.Cog):
@@ -31,12 +33,12 @@ class DBHandler(commands.Cog):
     def get_required_from_entry(self, entry):
         entry.ori_reactors = list(entry.ori_reactors)
         entry.var_reactors = list(entry.var_reactors)
-        
+
         necessary = (entry.ori_mes_id, entry.to_dict())
 
         entry.ori_reactors = set(entry.ori_reactors)
         entry.var_reactors = set(entry.var_reactors)
-        
+
         return necessary
 
     @tasks.loop(minutes=2)
@@ -64,7 +66,9 @@ class DBHandler(commands.Cog):
         self.bot.config.reset_deltas()
 
         if insert_config or update_config or delete_sb or insert_sb or update_sb:
-            await self.update_db(insert_config, update_config, delete_sb, insert_sb, update_sb)
+            await self.update_db(
+                insert_config, update_config, delete_sb, insert_sb, update_sb
+            )
 
     @commit_loop.error
     async def error_handle(self, *args):
@@ -87,21 +91,38 @@ class DBHandler(commands.Cog):
 
         return data
 
-    async def update_db(self, insert_config, update_config, delete_sb, insert_sb, update_sb):
+    async def update_db(
+        self, insert_config, update_config, delete_sb, insert_sb, update_sb
+    ):
         async with self.bot.pool.acquire() as conn:
             async with conn.transaction():
                 if insert_config:
-                    await conn.executemany("INSERT INTO seraphim_config(guild_id, config) VALUES($1, $2)", args=insert_config)
+                    await conn.executemany(
+                        "INSERT INTO seraphim_config(guild_id, config) VALUES($1, $2)",
+                        args=insert_config,
+                    )
                 if update_config:
-                    await conn.executemany("UPDATE seraphim_config SET config = $2 WHERE guild_id = $1", args=update_config)
+                    await conn.executemany(
+                        "UPDATE seraphim_config SET config = $2 WHERE guild_id = $1",
+                        args=update_config,
+                    )
 
                 if delete_sb:
-                    await conn.executemany("DELETE FROM starboard WHERE ori_mes_id = $1", args=delete_sb)
+                    await conn.executemany(
+                        "DELETE FROM starboard WHERE ori_mes_id = $1", args=delete_sb
+                    )
                 if insert_sb:
-                    await conn.executemany("INSERT INTO starboard(ori_mes_id, data) VALUES($1, $2)", args=insert_sb)
+                    await conn.executemany(
+                        "INSERT INTO starboard(ori_mes_id, data) VALUES($1, $2)",
+                        args=insert_sb,
+                    )
                 if update_sb:
-                    await conn.executemany("UPDATE starboard SET data = $2 WHERE ori_mes_id = $1", args=update_sb)
-    
+                    await conn.executemany(
+                        "UPDATE starboard SET data = $2 WHERE ori_mes_id = $1",
+                        args=update_sb,
+                    )
+
+
 def setup(bot):
     importlib.reload(utils)
     bot.add_cog(DBHandler(bot))

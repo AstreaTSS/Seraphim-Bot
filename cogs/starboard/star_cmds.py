@@ -5,6 +5,10 @@ import importlib
 import random
 import typing
 
+import discord
+from discord.ext import commands
+from discord.ext import flags
+
 import common.classes as custom_classes
 import common.fuzzys as fuzzys
 import common.groups as groups
@@ -12,8 +16,6 @@ import common.star_classes as star_classes
 import common.star_mes_handler as star_mes
 import common.star_utils as star_utils
 import common.utils as utils
-import discord
-from discord.ext import commands, flags
 
 
 class StarCMDs(commands.Cog, name="Starboard"):
