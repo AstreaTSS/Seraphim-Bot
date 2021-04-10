@@ -30,7 +30,7 @@ async def error_handle(bot, error, ctx = None):
         split = True
     else:
         error_str = error_format(error)
-        logging.error(error_str)
+        logging.getLogger("discord").error(error_str)
 
         error_split = error_str.splitlines()
         chunks = [error_split[x:x+20] for x in range(0, len(error_split), 20)]

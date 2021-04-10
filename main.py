@@ -92,6 +92,7 @@ class SeraphimBot(commands.Bot):
 
             image_endings = ("jpg", "jpeg", "png", "gif", "webp")
             self.image_extensions = tuple(image_endings) # no idea why I have to do this
+            self.added_db_info = False
 
             application = await self.application_info()
             self.owner = application.owner
@@ -132,7 +133,7 @@ class SeraphimBot(commands.Bot):
 
             self.load_extension("jishaku")
             self.load_extension("cogs.db_handler")
-            while self.config.entries == {}:
+            while not self.added_db_info:
                 await asyncio.sleep(0.1)
 
             cogs_list = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))

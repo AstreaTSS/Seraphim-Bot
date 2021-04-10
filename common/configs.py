@@ -13,7 +13,8 @@ class GuildConfig:
 
     def __init__(self, guild_id: int, starboard_id: typing.Optional[int], 
     star_limit: typing.Optional[int], star_blacklist: typing.List[int], star_toggle: bool, remove_reaction: bool,
-    star_edit_messages: bool, pingable_roles: dict, pin_config: dict, prefixes: list, disables: dict, mer: dict):
+    star_edit_messages: bool, pingable_roles: dict, pin_config: dict, prefixes: list, disables: dict, mer: dict,
+    restore_roles_toggle: bool, default_perms_check: bool, custom_perm_roles: typing.List[int]):
         self.guild_id = guild_id
         self.starboard_id = starboard_id
         self.star_limit = star_limit
@@ -26,17 +27,16 @@ class GuildConfig:
         self.prefixes = prefixes
         self.disables = disables
         self.mer = mer
-
-        # values to be used later
-        self.restore_roles_toggle = False
-        self.default_perms_check = False
-        self.custom_perm_roles = []
+        self.restore_roles_toggle = restore_roles_toggle
+        self.default_perms_check = default_perms_check
+        self.custom_perm_roles = custom_perm_roles
 
     @classmethod
     def from_db(cls, entry: dict):
         return cls(entry["guild_id"], entry["starboard_id"], entry["star_limit"], 
         entry["star_blacklist"], entry["star_toggle"], entry["remove_reaction"], entry["star_edit_messages"],
-        entry["pingable_roles"], entry["pin_config"], entry["prefixes"], entry["disables"], entry["mer"])
+        entry["pingable_roles"], entry["pin_config"], entry["prefixes"], entry["disables"], entry["mer"],
+        entry["restore_roles_toggle"], entry["default_perms_check"], entry["custom_perm_roles"])
 
     @classmethod
     def new_config(cls, guild_id: int):
@@ -55,6 +55,9 @@ class GuildConfig:
                 "channels": {}
             },
             "mer": {},
+            "restore_roles_toggle": False,
+            "default_perms_check": False,
+            "custom_perm_roles": [],
 
             "guild_id": guild_id
         })
@@ -109,7 +112,7 @@ class GuildConfigManager():
         else:
             raise Exception(f"Entry {entry.guild_id} does not exists.")
 
-    def get(self, guild_id: int) -> typing.Optional[GuildConfig]:
+    def get(self, guild_id: int) -> GuildConfig:
         return self.entries[guild_id] or self.create(guild_id)
 
     def getattr(self, guild_id: int, attribute: str):
