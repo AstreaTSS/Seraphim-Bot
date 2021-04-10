@@ -256,9 +256,9 @@ class HelperCMDs(commands.Cog, name="Helper"):
 
     @commands.command()
     async def created(
-        self,
-        ctx: commands.Context,
-        *,
+        # fmt: off
+        self, ctx: commands.Context, *,
+        # fmt: on
         argument: typing.Union[
             discord.Member,
             discord.User,
