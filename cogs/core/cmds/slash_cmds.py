@@ -1,19 +1,23 @@
-import discord, importlib, re, random
+import importlib
+import random
+import re
+
+import discord
 from discord.ext import commands
-from discord_slash import cog_ext
-from discord_slash import SlashCommand
-from discord_slash import SlashContext
+from discord_slash import SlashCommand, SlashContext, cog_ext
 
 import common.utils as utils
 
 """Just going to note that these are still going to be rather limited for now.
 Slash commands still need a lot of work before I can rely on them."""
 
+
 class SlashMemberConverter(commands.MemberConverter):
     """A special, slightly slimed down version of MemberConverter that can be used for slash commands."""
+
     async def convert(self, ctx: SlashContext, argument: str) -> discord.Member:
         bot = ctx.bot
-        match = self._get_id_match(argument) or re.match(r'<@!?([0-9]+)>$', argument)
+        match = self._get_id_match(argument) or re.match(r"<@!?([0-9]+)>$", argument)
         guild = ctx.guild
         result = None
         user_id = None
@@ -22,13 +26,13 @@ class SlashMemberConverter(commands.MemberConverter):
             if guild:
                 result = guild.get_member_named(argument)
             else:
-                result = self._get_from_guilds(bot, 'get_member_named', argument)
+                result = self._get_from_guilds(bot, "get_member_named", argument)
         else:
             user_id = int(match.group(1))
             if guild:
                 result = guild.get_member(user_id)
             else:
-                result = commands._get_from_guilds(bot, 'get_member', user_id)
+                result = commands._get_from_guilds(bot, "get_member", user_id)
 
         if result is None:
             if guild is None:
@@ -44,6 +48,7 @@ class SlashMemberConverter(commands.MemberConverter):
 
         return result
 
+
 class SlashCMDS(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -52,9 +57,14 @@ class SlashCMDS(commands.Cog):
         "type": 3,
         "name": "content",
         "description": "The content of the message that you wish to reverse.",
-        "required": True
+        "required": True,
     }
-    @cog_ext.cog_slash(name="reverse", description="Reverses the content given.", options=[reverse_content_option])
+
+    @cog_ext.cog_slash(
+        name="reverse",
+        description="Reverses the content given.",
+        options=[reverse_content_option],
+    )
     async def reverse(self, ctx: SlashContext, content):
         await ctx.send(content=f"{content[::-1]}", hidden=True)
 
@@ -62,13 +72,18 @@ class SlashCMDS(commands.Cog):
         "type": 3,
         "name": "content",
         "description": "The victim to kill.",
-        "required": True
+        "required": True,
     }
     killcmd_desc = "Allows you to kill the victim specified using the iconic Minecraft kill command messages."
-    @cog_ext.cog_slash(name="kill", description=killcmd_desc, options=[kill_content_option])
+
+    @cog_ext.cog_slash(
+        name="kill", description=killcmd_desc, options=[kill_content_option]
+    )
     async def kill(self, ctx: SlashContext, content: str):
         if len(content) > 1900:
-            await ctx.send(complete_hidden=True, content="The content you provided is too long.")
+            await ctx.send(
+                complete_hidden=True, content="The content you provided is too long."
+            )
             return
 
         user = None
@@ -88,7 +103,9 @@ class SlashCMDS(commands.Cog):
         elif ctx.author_id:
             author_str = f"<@{ctx.author_id}>"
         else:
-            raise commands.CommandError("Somehow there isn't an author or an author ID? How does that work?")
+            raise commands.CommandError(
+                "Somehow there isn't an author or an author ID? How does that work?"
+            )
 
         kill_msg = random.choice(self.bot.death_messages)
 
@@ -97,10 +114,7 @@ class SlashCMDS(commands.Cog):
         kill_msg = kill_msg.replace("%3$s", "*Seraphim*")
         kill_msg = f"{kill_msg}."
 
-        kill_embed = discord.Embed(
-            colour = discord.Colour.red(),
-            description = kill_msg
-        )
+        kill_embed = discord.Embed(colour=discord.Colour.red(), description=kill_msg)
 
         await ctx.send(embeds=[kill_embed])
 
@@ -111,9 +125,13 @@ class SlashCMDS(commands.Cog):
                 author_str = ctx.author.mention
             else:
                 author_str = f"<@{ctx.author}>"
-            await ctx.channel.send(f"{author_str}, the bot is a bit slow and so cannot do slash commands right now. Please wait a bit and try again.",delete_after=3)
+            await ctx.channel.send(
+                f"{author_str}, the bot is a bit slow and so cannot do slash commands right now. Please wait a bit and try again.",
+                delete_after=3,
+            )
         else:
             await utils.error_handle(self.bot, ex, ctx)
+
 
 def setup(bot):
     importlib.reload(utils)

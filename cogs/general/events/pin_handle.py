@@ -1,8 +1,11 @@
-from discord.ext import commands
-import discord, importlib
+import importlib
 
-import common.utils as utils
+import discord
+from discord.ext import commands
+
 import common.star_mes_handler as star_mes
+import common.utils as utils
+
 
 class PinHandler(commands.Cog):
     def __init__(self, bot):
@@ -32,11 +35,12 @@ class PinHandler(commands.Cog):
             send_embed = await star_mes.star_generate(self.bot, early_entry)
             send_embed.color = discord.Colour.default()
 
-            await des_chan.send(embed = send_embed)
+            await des_chan.send(embed=send_embed)
             await early_entry.unpin()
+
 
 def setup(bot):
     importlib.reload(utils)
     importlib.reload(star_mes)
-    
+
     bot.add_cog(PinHandler(bot))

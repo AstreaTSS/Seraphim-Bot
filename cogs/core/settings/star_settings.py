@@ -1,8 +1,11 @@
-from discord.ext import commands
-import discord, typing
+import typing
 
-import common.utils as utils
+import discord
+from discord.ext import commands
+
 import common.groups as groups
+import common.utils as utils
+
 
 @groups.group(name="starboard", aliases=["sb"])
 @commands.check(utils.proper_permissions)
@@ -11,6 +14,7 @@ async def main_cmd(ctx):
     Requires Manage Server permissions or higher."""
     if not ctx.invoked_subcommand:
         await ctx.send_help(ctx.command)
+
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
@@ -26,9 +30,10 @@ async def channel(ctx, channel: typing.Optional[discord.TextChannel]):
         else:
             raise utils.CustomCheckFailure(resp)
     else:
-        starboard_id = ctx.bot.config.getattr(ctx.guild.id, 'starboard_id')
+        starboard_id = ctx.bot.config.getattr(ctx.guild.id, "starboard_id")
         starboard_mention = f"<#{starboard_id}>" if starboard_id else "None"
         await ctx.reply(f"Starboard channel: {starboard_mention}")
+
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
@@ -41,7 +46,10 @@ async def limit(ctx, limit: typing.Optional[int]):
         else:
             raise commands.BadArgument("The limit needs to be greater than 0!")
     else:
-        await ctx.reply(f"Star limit: {ctx.bot.config.getattr(ctx.guild.id, 'star_limit')}")
+        await ctx.reply(
+            f"Star limit: {ctx.bot.config.getattr(ctx.guild.id, 'star_limit')}"
+        )
+
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
@@ -50,9 +58,14 @@ async def remove_reaction(ctx, toggle: typing.Optional[bool]):
 
     if toggle != None:
         ctx.bot.config.setattr(ctx.guild.id, remove_reaction=toggle)
-        await ctx.reply(f"Toggled remove reaction {utils.bool_friendly_str(toggle)} for this server!")
+        await ctx.reply(
+            f"Toggled remove reaction {utils.bool_friendly_str(toggle)} for this server!"
+        )
     else:
-        await ctx.reply(f"Remove self-reactions: **{utils.bool_friendly_str(toggle)(ctx.bot.config.getattr(ctx.guild.id, 'remove_reaction'))}**")
+        await ctx.reply(
+            f"Remove self-reactions: **{utils.bool_friendly_str(toggle)(ctx.bot.config.getattr(ctx.guild.id, 'remove_reaction'))}**"
+        )
+
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
@@ -64,11 +77,18 @@ async def toggle(ctx, toggle: typing.Optional[bool]):
         guild_config = ctx.bot.config.get(ctx.guild.id)
         if guild_config.starboard_id and guild_config.star_limit:
             ctx.bot.config.setattr(ctx.guild.id, star_toggle=toggle)
-            await ctx.reply(f"Turned starboard **{utils.bool_friendly_str(toggle)}** for this server!")
+            await ctx.reply(
+                f"Turned starboard **{utils.bool_friendly_str(toggle)}** for this server!"
+            )
         else:
-            raise utils.CustomCheckFailure("Either you forgot to set the starboard channel or the star limit. Please try again.")
+            raise utils.CustomCheckFailure(
+                "Either you forgot to set the starboard channel or the star limit. Please try again."
+            )
     else:
-        await ctx.reply(f"Starboard: **{utils.bool_friendly_str(ctx.bot.config.getattr(ctx.guild.id, 'star_toggle'))}**")
+        await ctx.reply(
+            f"Starboard: **{utils.bool_friendly_str(ctx.bot.config.getattr(ctx.guild.id, 'star_toggle'))}**"
+        )
+
 
 @main_cmd.command(aliases=["edit_messages, editmessage, editmessages"])
 @commands.check(utils.proper_permissions)
@@ -78,15 +98,20 @@ async def edit_message(ctx, toggle: typing.Optional[bool]):
 
     if toggle != None:
         ctx.bot.config.setattr(ctx.guild.id, star_edit_messages=toggle)
-        await ctx.reply(f"Toggled starboard message editing **{utils.bool_friendly_str(toggle)}** for this server!")
+        await ctx.reply(
+            f"Toggled starboard message editing **{utils.bool_friendly_str(toggle)}** for this server!"
+        )
     else:
-        await ctx.reply(f"Starboard message editing: **{utils.bool_friendly_str(ctx.bot.config.getattr(ctx.guild.id, 'star_edit_messages'))}**")
+        await ctx.reply(
+            f"Starboard message editing: **{utils.bool_friendly_str(ctx.bot.config.getattr(ctx.guild.id, 'star_edit_messages'))}**"
+        )
 
 
 def star_toggle_check(ctx):
-    return ctx.bot.config.getattr(ctx.guild.id, 'star_toggle')
+    return ctx.bot.config.getattr(ctx.guild.id, "star_toggle")
 
-@main_cmd.group(aliases = ["bl"], ignore_extra=True)
+
+@main_cmd.group(aliases=["bl"], ignore_extra=True)
 @commands.check(utils.proper_permissions)
 @commands.check(star_toggle_check)
 async def blacklist(ctx):
@@ -96,7 +121,8 @@ async def blacklist(ctx):
     if not ctx.invoked_subcommand:
         await ctx.send_help(ctx.command)
 
-@blacklist.command(name = "list")
+
+@blacklist.command(name="list")
 @commands.check(utils.proper_permissions)
 @commands.check(star_toggle_check)
 async def _list(ctx):
@@ -118,8 +144,9 @@ async def _list(ctx):
         if channel_mentions:
             await ctx.reply(f"Blacklisted channels: {', '.join(channel_mentions)}")
             return
-            
+
     raise utils.CustomCheckFailure("There's no blacklisted channels for this guild!")
+
 
 @blacklist.command()
 @commands.check(utils.proper_permissions)
@@ -140,6 +167,7 @@ async def add(ctx, channel: discord.TextChannel):
         await ctx.reply(f"Addded {channel.mention} to the blacklist!")
     else:
         raise commands.BadArgument("That channel's already in the blacklist!")
+
 
 @blacklist.command()
 @commands.check(utils.proper_permissions)

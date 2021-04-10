@@ -1,9 +1,11 @@
 #!/usr/bin/env python3.8
-from discord.ext import commands, tasks
-import asyncio, importlib
+import asyncio
+import importlib
 
-import common.utils as utils
 import common.star_classes as star_classes
+import common.utils as utils
+from discord.ext import commands, tasks
+
 
 class DBHandler(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -23,6 +25,8 @@ class DBHandler(commands.Cog):
 
         for row in config_db:
             self.bot.config.import_entry(row)
+
+        self.bot.added_db_info = True
 
     def get_required_from_entry(self, entry):
         entry.ori_reactors = list(entry.ori_reactors)

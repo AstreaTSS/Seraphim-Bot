@@ -1,10 +1,14 @@
-from discord.ext import commands
-import discord, datetime
-import importlib, humanize
+import datetime
+import importlib
 
-import common.utils as utils
+import discord
+import humanize
+from discord.ext import commands
+
 import common.fuzzys as fuzzys
 import common.paginator as paginator
+import common.utils as utils
+
 
 class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
     """Commands for pingable roles. If you wish to add a pingable role, please view the settings command."""
@@ -12,7 +16,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases = ["pingrole", "roleping", "role_ping"])
+    @commands.command(aliases=["pingrole", "roleping", "role_ping"])
     async def ping_role(self, ctx, *, role_obj: fuzzys.FuzzyRoleConverter):
         """Pings the role specified if the role isn't on cooldown and has been added to a list."""
 
@@ -33,16 +37,29 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
 
         if now < next_use:
             till_next_time = next_use - now
-            time_text = humanize.precisedelta(till_next_time, format='%0.0f')
-            raise utils.CustomCheckFailure(f"You cannot ping that role yet! Please wait: `{time_text}` before trying to ping the role again.")
+            time_text = humanize.precisedelta(till_next_time, format="%0.0f")
+            raise utils.CustomCheckFailure(
+                f"You cannot ping that role yet! Please wait: `{time_text}` before trying to ping the role again."
+            )
         else:
-            await ctx.reply(role_obj.mention, allowed_mentions=discord.AllowedMentions(roles=True))
+            await ctx.reply(
+                role_obj.mention, allowed_mentions=discord.AllowedMentions(roles=True)
+            )
 
             ping_roles[str(role_obj.id)]["last_used"] = now.timestamp()
             self.bot.config.setattr(ctx.guild.id, pingable_roles=ping_roles)
 
-    @commands.command(aliases = ["list_ping_roles", "list_pingroles", "pingroles",
-    "list_rolepings", "rolepings", "list_role_pings", "role_pings"])
+    @commands.command(
+        aliases=[
+            "list_ping_roles",
+            "list_pingroles",
+            "pingroles",
+            "list_rolepings",
+            "rolepings",
+            "list_role_pings",
+            "role_pings",
+        ]
+    )
     async def ping_roles(self, ctx):
         """Returns a list of roles that have been made pingable and their cooldown."""
         ping_roles = self.bot.config.getattr(ctx.guild.id, "pingable_roles")
@@ -56,21 +73,35 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
             role_obj = ctx.guild.get_role(int(role))
 
             if role_obj:
-                period_delta = datetime.timedelta(seconds=ping_roles[role]['time_period'])
+                period_delta = datetime.timedelta(
+                    seconds=ping_roles[role]["time_period"]
+                )
                 time_text = None
 
                 now = datetime.datetime.utcnow()
-                last_used = datetime.datetime.utcfromtimestamp(ping_roles[role]["last_used"])
+                last_used = datetime.datetime.utcfromtimestamp(
+                    ping_roles[role]["last_used"]
+                )
                 next_use = last_used + period_delta
 
                 if now < next_use:
                     till_next_time = next_use - now
-                    time_text = humanize.precisedelta(till_next_time, format='%0.1f')
+                    time_text = humanize.precisedelta(till_next_time, format="%0.1f")
 
                 if time_text:
-                    role_list.append((role_obj.name, f"{humanize.precisedelta(period_delta, format='%0.1f')} cooldown\n{time_text} until next use"))
+                    role_list.append(
+                        (
+                            role_obj.name,
+                            f"{humanize.precisedelta(period_delta, format='%0.1f')} cooldown\n{time_text} until next use",
+                        )
+                    )
                 else:
-                    role_list.append((role_obj.name, f"{humanize.precisedelta(period_delta, format='%0.1f')} cooldown"))
+                    role_list.append(
+                        (
+                            role_obj.name,
+                            f"{humanize.precisedelta(period_delta, format='%0.1f')} cooldown",
+                        )
+                    )
 
             else:
                 del ping_roles["pingable_roles"][role]
@@ -81,6 +112,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
             await to_pag.paginate()
         else:
             raise utils.CustomCheckFailure("There are no roles added!")
+
 
 def setup(bot):
     importlib.reload(utils)

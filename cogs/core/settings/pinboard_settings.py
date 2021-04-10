@@ -1,9 +1,13 @@
-from discord.ext import commands
-import discord, collections, typing
+import collections
+import typing
 
-import common.utils as utils
+import discord
+from discord.ext import commands
+
 import common.groups as groups
 import common.paginator as pagniator
+import common.utils as utils
+
 
 class DefaultValidator(commands.Converter):
     async def convert(self, ctx: commands.Context, argument: str) -> str:
@@ -12,16 +16,18 @@ class DefaultValidator(commands.Converter):
         else:
             return argument.lower()
 
+
 @groups.group(name="pinboard")
 @commands.check(utils.proper_permissions)
 async def main_cmd(ctx):
-    """Base command for managing the pinboard. See the subcommands below. 
+    """Base command for managing the pinboard. See the subcommands below.
     Requires Manage Server permissions or higher."""
 
     if ctx.invoked_subcommand == None:
         await ctx.send_help(ctx.command)
 
-@main_cmd.command(name = "list")
+
+@main_cmd.command(name="list")
 @commands.check(utils.proper_permissions)
 async def _list(ctx):
     """Returns a list of channels that have their pins mapped to another channel, and the max limit before they overflow to that other channel."""
@@ -43,7 +49,9 @@ async def _list(ctx):
             if entry == "default":
                 entry_text = entry
             else:
-                raise utils.CustomCheckFailure("Something weird happened when trying to run this command, and I couldn't get something. Join the support server to report this.")
+                raise utils.CustomCheckFailure(
+                    "Something weird happened when trying to run this command, and I couldn't get something. Join the support server to report this."
+                )
 
         des_chan = ctx.bot.get_channel(pin_config[entry]["destination"])
 
@@ -62,10 +70,16 @@ async def _list(ctx):
     else:
         raise utils.CustomCheckFailure("There are no entries for this server!")
 
-@main_cmd.command(name = "map")
+
+@main_cmd.command(name="map")
 @commands.check(utils.proper_permissions)
-async def _map(ctx, entry: typing.Union[discord.TextChannel, DefaultValidator], destination: discord.TextChannel, limit: int):
-    """Maps overflowing pins from the entry channel (either 'default' or an actual channel) to go to the destination channel. 
+async def _map(
+    ctx,
+    entry: typing.Union[discord.TextChannel, DefaultValidator],
+    destination: discord.TextChannel,
+    limit: int,
+):
+    """Maps overflowing pins from the entry channel (either 'default' or an actual channel) to go to the destination channel.
     If there are more pins than the limit, it is considered overflowing.
     Requires Manage Server permissions or higher."""
 
@@ -82,22 +96,23 @@ async def _map(ctx, entry: typing.Union[discord.TextChannel, DefaultValidator], 
 
     pin_config = ctx.bot.config.getattr(ctx.guild.id, "pin_config")
     if isinstance(entry, discord.TextChannel):
-        pin_config[str(entry.id)] = {
-            "destination": destination.id,
-            "limit": limit
-        }
-        await ctx.reply(f"Overflowing pins from {entry.mention} will now appear in {destination.mention}.")
+        pin_config[str(entry.id)] = {"destination": destination.id, "limit": limit}
+        await ctx.reply(
+            f"Overflowing pins from {entry.mention} will now appear in {destination.mention}."
+        )
     else:
-        pin_config["default"] = {
-            "destination": destination.id,
-            "limit": limit
-        }
-        await ctx.reply(f"Overflowing pins from channels that are not mapped to any other channels will now appear in {destination.mention}.")
+        pin_config["default"] = {"destination": destination.id, "limit": limit}
+        await ctx.reply(
+            f"Overflowing pins from channels that are not mapped to any other channels will now appear in {destination.mention}."
+        )
     ctx.bot.config.setattr(ctx.guild.id, pin_config=pin_config)
 
-@main_cmd.command(aliases = ["pinlimit"])
+
+@main_cmd.command(aliases=["pinlimit"])
 @commands.check(utils.proper_permissions)
-async def pin_limit(ctx, entry: typing.Union[discord.TextChannel, DefaultValidator], limit: int):
+async def pin_limit(
+    ctx, entry: typing.Union[discord.TextChannel, DefaultValidator], limit: int
+):
     """Changes the max limit of the entry channel (either 'default' or an actual channel) to the provided limit.
     The channel must have been mapped before.
     Requires Manage Server permissions or higher."""
@@ -109,10 +124,13 @@ async def pin_limit(ctx, entry: typing.Union[discord.TextChannel, DefaultValidat
             await ctx.reply(f"The pin limit for {entry.mention} is now set to {limit}.")
         else:
             pin_config["default"]["limit"] = limit
-            await ctx.reply(f"The pin limit for channels that are not mapped to any other channels is now set to {limit}.")
+            await ctx.reply(
+                f"The pin limit for channels that are not mapped to any other channels is now set to {limit}."
+            )
         ctx.bot.config.setattr(ctx.guild.id, pin_config=pin_config)
     except KeyError:
         raise commands.BadArgument("That channel hasn't been mapped before!")
+
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)

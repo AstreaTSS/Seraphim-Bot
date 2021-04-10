@@ -1,24 +1,32 @@
 #!/usr/bin/env python3.8
-import discord, os, asyncio, discord_slash
-import websockets, logging, aiohttp
-import asyncpg, json, sys
-from discord.ext import commands
-from discord.ext.commands.bot import _default as bot_default
+import asyncio
+import json
+import logging
+import os
 from datetime import datetime
 
-import common.star_classes as star_classes
-import common.classes as custom_classes
-import common.utils as utils
-import common.configs as configs
-
+import aiohttp
+import asyncpg
+import discord
+import discord_slash
+import websockets
+from discord.ext import commands
+from discord.ext.commands.bot import _default as bot_default
 from dotenv import load_dotenv
+
+import common.classes as custom_classes
+import common.configs as configs
+import common.star_classes as star_classes
+import common.utils as utils
+
 load_dotenv()
 
-logger = logging.getLogger('discord')
+logger = logging.getLogger("discord")
 logger.setLevel(logging.ERROR)
-handler = logging.FileHandler(filename=os.environ.get("LOG_FILE_PATH"), encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+handler = logging.FileHandler(filename=os.environ.get("LOG_FILE_PATH"), encoding="utf-8", mode="w")
+handler.setFormatter(logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s"))
 logger.addHandler(handler)
+
 
 def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
     mention_prefixes = [f"{bot.user.mention} ", f"<@!{bot.user.id}> "]
@@ -34,6 +42,7 @@ def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
 
     return mention_prefixes + custom_prefixes
 
+
 def global_checks(ctx):
     if not ctx.guild:
         return False
@@ -48,14 +57,24 @@ def global_checks(ctx):
     if ctx.command.qualified_name in disable_entry:
         return False
 
-    if "all" in disable_entry and not ctx.command.cog.qualified_name in ("Cog Control", "Eval", "Help"):
+    if "all" in disable_entry and not ctx.command.cog.qualified_name in (
+        "Cog Control",
+        "Eval",
+        "Help",
+    ):
         return False
 
     return True
 
+
 class SeraphimBot(commands.Bot):
     def __init__(self, command_prefix, help_command=bot_default, description=None, **options):
-        super().__init__(command_prefix, help_command=help_command, description=description, **options)
+        super().__init__(
+            command_prefix,
+            help_command=help_command,
+            description=description,
+            **options,
+        )
         self._checks.append(global_checks)
 
     # methods for updating the custom cache, which is explained a bit more down below
@@ -84,14 +103,11 @@ class SeraphimBot(commands.Bot):
 
             self.star_queue = custom_classes.SetAsyncQueue()
 
-            self.snipes = {
-                "deletes": {},
-                "edits": {}
-            }
+            self.snipes = {"deletes": {}, "edits": {}}
             self.role_rolebacks = {}
 
             image_endings = ("jpg", "jpeg", "png", "gif", "webp")
-            self.image_extensions = tuple(image_endings) # no idea why I have to do this
+            self.image_extensions = tuple(image_endings)  # no idea why I have to do this
             self.added_db_info = False
 
             application = await self.application_info()
@@ -102,10 +118,13 @@ class SeraphimBot(commands.Bot):
             mc_en_us_url = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.16.5/assets/minecraft/lang/en_us.json"
             async with aiohttp.ClientSession() as session:
                 async with session.get(mc_en_us_url) as resp:
-                    mc_en_us_config = await resp.json(content_type='text/plain')
+                    mc_en_us_config = await resp.json(content_type="text/plain")
 
                     for key, value in mc_en_us_config.items():
-                        if key.startswith("death.") and key not in ("death.attack.message_too_long", "death.attack.badRespawnPoint.link"):
+                        if key.startswith("death.") and key not in (
+                            "death.attack.message_too_long",
+                            "death.attack.badRespawnPoint.link",
+                        ):
                             self.death_messages.append(value)
 
             """Okay, let me explain myself here.
@@ -121,15 +140,17 @@ class SeraphimBot(commands.Bot):
                     self.update_member(member)
 
             if not hasattr(self, "pool"):
+
                 async def add_json_converter(conn):
-                    await conn.set_type_codec('jsonb', encoder=discord.utils.to_json, decoder=json.loads, schema='pg_catalog')
+                    await conn.set_type_codec(
+                        "jsonb",
+                        encoder=discord.utils.to_json,
+                        decoder=json.loads,
+                        schema="pg_catalog",
+                    )
 
                 db_url = os.environ.get("DB_URL")
-                self.pool = await asyncpg.create_pool(db_url, 
-                    min_size=2,
-                    max_size=5,
-                    init=add_json_converter
-                )
+                self.pool = await asyncpg.create_pool(db_url, min_size=2, max_size=5, init=add_json_converter)
 
             self.load_extension("jishaku")
             self.load_extension("cogs.db_handler")
@@ -145,7 +166,7 @@ class SeraphimBot(commands.Bot):
                     except commands.NoEntryPointError:
                         pass
 
-            await self.slash.sync_all_commands() # need to do this as otherwise things wont work
+            await self.slash.sync_all_commands()  # need to do this as otherwise things wont work
 
         else:
             for guild in self.guilds:
@@ -153,7 +174,7 @@ class SeraphimBot(commands.Bot):
                 cache_members = self.get_members(guild.id)
                 non_cache_members = [m for m in cache_members if not m in members]
                 for non_cache_member in non_cache_members:
-                    guild._add_member(non_cache_member) # dirty, but it has to be done
+                    guild._add_member(non_cache_member)  # dirty, but it has to be done
 
         utcnow = datetime.utcnow()
         time_format = utcnow.strftime("%x %X UTC")
@@ -163,16 +184,16 @@ class SeraphimBot(commands.Bot):
 
         self.init_load = False
 
-        activity = discord.Activity(name = 'over a couple of servers', type = discord.ActivityType.watching)
+        activity = discord.Activity(name="over a couple of servers", type=discord.ActivityType.watching)
 
         try:
-            await self.change_presence(activity = activity)
+            await self.change_presence(activity=activity)
         except websockets.ConnectionClosedOK:
             await utils.msg_to_owner(self, "Reconnecting...")
 
     async def on_resumed(self):
-        activity = discord.Activity(name = 'over a couple of servers', type = discord.ActivityType.watching)
-        await self.change_presence(activity = activity)
+        activity = discord.Activity(name="over a couple of servers", type=discord.ActivityType.watching)
+        await self.change_presence(activity=activity)
 
     async def on_error(self, event, *args, **kwargs):
         try:
@@ -190,6 +211,7 @@ class SeraphimBot(commands.Bot):
 
         return ctx
 
+
 """Suggesting the importance of which intents we use, let's break them down.
 We need guilds as we need to know when the bot joins and leaves guilds for setup stuff. That's... mostly it.
 We need members for their roles and nicknames. Yes, this stuff isn't provided normally.
@@ -197,16 +219,21 @@ Emojis are for the emoji helper commands, of course.
 Messages run the entire core of the bot itself. Of course we use them here. We might be able to
 turn off DM message intents, but for now they're here for safety.
 Reactions run the starboard of Seraphim, so of course that's here too. See above for why DMs."""
-intents = discord.Intents(guilds=True, members=True, 
-    emojis=True, messages=True, reactions=True)
+intents = discord.Intents(guilds=True, members=True, emojis=True, messages=True, reactions=True)
 
 mentions = discord.AllowedMentions.all()
 
-bot = SeraphimBot(command_prefix=seraphim_prefixes, chunk_guilds_at_startup=True, allowed_mentions=mentions, intents=intents)
-slash = discord_slash.SlashCommand(bot, override_type = True, sync_commands = True, sync_on_cog_reload = True)
+bot = SeraphimBot(
+    command_prefix=seraphim_prefixes,
+    chunk_guilds_at_startup=True,
+    allowed_mentions=mentions,
+    intents=intents,
+)
+slash = discord_slash.SlashCommand(bot, override_type=True, sync_commands=True, sync_on_cog_reload=True)
 
 try:
     import uvloop
+
     uvloop.install()
 except ImportError:
     pass

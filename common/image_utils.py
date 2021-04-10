@@ -1,6 +1,12 @@
+import asyncio
+import os
+import re
+
+import aiohttp
+import discord
+import humanize
 from discord.ext import commands
-import asyncio, aiohttp, os
-import re, humanize, discord
+
 
 async def type_from_url(url):
     # gets type of data from url
@@ -18,10 +24,28 @@ async def type_from_url(url):
                 return "png"
 
             # first 12 bytes of most jp(e)gs. EXIF is a bit wierd, and so some manipulating has to be done
-            jfif_list = (0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01)
-            exif_lists = ((0xFF, 0xD8, 0xFF, 0xE1), (0x45, 0x78, 0x69, 0x66, 0x00, 0x00))
+            jfif_list = (
+                0xFF,
+                0xD8,
+                0xFF,
+                0xE0,
+                0x00,
+                0x10,
+                0x4A,
+                0x46,
+                0x49,
+                0x46,
+                0x00,
+                0x01,
+            )
+            exif_lists = (
+                (0xFF, 0xD8, 0xFF, 0xE1),
+                (0x45, 0x78, 0x69, 0x66, 0x00, 0x00),
+            )
 
-            if tup_data == jfif_list or (tup_data[:4] == exif_lists[0] and tup_data[6:] == exif_lists[1]):
+            if tup_data == jfif_list or (
+                tup_data[:4] == exif_lists[0] and tup_data[6:] == exif_lists[1]
+            ):
                 return "jpg"
 
             # first 3 bytes of some jp(e)gs.
@@ -30,7 +54,7 @@ async def type_from_url(url):
                 return "jpg"
 
             # copied from d.py's _get_mime_type_for_image
-            if tup_data[0:3] == b'\xff\xd8\xff' or tup_data[6:10] in (b'JFIF', b'Exif'):
+            if tup_data[0:3] == b"\xff\xd8\xff" or tup_data[6:10] in (b"JFIF", b"Exif"):
                 return "jpg"
 
             # first 6 bytes of most gifs. last two can be different, so we have to handle that
@@ -45,6 +69,7 @@ async def type_from_url(url):
 
     return None
 
+
 async def tenor_handle(url: str):
     # handles getting gifs from tenor links
     dash_split = url.split("-")
@@ -52,7 +77,7 @@ async def tenor_handle(url: str):
     params = {
         "ids": dash_split[-1],
         "key": os.environ.get("TENOR_KEY"),
-        "media_filter": "minimal"
+        "media_filter": "minimal",
     }
 
     async with aiohttp.ClientSession() as session:
@@ -67,17 +92,18 @@ async def tenor_handle(url: str):
             except IndexError:
                 return None
 
+
 async def get_image_url(url: str):
     # handles getting true image url from a url
 
     image_endings = ("jpg", "jpeg", "png", "gif", "webp")
-    image_extensions = tuple(image_endings) # no idea why I have to do this
+    image_extensions = tuple(image_endings)  # no idea why I have to do this
 
     if "https://tenor.com/view" in url or "http://tenor.com/view" in url:
         gif_url = await tenor_handle(url)
         if gif_url != None:
             return gif_url
-            
+
     else:
         file_type = await type_from_url(url)
         if file_type in image_extensions:
@@ -85,14 +111,17 @@ async def get_image_url(url: str):
 
     return None
 
-async def get_file_bytes(url: str, limit: int, equal_to = True):
+
+async def get_file_bytes(url: str, limit: int, equal_to=True):
     # gets a file as long as it's under the limit (in bytes)
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:
             if resp.status == 200:
                 try:
                     if equal_to:
-                        await resp.content.readexactly(limit + 1) # we want this to error out even if the file is exactly the limit
+                        await resp.content.readexactly(
+                            limit + 1
+                        )  # we want this to error out even if the file is exactly the limit
                         raise commands.BadArgument(
                             f"The file/URL given is over {humanize.naturalsize(limit, binary=True)}!"
                         )
@@ -109,16 +138,22 @@ async def get_file_bytes(url: str, limit: int, equal_to = True):
             else:
                 raise commands.BadArgument("I can't get this file/URL!")
 
+
 def image_from_ctx(ctx: commands.Context):
     """To be used with URLToImage. Gets image from context, via an embed or via its attachments."""
     if ctx.message.attachments:
-        if ctx.message.attachments[0].proxy_url.lower().endswith(ctx.bot.image_extensions):
+        if (
+            ctx.message.attachments[0]
+            .proxy_url.lower()
+            .endswith(ctx.bot.image_extensions)
+        ):
             return ctx.message.attachments[0].proxy_url
         else:
             raise commands.BadArgument("Attachment provided is not a valid image.")
 
     else:
         raise commands.BadArgument("No URL or image given!")
+
 
 class ImageTypeChecker(commands.Converter):
     # given image type to convert, checks to see if image type speciified is valid.
@@ -130,22 +165,33 @@ class ImageTypeChecker(commands.Converter):
         if img_type in ctx.bot.image_extensions:
             return img_type
         else:
-            raise commands.BadArgument(f"Argument {argument} is not a valid image extension.")
+            raise commands.BadArgument(
+                f"Argument {argument} is not a valid image extension."
+            )
+
 
 class URLToImage(commands.Converter):
     # gets either the URL or the image from an argument
 
     async def convert(self, ctx, argument):
-        urls = re.findall(r"((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)", argument)
+        urls = re.findall(
+            r"((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)",
+            argument,
+        )
         if urls != []:
             first_url = urls[0][0]
 
             possible_url = await get_image_url(first_url)
             if possible_url != None:
                 return possible_url
-            elif (ctx.message.embeds != [] and ctx.message.embeds[0].type == "image" and 
-                ctx.message.embeds[0].thumbnail.url != discord.Embed.Empty):
-                return ctx.message.embeds[0].thumbnail.url # gotta get that imgur support
+            elif (
+                ctx.message.embeds != []
+                and ctx.message.embeds[0].type == "image"
+                and ctx.message.embeds[0].thumbnail.url != discord.Embed.Empty
+            ):
+                return ctx.message.embeds[
+                    0
+                ].thumbnail.url  # gotta get that imgur support
             else:
                 raise commands.BadArgument(f"Argument {argument} is not an image url.")
 

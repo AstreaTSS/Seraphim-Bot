@@ -1,6 +1,9 @@
 #!/usr/bin/env python3.8
+import datetime
+
+import discord
 from discord.ext import commands, tasks
-import datetime, discord
+
 
 class EtcEvents(commands.Cog):
     def __init__(self, bot):
@@ -25,9 +28,9 @@ class EtcEvents(commands.Cog):
 
         if not member.id in guild_entry.keys():
             self.bot.role_rolebacks[member.guild.id][member.id] = {
-                "roles": member.roles, 
+                "roles": member.roles,
                 "time": datetime.datetime.utcnow(),
-                "id": member.id
+                "id": member.id,
             }
 
         self.bot.remove_member(member)
@@ -55,6 +58,7 @@ class EtcEvents(commands.Cog):
         self.bot.custom_cache[guild.id] = {}
         for member in guild.members:
             self.bot.update_member(member)
-            
+
+
 def setup(bot):
     bot.add_cog(EtcEvents(bot))

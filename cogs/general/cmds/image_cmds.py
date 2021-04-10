@@ -1,14 +1,22 @@
-from discord.ext import commands, flags
-import discord, importlib, typing, humanize
+import functools
+import importlib
+import io
+import math
+import os
+import typing
 
-import io, functools, math, os
+import discord
+import humanize
+from discord.ext import commands, flags
 from PIL import Image
 
-import common.utils as utils
 import common.image_utils as image_utils
+import common.utils as utils
 
-class ImageCMDs(commands.Cog, name = "Image"):
+
+class ImageCMDs(commands.Cog, name="Image"):
     """A series of commands for manipulating images in certain ways."""
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -27,7 +35,9 @@ class ImageCMDs(commands.Cog, name = "Image"):
         try:
             if flags["ori_ext"] in ("gif", "webp") and not ext in ("gif", "webp"):
                 if pil_image.is_animated():
-                    raise commands.BadArgument("Cannot convert an animated image to this file type!")
+                    raise commands.BadArgument(
+                        "Cannot convert an animated image to this file type!"
+                    )
 
             if not flags["noshrink"]:
                 width = pil_image.width
@@ -39,13 +49,20 @@ class ImageCMDs(commands.Cog, name = "Image"):
                     pil_image = pil_image.reduce(factor=factor)
 
             if ext == "jpeg":
-                if not pil_image.mode == 'RGB':
-                    pil_image = pil_image.convert('RGB')
-                pil_image.save(compress_image, format=ext, quality=flags["quality"], optimize=True)
+                if not pil_image.mode == "RGB":
+                    pil_image = pil_image.convert("RGB")
+                pil_image.save(
+                    compress_image, format=ext, quality=flags["quality"], optimize=True
+                )
             elif ext in ("gif", "png"):
                 pil_image.save(compress_image, format=ext, optimize=True)
             elif ext == "webp":
-                pil_image.save(compress_image, format=ext, minimize_size=True, quality=flags["quality"])
+                pil_image.save(
+                    compress_image,
+                    format=ext,
+                    minimize_size=True,
+                    quality=flags["quality"],
+                )
             else:
                 compress_image.close()
                 raise commands.BadArgument("Invalid file type!")
@@ -53,24 +70,26 @@ class ImageCMDs(commands.Cog, name = "Image"):
             compress_image.seek(0, os.SEEK_SET)
 
             return compress_image
-            
+
         except BaseException:
             compress_image.close()
             raise
 
     @flags.command()
-    @flags.add_flag("-noshrink", "--noshrink", action='store_true')
-    @flags.add_flag("-jpg", "--jpg", "-jpeg", "--jpeg", action='store_true')
-    @flags.add_flag("-webp", "--webp", action='store_true')
-    @flags.add_flag("-png", "--png", action='store_true')
-    @flags.add_flag("-gif", "--gif", action='store_true')
+    @flags.add_flag("-noshrink", "--noshrink", action="store_true")
+    @flags.add_flag("-jpg", "--jpg", "-jpeg", "--jpeg", action="store_true")
+    @flags.add_flag("-webp", "--webp", action="store_true")
+    @flags.add_flag("-png", "--png", action="store_true")
+    @flags.add_flag("-gif", "--gif", action="store_true")
     @flags.add_flag("-quality", "--quality", default=70, type=int)
-    async def compress(self, ctx, url: typing.Optional[image_utils.URLToImage], **flags):
+    async def compress(
+        self, ctx, url: typing.Optional[image_utils.URLToImage], **flags
+    ):
         """Compresses down the image given.
         It must be an image of type GIF, JPG, PNG, or WEBP. It must also be under 8 MB.
         Image quality will take a hit, and the image will shrink down if it's too big (unless you specify to not shrink the image).
-        Flags: --noshrink (to not shrink the image), --jpg (more compressed but removes transparency), --png (converts images to PNG), 
-        --gif (converts images to GIF), --webp (more compressed and keeps transparency, but not as compressed as JPG) 
+        Flags: --noshrink (to not shrink the image), --jpg (more compressed but removes transparency), --png (converts images to PNG),
+        --gif (converts images to GIF), --webp (more compressed and keeps transparency, but not as compressed as JPG)
         --quality <number> (specifies quality from 0-100, only works with JPG and WEBP files)."""
 
         if not 0 <= flags["quality"] <= 100:
@@ -80,7 +99,9 @@ class ImageCMDs(commands.Cog, name = "Image"):
             url = image_utils.image_from_ctx(ctx)
 
         async with ctx.channel.typing():
-            image_data = await image_utils.get_file_bytes(url, 8388608, equal_to=False) # 8 MiB
+            image_data = await image_utils.get_file_bytes(
+                url, 8388608, equal_to=False
+            )  # 8 MiB
             ori_image = io.BytesIO(image_data)
 
             mimetype = discord.utils._get_mime_type_for_image(image_data)
@@ -103,23 +124,31 @@ class ImageCMDs(commands.Cog, name = "Image"):
             compressed_size = self.get_size(compress_image)
 
             ori_image.close()
-            
+
             try:
                 com_img_file = discord.File(compress_image, f"image.{ext}")
-                
-                content = (f"Original Size: {humanize.naturalsize(ori_size, binary=True)}\n" +
-                f"Reduced Size: {humanize.naturalsize(compressed_size, binary=True)}\n" +
-                f"Size Saved: {round(((1 - (compressed_size / ori_size)) * 100), 2)}%")
+
+                content = (
+                    f"Original Size: {humanize.naturalsize(ori_size, binary=True)}\n"
+                    + f"Reduced Size: {humanize.naturalsize(compressed_size, binary=True)}\n"
+                    + f"Size Saved: {round(((1 - (compressed_size / ori_size)) * 100), 2)}%"
+                )
             except BaseException:
                 compress_image.close()
                 raise
-            
+
             await ctx.reply(content=content, file=com_img_file)
 
     @flags.command(aliases=["image_convert"])
-    @flags.add_flag("-shrink", "--shrink", action='store_true')
+    @flags.add_flag("-shrink", "--shrink", action="store_true")
     @flags.add_flag("-quality", "--quality", default=80, type=int)
-    async def img_convert(self, ctx, url: typing.Optional[image_utils.URLToImage], img_type: image_utils.ImageTypeChecker, **flags):
+    async def img_convert(
+        self,
+        ctx,
+        url: typing.Optional[image_utils.URLToImage],
+        img_type: image_utils.ImageTypeChecker,
+        **flags,
+    ):
         """Converts the given image into the specified image type.
         Both the image and the specified image type must be of type GIF, JP(E)G, PNG, or WEBP. The image must also be under 8 MB.
         Flags: --shrink (to not shrink the image),
@@ -134,7 +163,9 @@ class ImageCMDs(commands.Cog, name = "Image"):
         flags["noshrink"] = not flags["shrink"]
 
         async with ctx.channel.typing():
-            image_data = await image_utils.get_file_bytes(url, 8388608, equal_to=False) # 8 MiB
+            image_data = await image_utils.get_file_bytes(
+                url, 8388608, equal_to=False
+            )  # 8 MiB
             ori_image = io.BytesIO(image_data)
 
             mimetype = discord.utils._get_mime_type_for_image(image_data)
@@ -151,11 +182,12 @@ class ImageCMDs(commands.Cog, name = "Image"):
             except BaseException:
                 converted_image.close()
                 raise
-            
+
             await ctx.reply(file=convert_img_file)
+
 
 def setup(bot):
     importlib.reload(utils)
     importlib.reload(image_utils)
-    
+
     bot.add_cog(ImageCMDs(bot))

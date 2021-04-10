@@ -1,21 +1,32 @@
 #!/usr/bin/env python3.8
-from discord.ext import commands
-import traceback, discord, datetime
-import collections, aiohttp, os, logging
+import collections
+import datetime
+import logging
+import os
+import traceback
+import aiohttp
+import discord
+
 from pathlib import Path
+from discord.ext import commands
+
 
 async def proper_permissions(ctx):
     # checks if author has admin or manage guild perms or is the owner
     permissions = ctx.author.guild_permissions
-    return (permissions.administrator or permissions.manage_guild
-    or ctx.guild.owner_id == ctx.author.id)
+    return (
+        permissions.administrator
+        or permissions.manage_guild
+        or ctx.guild.owner_id == ctx.author.id
+    )
+
 
 async def fetch_needed(bot, payload):
     # fetches info from payload
     guild = bot.get_guild(payload.guild_id)
     user = guild.get_member(payload.user_id)
-    
-    if user == None: # rare, but it's happened
+
+    if user == None:  # rare, but it's happened
         user = await guild.fetch_member(payload.user_id)
 
     channel = bot.get_channel(payload.channel_id)
@@ -23,7 +34,8 @@ async def fetch_needed(bot, payload):
 
     return user, channel, mes
 
-async def error_handle(bot, error, ctx = None):
+
+async def error_handle(bot, error, ctx=None):
     # handles errors and sends them to owner
     if isinstance(error, aiohttp.ServerDisconnectedError):
         to_send = "Disconnected from server!"
@@ -33,10 +45,10 @@ async def error_handle(bot, error, ctx = None):
         logging.getLogger("discord").error(error_str)
 
         error_split = error_str.splitlines()
-        chunks = [error_split[x:x+20] for x in range(0, len(error_split), 20)]
+        chunks = [error_split[x : x + 20] for x in range(0, len(error_split), 20)]
         for i in range(len(chunks)):
             chunks[i][0] = f"```py\n{chunks[i][0]}"
-            chunks[i][len(chunks[i])-1] += "\n```"
+            chunks[i][len(chunks[i]) - 1] += "\n```"
 
         final_chunks = []
         for chunk in chunks:
@@ -52,9 +64,14 @@ async def error_handle(bot, error, ctx = None):
 
     if ctx:
         if hasattr(ctx, "reply"):
-            await ctx.reply("An internal error has occured. The bot owner has been notified.")
+            await ctx.reply(
+                "An internal error has occured. The bot owner has been notified."
+            )
         else:
-            await ctx.channel.send(content="An internal error has occured. The bot owner has been notified.")
+            await ctx.channel.send(
+                content="An internal error has occured. The bot owner has been notified."
+            )
+
 
 async def msg_to_owner(bot, content, split=True):
     # sends a message to the owner
@@ -69,31 +86,37 @@ async def msg_to_owner(bot, content, split=True):
     for chunk in str_chunks:
         await owner.send(f"{chunk}")
 
+
 async def user_from_id(bot, guild, user_id):
     # gets a user from id. attempts via guild first, then attempts globally
-    user = guild.get_member(user_id) # member in guild
+    user = guild.get_member(user_id)  # member in guild
     if user == None:
-        user = bot.get_user(user_id) # user in cache
-        
+        user = bot.get_user(user_id)  # user in cache
+
         if user == None:
             try:
-                user = await bot.fetch_user(user_id) # a user that exists
+                user = await bot.fetch_user(user_id)  # a user that exists
             except discord.NotFound:
                 user = None
 
     return user
-    
+
+
 def deny_mentions(user):
     # generates an AllowedMentions object that only pings the user specified
     return discord.AllowedMentions(everyone=False, users=[user], roles=False)
+
 
 def generate_mentions(ctx: commands.Context):
     # generates an AllowedMentions object that is similar to what a user can usually use
 
     permissions = ctx.author.guild_permissions
     # i assume mention_everyone also means they can ping all roles
-    can_mention = (permissions.administrator or permissions.mention_everyone
-    or ctx.guild.owner_id == ctx.author.id)
+    can_mention = (
+        permissions.administrator
+        or permissions.mention_everyone
+        or ctx.guild.owner_id == ctx.author.id
+    )
 
     if can_mention:
         # i could use a default AllowedMentions object, but this is more clear
@@ -102,13 +125,20 @@ def generate_mentions(ctx: commands.Context):
         pingable_roles = [r for r in ctx.guild.roles if r.mentionable]
         return discord.AllowedMentions(everyone=False, users=True, roles=pingable_roles)
 
+
 def error_format(error):
     # simple function that formats an exception
-    return ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+    return "".join(
+        traceback.format_exception(
+            etype=type(error), value=error, tb=error.__traceback__
+        )
+    )
+
 
 def string_split(string):
     # simple function that splits a string into 1950-character parts
-    return [string[i:i+1950] for i in range(0, len(string), 1950)]
+    return [string[i : i + 1950] for i in range(0, len(string), 1950)]
+
 
 def file_to_ext(str_path, base_path):
     # changes a file to an import-like string
@@ -116,7 +146,8 @@ def file_to_ext(str_path, base_path):
     str_path = str_path.replace("/", ".")
     return str_path.replace(".py", "")
 
-def get_all_extensions(str_path, folder = "cogs"):
+
+def get_all_extensions(str_path, folder="cogs"):
     # gets all extensions in a folder
     ext_files = collections.deque()
     loc_split = str_path.split("cogs")
@@ -129,7 +160,7 @@ def get_all_extensions(str_path, folder = "cogs"):
     if base_path[-1] != "/":
         base_path += "/"
 
-    pathlist = Path(f"{base_path}/{folder}").glob('**/*.py')
+    pathlist = Path(f"{base_path}/{folder}").glob("**/*.py")
     for path in pathlist:
         str_path = str(path.as_posix())
         str_path = file_to_ext(str_path, base_path)
@@ -138,6 +169,7 @@ def get_all_extensions(str_path, folder = "cogs"):
             ext_files.append(str_path)
 
     return ext_files
+
 
 def chan_perm_check(channel: discord.TextChannel, perms: discord.Permissions):
     # checks if bot can do what it needs to do in a channel
@@ -154,6 +186,7 @@ def chan_perm_check(channel: discord.TextChannel, perms: discord.Permissions):
 
     return resp
 
+
 def get_content(message: discord.Message):
     """Because system_content isn't perfect.
     More or less a copy of system_content with name being swapped with display_name."""
@@ -162,7 +195,9 @@ def get_content(message: discord.Message):
         return message.content
 
     if message.type is discord.MessageType.pins_add:
-        return '{0.display_name} pinned a message to this channel.'.format(message.author)
+        return "{0.display_name} pinned a message to this channel.".format(
+            message.author
+        )
 
     if message.type is discord.MessageType.new_member:
         formats = [
@@ -184,7 +219,9 @@ def get_content(message: discord.Message):
         # manually reconstruct the epoch with millisecond precision, because
         # datetime.datetime.timestamp() doesn't return the exact posix
         # timestamp with the precision that we need
-        created_at_ms = int((message.created_at - datetime.datetime(1970, 1, 1)).total_seconds() * 1000)
+        created_at_ms = int(
+            (message.created_at - datetime.datetime(1970, 1, 1)).total_seconds() * 1000
+        )
         return formats[created_at_ms % len(formats)].format(message.author.display_name)
 
     if message.type is discord.MessageType.premium_guild_subscription:
@@ -200,16 +237,20 @@ def get_content(message: discord.Message):
         return f'{os.environ.get("BOOST_EMOJI_NAME")} {message.author.display_name} just boosted the server! {message.guild} has achieved **Level 3!**'
 
     if message.type is discord.MessageType.channel_follow_add:
-        return '{0.author.display_name} has added {0.content} to this channel'.format(message)
+        return "{0.author.display_name} has added {0.content} to this channel".format(
+            message
+        )
 
     else:
         raise discord.InvalidArgument("This message has an invalid type!")
+
 
 def bool_friendly_str(bool_to_convert):
     if bool_to_convert == True:
         return "on"
     else:
         return "off"
+
 
 class CustomCheckFailure(commands.CheckFailure):
     # custom classs for custom prerequisite failures outside of normal command checks

@@ -1,9 +1,12 @@
 #!/usr/bin/env python3.8
-from discord.ext import commands
-import importlib, os
+import importlib
+import os
 
-import common.utils as utils
+from discord.ext import commands
+
 import common.groups as groups
+import common.utils as utils
+
 
 class Settings(commands.Cog, name="Settings"):
     def __init__(self, bot):
@@ -26,7 +29,9 @@ class Settings(commands.Cog, name="Settings"):
         if settings_cmd == None:
             raise commands.CommandNotFound("Can't find settings command!")
 
-        settings_ext = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"), "cogs/core/settings")
+        settings_ext = utils.get_all_extensions(
+            os.environ.get("DIRECTORY_OF_FILE"), "cogs/core/settings"
+        )
         for setting in settings_ext:
             if setting == "cogs.core.settings.settings":
                 continue
@@ -51,6 +56,7 @@ class Settings(commands.Cog, name="Settings"):
             self.bot.remove_command(cmd.qualified_name)
 
         self.bot.remove_command(settings_cmd.name)
+
 
 def setup(bot):
     importlib.reload(utils)

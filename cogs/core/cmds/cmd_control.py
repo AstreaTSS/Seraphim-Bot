@@ -1,8 +1,11 @@
 #!/usr/bin/env python3.8
+import importlib
+
+import discord
 from discord.ext import commands
-import discord, importlib
 
 import common.utils as utils
+
 
 class CmdControl(commands.Cog, name="Command Control"):
     def __init__(self, bot):
@@ -31,12 +34,12 @@ class CmdControl(commands.Cog, name="Command Control"):
         """Disables the command specified for the specified user.
         You can disable all commands for a user too by specifing 'all' for a user.
         Can only be used by those who have Manage Server permissions, and cannot be used on yourself."""
-        
+
         disables = self.bot.config.getattr(ctx.guild.id, "disables")
 
         if ctx.author == member:
             raise commands.BadArgument("You cannot blacklist yourself!")
-        
+
         # if the user doesnt already have a disables entry
         if not disables["users"].get(str(member.id)):
             disables["users"][str(member.id)] = [command]
@@ -51,7 +54,7 @@ class CmdControl(commands.Cog, name="Command Control"):
             disables["users"][str(member.id)].append(command)
 
         self.bot.config.setattr(ctx.guild.id, disables=disables)
-        
+
         if command != "all":
             await ctx.reply(f"Command `{command}` disabled for {member.display_name}.")
         else:
@@ -75,14 +78,17 @@ class CmdControl(commands.Cog, name="Command Control"):
         try:
             disables["users"][str(member.id)].remove(command)
             self.bot.config.setattr(ctx.guild.id, disables=disables)
-            
+
             if command != "all":
-                await ctx.reply(f"Command `{command}` re-enabled for {member.display_name}.")
+                await ctx.reply(
+                    f"Command `{command}` re-enabled for {member.display_name}."
+                )
             else:
                 await ctx.reply(f"All commands re-enabled for {member.display_name}.")
 
         except KeyError:
             raise commands.BadArgument("This user doesn't have that command disabled!")
+
 
 def setup(bot):
     importlib.reload(utils)

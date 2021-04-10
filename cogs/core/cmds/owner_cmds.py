@@ -1,14 +1,18 @@
 #!/usr/bin/env python3.8
+import collections
+import importlib
+import os
 import typing
-from discord.ext import commands
-import os, importlib, asyncio, collections
-from discord.ext.commands.core import command
-import discord_slash
 
-import common.utils as utils
-import common.star_classes as star_classes
+import discord_slash
+from discord.ext import commands
+from discord.ext.commands.core import command
+
 import common.classes as custom_classes
 import common.paginator as paginator
+import common.star_classes as star_classes
+import common.utils as utils
+
 
 class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
     def __init__(self, bot):
@@ -38,12 +42,15 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
 
         ext_files = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))
 
-        to_unload = [e for e in self.bot.extensions.keys() 
-        if e not in ext_files and e != "cogs.db_handler"]
+        to_unload = [
+            e
+            for e in self.bot.extensions.keys()
+            if e not in ext_files and e != "cogs.db_handler"
+        ]
         for ext in to_unload:
             self.bot.unload_extension(ext)
             unloaded_files.append(ext)
-        
+
         for ext in ext_files:
             try:
                 self.bot.reload_extension(ext)
@@ -75,7 +82,7 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
             msg_content.append(f"Reloaded: {ext_str(reloaded_files)}")
         if not_loaded != []:
             msg_content.append(f"Didn't load: {ext_str(not_loaded)}")
-            
+
         await ctx.reply("\n".join(msg_content))
 
     @commands.command(hidden=True)
@@ -85,18 +92,24 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
         await ctx.reply(f"Extensions: {exten_str}")
 
     @commands.command(hidden=True, aliases=["list_slash_commands", "listslashcmds"])
-    async def list_slash_cmds(self, ctx, guild_id: typing.Optional[custom_classes.UsableIDConverter]):
-        slash_cmds = await discord_slash.utils.manage_commands.get_all_commands(self.bot.user.id, self.bot.http.token, guild_id)
+    async def list_slash_cmds(
+        self, ctx, guild_id: typing.Optional[custom_classes.UsableIDConverter]
+    ):
+        slash_cmds = await discord_slash.utils.manage_commands.get_all_commands(
+            self.bot.user.id, self.bot.http.token, guild_id
+        )
         slash_entries = []
 
         if not slash_cmds:
-            raise commands.BadArgument("This guild does not have any specific slash commands.")
+            raise commands.BadArgument(
+                "This guild does not have any specific slash commands."
+            )
 
         for entry in slash_cmds:
             entry_str_list = []
 
             if "description" in entry.keys():
-                entry_str_list.append(entry['description'])
+                entry_str_list.append(entry["description"])
             else:
                 entry_str_list.append("No description provided.")
 
@@ -104,11 +117,17 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
                 entry_str_list.append("__Arguments:__")
 
                 for option in entry["options"]:
-                    option_type = discord_slash.SlashCommandOptionType(option["type"]).name
+                    option_type = discord_slash.SlashCommandOptionType(
+                        option["type"]
+                    ).name
                     required_txt = ", required" if option["required"] else ""
-                    entry_str_list.append(f"{option['name']} (type {option_type}{required_txt}) - {option['description']}")
+                    entry_str_list.append(
+                        f"{option['name']} (type {option_type}{required_txt}) - {option['description']}"
+                    )
 
-            slash_entries.append( (f"{entry['name']} - ID {entry['id']}", "\n".join(entry_str_list)) )
+            slash_entries.append(
+                (f"{entry['name']} - ID {entry['id']}", "\n".join(entry_str_list))
+            )
 
         pages = paginator.FieldPages(ctx, entries=slash_entries, per_page=6)
         await pages.paginate()
@@ -119,14 +138,19 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
         await ctx.reply("Registered commands.")
 
     @commands.command(hidden=True, aliases=["removeslashcmd"])
-    async def remove_slash_cmd(self, ctx, cmd_id: custom_classes.UsableIDConverter, 
-        guild_id: typing.Optional[custom_classes.UsableIDConverter]):
-        
+    async def remove_slash_cmd(
+        self,
+        ctx,
+        cmd_id: custom_classes.UsableIDConverter,
+        guild_id: typing.Optional[custom_classes.UsableIDConverter],
+    ):
+
         await discord_slash.utils.manage_commands.remove_slash_command(
             self.bot.user.id, self.bot.http.token, guild_id, cmd_id
         )
 
         await ctx.reply("Removed command.")
+
 
 def setup(bot):
     importlib.reload(utils)
