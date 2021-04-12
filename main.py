@@ -231,6 +231,14 @@ class SeraphimBot(commands.Bot):
 
         return ctx
 
+    async def close(self):
+        try:
+            await asyncio.wait_for(self.pool.close(), timeout=10)
+        except asyncio.TimeoutError:
+            await self.pool.terminate()
+
+        return super().close()
+
 
 """Suggesting the importance of which intents we use, let's break them down.
 We need guilds as we need to know when the bot joins and leaves guilds for setup stuff. That's... mostly it.
@@ -263,8 +271,4 @@ except ImportError:
     pass
 
 bot.init_load = True
-try:
-    bot.run(os.environ.get("MAIN_TOKEN"))
-finally:
-    if hasattr(bot, "pool"):
-        asyncio.new_event_loop().run_until_complete(bot.pool.close)
+bot.run(os.environ.get("MAIN_TOKEN"))
