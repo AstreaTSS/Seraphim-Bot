@@ -56,9 +56,13 @@ class GuildConfig:
         self.prefixes = prefixes
         self.disables = disables
         self.mer = mer
-        self.restore_roles_toggle = restore_roles_toggle
-        self.default_perms_check = default_perms_check
-        self.custom_perm_roles = custom_perm_roles
+        self.restore_roles_toggle = (
+            restore_roles_toggle if restore_roles_toggle != None else False
+        )
+        self.default_perms_check = (
+            default_perms_check if default_perms_check != None else True
+        )
+        self.custom_perm_roles = custom_perm_roles if custom_perm_roles != None else []
 
     @classmethod
     def from_db(cls, entry: dict):
@@ -75,9 +79,9 @@ class GuildConfig:
             entry["prefixes"],
             entry["disables"],
             entry["mer"],
-            entry["restore_roles_toggle"],
-            entry["default_perms_check"],
-            entry["custom_perm_roles"],
+            entry.get("restore_roles_toggle"),
+            entry.get("default_perms_check"),
+            entry.get("custom_perm_roles"),
         )
 
     @classmethod
