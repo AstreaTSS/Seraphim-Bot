@@ -237,7 +237,7 @@ class SeraphimBot(commands.Bot):
         except asyncio.TimeoutError:
             await self.pool.terminate()
 
-        return super().close()
+        return await super().close()
 
 
 """Suggesting the importance of which intents we use, let's break them down.
