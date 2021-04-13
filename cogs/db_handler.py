@@ -56,7 +56,7 @@ class DBHandler(commands.Cog):
             entry = self.bot.starboard.get(entry_id)
             update_sb.append(self.get_required_from_entry(entry))
         for entry_id in self.bot.starboard.removed:
-            delete_sb.append(entry_id)
+            delete_sb.append(tuple(entry_id))
         self.bot.starboard.reset_deltas()
 
         for guild_id in self.bot.config.added:
