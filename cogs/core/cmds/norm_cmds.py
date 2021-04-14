@@ -4,6 +4,7 @@ import importlib
 import time
 
 import discord
+import numexpr
 from discord.ext import commands
 
 import common.utils as utils
@@ -43,6 +44,22 @@ class NormCMDs(commands.Cog, name="Normal"):
             )
         else:
             await ctx.reply(f"{ctx.author.mention}, that message is too long!")
+
+    @commands.command(aliases=["calc", "math"])
+    async def calculate(self, ctx, *, expression):
+        """Calculates the value of the given expression.
+        The expression must be a math-only function, and only the basic ones (no sin, cos, etc.).
+        No variables can be used, either (for safety reasons)."""
+
+        try:
+            value = numexpr.evaluate(expression)
+            await ctx.reply(f"Result: {value.item()}")
+        except ZeroDivisionError:
+            raise commands.BadArgument("Cannot divide by zero!")
+        except OverflowError:
+            raise commands.BadArgument("This expression causes an overflow!")
+        except:  # basically any other error
+            raise commands.BadArgument("Not a valid expression!")
 
     @commands.command()
     async def support(self, ctx):
