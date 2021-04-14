@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.8
 import collections
 import importlib
+import math
 import time
 
 import discord
@@ -50,6 +51,8 @@ class NormCMDs(commands.Cog, name="Normal"):
         """Calculates the value of the given expression.
         The expression must be a math-only function, and only the basic ones (no sin, cos, etc.).
         No variables can be used, either (for safety reasons)."""
+
+        PI = math.pi  # just in case someone wants it
 
         try:
             value = numexpr.evaluate(expression)
