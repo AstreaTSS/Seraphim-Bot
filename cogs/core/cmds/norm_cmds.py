@@ -53,7 +53,7 @@ class NormCMDs(commands.Cog, name="Normal"):
 
         try:
             value = numexpr.evaluate(expression)
-            await ctx.reply(f"Result: {value.item()}")
+            await ctx.reply(f"Result: `{value.item()}`")
         except ZeroDivisionError:
             raise commands.BadArgument("Cannot divide by zero!")
         except OverflowError:
