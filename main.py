@@ -259,9 +259,7 @@ bot = SeraphimBot(
     allowed_mentions=mentions,
     intents=intents,
 )
-slash = discord_slash.SlashCommand(
-    bot, override_type=True, sync_commands=True, sync_on_cog_reload=True
-)
+slash = discord_slash.SlashCommand(bot, override_type=True)
 
 try:
     import uvloop
