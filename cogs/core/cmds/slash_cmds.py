@@ -1,8 +1,10 @@
 import importlib
+import math
 import random
 import re
 
 import discord
+import numexpr
 from discord.ext import commands
 from discord_slash import cog_ext
 from discord_slash import SlashCommand
@@ -83,9 +85,7 @@ class SlashCMDS(commands.Cog):
     )
     async def kill(self, ctx: SlashContext, content: str):
         if len(content) > 1900:
-            await ctx.send(
-                complete_hidden=True, content="The content you provided is too long."
-            )
+            await ctx.send(hidden=True, content="The content you provided is too long.")
             return
 
         user = None
@@ -119,6 +119,33 @@ class SlashCMDS(commands.Cog):
         kill_embed = discord.Embed(colour=discord.Colour.red(), description=kill_msg)
 
         await ctx.send(embeds=[kill_embed])
+
+    expression_content_option = {
+        "type": 3,
+        "name": "content",
+        "description": "The expression to evaluate.",
+        "required": True,
+    }
+
+    @cog_ext.cog_slash(
+        name="calculate",
+        description="Calculates the value of the given expression.",
+        options=[expression_content_option],
+    )
+    async def calc(self, ctx: SlashContext, expression: str):
+        await ctx.defer(hidden=True)  # who knows
+
+        PI = math.pi  # just in case someone wants it
+
+        try:
+            value = numexpr.evaluate(expression)
+            await ctx.send(content=f"Result: `{value.item()}`", hidden=True)
+        except ZeroDivisionError:
+            await ctx.send(content="Cannot divide by zero!", hidden=True)
+        except OverflowError:
+            await ctx.send(content="This expression causes an overflow!", hidden=True)
+        except:  # basically any other error
+            await ctx.send(content="This is not a valid expression!", hidden=True)
 
     @commands.Cog.listener()
     async def on_slash_command_error(self, ctx, ex):

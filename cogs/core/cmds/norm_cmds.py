@@ -62,7 +62,7 @@ class NormCMDs(commands.Cog, name="Normal"):
         except OverflowError:
             raise commands.BadArgument("This expression causes an overflow!")
         except:  # basically any other error
-            raise commands.BadArgument("Not a valid expression!")
+            raise commands.BadArgument("This is not a valid expression!")
 
     @commands.command()
     async def support(self, ctx):
