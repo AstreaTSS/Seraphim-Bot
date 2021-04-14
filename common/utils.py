@@ -9,6 +9,7 @@ from pathlib import Path
 import aiohttp
 import discord
 from discord.ext import commands
+from discord.ext.commands.core import has_permissions
 
 
 async def proper_permissions(ctx):
@@ -54,7 +55,7 @@ async def error_handle(bot, error, ctx=None):
         for chunk in chunks:
             final_chunks.append("\n".join(chunk))
 
-        if ctx and hasattr(ctx, "message"):
+        if ctx and hasattr(ctx, "message") and hasattr(ctx.message, "jump_url"):
             final_chunks.insert(0, f"Error on: {ctx.message.jump_url}")
 
         to_send = final_chunks
