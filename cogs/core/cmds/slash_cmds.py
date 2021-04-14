@@ -142,10 +142,13 @@ class SlashCMDS(commands.Cog):
             value = numexpr.evaluate(expression)
         except ZeroDivisionError:
             await ctx.send(content="Cannot divide by zero!", hidden=True)
+            return
         except OverflowError:
             await ctx.send(content="This expression causes an overflow!", hidden=True)
+            return
         except:  # basically any other error
             await ctx.send(content="This is not a valid expression!", hidden=True)
+            return
 
         await ctx.send(content=f"Result: `{value.item()}`", hidden=True)
 
