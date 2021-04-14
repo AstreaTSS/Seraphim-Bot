@@ -138,14 +138,16 @@ class SlashCMDS(commands.Cog):
         PI = math.pi  # just in case someone wants it
 
         try:
+            # a bit of a hacky way of doing it, but it works
             value = numexpr.evaluate(expression)
-            await ctx.send(content=f"Result: `{value.item()}`", hidden=True)
         except ZeroDivisionError:
             await ctx.send(content="Cannot divide by zero!", hidden=True)
         except OverflowError:
             await ctx.send(content="This expression causes an overflow!", hidden=True)
         except:  # basically any other error
             await ctx.send(content="This is not a valid expression!", hidden=True)
+
+        await ctx.send(content=f"Result: `{value.item()}`", hidden=True)
 
     @commands.Cog.listener()
     async def on_slash_command_error(self, ctx, ex):

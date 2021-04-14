@@ -47,22 +47,25 @@ class NormCMDs(commands.Cog, name="Normal"):
             await ctx.reply(f"{ctx.author.mention}, that message is too long!")
 
     @commands.command(aliases=["calc", "math"])
-    async def calculate(self, ctx, *, expression):
+    async def calculate(self, ctx: commands.Context, *, expression):
         """Calculates the value of the given expression.
         The expression must be a math-only function, and only the basic ones (no sin, cos, etc.).
         No variables can be used, either (for safety reasons)."""
 
-        PI = math.pi  # just in case someone wants it
+        async with ctx.channel.typing():
+            PI = math.pi  # just in case someone wants it
 
-        try:
-            value = numexpr.evaluate(expression)
+            try:
+                # a bit of a hacky way of doing it, but it works
+                value = numexpr.evaluate(expression)
+            except ZeroDivisionError:
+                raise commands.BadArgument("Cannot divide by zero!")
+            except OverflowError:
+                raise commands.BadArgument("This expression causes an overflow!")
+            except:  # basically any other error
+                raise commands.BadArgument("This is not a valid expression!")
+
             await ctx.reply(f"Result: `{value.item()}`")
-        except ZeroDivisionError:
-            raise commands.BadArgument("Cannot divide by zero!")
-        except OverflowError:
-            raise commands.BadArgument("This expression causes an overflow!")
-        except:  # basically any other error
-            raise commands.BadArgument("This is not a valid expression!")
 
     @commands.command()
     async def support(self, ctx):
