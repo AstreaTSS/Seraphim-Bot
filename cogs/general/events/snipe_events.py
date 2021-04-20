@@ -25,6 +25,7 @@ class SnipeEvents(commands.Cog):
                 return
 
             snipe_embed.color = discord.Colour(0x4378FC)
+            snipe_embed.set_footer(text=f"Author ID: {message.author.id}")
             self.bot.snipes["deletes"][message.channel.id].append(
                 custom_classes.SnipedMessage(snipe_embed)
             )
@@ -44,6 +45,7 @@ class SnipeEvents(commands.Cog):
                     return
 
                 snipe_embed.color = discord.Colour(0x4378FC)
+                snipe_embed.set_footer(text=f"Author ID: {before.author.id}")
                 self.bot.snipes["edits"][before.channel.id].append(
                     custom_classes.SnipedMessage(snipe_embed)
                 )

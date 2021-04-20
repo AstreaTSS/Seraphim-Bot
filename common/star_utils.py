@@ -48,10 +48,8 @@ def get_author_id(mes, bot):
         # but good enough for general use
 
         dank_embed = mes.embeds[0]
-        basic_author = dank_embed.author.name.split("#")  # Name ex: Sonic49#0121
-        author = discord.utils.get(
-            mes.guild.members, name=basic_author[0], discriminator=basic_author[1]
-        )
+        basic_author = dank_embed.author.name  # name EX: Sonic49#0121
+        author = mes.guild.get_member_named(basic_author)
         author_id = mes.author.id if author == None else author.id  # just in case
 
     elif (
@@ -60,49 +58,17 @@ def get_author_id(mes, bot):
         and mes.embeds[0].author.name != discord.Embed.Empty
         and mes.embeds[0].author.name != bot.user.name
         and mes.embeds[0].type == "rich"
+        and mes.embeds[0].footer != discord.Embed.Empty
+        and mes.embeds[0].footer.text.startswith("Author ID: ")
     ):
         # conditions to check if message = sniped message from Seraphim
         # mostly accurate, as Seraphim doesn't cache usernames (although if message is old, it might not get it)
 
-        # author name ex: Sonic is a Pineapple (Sonic49#0121)
-        # next code splits via # and gets last entry, which should be anything after the hash in the username
-        hash_split = mes.embeds[0].author.name.split("#")
-        discrim = hash_split[-1][:4]  # we don't want the )
-
-        username = (
-            collections.deque()
-        )  # we're really only appending to the ends of this, so deque works
-        paren_num = 1
-        attempt = 1
-
-        # the following gets second to last entry, which should have the entire username and other stuff we
-        # don't care about and reverses that entry, starting with the letter right before the # in the
-        # username
-        for chara in hash_split[-2][::-1]:
-
-            # code to make sure () in usernames are handled fine
-            # our goal is to satify all () pairs, including the one surrounding the username itself
-            # if someone has a username like weird_username(#7385, then we continue on until the next
-            # ( and try again. this should work 95% of the time, but not always
-            if chara == "(":
-                paren_num -= 1
-            elif chara == ")":
-                paren_num += 1
-
-            if paren_num == 0:
-                author = discord.utils.get(
-                    mes.guild.members, name="".join(username), discriminator=discrim
-                )
-                if author != None:
-                    return author.id
-                else:
-                    paren_num += 1
-                    attempt += 1
-
-                    if attempt > 3:
-                        break
-
-            username.appendleft(chara)  # reminder we're getting the characters reversed
+        try:
+            author_id = int(mes.embeds[0].footer.text.replace("Author ID: ", ""))
+            return mes.guild.get_member(author_id) or mes.author.id
+        except ValueError:
+            pass
 
         return mes.author.id
 
