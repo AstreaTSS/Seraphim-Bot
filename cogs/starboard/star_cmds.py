@@ -105,21 +105,21 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
     @flags.add_flag("-role", "--role", type=discord.Role)
     @flags.add_flag("-user", "--user", type=discord.Member)
-    @flags.add_flag("-nobots", "--nobots", action="store_true")
+    @flags.add_flag("-bots", "--bots", type=bool, default=True)
     @sb.command(cls=flags.FlagCommand, aliases=["msg_top", "msglb", "msg_lb"])
     @commands.cooldown(1, 5, commands.BucketType.member)
     async def msgtop(self, ctx, **flags):
         """Allows you to view the top 10 starred messages on a server. Cooldown of once every 5 seconds per user.
         Flags: --user <user>: allows you to view the top starred messages by the user specified.
         --role <role>: allows you to view the top starred messages by users who have the role specified.
-        --nobots: allows you to filter out bots."""
+        --bots <true/false>: if bot messages will be on the leaderboard."""
 
         optional_member: typing.Optional[discord.Member] = flags["user"]
         optional_role: typing.Optional[discord.Role] = flags["role"]
         if optional_role:
             role_members = frozenset([r.id for r in optional_role.members])
 
-        if optional_member and optional_member.bot and flags["nobots"]:
+        if optional_member and optional_member.bot and not flags["bots"]:
             raise commands.BadArgument(
                 "You can't just specify a user who is a bot and then filter out bots."
             )
@@ -186,7 +186,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
                         else optional_member
                     )
 
-                if not flags["nobots"] or not (member and member.bot):
+                if flags["bots"] or not (member and member.bot):
                     author_str = (
                         f"{member.display_name} ({str(member)})"
                         if member
@@ -211,13 +211,13 @@ class StarCMDs(commands.Cog, name="Starboard"):
             )
 
     @flags.add_flag("-role", "--role", type=discord.Role)
-    @flags.add_flag("-nobots", "--nobots", action="store_true")
+    @flags.add_flag("-bots", "--bots", type=bool, default=True)
     @sb.command(cls=flags.FlagCommand, name="top", aliases=["leaderboard", "lb"])
     @commands.cooldown(1, 5, commands.BucketType.member)
     async def top(self, ctx, **flags):
         """Allows you to view the top 10 people with the most stars on a server. Cooldown of once every 5 seconds per user.
         Flags: --role <role>: allows you to filter by the role specified, only counting those who have that role.
-        --nobots: allows you to filter out bots."""
+        --bots <true/false>: if bot messages will be on the leaderboard."""
 
         optional_role: typing.Optional[discord.Role] = flags["role"]
         if optional_role:
@@ -245,12 +245,12 @@ class StarCMDs(commands.Cog, name="Starboard"):
             filtered_star_list = []
 
             for entry in user_star_list:
-                if actual_entry_count > 9 and not flags["nobots"]:
+                if actual_entry_count > 9 and flags["bots"]:
                     break
 
                 member = await utils.user_from_id(self.bot, ctx.guild, entry[0])
 
-                if not flags["nobots"] or not (member and member.bot):
+                if flags["bots"] or not (member and member.bot):
                     filtered_star_list.append(entry)
 
                     if actual_entry_count < 10:
@@ -272,7 +272,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
                 raise utils.CustomCheckFailure(
                     "There are no non-bot starboard entries for this server!"
                 )
-            elif flags["nobots"] or optional_role:
+            elif not flags["bots"] or optional_role:
                 top_embed.set_footer(
                     text=f"Your filtered {self.get_user_placing(filtered_star_list, ctx.author.id)}"
                 )

@@ -40,7 +40,7 @@ class ImageCMDs(commands.Cog, name="Image"):
                         "Cannot convert an animated image to this file type!"
                     )
 
-            if not flags["noshrink"]:
+            if flags["shrink"]:
                 width = pil_image.width
                 height = pil_image.height
 
@@ -77,11 +77,10 @@ class ImageCMDs(commands.Cog, name="Image"):
             raise
 
     @flags.command()
-    @flags.add_flag("-noshrink", "--noshrink", action="store_true")
-    @flags.add_flag("-jpg", "--jpg", "-jpeg", "--jpeg", action="store_true")
-    @flags.add_flag("-webp", "--webp", action="store_true")
-    @flags.add_flag("-png", "--png", action="store_true")
-    @flags.add_flag("-gif", "--gif", action="store_true")
+    @flags.add_flag("-shrink", "--shrink", type=bool, default=True)
+    @flags.add_flag(
+        "-format", "--format", type=image_utils.ImageTypeChecker, default="default"
+    )
     @flags.add_flag("-quality", "--quality", default=70, type=int)
     async def compress(
         self, ctx, url: typing.Optional[image_utils.URLToImage], **flags
@@ -89,14 +88,15 @@ class ImageCMDs(commands.Cog, name="Image"):
         """Compresses down the image given.
         It must be an image of type GIF, JPG, PNG, or WEBP. It must also be under 8 MB.
         Image quality will take a hit, and the image will shrink down if it's too big (unless you specify to not shrink the image).
-        Flags: --noshrink (to not shrink the image), --jpg (more compressed but removes transparency), --png (converts images to PNG),
-        --gif (converts images to GIF), --webp (more compressed and keeps transparency, but not as compressed as JPG)
-        --quality <number> (specifies quality from 0-100, only works with JPG and WEBP files)."""
+        Flags --shrink <true/false> (specifies to shrink the image - it will by default)
+        --format <format> (converts the image to the specified format, and it must be 'gif, jpg, png, or webp' \
+        - the resulting image will be in the same format as the original by default)
+        --quality <number> (specifies quality from 0-100, only works with JPG and WEBP files, default is 80)"""
 
         if not 0 <= flags["quality"] <= 100:
             raise commands.BadArgument("Quality must be a number between 0-100!")
 
-        if url == None:
+        if not url:
             url = image_utils.image_from_ctx(ctx)
 
         async with ctx.channel.typing():
@@ -109,14 +109,8 @@ class ImageCMDs(commands.Cog, name="Image"):
             ext = mimetype.split("/")[1]
             flags["ori_ext"] = ext
 
-            if flags["jpg"]:
-                ext = "jpeg"
-            elif flags["webp"]:
-                ext = "webp"
-            elif flags["png"]:
-                ext = "png"
-            elif flags["gif"]:
-                ext = "gif"
+            if not flags["format"] == "default":
+                ext = flags["format"]
 
             compress = functools.partial(self.pil_compress, ori_image, ext, flags)
             compress_image = await self.bot.loop.run_in_executor(None, compress)
@@ -141,7 +135,7 @@ class ImageCMDs(commands.Cog, name="Image"):
             await ctx.reply(content=content, file=com_img_file)
 
     @flags.command(aliases=["image_convert"])
-    @flags.add_flag("-shrink", "--shrink", action="store_true")
+    @flags.add_flag("-shrink", "--shrink", type=bool, default=False)
     @flags.add_flag("-quality", "--quality", default=80, type=int)
     async def img_convert(
         self,
@@ -152,16 +146,14 @@ class ImageCMDs(commands.Cog, name="Image"):
     ):
         """Converts the given image into the specified image type.
         Both the image and the specified image type must be of type GIF, JP(E)G, PNG, or WEBP. The image must also be under 8 MB.
-        Flags: --shrink (to not shrink the image),
-        --quality <number> (specifies quality from 0-100, only works with JPG and WEBP files)."""
+        Flags: --shrink <true/false> (specifies to shrink the image - it won't by default)
+        --quality <number> (specifies quality from 0-100, only works with JPG and WEBP files, default is 80)"""
 
         if not 0 <= flags["quality"] <= 100:
             raise commands.BadArgument("Quality must be a number between 0-100!")
 
-        if url == None:
+        if not url:
             url = image_utils.image_from_ctx(ctx)
-
-        flags["noshrink"] = not flags["shrink"]
 
         async with ctx.channel.typing():
             image_data = await image_utils.get_file_bytes(
