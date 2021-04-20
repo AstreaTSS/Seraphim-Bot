@@ -91,7 +91,7 @@ class ImageCMDs(commands.Cog, name="Image"):
         Flags --shrink <true/false> (specifies to shrink the image - it will by default)
         --format <format> (converts the image to the specified format, and it must be 'gif, jpg, png, or webp' \
         - the resulting image will be in the same format as the original by default)
-        --quality <number> (specifies quality from 0-100, only works with JPG and WEBP files, default is 80)"""
+        --quality <number> (specifies quality from 0-100, only works with JPG and WEBP files, default is 70)"""
 
         if not 0 <= flags["quality"] <= 100:
             raise commands.BadArgument("Quality must be a number between 0-100!")
