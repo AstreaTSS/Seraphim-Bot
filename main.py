@@ -85,25 +85,6 @@ class SeraphimBot(commands.Bot):
         )
         self._checks.append(global_checks)
 
-    # methods for updating the custom cache, which is explained a bit more down below
-    def get_members(self, guild_id: int):
-        try:
-            return list(self.custom_cache[guild_id].values())
-        except KeyError:
-            return None
-
-    def update_member(self, member: discord.Member):
-        try:
-            self.custom_cache[member.guild.id][member.id] = member
-        except KeyError:
-            pass
-
-    def remove_member(self, member: discord.Member):
-        try:
-            del self.custom_cache[member.guild.id][member.id]
-        except KeyError:
-            pass
-
     async def on_ready(self):
         if self.init_load:
             self.starboard = star_classes.StarboardEntries()
@@ -137,18 +118,6 @@ class SeraphimBot(commands.Bot):
                         ):
                             self.death_messages.append(value)
 
-            """Okay, let me explain myself here.
-            Basically, on every disconnect, for some reason, discord.py decides to throw away
-            every single member object it has if you don't have presences on.
-            What I'm doing here is storing a copy of that member cache, and then giving it back
-            to the bot after a disconnect. There's a better method, I know, but I don't have
-            the experience to code something more advanced."""
-            self.custom_cache = {}
-            for guild in self.guilds:
-                self.custom_cache[guild.id] = {}
-                for member in guild.members:
-                    self.update_member(member)
-
             if not hasattr(self, "pool"):
 
                 async def add_json_converter(conn):
@@ -179,14 +148,6 @@ class SeraphimBot(commands.Bot):
                         pass
 
             await self.slash.sync_all_commands()  # need to do this as otherwise things wont work
-
-        else:
-            for guild in self.guilds:
-                members = guild.members
-                cache_members = self.get_members(guild.id)
-                non_cache_members = [m for m in cache_members if not m in members]
-                for non_cache_member in non_cache_members:
-                    guild._add_member(non_cache_member)  # dirty, but it has to be done
 
         utcnow = datetime.utcnow()
         time_format = utcnow.strftime("%x %X UTC")

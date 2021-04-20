@@ -34,32 +34,6 @@ class EtcEvents(commands.Cog):
                 "id": member.id,
             }
 
-        self.bot.remove_member(member)
-
-    @commands.Cog.listener()
-    async def on_member_join(self, member):
-        self.bot.update_member(member)
-
-    @commands.Cog.listener()
-    async def on_member_update(self, before, after):
-        self.bot.update_member(after)
-
-    @commands.Cog.listener()
-    async def on_user_update(self, before, after):
-        for guild_id in self.bot.custom_cache.keys():
-            if self.bot.custom_cache[guild_id].get(after.id) != None:
-                guild = self.bot.get_guild(guild_id)
-                if guild:
-                    member = guild.get_member(after.id)
-                    if member:
-                        self.bot.update_member(member)
-
-    @commands.Cog.listener()
-    async def on_guild_join(self, guild: discord.Guild):
-        self.bot.custom_cache[guild.id] = {}
-        for member in guild.members:
-            self.bot.update_member(member)
-
 
 def setup(bot):
     bot.add_cog(EtcEvents(bot))
