@@ -31,7 +31,7 @@ class EasterEggs(commands.Cog, name="Easter Egg", command_attrs=dict(hidden=True
         can be found here: https://creativecommons.org/licenses/by/2.0/"""
         await ctx.reply(
             "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Tomato_soup%2C_plant-based_"
-            + +"%2844040252791%29.jpg/1280px-Tomato_soup%2C_plant-based_%2844040252791%29.jpg"
+            + "%2844040252791%29.jpg/1280px-Tomato_soup%2C_plant-based_%2844040252791%29.jpg"
         )
 
     @commands.command()
