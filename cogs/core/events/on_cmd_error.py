@@ -21,6 +21,9 @@ class OnCMDError(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error):
+        if not ctx.bot.is_ready():
+            return
+
         if isinstance(error, commands.CommandInvokeError):
             original = error.original
             if not isinstance(original, discord.HTTPException):
@@ -50,7 +53,7 @@ class OnCMDError(commands.Cog):
         elif isinstance(error, utils.CustomCheckFailure):
             await ctx.reply(embed=self.error_embed_generate(str(error)))
         elif isinstance(error, commands.CheckFailure):
-            if ctx.guild != None:
+            if ctx.guild:
                 await ctx.reply(
                     embed=self.error_embed_generate(
                         "You do not have the proper permissions to use that command."

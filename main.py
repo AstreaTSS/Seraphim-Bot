@@ -48,6 +48,9 @@ def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
 
 
 def global_checks(ctx):
+    if not ctx.bot.is_ready():
+        return False
+
     if not ctx.guild:
         return False
 
@@ -73,6 +76,69 @@ def global_checks(ctx):
     return True
 
 
+async def on_init_load():
+    await bot.wait_until_ready()
+
+    bot.starboard = star_classes.StarboardEntries()
+    bot.config = configs.GuildConfigManager()
+
+    bot.star_queue = custom_classes.SetAsyncQueue()
+
+    bot.snipes = {"deletes": {}, "edits": {}}
+    bot.role_rolebacks = {}
+
+    bot.image_extensions = tuple("jpg", "jpeg", "png", "gif", "webp")
+    bot.added_db_info = False
+
+    application = await bot.application_info()
+    bot.owner = application.owner
+
+    # is this overboard for a joke? yes.
+    bot.death_messages = []
+    mc_en_us_url = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.16.5/assets/minecraft/lang/en_us.json"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(mc_en_us_url) as resp:
+            mc_en_us_config = await resp.json(content_type="text/plain")
+
+            for key, value in mc_en_us_config.items():
+                if key.startswith("death.") and key not in (
+                    "death.attack.message_too_long",
+                    "death.attack.badRespawnPoint.link",
+                ):
+                    bot.death_messages.append(value)
+
+    if not hasattr(bot, "pool"):
+
+        async def add_json_converter(conn):
+            await conn.set_type_codec(
+                "jsonb",
+                encoder=discord.utils.to_json,
+                decoder=json.loads,
+                schema="pg_catalog",
+            )
+
+        db_url = os.environ.get("DB_URL")
+        bot.pool = await asyncpg.create_pool(
+            db_url, min_size=2, max_size=5, init=add_json_converter
+        )
+
+    bot.load_extension("jishaku")
+    bot.load_extension("cogs.db_handler")
+    while not bot.added_db_info:
+        await asyncio.sleep(0.1)
+
+    cogs_list = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))
+
+    for cog in cogs_list:
+        if cog != "cogs.db_handler":
+            try:
+                bot.load_extension(cog)
+            except commands.NoEntryPointError:
+                pass
+
+    await bot.slash.sync_all_commands()  # need to do this as otherwise slash cmds wont work
+
+
 class SeraphimBot(commands.Bot):
     def __init__(
         self, command_prefix, help_command=bot_default, description=None, **options
@@ -86,69 +152,6 @@ class SeraphimBot(commands.Bot):
         self._checks.append(global_checks)
 
     async def on_ready(self):
-        if self.init_load:
-            self.starboard = star_classes.StarboardEntries()
-            self.config = configs.GuildConfigManager()
-
-            self.star_queue = custom_classes.SetAsyncQueue()
-
-            self.snipes = {"deletes": {}, "edits": {}}
-            self.role_rolebacks = {}
-
-            image_endings = ("jpg", "jpeg", "png", "gif", "webp")
-            self.image_extensions = tuple(
-                image_endings
-            )  # no idea why I have to do this
-            self.added_db_info = False
-
-            application = await self.application_info()
-            self.owner = application.owner
-
-            # is this overboard for a joke? yes.
-            self.death_messages = []
-            mc_en_us_url = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.16.5/assets/minecraft/lang/en_us.json"
-            async with aiohttp.ClientSession() as session:
-                async with session.get(mc_en_us_url) as resp:
-                    mc_en_us_config = await resp.json(content_type="text/plain")
-
-                    for key, value in mc_en_us_config.items():
-                        if key.startswith("death.") and key not in (
-                            "death.attack.message_too_long",
-                            "death.attack.badRespawnPoint.link",
-                        ):
-                            self.death_messages.append(value)
-
-            if not hasattr(self, "pool"):
-
-                async def add_json_converter(conn):
-                    await conn.set_type_codec(
-                        "jsonb",
-                        encoder=discord.utils.to_json,
-                        decoder=json.loads,
-                        schema="pg_catalog",
-                    )
-
-                db_url = os.environ.get("DB_URL")
-                self.pool = await asyncpg.create_pool(
-                    db_url, min_size=2, max_size=5, init=add_json_converter
-                )
-
-            self.load_extension("jishaku")
-            self.load_extension("cogs.db_handler")
-            while not self.added_db_info:
-                await asyncio.sleep(0.1)
-
-            cogs_list = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))
-
-            for cog in cogs_list:
-                if cog != "cogs.db_handler":
-                    try:
-                        self.load_extension(cog)
-                    except commands.NoEntryPointError:
-                        pass
-
-            await self.slash.sync_all_commands()  # need to do this as otherwise things wont work
-
         utcnow = datetime.utcnow()
         time_format = utcnow.strftime("%x %X UTC")
 
@@ -230,4 +233,6 @@ except ImportError:
     pass
 
 bot.init_load = True
+
+bot.loop.create_task(on_init_load())
 bot.run(os.environ.get("MAIN_TOKEN"))
