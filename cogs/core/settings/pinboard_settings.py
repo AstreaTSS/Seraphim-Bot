@@ -4,6 +4,7 @@ import typing
 import discord
 from discord.ext import commands
 
+import common.classes as cclasses
 import common.groups as groups
 import common.paginator as pagniator
 import common.utils as utils
@@ -75,24 +76,13 @@ async def _list(ctx):
 @commands.check(utils.proper_permissions)
 async def _map(
     ctx,
-    entry: typing.Union[discord.TextChannel, DefaultValidator],
-    destination: discord.TextChannel,
+    entry: typing.Union[cclasses.ValidChannelConverter, DefaultValidator],
+    destination: cclasses.ValidChannelConverter,
     limit: int,
 ):
     """Maps overflowing pins from the entry channel (either 'default' or an actual channel) to go to the destination channel.
     If there are more pins than the limit, it is considered overflowing.
     Requires Manage Server permissions or higher."""
-
-    if isinstance(entry, discord.TextChannel):
-        entry_perms = entry.permissions_for(ctx.guild.me)
-        entry_check = utils.chan_perm_check(entry, entry_perms)
-        if entry_check != "OK":
-            raise utils.CustomCheckFailure(entry_check)
-
-    dest_perms = destination.permissions_for(ctx.guild.me)
-    dest_check = utils.chan_perm_check(destination, dest_perms)
-    if dest_check != "OK":
-        raise utils.CustomCheckFailure(dest_check)
 
     pin_config = ctx.bot.config.getattr(ctx.guild.id, "pin_config")
     if isinstance(entry, discord.TextChannel):

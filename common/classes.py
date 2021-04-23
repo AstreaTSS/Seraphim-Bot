@@ -5,6 +5,7 @@ import re
 import typing
 
 import discord
+from discord import channel
 from discord.ext import commands
 
 
@@ -120,6 +121,25 @@ class TimeDurationConverter(commands.Converter):
             )
 
         return datetime.timedelta(seconds=time_span)
+
+
+class ValidChannelConverter(commands.TextChannelConverter):
+    """The text channel converter, but we do a few checks to make sure we can do what we need to do in the channel."""
+
+    async def convert(self, ctx: commands.Context, argument: str):
+        chan = await super().convert(ctx, argument)
+        perms = chan.permissions_for(ctx.guild.me)
+
+        if not perms.read_messages:  # technically pointless, but who knows
+            raise commands.BadArgument(f"Cannot read messages in {chan.name}.")
+        elif not perms.read_message_history:
+            raise commands.BadArgument(f"Cannot read message history in {chan.name}.")
+        elif not perms.send_messages:
+            raise commands.BadArgument(f"Cannot send messages in {chan.name}.")
+        elif not perms.embed_links:
+            raise commands.BadArgument(f"Cannot send embeds in {chan.name}.")
+
+        return chan
 
 
 class WizardManager:

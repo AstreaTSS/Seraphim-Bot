@@ -3,6 +3,7 @@ import typing
 import discord
 from discord.ext import commands
 
+import common.classes as cclasses
 import common.groups as groups
 import common.utils as utils
 
@@ -18,17 +19,12 @@ async def main_cmd(ctx):
 
 @main_cmd.command()
 @commands.check(utils.proper_permissions)
-async def channel(ctx, channel: typing.Optional[discord.TextChannel]):
+async def channel(ctx, channel: typing.Optional[cclasses.ValidChannelConverter]):
     """Allows you to either get the starboard channel (no argument) or set the starboard channel (with argument)."""
 
     if channel:
-        resp = utils.chan_perm_check(channel, channel.permissions_for(ctx.guild.me))
-
-        if resp == "OK":
-            ctx.bot.config.setattr(ctx.guild.id, starboard_id=channel.id)
-            await ctx.reply(f"Set channel to {channel.mention}!")
-        else:
-            raise utils.CustomCheckFailure(resp)
+        ctx.bot.config.setattr(ctx.guild.id, starboard_id=channel.id)
+        await ctx.reply(f"Set channel to {channel.mention}!")
     else:
         starboard_id = ctx.bot.config.getattr(ctx.guild.id, "starboard_id")
         starboard_mention = f"<#{starboard_id}>" if starboard_id else "None"
@@ -151,13 +147,8 @@ async def _list(ctx):
 @blacklist.command()
 @commands.check(utils.proper_permissions)
 @commands.check(star_toggle_check)
-async def add(ctx, channel: discord.TextChannel):
+async def add(ctx, channel: cclasses.ValidChannelConverter):
     """Adds the channel to the blacklist."""
-
-    chan_perms = channel.permissions_for(ctx.guild.me)
-    chan_check = utils.chan_perm_check(channel, chan_perms)
-    if chan_check != "OK":
-        raise utils.CustomCheckFailure(chan_check)
 
     channel_id_list = ctx.bot.config.getattr(ctx.guild.id, "star_blacklist")
 

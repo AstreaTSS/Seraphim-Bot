@@ -172,22 +172,6 @@ def get_all_extensions(str_path, folder="cogs"):
     return ext_files
 
 
-def chan_perm_check(channel: discord.TextChannel, perms: discord.Permissions):
-    # checks if bot can do what it needs to do in a channel
-    resp = "OK"
-
-    if not perms.read_messages:
-        resp = f"I cannot read messages in {channel.mention}!"
-    elif not perms.read_message_history:
-        resp = f"I cannot read the message history in {channel.mention}!"
-    elif not perms.send_messages:
-        resp = f"I cannot send messages in {channel.mention}!"
-    elif not perms.embed_links:
-        resp = f"I cannot send embeds in {channel.mention}!"
-
-    return resp
-
-
 def get_content(message: discord.Message):
     """Because system_content isn't perfect.
     More or less a copy of system_content with name being swapped with display_name."""
