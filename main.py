@@ -22,7 +22,7 @@ import common.utils as utils
 load_dotenv()
 
 logger = logging.getLogger("discord")
-logger.setLevel(logging.ERROR)
+logger.setLevel(logging.INFO)
 handler = logging.FileHandler(
     filename=os.environ.get("LOG_FILE_PATH"), encoding="utf-8", mode="w"
 )
