@@ -87,7 +87,7 @@ async def on_init_load():
     bot.snipes = {"deletes": {}, "edits": {}}
     bot.role_rolebacks = {}
 
-    bot.image_extensions = tuple("jpg", "jpeg", "png", "gif", "webp")
+    bot.image_extensions = tuple(("jpg", "jpeg", "png", "gif", "webp"))
     bot.added_db_info = False
 
     application = await bot.application_info()
@@ -160,6 +160,10 @@ class SeraphimBot(commands.Bot):
             if self.init_load == True
             else f"Reconnected at `{time_format}`!"
         )
+
+        while not getattr(self, "owner"):
+            await asyncio.sleep(0.1)
+
         await self.owner.send(connect_msg)
 
         self.init_load = False
