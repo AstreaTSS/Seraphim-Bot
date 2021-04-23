@@ -161,7 +161,7 @@ class SeraphimBot(commands.Bot):
             else f"Reconnected at `{time_format}`!"
         )
 
-        while not getattr(self, "owner"):
+        while not hasattr(self, "owner"):
             await asyncio.sleep(0.1)
 
         await self.owner.send(connect_msg)
