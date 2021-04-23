@@ -24,7 +24,7 @@ load_dotenv()
 logger = logging.getLogger("discord")
 logger.setLevel(logging.INFO)
 handler = logging.FileHandler(
-    filename=os.environ.get("LOG_FILE_PATH"), encoding="utf-8", mode="w"
+    filename=os.environ.get("LOG_FILE_PATH"), encoding="utf-8", mode="a"
 )
 handler.setFormatter(
     logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
