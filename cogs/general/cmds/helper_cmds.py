@@ -19,7 +19,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
     @commands.command(aliases=["restoreroles"])
     @commands.check(utils.proper_permissions)
     async def restore_roles(self, ctx, member: discord.Member):
-        """Restores the roles a user had before leaving, suggesting they left less than 15 minutes ago.
+        """Restores the roles a user had before leaving, suggesting they left less than an hour ago.
         The user running this command must have Manage Server permissions.
         Useful for... accidential leaves? Troll leaves? Yeah, not much, but Despair's Horizon wanted it.
         Requires Manage Server permissions or higher."""
@@ -37,13 +37,11 @@ class HelperCMDs(commands.Cog, name="Helper"):
             )
 
         now = datetime.datetime.utcnow()
-        fifteen_prior = now - datetime.timedelta(minutes=15)
+        hour_prior = now - datetime.timedelta(minutes=15)
 
-        if member_entry["time"] < fifteen_prior:
+        if member_entry["time"] < hour_prior:
             del self.bot.role_rolebacks[ctx.guild.id][member_entry["id"]]
-            raise commands.BadArgument(
-                "That member did not leave in the last 15 minutes!"
-            )
+            raise commands.BadArgument("That member did not leave in the last hour!")
 
         top_role = ctx.guild.me.top_role
         unadded_roles = []
