@@ -4,7 +4,6 @@ import typing
 
 import discord
 from discord.ext import commands
-from discord.ext.commands.core import command
 
 import common.classes as custom_classes
 import common.image_utils as image_utils
