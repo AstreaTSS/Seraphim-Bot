@@ -29,16 +29,16 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
         guild_entries = self.bot.starboard.get_list(custom_filter)
 
-        if guild_entries:
-            for entry in guild_entries:
-                if entry.author_id in user_star_dict.keys():
-                    user_star_dict[entry.author_id] += len(entry.get_reactors())
-                else:
-                    user_star_dict[entry.author_id] = len(entry.get_reactors())
-
-            return user_star_dict.most_common(None)
-        else:
+        if not guild_entries:
             return None
+
+        for entry in guild_entries:
+            if entry.author_id in user_star_dict.keys():
+                user_star_dict[entry.author_id] += len(entry.get_reactors())
+            else:
+                user_star_dict[entry.author_id] = len(entry.get_reactors())
+
+        return user_star_dict.most_common(None)
 
     def get_user_placing(self, user_star_list, author_id):
         author_entry = discord.utils.find(lambda e: e[0] == author_id, user_star_list)
@@ -117,13 +117,13 @@ class StarCMDs(commands.Cog, name="Starboard"):
         optional_member: typing.Optional[discord.Member] = flags["user"]
         optional_role: typing.Optional[discord.Role] = flags["role"]
         if optional_role:
-            role_members = frozenset([r.id for r in optional_role.members])
+            role_members = frozenset(r.id for r in optional_role.members)
 
         if optional_member and optional_member.bot and not flags["bots"]:
             raise commands.BadArgument(
                 "You can't just specify a user who is a bot and then filter out bots."
             )
-        if optional_member and optional_role and not optional_member in role_members:
+        if optional_member and optional_role and optional_member not in role_members:
             raise commands.BadArgument(
                 "You can't just specify both a user and a role and have that user not have that role."
             )
@@ -142,73 +142,73 @@ class StarCMDs(commands.Cog, name="Starboard"):
                 lambda e: e.guild_id == ctx.guild.id
             )
 
-        if guild_entries:
-            if optional_member:
-                top_embed = discord.Embed(
-                    title=f"Top starred messages in {ctx.guild.name} by {optional_member.display_name} ({str(optional_member)})",
-                    colour=discord.Colour(0xCFCA76),
-                    timestamp=datetime.datetime.utcnow(),
-                )
-            else:
-                top_embed = discord.Embed(
-                    title=f"Top starred messages in {ctx.guild.name}",
-                    colour=discord.Colour(0xCFCA76),
-                    timestamp=datetime.datetime.utcnow(),
-                )
-            top_embed.set_author(
-                name=f"{self.bot.user.name}",
-                icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='png', size=128))}",
-            )
-            top_embed.set_footer(text="As of")
-
-            guild_entries.sort(reverse=True, key=lambda e: len(e.get_reactors()))
-
-            actual_entry_count = 0
-            for entry in guild_entries:
-                if actual_entry_count > 9:
-                    break
-
-                starboard_id = entry.starboard_id
-
-                url = f"https://discordapp.com/channels/{ctx.guild.id}/{starboard_id}/{entry.star_var_id}"
-                num_stars = len(entry.get_reactors())
-
-                if optional_role:
-                    member = (
-                        ctx.guild.get_member(entry.author_id)
-                        if not optional_member
-                        else optional_member
-                    )
-                else:
-                    member = (
-                        await utils.user_from_id(self.bot, ctx.guild, entry.author_id)
-                        if not optional_member
-                        else optional_member
-                    )
-
-                if flags["bots"] or not (member and member.bot):
-                    author_str = (
-                        f"{member.display_name} ({str(member)})"
-                        if member
-                        else f"User ID: {entry.author_id}"
-                    )
-
-                    top_embed.add_field(
-                        name=f"#{actual_entry_count+1}: {num_stars} ⭐ from {author_str}",
-                        value=f"[Message]({url})\n",
-                        inline=False,
-                    )
-                    actual_entry_count += 1
-
-            if top_embed.fields == discord.Embed.Empty:
-                raise utils.CustomCheckFailure(
-                    "There are no non-bot starboard entries for this server/role!"
-                )
-            await ctx.reply(embed=top_embed)
-        else:
+        if not guild_entries:
             raise utils.CustomCheckFailure(
                 "There are no starboard entries for this server, role, and/or for this user!"
             )
+
+        if optional_member:
+            top_embed = discord.Embed(
+                title=f"Top starred messages in {ctx.guild.name} by {optional_member.display_name} ({str(optional_member)})",
+                colour=discord.Colour(0xCFCA76),
+                timestamp=datetime.datetime.utcnow(),
+            )
+        else:
+            top_embed = discord.Embed(
+                title=f"Top starred messages in {ctx.guild.name}",
+                colour=discord.Colour(0xCFCA76),
+                timestamp=datetime.datetime.utcnow(),
+            )
+        top_embed.set_author(
+            name=f"{self.bot.user.name}",
+            icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='png', size=128))}",
+        )
+        top_embed.set_footer(text="As of")
+
+        guild_entries.sort(reverse=True, key=lambda e: len(e.get_reactors()))
+
+        actual_entry_count = 0
+        for entry in guild_entries:
+            if actual_entry_count > 9:
+                break
+
+            starboard_id = entry.starboard_id
+
+            url = f"https://discordapp.com/channels/{ctx.guild.id}/{starboard_id}/{entry.star_var_id}"
+            num_stars = len(entry.get_reactors())
+
+            if optional_role:
+                member = (
+                    ctx.guild.get_member(entry.author_id)
+                    if not optional_member
+                    else optional_member
+                )
+            else:
+                member = (
+                    await utils.user_from_id(self.bot, ctx.guild, entry.author_id)
+                    if not optional_member
+                    else optional_member
+                )
+
+            if flags["bots"] or not member or not member.bot:
+                author_str = (
+                    f"{member.display_name} ({str(member)})"
+                    if member
+                    else f"User ID: {entry.author_id}"
+                )
+
+                top_embed.add_field(
+                    name=f"#{actual_entry_count+1}: {num_stars} ⭐ from {author_str}",
+                    value=f"[Message]({url})\n",
+                    inline=False,
+                )
+                actual_entry_count += 1
+
+        if top_embed.fields == discord.Embed.Empty:
+            raise utils.CustomCheckFailure(
+                "There are no non-bot starboard entries for this server/role!"
+            )
+        await ctx.reply(embed=top_embed)
 
     @flags.add_flag("-role", "--role", type=discord.Role)
     @flags.add_flag("-bots", "--bots", type=bool, default=True)
@@ -221,7 +221,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
         optional_role: typing.Optional[discord.Role] = flags["role"]
         if optional_role:
-            role_members = frozenset([r.id for r in optional_role.members])
+            role_members = frozenset(r.id for r in optional_role.members)
             user_star_list = self.get_star_rankings(
                 lambda e: e.guild_id == ctx.guild.id and e.author_id in role_members
             )
@@ -230,61 +230,61 @@ class StarCMDs(commands.Cog, name="Starboard"):
                 lambda e: e.guild_id == ctx.guild.id
             )
 
-        if user_star_list:
-            top_embed = discord.Embed(
-                title=f"Star Leaderboard for {ctx.guild.name}",
-                colour=discord.Colour(0xCFCA76),
-                timestamp=datetime.datetime.utcnow(),
-            )
-            top_embed.set_author(
-                name=f"{self.bot.user.name}",
-                icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='png', size=128))}",
-            )
-
-            actual_entry_count = 0
-            filtered_star_list = []
-
-            for entry in user_star_list:
-                if actual_entry_count > 9 and flags["bots"]:
-                    break
-
-                member = await utils.user_from_id(self.bot, ctx.guild, entry[0])
-
-                if flags["bots"] or not (member and member.bot):
-                    filtered_star_list.append(entry)
-
-                    if actual_entry_count < 10:
-                        num_stars = entry[1]
-                        author_str = (
-                            f"{member.display_name} ({str(member)})"
-                            if member != None
-                            else f"User ID: {entry[0]}"
-                        )
-
-                        top_embed.add_field(
-                            name=f"#{actual_entry_count+1}: {author_str}",
-                            value=f"{num_stars} ⭐\n",
-                            inline=False,
-                        )
-                        actual_entry_count += 1
-
-            if top_embed.fields == discord.Embed.Empty:
-                raise utils.CustomCheckFailure(
-                    "There are no non-bot starboard entries for this server!"
-                )
-            elif not flags["bots"] or optional_role:
-                top_embed.set_footer(
-                    text=f"Your filtered {self.get_user_placing(filtered_star_list, ctx.author.id)}"
-                )
-            else:
-                top_embed.set_footer(
-                    text=f"Your {self.get_user_placing(filtered_star_list, ctx.author.id)}"
-                )
-            await ctx.reply(embed=top_embed)
-        else:
+        if not user_star_list:
             raise utils.CustomCheckFailure(
                 "There are no starboard entries for this server/role!"
             )
+
+        top_embed = discord.Embed(
+            title=f"Star Leaderboard for {ctx.guild.name}",
+            colour=discord.Colour(0xCFCA76),
+            timestamp=datetime.datetime.utcnow(),
+        )
+        top_embed.set_author(
+            name=f"{self.bot.user.name}",
+            icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='png', size=128))}",
+        )
+
+        actual_entry_count = 0
+        filtered_star_list = []
+
+        for entry in user_star_list:
+            if actual_entry_count > 9 and flags["bots"]:
+                break
+
+            member = await utils.user_from_id(self.bot, ctx.guild, entry[0])
+
+            if flags["bots"] or not member or not member.bot:
+                filtered_star_list.append(entry)
+
+                if actual_entry_count < 10:
+                    num_stars = entry[1]
+                    author_str = (
+                        f"{member.display_name} ({str(member)})"
+                        if member != None
+                        else f"User ID: {entry[0]}"
+                    )
+
+                    top_embed.add_field(
+                        name=f"#{actual_entry_count+1}: {author_str}",
+                        value=f"{num_stars} ⭐\n",
+                        inline=False,
+                    )
+                    actual_entry_count += 1
+
+        if top_embed.fields == discord.Embed.Empty:
+            raise utils.CustomCheckFailure(
+                "There are no non-bot starboard entries for this server!"
+            )
+        elif not flags["bots"] or optional_role:
+            top_embed.set_footer(
+                text=f"Your filtered {self.get_user_placing(filtered_star_list, ctx.author.id)}"
+            )
+        else:
+            top_embed.set_footer(
+                text=f"Your {self.get_user_placing(filtered_star_list, ctx.author.id)}"
+            )
+        await ctx.reply(embed=top_embed)
 
     @sb.command(aliases=["position", "place", "placing"])
     @commands.cooldown(1, 5, commands.BucketType.member)
@@ -292,11 +292,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         """Allows you to get either your or whoever you mentioned’s position in the star leaderboard (like the top command, but only for one person).
         The user can be mentioned, searched up by ID, or you can say their name and the bot will attempt to search for that person."""
 
-        if not user:
-            member = ctx.author
-        else:
-            member = user
-
+        member = ctx.author if not user else user
         user_star_list = self.get_star_rankings(lambda e: e.guild_id == ctx.guild.id)
 
         if user_star_list:
@@ -332,39 +328,37 @@ class StarCMDs(commands.Cog, name="Starboard"):
             lambda e: e.guild_id == ctx.guild.id and e.star_var_id != None
         )
 
-        if valid_entries:
-            random_entry = random.choice(valid_entries)
-            starboard_id = random_entry.starboard_id
-
-            starboard_chan = ctx.guild.get_channel(starboard_id)
-            if starboard_chan == None:
-                raise utils.CustomCheckFailure(
-                    "I couldn't find the starboard channel for the entry I picked."
-                )
-
-            try:
-                star_mes = await starboard_chan.fetch_message(random_entry.star_var_id)
-            except discord.HTTPException:
-                ori_url = f"https://discordapp.com/channels/{ctx.guild.id}/{random_entry.ori_chan_id}/{random_entry.ori_mes_id}"
-                raise utils.CustomCheckFailure(
-                    "I picked an entry, but I couldn't get the starboard message.\n"
-                    + f"This might be the message I was trying to get: {ori_url}"
-                )
-
-            star_content = star_mes.content
-            star_embed = star_mes.embeds[0]
-
-            star_embed.add_field(
-                name="Starboard Variant",
-                value=f"[Jump]({star_mes.jump_url})",
-                inline=True,
-            )
-
-            await ctx.reply(star_content, embed=star_embed)
-        else:
+        if not valid_entries:
             raise utils.CustomCheckFailure(
                 "There are no starboard entries for me to pick!"
             )
+
+        random_entry = random.choice(valid_entries)
+        starboard_id = random_entry.starboard_id
+
+        starboard_chan = ctx.guild.get_channel(starboard_id)
+        if starboard_chan is None:
+            raise utils.CustomCheckFailure(
+                "I couldn't find the starboard channel for the entry I picked."
+            )
+
+        try:
+            star_mes = await starboard_chan.fetch_message(random_entry.star_var_id)
+        except discord.HTTPException:
+            ori_url = f"https://discordapp.com/channels/{ctx.guild.id}/{random_entry.ori_chan_id}/{random_entry.ori_mes_id}"
+            raise utils.CustomCheckFailure(
+                "I picked an entry, but I couldn't get the starboard message.\n"
+                + f"This might be the message I was trying to get: {ori_url}"
+            )
+
+        star_content = star_mes.content
+        star_embed = star_mes.embeds[0]
+
+        star_embed.add_field(
+            name="Starboard Variant", value=f"[Jump]({star_mes.jump_url})", inline=True,
+        )
+
+        await ctx.reply(star_content, embed=star_embed)
 
     @sb.command(aliases=["info", "information"])
     async def stats(
@@ -507,12 +501,11 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
         starboard_entry = await self.initial_get(ctx, msg, forced=True)
 
-        if not starboard_entry.star_var_id:
-            starboard_entry.forced = True
-            self.bot.starboard.update(starboard_entry)
-        else:
+        if starboard_entry.star_var_id:
             raise commands.BadArgument("This message is already on the starboard!")
 
+        starboard_entry.forced = True
+        self.bot.starboard.update(starboard_entry)
         self.bot.star_queue.put_nowait((msg.channel.id, msg.id, msg.guild.id))
         await ctx.reply(
             "Done! Please wait a couple of seconds for the message to appear."
@@ -548,29 +541,28 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
         starboard_entry = await self.initial_get(ctx, msg, do_not_create=True)
 
-        if starboard_entry.star_var_id:
-            starboard_entry.trashed = True
-            starboard_entry.var_reactors = set()
-            starboard_entry.updated = False
-            self.bot.starboard.update(starboard_entry)
-
-            chan = self.bot.get_channel(starboard_entry.starboard_id)
-            if chan:
-                try:
-                    mes = await chan.fetch_message(starboard_entry.star_var_id)
-                    await mes.delete()
-                    self.bot.star_queue.remove_from_copy(
-                        (
-                            starboard_entry.ori_chan_id,
-                            starboard_entry.ori_mes_id,
-                            starboard_entry.guild_id,
-                        )
-                    )
-                except discord.HTTPException:
-                    pass
-        else:
+        if not starboard_entry.star_var_id:
             raise commands.BadArgument("That message is not on the starboard!")
 
+        starboard_entry.trashed = True
+        starboard_entry.var_reactors = set()
+        starboard_entry.updated = False
+        self.bot.starboard.update(starboard_entry)
+
+        chan = self.bot.get_channel(starboard_entry.starboard_id)
+        if chan:
+            try:
+                mes = await chan.fetch_message(starboard_entry.star_var_id)
+                await mes.delete()
+                self.bot.star_queue.remove_from_copy(
+                    (
+                        starboard_entry.ori_chan_id,
+                        starboard_entry.ori_mes_id,
+                        starboard_entry.guild_id,
+                    )
+                )
+            except discord.HTTPException:
+                pass
         await ctx.reply("The message has been trashed.")
 
     @sb.command()

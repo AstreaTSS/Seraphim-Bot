@@ -25,7 +25,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         if ping_roles == {}:
             raise utils.CustomCheckFailure("There are no roles for you to ping!")
 
-        if not str(role_obj.id) in ping_roles.keys():
+        if str(role_obj.id) not in ping_roles.keys():
             raise commands.BadArgument("That role isn't pingable!")
 
         role_entry = ping_roles[str(role_obj.id)]

@@ -20,7 +20,7 @@ class SetupCMD(commands.Cog, name="Setup"):
         Only people with Manage Server permissions or higher can use these commands.
         This command is in beta. It may be unstable."""
 
-        if ctx.invoked_subcommand == None:
+        if ctx.invoked_subcommand is None:
             await ctx.send_help(ctx.command)
 
     @setup.command(aliases=["sb"])

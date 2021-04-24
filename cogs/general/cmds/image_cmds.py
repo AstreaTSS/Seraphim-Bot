@@ -34,11 +34,14 @@ class ImageCMDs(commands.Cog, name="Image"):
         compress_image = io.BytesIO()
 
         try:
-            if flags["ori_ext"] in ("gif", "webp") and not ext in ("gif", "webp"):
-                if pil_image.is_animated():
-                    raise commands.BadArgument(
-                        "Cannot convert an animated image to this file type!"
-                    )
+            if (
+                flags["ori_ext"] in ("gif", "webp")
+                and ext not in ("gif", "webp")
+                and pil_image.is_animated()
+            ):
+                raise commands.BadArgument(
+                    "Cannot convert an animated image to this file type!"
+                )
 
             if flags["shrink"]:
                 width = pil_image.width
@@ -50,7 +53,7 @@ class ImageCMDs(commands.Cog, name="Image"):
                     pil_image = pil_image.reduce(factor=factor)
 
             if ext == "jpeg":
-                if not pil_image.mode == "RGB":
+                if pil_image.mode != "RGB":
                     pil_image = pil_image.convert("RGB")
                 pil_image.save(
                     compress_image, format=ext, quality=flags["quality"], optimize=True
@@ -109,7 +112,7 @@ class ImageCMDs(commands.Cog, name="Image"):
             ext = mimetype.split("/")[1]
             flags["ori_ext"] = ext
 
-            if not flags["format"] == "default":
+            if flags["format"] != "default":
                 ext = flags["format"]
 
             compress = functools.partial(self.pil_compress, ori_image, ext, flags)

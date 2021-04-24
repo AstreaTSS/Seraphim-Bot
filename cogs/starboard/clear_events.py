@@ -63,7 +63,7 @@ class ClearEvents(commands.Cog):
 
         if star_variants != []:
             for star_variant in star_variants:
-                if not star_variant.star_var_id in payload.message_ids:
+                if star_variant.star_var_id not in payload.message_ids:
                     self.bot.starboard.delete(star_variant.ori_mes_id)
 
                     if star_variant.star_var_id != None:

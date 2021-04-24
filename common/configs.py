@@ -108,11 +108,7 @@ class GuildConfig:
 
     def to_dict(self) -> dict:
         """Converts this class to a dict."""
-        result = {
-            key: getattr(self, key) for key in self.__slots__ if hasattr(self, key)
-        }
-
-        return result
+        return {key: getattr(self, key) for key in self.__slots__ if hasattr(self, key)}
 
 
 class GuildConfigManager:
@@ -131,13 +127,13 @@ class GuildConfigManager:
         self.updated = set()
 
     def create(self, guild_id: int):
-        if not self.entries[guild_id]:
-            new_config = GuildConfig.new_config(guild_id)
-            self.entries[guild_id] = new_config
-            self.added.add(guild_id)
-            return new_config
-        else:
+        if self.entries[guild_id]:
             raise Exception(f"Entry {guild_id} already exists.")
+
+        new_config = GuildConfig.new_config(guild_id)
+        self.entries[guild_id] = new_config
+        self.added.add(guild_id)
+        return new_config
 
     def import_entry(self, db_entry: dict):
         guild_id = db_entry["guild_id"]

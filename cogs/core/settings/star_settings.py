@@ -36,11 +36,11 @@ async def channel(ctx, channel: typing.Optional[cclasses.ValidChannelConverter])
 async def limit(ctx, limit: typing.Optional[int]):
     """Allows you to either get the amount of stars needed to get on the starboard (no argument) or set the amount (with argument)."""
     if limit:
-        if limit > 0:
-            ctx.bot.config.setattr(ctx.guild.id, star_limit=limit)
-            await ctx.reply(f"Set limit to {limit}!")
-        else:
+        if limit <= 0:
             raise commands.BadArgument("The limit needs to be greater than 0!")
+
+        ctx.bot.config.setattr(ctx.guild.id, star_limit=limit)
+        await ctx.reply(f"Set limit to {limit}!")
     else:
         await ctx.reply(
             f"Star limit: {ctx.bot.config.getattr(ctx.guild.id, 'star_limit')}"
@@ -52,14 +52,15 @@ async def limit(ctx, limit: typing.Optional[int]):
 async def remove_reaction(ctx, toggle: typing.Optional[bool]):
     """Allows you to either see if people who react to a star to their messages will have their reactions removed (no argument) or allows you to toggle that (with argument)."""
 
-    if toggle != None:
+    if toggle is None:
+        await ctx.reply(
+            f"Remove self-reactions: **{utils.bool_friendly_str(toggle)(ctx.bot.config.getattr(ctx.guild.id, 'remove_reaction'))}**"
+        )
+
+    else:
         ctx.bot.config.setattr(ctx.guild.id, remove_reaction=toggle)
         await ctx.reply(
             f"Toggled remove reaction {utils.bool_friendly_str(toggle)} for this server!"
-        )
-    else:
-        await ctx.reply(
-            f"Remove self-reactions: **{utils.bool_friendly_str(toggle)(ctx.bot.config.getattr(ctx.guild.id, 'remove_reaction'))}**"
         )
 
 
@@ -69,7 +70,12 @@ async def toggle(ctx, toggle: typing.Optional[bool]):
     """Allows you to either see if all starboard-related commands and actions are on or off (no argument) or allows you to toggle that (with argument).
     If you wish to set the toggle, both the starboard channel and the star limit must be set first."""
 
-    if toggle != None:
+    if toggle is None:
+        await ctx.reply(
+            f"Starboard: **{utils.bool_friendly_str(ctx.bot.config.getattr(ctx.guild.id, 'star_toggle'))}**"
+        )
+
+    else:
         guild_config = ctx.bot.config.get(ctx.guild.id)
         if guild_config.starboard_id and guild_config.star_limit:
             ctx.bot.config.setattr(ctx.guild.id, star_toggle=toggle)
@@ -80,10 +86,6 @@ async def toggle(ctx, toggle: typing.Optional[bool]):
             raise utils.CustomCheckFailure(
                 "Either you forgot to set the starboard channel or the star limit. Please try again."
             )
-    else:
-        await ctx.reply(
-            f"Starboard: **{utils.bool_friendly_str(ctx.bot.config.getattr(ctx.guild.id, 'star_toggle'))}**"
-        )
 
 
 @main_cmd.command(aliases=["edit_messages, editmessage, editmessages"])
@@ -152,7 +154,7 @@ async def add(ctx, channel: cclasses.ValidChannelConverter):
 
     channel_id_list = ctx.bot.config.getattr(ctx.guild.id, "star_blacklist")
 
-    if not channel.id in channel_id_list:
+    if channel.id not in channel_id_list:
         channel_id_list.append(channel.id)
         ctx.bot.config.setattr(ctx.guild.id, star_blacklist=channel_id_list)
         await ctx.reply(f"Addded {channel.mention} to the blacklist!")

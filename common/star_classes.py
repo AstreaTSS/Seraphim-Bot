@@ -125,11 +125,7 @@ class StarboardEntry:
 
     def to_dict(self) -> dict:
         """Converts this class to a dict."""
-        result = {
-            key: getattr(self, key) for key in self.__slots__ if hasattr(self, key)
-        }
-
-        return result
+        return {key: getattr(self, key) for key in self.__slots__ if hasattr(self, key)}
 
     def get_reactors(self) -> typing.Set[int]:
         """Gets the total reactors, a mix of ori and var reactors."""
@@ -175,7 +171,7 @@ class StarboardEntry:
 
     def add_reactor(self, reactor_id, type_of_reactor: ReactorType):
         """Adds a reactor to the reactor type specified. Will silently fail if the entry already exists."""
-        if not reactor_id in self.get_reactors():
+        if reactor_id not in self.get_reactors():
             if type_of_reactor == ReactorType.ORI_REACTORS:
                 self.ori_reactors.add(reactor_id)
             elif type_of_reactor == ReactorType.VAR_REACTORS:
@@ -209,12 +205,12 @@ class StarboardEntries:
 
     def add(self, entry: StarboardEntry, init=False):
         """Adds an entry to the list of entries. Or, well, the dict of entries."""
-        if not self.entries[entry.ori_mes_id]:
-            self.entries[entry.ori_mes_id] = entry
-            if not init:
-                self.added.add(entry.ori_mes_id)
-        else:
+        if self.entries[entry.ori_mes_id]:
             raise Exception(f"Entry {entry.ori_mes_id} already exists.")
+
+        self.entries[entry.ori_mes_id] = entry
+        if not init:
+            self.added.add(entry.ori_mes_id)
 
     def delete(self, entry_id):
         """Removes an entry from the dict of entries."""
@@ -229,15 +225,15 @@ class StarboardEntries:
 
     def update(self, entry: StarboardEntry):
         """Updates an entry in the dict of entries."""
-        if self.entries[entry.ori_mes_id]:
-            self.entries[entry.ori_mes_id] = entry
-
-            if not entry.ori_mes_id in self.added:
-                self.updated.add(entry.ori_mes_id)
-        else:
+        if not self.entries[entry.ori_mes_id]:
             raise KeyError(
                 f"Entry {entry.ori_chan_id} does not exist in the current entries."
             )
+
+        self.entries[entry.ori_mes_id] = entry
+
+        if entry.ori_mes_id not in self.added:
+            self.updated.add(entry.ori_mes_id)
 
     def get(self, entry_id, check_for_var=False) -> typing.Optional[StarboardEntry]:
         """Gets an entry based on the ID provides."""
@@ -247,10 +243,9 @@ class StarboardEntries:
             else:
                 return None
         else:
-            entry = discord.utils.find(
+            return discord.utils.find(
                 lambda e: e and e.star_var_id == entry_id, self.entries.values()
             )
-            return entry
 
     def get_list(self, list_filter) -> typing.List[StarboardEntry]:
         """Gets specific entries based on the filter (a lambda or function) specified."""

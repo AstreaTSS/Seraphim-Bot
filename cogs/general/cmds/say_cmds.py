@@ -61,11 +61,10 @@ class SayCMDS(commands.Cog, name="Say"):
         file_io = None
         allowed_mentions = utils.generate_mentions(ctx)
 
-        if ctx.message.attachments is not None:
-            if len(ctx.message.attachments) > 1:
-                raise utils.CustomCheckFailure(
-                    "I cannot say messages with more than one attachment due to resource limits."
-                )
+        if ctx.message.attachments is not None and len(ctx.message.attachments) > 1:
+            raise utils.CustomCheckFailure(
+                "I cannot say messages with more than one attachment due to resource limits."
+            )
 
         try:
             image_data = await image_utils.get_file_bytes(
@@ -80,27 +79,28 @@ class SayCMDS(commands.Cog, name="Say"):
                 file_io.close()
 
         if file_to_send:
-            if optional_channel is not None:
+            if optional_channel is None:
+                await ctx.send(" ".join(args), allowed_mentions=allowed_mentions)
+            else:
                 await optional_channel.send(
                     " ".join(args), allowed_mentions=allowed_mentions
                 )
                 await ctx.reply(f"Done! Check out {optional_channel.mention}!")
-            else:
-                await ctx.send(" ".join(args), allowed_mentions=allowed_mentions)
         else:
-            if optional_channel is not None:
-                await optional_channel.send(
-                    content=" ".join(args),
-                    allowed_mentions=allowed_mentions,
-                    file=file_to_send,
-                )
-                await ctx.reply(f"Done! Check out {optional_channel.mention}!")
-            else:
+            if optional_channel is None:
                 await ctx.send(
                     content=" ".join(args),
                     file=file_to_send,
                     allowed_mentions=allowed_mentions,
                 )
+
+            else:
+                await optional_channel.send(
+                    content=" ".join(args),
+                    allowed_mentions=allowed_mentions,
+                    file=file_to_send,
+                )
+                await ctx.reply(f"Done! Check out {optional_channel.mention}!")
 
     @commands.command()
     @commands.check(utils.proper_permissions)
@@ -160,7 +160,7 @@ class SayCMDS(commands.Cog, name="Say"):
                 "3. What will be the title of the embed? Markdown (fancy discord editing) will work with titles."
             ),
         )
-        if reply == None:
+        if reply is None:
             return
         else:
             say_embed.title = reply.content
@@ -172,7 +172,7 @@ class SayCMDS(commands.Cog, name="Say"):
                 "4. What will be the content of the embed? Markdown (fancy discord editing) will work with content."
             ),
         )
-        if reply == None:
+        if reply is None:
             return
         else:
             say_embed.description = reply.content
@@ -180,11 +180,11 @@ class SayCMDS(commands.Cog, name="Say"):
         if optional_color != None:
             say_embed.colour = optional_color
 
-        if optional_channel != None:
+        if optional_channel is None:
+            await ctx.send(embed=say_embed)
+        else:
             await optional_channel.send(embed=say_embed)
             await ctx.reply(f"Done! Check out {optional_channel.mention}!")
-        else:
-            await ctx.send(embed=say_embed)
 
         await ori.edit(content="```\nSetup complete.\n```")
 

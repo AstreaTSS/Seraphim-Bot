@@ -47,7 +47,7 @@ def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
     return mention_prefixes + custom_prefixes
 
 
-def global_checks(ctx):
+def global_checks(ctx):  # sourcery skip: return-identity
     if not ctx.bot.is_ready():
         return False
 
@@ -194,7 +194,7 @@ class SeraphimBot(commands.Bot):
         to get the command from - to _ and retries. Convenient for the end user."""
 
         ctx = await super().get_context(message, cls=cls)
-        if ctx.command == None and ctx.invoked_with:
+        if ctx.command is None and ctx.invoked_with:
             ctx.command = self.all_commands.get(ctx.invoked_with.replace("-", "_"))
 
         return ctx

@@ -75,8 +75,7 @@ async def tenor_handle(url: str):
             resp_json = await resp.json()
 
             try:
-                gif_url = resp_json["results"][0]["media"][0]["gif"]["url"]
-                return gif_url
+                return resp_json["results"][0]["media"][0]["gif"]["url"]
             except KeyError:
                 return None
             except IndexError:
@@ -86,9 +85,6 @@ async def tenor_handle(url: str):
 async def get_image_url(url: str):
     # handles getting true image url from a url
 
-    image_endings = ("jpg", "jpeg", "png", "gif", "webp")
-    image_extensions = tuple(image_endings)  # no idea why I have to do this
-
     if "https://tenor.com/view" in url or "http://tenor.com/view" in url:
         gif_url = await tenor_handle(url)
         if gif_url != None:
@@ -96,6 +92,10 @@ async def get_image_url(url: str):
 
     else:
         file_type = await type_from_url(url)
+
+        image_endings = ("jpg", "jpeg", "png", "gif", "webp")
+        image_extensions = tuple(image_endings)  # no idea why I have to do this
+
         if file_type in image_extensions:
             return url
 

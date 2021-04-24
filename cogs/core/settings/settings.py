@@ -26,7 +26,7 @@ class Settings(commands.Cog, name="Settings"):
             if cmd.name == "settings":
                 settings_cmd = cmd
 
-        if settings_cmd == None:
+        if settings_cmd is None:
             raise commands.CommandNotFound("Can't find settings command!")
 
         settings_ext = utils.get_all_extensions(
@@ -49,7 +49,7 @@ class Settings(commands.Cog, name="Settings"):
             if cmd.name == "settings":
                 settings_cmd = cmd
 
-        if settings_cmd == None:
+        if settings_cmd is None:
             raise commands.CommandNotFound("Can't find settings command!")
 
         for cmd in settings_cmd.copy().walk_commands():

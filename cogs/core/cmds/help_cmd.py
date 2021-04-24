@@ -223,10 +223,11 @@ class PaginatedHelpCommand(commands.HelpCommand):
 
     async def subcommand_not_found(self, command, string: str):
         qualified_name = command.qualified_name.replace("_", "-")
-        actual_str = string.replace("_", "-")
 
         if isinstance(command, commands.Group) and len(command.all_commands) > 0:
+            actual_str = string.replace("_", "-")
             return f'Command "{qualified_name}" has no subcommand named {actual_str}'
+
         return f'Command "{qualified_name}" has no subcommands.'
 
 

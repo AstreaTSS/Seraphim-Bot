@@ -6,7 +6,6 @@ import typing
 
 import discord_slash
 from discord.ext import commands
-from discord.ext.commands.core import command
 
 import common.classes as custom_classes
 import common.paginator as paginator

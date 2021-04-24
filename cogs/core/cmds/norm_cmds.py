@@ -148,7 +148,7 @@ class NormCMDs(commands.Cog, name="Normal"):
                 "You have too many prefixes! You can only have up to 10 prefixes."
             )
 
-        if not prefix in prefixes:
+        if prefix not in prefixes:
             prefixes.append(prefix)
             self.bot.config.setattr(ctx.guild.id, prefixes=prefixes)
             await ctx.reply(f"Added `{prefix}`!")

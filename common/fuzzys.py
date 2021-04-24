@@ -70,15 +70,16 @@ class FuzzyConverter(commands.IDConverter):
                         new_members = [
                             e
                             for e in fuzzy_list
-                            if not e[0] in combined_entries
-                            and not (len(processor(e[0])) < 2 and len(argument) > 2)
+                            if e[0] not in combined_entries
+                            and (len(processor(e[0])) >= 2 or len(argument) <= 2)
                             and argument.lower() in processor(e[0])
                         ]
+
                     else:
                         new_members = [
                             e
                             for e in fuzzy_list
-                            if not e[0] in combined_entries
+                            if e[0] not in combined_entries
                             and argument.lower() in processor(e[0])
                         ]
 
@@ -89,18 +90,14 @@ class FuzzyConverter(commands.IDConverter):
                             combined_list = combined_list[:5]
                         return await self.selection_handler(ctx, combined_list)
 
-        if combined_list != []:
-            if len(combined_list) == 1:
-                if not unsure:
-                    return combined_list[0][0]  # actual entry itself
-                else:
-                    if combined_list[0][1] < 95:  # entries score
-                        await self.unsure_select_handler(ctx, combined_list[0][0])
-                    return combined_list[0][0]
-            else:
-                return await self.selection_handler(ctx, combined_list)
-        else:
+        if combined_list == []:
             return
+
+        if len(combined_list) != 1:
+            return await self.selection_handler(ctx, combined_list)
+        if unsure and combined_list[0][1] < 95:  # entries score
+            await self.unsure_select_handler(ctx, combined_list[0][0])
+        return combined_list[0][0]  # actual entry itself
 
     async def unsure_select_handler(self, ctx, item):
         selection_embed = self.unsure_embed_gen(ctx, item)
@@ -209,7 +206,7 @@ class FuzzyMemberConverter(FuzzyConverter):
                 ctx, argument, ctx.guild.members, (self.get_display_name, self.get_name)
             )
 
-        if result == None:
+        if result is None:
             raise commands.BadArgument(f'Member "{argument}" not found.')
         return result
 
@@ -239,6 +236,6 @@ class FuzzyRoleConverter(FuzzyConverter):
                 ctx, argument, ctx.guild.roles, [self.get_name], unsure=True
             )
 
-        if result == None:
+        if result is None:
             raise commands.BadArgument(f'Role "{argument}" not found.')
         return result

@@ -13,15 +13,15 @@ class PinHandler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, msg):
-        if not msg.type == discord.MessageType.pins_add or not msg.guild:
+        if msg.type != discord.MessageType.pins_add or not msg.guild:
             return
 
         pin_config = self.bot.config.getattr(msg.guild.id, "pin_config")
         chan_entry = pin_config.get(str(msg.channel.id))
         if not chan_entry:
             chan_entry = pin_config.get("default")
-            if not chan_entry:
-                return
+        if not chan_entry:
+            return
 
         pins = await msg.channel.pins()
 
@@ -29,7 +29,7 @@ class PinHandler(commands.Cog):
             early_entry = pins[-1]
 
             des_chan = self.bot.get_channel(chan_entry["destination"])
-            if des_chan == None:
+            if des_chan is None:
                 return
 
             send_embed = await star_mes.star_generate(self.bot, early_entry)

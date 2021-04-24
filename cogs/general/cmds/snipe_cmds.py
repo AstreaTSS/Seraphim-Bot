@@ -61,7 +61,7 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
                 "You can't snipe the 0th to last message no matter how hard you try."
             )
 
-        if not chan.id in self.bot.snipes[type_of].keys():
+        if chan.id not in self.bot.snipes[type_of].keys():
             raise commands.BadArgument("There's nothing to snipe!")
 
         try:
@@ -73,7 +73,7 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
 
     def clear_snipes(self, type_of, chan_id):
         if (
-            not chan_id in self.bot.snipes[type_of]
+            chan_id not in self.bot.snipes[type_of]
             or self.bot.snipes[type_of][chan_id] == []
         ):
             raise commands.BadArgument("This channel doesn't have any snipes to clear!")
@@ -104,7 +104,7 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
         """Clears all snipes of the type specified from the bot (defaults to both types), making them unable to be sniped. Useful for moderation.
         Type can be edits, deletes, or both. If no channel is specified, it assumes the current channel."""
 
-        if chan == None:
+        if chan is None:
             chan = ctx.channel
 
         lowered = snipe_type.lower()

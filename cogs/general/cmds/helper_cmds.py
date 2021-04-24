@@ -99,7 +99,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         Useful for mobile devices, which for some reason cannot do this.
         Requires Manage Server permissions or higher."""
 
-        if channel == None:
+        if channel is None:
             channel = ctx.channel
 
         toggle = not channel.is_nsfw()
@@ -187,7 +187,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         if len(emoji_name) < 2:
             raise commands.BadArgument("Emoji name must at least 2 characters!")
 
-        if emoji == None:
+        if emoji is None:
             url = image_utils.image_from_ctx(ctx)
         elif isinstance(emoji, discord.PartialEmoji):
             possible_emoji = self.bot.get_emoji(emoji.id)
@@ -201,7 +201,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         type_of = await image_utils.type_from_url(
             url
         )  # a bit redundent, but i dont see any other good way
-        if not type_of in ("jpg", "jpeg", "png", "gif"):  # webp exists
+        if type_of not in ("jpg", "jpeg", "png", "gif"):  # webp exists
             raise commands.BadArgument("This image's format is not valid for an emoji!")
 
         # emoji limits are based off if the emoji is animated or not,
@@ -297,11 +297,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         Names, IDs, mentions... try it out and see.
         Will return the time in UTC in MM/DD/YY HH:MM:SS in 24-hour time."""
 
-        if not isinstance(argument, int):
-            obj_id = argument.id
-        else:
-            obj_id = argument
-
+        obj_id = argument.id if not isinstance(argument, int) else argument
         obj_creation = discord.utils.snowflake_time(obj_id)
         time_format = obj_creation.strftime("%x %X UTC")
 

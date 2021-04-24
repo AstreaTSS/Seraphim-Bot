@@ -40,7 +40,7 @@ class SetAsyncQueue(asyncio.Queue):
         return self._queue.pop()
 
     def _put(self, item):
-        if not item in self._queuecopy:
+        if item not in self._queuecopy:
             self._queue.add(item)
             self._queuecopy.add(item)
 

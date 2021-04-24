@@ -15,7 +15,7 @@ async def main_cmd(ctx):
     """The base command for managing all of the pingable roles. See the help for the subcommands for more info.
     Only people with Manage Server permissions or higher can use these commands."""
 
-    if ctx.invoked_subcommand == None:
+    if ctx.invoked_subcommand is None:
         await ctx.send_help(ctx.command)
 
 
@@ -73,7 +73,7 @@ async def cooldown(
 
     pingable_roles = ctx.bot.config.getattr(ctx.guild.id, "pingable_roles")
 
-    if not str(role.id) in pingable_roles:
+    if str(role.id) not in pingable_roles:
         raise commands.BadArgument("That's not a pingable role!")
 
     period = cooldown.total_seconds()
@@ -95,7 +95,7 @@ async def remove(ctx, *, role: fuzzys.FuzzyRoleConverter):
     if ping_roles == {}:
         raise utils.CustomCheckFailure("There are no pingable roles to remove!")
 
-    if not str(role.id) in ping_roles.keys():
+    if str(role.id) not in ping_roles.keys():
         raise commands.BadArgument("That role isn't on the ping list!")
 
     del ping_roles[str(role.id)]

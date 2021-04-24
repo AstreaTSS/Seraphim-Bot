@@ -15,12 +15,11 @@ class OnCMDError(commands.Cog):
         self.bot = bot
 
     def error_embed_generate(self, error_msg):
-        error_embed = discord.Embed(colour=discord.Colour.red(), description=error_msg)
-
-        return error_embed
+        return discord.Embed(colour=discord.Colour.red(), description=error_msg)
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error):
+        # sourcery skip: remove-pass-elif
         if not ctx.bot.is_ready():
             return
 

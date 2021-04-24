@@ -123,7 +123,7 @@ async def modify_stars(bot, mes: discord.Message, reactor_id, operation):
         # this code probably needs slight rewriting
         type_of = get_reactor_type(mes.id, starboard_entry)
 
-        if not reactor_id in starboard_entry.get_reactors() and operation == "ADD":
+        if reactor_id not in starboard_entry.get_reactors() and operation == "ADD":
             starboard_entry.add_reactor(reactor_id, type_of)
 
         elif (
@@ -267,7 +267,6 @@ async def star_entry_refresh(
 
 def star_check(bot, payload):
     # basic check for starboard stuff: is it in a guild, and is the starboard enabled here?
-    if payload.guild_id and bot.config.getattr(payload.guild_id, "star_toggle"):
-        return True
-
-    return False
+    return bool(
+        payload.guild_id and bot.config.getattr(payload.guild_id, "star_toggle")
+    )

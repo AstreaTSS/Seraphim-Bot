@@ -7,7 +7,6 @@ import discord
 import numexpr
 from discord.ext import commands
 from discord_slash import cog_ext
-from discord_slash import SlashCommand
 from discord_slash import SlashContext
 
 import common.utils as utils

@@ -27,7 +27,7 @@ async def fetch_needed(bot, payload):
     guild = bot.get_guild(payload.guild_id)
     user = guild.get_member(payload.user_id)
 
-    if user == None:  # rare, but it's happened
+    if user is None:  # rare, but it's happened
         user = await guild.fetch_member(payload.user_id)
 
     channel = bot.get_channel(payload.channel_id)
@@ -79,11 +79,7 @@ async def msg_to_owner(bot, content, split=True):
     owner = bot.owner
     string = str(content)
 
-    if split:
-        str_chunks = string_split(string)
-    else:
-        str_chunks = content
-
+    str_chunks = string_split(string) if split else content
     for chunk in str_chunks:
         await owner.send(f"{chunk}")
 
@@ -91,14 +87,14 @@ async def msg_to_owner(bot, content, split=True):
 async def user_from_id(bot, guild, user_id):
     # gets a user from id. attempts via guild first, then attempts globally
     user = guild.get_member(user_id)  # member in guild
-    if user == None:
+    if user is None:
         user = bot.get_user(user_id)  # user in cache
 
-        if user == None:
-            try:
-                user = await bot.fetch_user(user_id)  # a user that exists
-            except discord.NotFound:
-                user = None
+    if user is None:
+        try:
+            user = await bot.fetch_user(user_id)  # a user that exists
+        except discord.NotFound:
+            user = None
 
     return user
 
@@ -109,6 +105,7 @@ def deny_mentions(user):
 
 
 def generate_mentions(ctx: commands.Context):
+    # sourcery skip: remove-unnecessary-else
     # generates an AllowedMentions object that is similar to what a user can usually use
 
     permissions = ctx.author.guild_permissions

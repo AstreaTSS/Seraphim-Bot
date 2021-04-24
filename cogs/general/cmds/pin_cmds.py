@@ -24,8 +24,8 @@ class PinCMDs(commands.Cog, name="Pinboard"):
         chan_entry = pin_config.get(str(ctx.channel.id))
         if not chan_entry:
             chan_entry = pin_config.get("default")
-            if not chan_entry:
-                raise commands.BadArgument("This channel isn't mapped!")
+        if not chan_entry:
+            raise commands.BadArgument("This channel isn't mapped!")
 
         pins = await ctx.channel.pins()
         pins.reverse()  # pins are retrived newest -> oldest, we want to do the opposite
@@ -36,7 +36,7 @@ class PinCMDs(commands.Cog, name="Pinboard"):
             )
 
         des_chan = self.bot.get_channel(chan_entry["destination"])
-        if des_chan == None:
+        if des_chan is None:
             raise utils.CustomCheckFailure(
                 "The destination channel doesn't exist anymore! Please fix this in the config."
             )

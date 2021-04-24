@@ -14,7 +14,7 @@ class SnipeEvents(commands.Cog):
     @commands.Cog.listener()
     async def on_message_delete(self, message):
         if message.system_content != "":
-            if not message.channel.id in self.bot.snipes["deletes"].keys():
+            if message.channel.id not in self.bot.snipes["deletes"].keys():
                 self.bot.snipes["deletes"][message.channel.id] = []
 
             try:
@@ -32,23 +32,25 @@ class SnipeEvents(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
-        if before.system_content != after.system_content:
-            if before.system_content != "":
-                if not before.channel.id in self.bot.snipes["edits"].keys():
-                    self.bot.snipes["edits"][before.channel.id] = []
+        if before.system_content == after.system_content:
+            return
 
-                try:
-                    snipe_embed = await star_mes.base_generate(
-                        self.bot, before, no_attachments=True
-                    )
-                except discord.InvalidArgument:
-                    return
+        if before.system_content != "":
+            if before.channel.id not in self.bot.snipes["edits"].keys():
+                self.bot.snipes["edits"][before.channel.id] = []
 
-                snipe_embed.color = discord.Colour(0x4378FC)
-                snipe_embed.set_footer(text=f"Author ID: {before.author.id}")
-                self.bot.snipes["edits"][before.channel.id].append(
-                    custom_classes.SnipedMessage(snipe_embed)
+            try:
+                snipe_embed = await star_mes.base_generate(
+                    self.bot, before, no_attachments=True
                 )
+            except discord.InvalidArgument:
+                return
+
+            snipe_embed.color = discord.Colour(0x4378FC)
+            snipe_embed.set_footer(text=f"Author ID: {before.author.id}")
+            self.bot.snipes["edits"][before.channel.id].append(
+                custom_classes.SnipedMessage(snipe_embed)
+            )
 
 
 def setup(bot):

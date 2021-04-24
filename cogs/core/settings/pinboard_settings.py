@@ -24,7 +24,7 @@ async def main_cmd(ctx):
     """Base command for managing the pinboard. See the subcommands below.
     Requires Manage Server permissions or higher."""
 
-    if ctx.invoked_subcommand == None:
+    if ctx.invoked_subcommand is None:
         await ctx.send_help(ctx.command)
 
 
