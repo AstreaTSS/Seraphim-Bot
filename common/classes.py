@@ -1,11 +1,9 @@
 #!/usr/bin/env python3.8
 import asyncio
 import datetime
-import re
 import typing
 
 import discord
-from discord import channel
 from discord.ext import commands
 
 
@@ -52,7 +50,8 @@ class SetAsyncQueue(asyncio.Queue):
 
 class TimeDurationConverter(commands.Converter):
     """Converts a string to a time duration.
-    Works very similarly to YAGPDB's time duration converter."""
+    Works very similarly to YAGPDB's time duration converter.
+    In fact, entering in a time duration that works for YAG will probably work here."""
 
     convert_dict = {
         "s": 1,
@@ -74,9 +73,6 @@ class TimeDurationConverter(commands.Converter):
         "year": 31536000,
         "years": 31536000,
     }
-    regex = re.compile(
-        r"([+-]?(?=\.\d|\d)(?:\d+)?(?:\.?\d*))(?:[eE]([+-]?\d+))?"
-    )  # splits character and number
 
     def to_seconds(self, time_value, time_prefix):
         try:
@@ -84,42 +80,73 @@ class TimeDurationConverter(commands.Converter):
         except KeyError:
             raise commands.BadArgument(f"{time_prefix} is not a valid time prefix.")
 
-    async def convert(self, ctx, argument):
-        time_value_list = []
-        time_format_list = []
-        time_span = -1
+    async def convert(self, ctx, argument: str):
+        time_value_list = []  # will be list of all numbers, ie the '60' in '60d'
+        time_format_list = []  # will be list of all formats, ie the 'd' in '60d'
+        time_span = 0  # will be how long the duration is, in seconds
 
-        for match in self.regex.finditer(argument):
-            time_value_list.append(float(match.group()))  # gets number value
+        value_entry = []
+        format_entry = []
 
-        for entry in self.regex.split(argument):
-            if not (entry == "" or entry == None):
-                try:
-                    float(entry)
-                    continue
-                except ValueError:
-                    time_format_list.append(entry.strip().lower())  # gets h, m, s, etc.
+        # we want to effectively ignore spaces and not want to worry about caps here
+        formatted_arg = argument.replace(" ", "").lower()
+
+        for chara in formatted_arg:
+            if (
+                chara.isdigit() or chara == "."
+            ):  # if a character is a digit or a '.' - aka if the character is part of a number
+                if (
+                    format_entry
+                ):  # if this already exists, that means there was a format before the current number
+                    # basically, this number represents the start of a new part of the duration, and we need to add in the old one
+                    # format entry should have the format of the previous part, so store that
+                    time_format_list.append("".join(format_entry))
+                    format_entry.clear()
+
+                value_entry.append(chara)  # slowly build up our number
+
+            else:
+                if (
+                    value_entry
+                ):  # if this already exists, that means we just came off a number
+                    # so we need to store that number and prepare to get the measurement unit after it
+                    time_value_list.append(
+                        float("".join(value_entry))
+                    )  # numbers are floats
+                    value_entry.clear()
+
+                format_entry.append(chara)  # slowly build up our unit
+
+        # if there any values still not added to either list after the string is over, add them to the lists
+        # we would miss out on things like the last unit or the last number if we didn't do this
+        if value_entry:
+            time_value_list.append(float("".join(value_entry)))
+        if format_entry:
+            time_format_list.append("".join(format_entry))
+
+        # if the list of units/formats is one less than the list of numbers/values
+        if len(time_format_list) + 1 == len(time_value_list):
+            time_format_list.append(
+                "m"
+            )  # yag assumes a number with no digit is a minute, so we do too
 
         if (
-            time_format_list == []
-            or time_value_list == []
+            not time_format_list
+            or not time_value_list
             or len(time_format_list) != len(time_value_list)
-        ):
+        ):  # if either list is empty and has no units/numbers or if the two are not equal,
+            # we know this cannot be correct with an actual duration, so we error out
             raise commands.BadArgument(
                 f"Argument {argument} is not a valid time duration."
             )
 
-        for i in range(len(time_format_list)):
-            if time_span == -1:
-                time_span = 0
+        for time_value, time_format in zip(time_value_list, time_format_list):
+            # build up the time span by going through each seperate value and format
+            # and processing it into seconds, and then adding it to the total seconds
+            # the duration represents
+            time_span += self.to_seconds(time_value, time_format)
 
-            time_span += self.to_seconds(time_value_list[i], time_format_list[i])
-
-        if time_span == -1:
-            raise commands.BadArgument(
-                f"Argument {argument} is not a valid time duration."
-            )
-
+        # timedeltas are generally useful for this type of stuff
         return datetime.timedelta(seconds=time_span)
 
 
