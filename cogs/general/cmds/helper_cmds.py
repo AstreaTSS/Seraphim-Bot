@@ -4,6 +4,7 @@ import typing
 
 import discord
 from discord.ext import commands
+from discord.ext.commands.core import command
 
 import common.classes as custom_classes
 import common.image_utils as image_utils
@@ -114,6 +115,29 @@ class HelperCMDs(commands.Cog, name="Helper"):
                 "".join(
                     (
                         "I was unable to change this channel's NSFW mode! This might be due to me not having the ",
+                        "permissions to or some other weird funkyness with Discord. Maybe this error will help you.\n",
+                        f"Error: {e}",
+                    )
+                )
+            )
+
+    @commands.command()
+    @commands.check(utils.proper_permissions)
+    async def suppress(self, ctx, msg: discord.Message):
+        """Suppresses any embeds on the message, if there were any.
+        Useful if you're a mobile user.
+        Requires Manage Server permissions or higher."""
+        if msg.flags.suppress_embeds:
+            raise commands.BadArgument("This messages already has suppressed embeds!")
+
+        try:
+            await msg.edit(suppress=True)
+            await ctx.reply("The message has successfully been suppressed.")
+        except discord.HTTPException as e:
+            raise utils.CustomCheckFailure(
+                "".join(
+                    (
+                        "I was unable to suppress this message! This might be due to me not having the ",
                         "permissions to or some other weird funkyness with Discord. Maybe this error will help you.\n",
                         f"Error: {e}",
                     )
