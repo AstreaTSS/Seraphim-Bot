@@ -98,7 +98,9 @@ class ImageCMDs(commands.Cog, name="Image"):
             img_format = "default"
         else:
             img_type_checker = image_utils.ImageTypeChecker
-            img_format = await img_type_checker.convert(ctx, flags["format"])
+            img_format = await img_type_checker.convert(
+                img_type_checker, ctx, flags["format"]
+            )
 
         if not 0 <= flags["quality"] <= 100:
             raise commands.BadArgument("Quality must be a number between 0-100!")
