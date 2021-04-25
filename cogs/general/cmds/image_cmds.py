@@ -81,9 +81,7 @@ class ImageCMDs(commands.Cog, name="Image"):
 
     @flags.command()
     @flags.add_flag("-shrink", "--shrink", type=bool, default=True)
-    @flags.add_flag(
-        "-format", "--format", type=image_utils.ImageTypeChecker, default="default"
-    )
+    @flags.add_flag("-format", "--format", type=str, default="default")
     @flags.add_flag("-quality", "--quality", default=70, type=int)
     async def compress(
         self, ctx, url: typing.Optional[image_utils.URLToImage], **flags
@@ -95,6 +93,12 @@ class ImageCMDs(commands.Cog, name="Image"):
         --format <format> (converts the image to the specified format, and it must be 'gif, jpg, png, or webp' \
         - the resulting image will be in the same format as the original by default)
         --quality <number> (specifies quality from 0-100, only works with JPG and WEBP files, default is 70)"""
+
+        if flags["format"] == "default":
+            img_format = "default"
+        else:
+            img_type_checker = image_utils.ImageTypeChecker
+            img_format = await img_type_checker.convert(flags["format"])
 
         if not 0 <= flags["quality"] <= 100:
             raise commands.BadArgument("Quality must be a number between 0-100!")
@@ -112,7 +116,7 @@ class ImageCMDs(commands.Cog, name="Image"):
             ext = mimetype.split("/")[1]
             flags["ori_ext"] = ext
 
-            if flags["format"] != "default":
+            if img_format != "default":
                 ext = flags["format"]
 
             compress = functools.partial(self.pil_compress, ori_image, ext, flags)
