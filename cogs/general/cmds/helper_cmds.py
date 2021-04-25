@@ -223,7 +223,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
                 # not totally sure, though
                 raw_data = io.BytesIO(emoji_data)
                 emoji_image = Image.open(raw_data)
-                animated: bool = emoji_image.is_animated()
+                animated: bool = emoji_image.is_animated
             finally:
                 if raw_data:
                     raw_data.close()

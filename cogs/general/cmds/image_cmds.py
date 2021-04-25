@@ -37,7 +37,7 @@ class ImageCMDs(commands.Cog, name="Image"):
             if (
                 flags["ori_ext"] in ("gif", "webp")
                 and ext not in ("gif", "webp")
-                and pil_image.is_animated()
+                and pil_image.is_animated
             ):
                 raise commands.BadArgument(
                     "Cannot convert an animated image to this file type!"
