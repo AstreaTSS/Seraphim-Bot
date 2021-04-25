@@ -30,10 +30,10 @@ class ImageCMDs(commands.Cog, name="Image"):
         return size
 
     def pil_compress(self, image, ext, flags):
-        pil_image = Image.open(image)
-        compress_image = io.BytesIO()
-
         try:
+            pil_image = Image.open(image)
+            compress_image = io.BytesIO()
+
             if (
                 flags["ori_ext"] in ("gif", "webp")
                 and ext not in ("gif", "webp")
@@ -75,9 +75,11 @@ class ImageCMDs(commands.Cog, name="Image"):
 
             return compress_image
 
-        except BaseException:
+        except:
             compress_image.close()
             raise
+        finally:
+            pil_image.close()
 
     @flags.command()
     @flags.add_flag("-shrink", "--shrink", type=bool, default=True)
