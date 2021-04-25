@@ -185,65 +185,66 @@ class HelperCMDs(commands.Cog, name="Helper"):
         Useful if you're on iOS and transparency gets the best of you, you want to add an emoji from a URL, or
         you want to... take an emoji from another server.
         Requires Manage Server permissions or higher."""
-
-        if len(emoji_name) < 2:
-            raise commands.BadArgument("Emoji name must at least 2 characters!")
-
-        if emoji is None:
-            url = image_utils.image_from_ctx(ctx)
-        elif isinstance(emoji, discord.PartialEmoji):
-            possible_emoji = self.bot.get_emoji(emoji.id)
-            if possible_emoji and possible_emoji.guild_id == ctx.guild.id:
-                raise commands.BadArgument("This emoji already exists here!")
-            else:
-                url = str(emoji.url)
-        else:
-            url = emoji
-
-        type_of = await image_utils.type_from_url(
-            url
-        )  # a bit redundent, but i dont see any other good way
-        if type_of not in ("jpg", "jpeg", "png", "gif"):  # webp exists
-            raise commands.BadArgument("This image's format is not valid for an emoji!")
-
-        animated = False
-        emoji_data = None
-
-        if type_of == "gif":  # you see, gifs can be animated or not animated
-            # so we need to check for that via an admittedly risky operation
-
-            emoji_data = await image_utils.get_file_bytes(
-                url, 262144, equal_to=False
-            )  # 256 KiB, which I assume Discord uses
-
-            raw_data = None
-            emoji_image = None
-
-            try:  # i think this operation is basic enough not to need a generator?
-                # not totally sure, though
-                raw_data = io.BytesIO(emoji_data)
-                emoji_image = Image.open(raw_data)
-                animated: bool = emoji_image.is_animated
-            finally:
-                if raw_data:
-                    raw_data.close()
-                if emoji_image:
-                    emoji_image.close()
-
-        else:
-            animated = False
-
-        if animated:
-            emoji_count = len([e for e in ctx.guild.emojis if e.animated])
-        else:
-            emoji_count = len([e for e in ctx.guild.emojis if not e.animated])
-
-        if emoji_count >= ctx.guild.emoji_limit:
-            raise utils.CustomCheckFailure(
-                "This guild has no more emoji slots for that type of emoji!"
-            )
-
         async with ctx.channel.typing():
+
+            if len(emoji_name) < 2:
+                raise commands.BadArgument("Emoji name must at least 2 characters!")
+
+            if emoji is None:
+                url = image_utils.image_from_ctx(ctx)
+            elif isinstance(emoji, discord.PartialEmoji):
+                possible_emoji = self.bot.get_emoji(emoji.id)
+                if possible_emoji and possible_emoji.guild_id == ctx.guild.id:
+                    raise commands.BadArgument("This emoji already exists here!")
+                else:
+                    url = str(emoji.url)
+            else:
+                url = emoji
+
+            type_of = await image_utils.type_from_url(
+                url
+            )  # a bit redundent, but i dont see any other good way
+            if type_of not in ("jpg", "jpeg", "png", "gif"):  # webp exists
+                raise commands.BadArgument(
+                    "This image's format is not valid for an emoji!"
+                )
+
+            animated = False
+            emoji_data = None
+
+            if type_of == "gif":  # you see, gifs can be animated or not animated
+                # so we need to check for that via an admittedly risky operation
+
+                emoji_data = await image_utils.get_file_bytes(
+                    url, 262144, equal_to=False
+                )  # 256 KiB, which I assume Discord uses
+
+                raw_data = None
+                emoji_image = None
+
+                try:  # i think this operation is basic enough not to need a generator?
+                    # not totally sure, though
+                    raw_data = io.BytesIO(emoji_data)
+                    emoji_image = Image.open(raw_data)
+                    animated: bool = emoji_image.is_animated
+                finally:
+                    if raw_data:
+                        raw_data.close()
+                    if emoji_image:
+                        emoji_image.close()
+
+            else:
+                animated = False
+
+            if animated:
+                emoji_count = len([e for e in ctx.guild.emojis if e.animated])
+            else:
+                emoji_count = len([e for e in ctx.guild.emojis if not e.animated])
+
+            if emoji_count >= ctx.guild.emoji_limit:
+                raise utils.CustomCheckFailure(
+                    "This guild has no more emoji slots for that type of emoji!"
+                )
 
             if not emoji_data:
                 emoji_data = await image_utils.get_file_bytes(
