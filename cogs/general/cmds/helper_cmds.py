@@ -1,9 +1,11 @@
 import datetime
 import importlib
+import io
 import typing
 
 import discord
 from discord.ext import commands
+from PIL import Image
 
 import common.classes as custom_classes
 import common.image_utils as image_utils
@@ -204,10 +206,34 @@ class HelperCMDs(commands.Cog, name="Helper"):
         if type_of not in ("jpg", "jpeg", "png", "gif"):  # webp exists
             raise commands.BadArgument("This image's format is not valid for an emoji!")
 
-        # emoji limits are based off if the emoji is animated or not,
-        # and non-animated emojis have a seperate limit from animated ones
-        # so we need to check for that
-        if type_of == "gif":
+        animated = False
+        emoji_data = None
+
+        if type_of == "gif":  # you see, gifs can be animated or not animated
+            # so we need to check for that via an admittedly risky operation
+
+            emoji_data = await image_utils.get_file_bytes(
+                url, 262144, equal_to=False
+            )  # 256 KiB, which I assume Discord uses
+
+            raw_data = None
+            emoji_image = None
+
+            try:  # i think this operation is basic enough not to need a generator?
+                # not totally sure, though
+                raw_data = io.BytesIO(emoji_data)
+                emoji_image = Image.open(raw_data)
+                animated: bool = emoji_image.is_animated()
+            finally:
+                if raw_data:
+                    raw_data.close()
+                if emoji_image:
+                    emoji_image.close()
+
+        else:
+            animated = False
+
+        if animated:
             emoji_count = len([e for e in ctx.guild.emojis if e.animated])
         else:
             emoji_count = len([e for e in ctx.guild.emojis if not e.animated])
@@ -218,9 +244,11 @@ class HelperCMDs(commands.Cog, name="Helper"):
             )
 
         async with ctx.channel.typing():
-            emoji_data = await image_utils.get_file_bytes(
-                url, 262144, equal_to=False
-            )  # 256 KiB, which I assume Discord uses
+
+            if not emoji_data:
+                emoji_data = await image_utils.get_file_bytes(
+                    url, 262144, equal_to=False
+                )  # 256 KiB, which I assume Discord uses
 
             try:
                 emoji = await ctx.guild.create_custom_emoji(

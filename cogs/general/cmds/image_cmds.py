@@ -99,7 +99,7 @@ class ImageCMDs(commands.Cog, name="Image"):
         else:
             img_type_checker = image_utils.ImageTypeChecker
             img_format = await img_type_checker.convert(
-                self=img_type_checker, ctx=ctx, argument=flags["format"]
+                img_type_checker, ctx, flags["format"]
             )
 
         if not 0 <= flags["quality"] <= 100:
@@ -112,22 +112,25 @@ class ImageCMDs(commands.Cog, name="Image"):
             image_data = await image_utils.get_file_bytes(
                 url, 8388608, equal_to=False
             )  # 8 MiB
-            ori_image = io.BytesIO(image_data)
 
-            mimetype = discord.utils._get_mime_type_for_image(image_data)
-            ext = mimetype.split("/")[1]
-            flags["ori_ext"] = ext
+            try:
+                ori_image = io.BytesIO(image_data)
 
-            if img_format != "default":
-                ext = flags["format"]
+                mimetype = discord.utils._get_mime_type_for_image(image_data)
+                ext = mimetype.split("/")[1]
+                flags["ori_ext"] = ext
 
-            compress = functools.partial(self.pil_compress, ori_image, ext, flags)
-            compress_image = await self.bot.loop.run_in_executor(None, compress)
+                if img_format != "default":
+                    ext = flags["format"]
 
-            ori_size = self.get_size(ori_image)
-            compressed_size = self.get_size(compress_image)
+                compress = functools.partial(self.pil_compress, ori_image, ext, flags)
+                compress_image = await self.bot.loop.run_in_executor(None, compress)
 
-            ori_image.close()
+                ori_size = self.get_size(ori_image)
+                compressed_size = self.get_size(compress_image)
+
+            finally:
+                ori_image.close()
 
             try:
                 com_img_file = discord.File(compress_image, f"image.{ext}")
