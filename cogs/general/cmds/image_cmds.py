@@ -4,6 +4,7 @@ import io
 import math
 import os
 import typing
+from enum import Enum
 
 import discord
 import humanize
@@ -81,10 +82,71 @@ class ImageCMDs(commands.Cog, name="Image"):
         finally:
             pil_image.close()
 
-    @flags.command()
+    def pil_resize(
+        self,
+        image,
+        ext,
+        percent: typing.Optional[float],
+        width: typing.Optional[float],
+        height: typing.Optional[float],
+        filter: int,
+    ):
+        resized_image = io.BytesIO()
+
+        try:
+            pil_image = Image.open(image)
+
+            if percent:
+                new_width = math.ceil(pil_image.width * (percent / 100))
+                new_height = math.ceil(pil_image.height * (percent / 100))
+            elif bool(width) ^ bool(height):
+                if width:
+                    new_width = width
+                    percent = width / pil_image.width
+                    new_height = math.ceil(pil_image.height * (percent / 100))
+                else:
+                    new_height = height
+                    percent = height / pil_image.height
+                    new_width = math.ceil(pil_image.width * (percent / 100))
+            else:
+                new_width = width
+                new_height = height
+
+            pil_image = pil_image.resize((new_width, new_height), filter)
+
+            pil_image.save(resized_image, format=ext)
+            resized_image.seek(0, os.SEEK_SET)
+
+            return resized_image
+        except:
+            resized_image.close()
+            raise
+        finally:
+            pil_image.close()
+
+    class ImageFilters(Enum):
+        # what Pillow should have done
+        NEAREST = 0
+        NONE = 0
+        BOX = 4
+        BILINEAR = 2
+        LINEAR = 2
+        HAMMING = 5
+        BICUBIC = 3
+        CUBIC = 3
+        LANCZOS = 1
+        ANTIALIAS = 1
+
+    def str_to_filter(self, argument: str):
+        try:
+            return self.ImageFilters[argument.upper()]
+        except KeyError:
+            raise commands.BadArgument(f"Invalid filter `{argument}` provided!")
+
     @flags.add_flag("-shrink", "--shrink", type=bool, default=True)
     @flags.add_flag("-format", "--format", type=str, default="default")
     @flags.add_flag("-quality", "--quality", default=70, type=int)
+    @flags.command()
     async def compress(
         self, ctx, url: typing.Optional[image_utils.URLToImage], **flags
     ):
@@ -148,9 +210,9 @@ class ImageCMDs(commands.Cog, name="Image"):
 
             await ctx.reply(content=content, file=com_img_file)
 
-    @flags.command(aliases=["image_convert"])
     @flags.add_flag("-shrink", "--shrink", type=bool, default=False)
     @flags.add_flag("-quality", "--quality", default=80, type=int)
+    @flags.command(aliases=["image_convert"])
     async def img_convert(
         self,
         ctx,
@@ -173,24 +235,105 @@ class ImageCMDs(commands.Cog, name="Image"):
             image_data = await image_utils.get_file_bytes(
                 url, 8388608, equal_to=False
             )  # 8 MiB
-            ori_image = io.BytesIO(image_data)
 
-            mimetype = discord.utils._get_mime_type_for_image(image_data)
-            flags["ori_ext"] = mimetype.split("/")[1]
-            ext = img_type
+            try:
+                ori_image = io.BytesIO(image_data)
 
-            compress = functools.partial(self.pil_compress, ori_image, ext, flags)
-            converted_image = await self.bot.loop.run_in_executor(None, compress)
+                mimetype = discord.utils._get_mime_type_for_image(image_data)
+                flags["ori_ext"] = mimetype.split("/")[1]
+                ext = img_type
 
-            ori_image.close()
+                compress = functools.partial(self.pil_compress, ori_image, ext, flags)
+                converted_image = await self.bot.loop.run_in_executor(None, compress)
+            finally:
+                ori_image.close()
 
             try:
                 convert_img_file = discord.File(converted_image, f"image.{ext}")
-            except BaseException:
+            except:
                 converted_image.close()
                 raise
 
             await ctx.reply(file=convert_img_file)
+
+    @flags.add_flag("-percent", "--percent", type=float)
+    @flags.add_flag("-width", "--width", type=int)
+    @flags.add_flag("-height", "--height", type=int)
+    @flags.add_flag("-filter", "--filter", type=str)
+    @flags.command(aliases=["image_resize"])
+    async def img_resize(
+        self, ctx, url: typing.Optional[image_utils.URLToImage], **flags
+    ):
+        """Resizes the image as specified by the flags.
+        The image must be of type GIF, JP(E)G, PNG, or WEBP. The image must also be under 8 MB.
+
+        Required flags:
+        --percent <percent> (specifies the percent to reduce it to - whole numbers with no %, like '50', please.)
+        --width <width> (specifies the width to reduce it to - it must be a whole number and greater than 0.)
+        --height <height> (specifies the height to reduce it to - it must be a whole number and greater than 0.)
+
+        Optional flags:
+        --filter <filter> (specifies which resampling filter to use while downsizing - see \
+        https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-filters for the filters and which \
+        one is best for you. Default is Bicubic.)
+        """
+
+        if flags["filter"]:
+            filter = self.str_to_filter(flags["filter"])
+        else:
+            filter = Image.BICUBIC
+
+        if not url:
+            url = image_utils.image_from_ctx(ctx)
+
+        if not (flags["percent"] or flags["width"] or flags["height"]):
+            raise commands.BadArgument("No resizing arguments passed!")
+
+        if flags["percent"] and (flags["width"] or flags["height"]):
+            raise commands.BadArgument(
+                "You cannot have a percentage and a width/height at the same time!"
+            )
+
+        if flags["percent"] and not flags["percent"] > 0:
+            raise commands.BadArgument("The percent must be greater than 0!")
+
+        if flags["width"] and not flags["width"] > 0:
+            raise commands.BadArgument("The width must be greater than 0!")
+
+        if flags["height"] and not flags["height"] > 0:
+            raise commands.BadArgument("The height must be greater than 0!")
+
+        async with ctx.channel.typing():
+            image_data = await image_utils.get_file_bytes(
+                url, 8388608, equal_to=False
+            )  # 8 MiB
+
+            try:
+                ori_image = io.BytesIO(image_data)
+
+                mimetype = discord.utils._get_mime_type_for_image(image_data)
+                ext = mimetype.split("/")[1]
+
+                resize = functools.partial(
+                    self.pil_resize,
+                    ori_image,
+                    ext,
+                    flags["percent"],
+                    flags["width"],
+                    flags["height"],
+                    filter,
+                )
+                resized_image = await self.bot.loop.run_in_executor(None, resize)
+            finally:
+                ori_image.close()
+
+            try:
+                resized_img_file = discord.File(resized_image, f"image.{ext}")
+            except:
+                resized_image.close()
+                raise
+
+            await ctx.reply(file=resized_img_file)
 
 
 def setup(bot):
