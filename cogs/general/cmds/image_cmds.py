@@ -348,7 +348,7 @@ class ImageCMDs(commands.Cog, name="Image"):
                 content = (
                     f"Original Image Dimensions: {ori_width}x{ori_height}\n"
                     + f"New Image Dimensions: {new_width}x{new_height}\n"
-                    + f"Percentage Changed: {flags['percent'] or round(((1 - (new_width / ori_width)) * 100), 2)}%\n"
+                    + f"Percentage Changed: {flags['percent'] or round(((new_width / ori_width) * 100), 2)}%\n"
                     + f"New Image Size: {humanize.naturalsize(resize_size, binary=True)}"
                 )
             except:
