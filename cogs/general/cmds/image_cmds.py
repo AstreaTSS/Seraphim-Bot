@@ -106,11 +106,11 @@ class ImageCMDs(commands.Cog, name="Image"):
                 if width:
                     new_width = width
                     percent = width / pil_image.width
-                    new_height = math.ceil(pil_image.height * (percent / 100))
+                    new_height = math.ceil(pil_image.height * percent)
                 else:
                     new_height = height
                     percent = height / pil_image.height
-                    new_width = math.ceil(pil_image.width * (percent / 100))
+                    new_width = math.ceil(pil_image.width * percent)
             else:
                 new_width = width
                 new_height = height
@@ -348,7 +348,7 @@ class ImageCMDs(commands.Cog, name="Image"):
                 content = (
                     f"Original Image Dimensions: {ori_width}x{ori_height}\n"
                     + f"New Image Dimensions: {new_width}x{new_height}\n"
-                    + f"Percentage Changed: {flags['percent'] or round(((1 - (new_width / ori_width)) * 100), 2)}\n"
+                    + f"Percentage Changed: {flags['percent'] or round(((1 - (new_width / ori_width)) * 100), 2)}%\n"
                     + f"New Image Size: {humanize.naturalsize(resize_size, binary=True)}"
                 )
             except:
