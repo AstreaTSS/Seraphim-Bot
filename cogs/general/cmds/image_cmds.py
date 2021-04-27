@@ -142,7 +142,7 @@ class ImageCMDs(commands.Cog, name="Image"):
 
     def str_to_filter(self, argument: str):
         try:
-            return self.ImageFilters[argument.upper()]
+            return self.ImageFilters[argument.upper()].value
         except KeyError:
             raise commands.BadArgument(f"Invalid filter `{argument}` provided!")
 
