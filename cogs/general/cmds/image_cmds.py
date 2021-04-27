@@ -87,14 +87,17 @@ class ImageCMDs(commands.Cog, name="Image"):
         image,
         ext,
         percent: typing.Optional[float],
-        width: typing.Optional[float],
-        height: typing.Optional[float],
+        width: typing.Optional[int],
+        height: typing.Optional[int],
         filter: int,
     ):
         resized_image = io.BytesIO()
 
         try:
             pil_image = Image.open(image)
+
+            ori_width = pil_image.width
+            ori_height = pil_image.height
 
             if percent:
                 new_width = math.ceil(pil_image.width * (percent / 100))
@@ -117,7 +120,7 @@ class ImageCMDs(commands.Cog, name="Image"):
             pil_image.save(resized_image, format=ext)
             resized_image.seek(0, os.SEEK_SET)
 
-            return resized_image
+            return resized_image, ori_width, ori_height, new_width, new_height
         except:
             resized_image.close()
             raise
@@ -204,7 +207,7 @@ class ImageCMDs(commands.Cog, name="Image"):
                     + f"Reduced Size: {humanize.naturalsize(compressed_size, binary=True)}\n"
                     + f"Size Saved: {round(((1 - (compressed_size / ori_size)) * 100), 2)}%"
                 )
-            except BaseException:
+            except:
                 compress_image.close()
                 raise
 
@@ -323,17 +326,36 @@ class ImageCMDs(commands.Cog, name="Image"):
                     flags["height"],
                     filter,
                 )
-                resized_image = await self.bot.loop.run_in_executor(None, resize)
+
+                (
+                    resized_image,
+                    ori_width,
+                    ori_height,
+                    new_width,
+                    new_height,
+                ) = await self.bot.loop.run_in_executor(None, resize)
+                resize_size = self.get_size(resized_image)
+
+                if resize_size > 8388608:
+                    resized_image.close()
+                    raise commands.BadArgument("Resulting image was over 8 MiB!")
             finally:
                 ori_image.close()
 
             try:
                 resized_img_file = discord.File(resized_image, f"image.{ext}")
+
+                content = (
+                    f"Original Image Dimensions: {ori_width}x{ori_height}\n"
+                    + f"New Image Dimensions: {new_width}x{new_height}\n"
+                    + f"Percentage Changed: {flags['percent'] or round(((1 - (new_width / ori_width)) * 100), 2)}\n"
+                    + f"New Image Size: {humanize.naturalsize(resize_size, binary=True)}"
+                )
             except:
                 resized_image.close()
                 raise
 
-            await ctx.reply(file=resized_img_file)
+            await ctx.reply(content=content, file=resized_img_file)
 
 
 def setup(bot):
