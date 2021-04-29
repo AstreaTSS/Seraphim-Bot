@@ -244,7 +244,7 @@ async def base_generate(bot, mes: discord.Message, no_attachments=False):
                 and mes.embeds[0].provider.name != discord.Embed.Empty
                 and mes.embeds[0].provider.name == "YouTube"
             ):
-                send_embed.set_thumbnail(url=mes.embeds[0].thumbnail.url)
+                image_url = mes.embeds[0].thumbnail.url
                 send_embed.add_field(
                     name="YouTube:",
                     value=f"{mes.embeds[0].author.name}: [{mes.embeds[0].title}]({mes.embeds[0].url})",
