@@ -3,6 +3,7 @@ import collections
 import re
 
 import discord
+from discord import embeds
 
 import common.image_utils as image_utils
 import common.star_utils as star_utils
@@ -233,6 +234,21 @@ async def base_generate(bot, mes: discord.Message, no_attachments=False):
                     mes.embeds[0].thumbnail.url != discord.Embed.Empty
                 ):  # if there is a thumbnail url
                     image_url = mes.embeds[0].thumbnail.url
+
+            # if the image url is STILL blank and there's a youtube video
+            if (
+                image_url == ""
+                and mes.embeds
+                and mes.embeds[0].type == "video"
+                and mes.embeds[0].provider != discord.Embed.Empty
+                and mes.embeds[0].provider.name != discord.Embed.Empty
+                and mes.embeds[0].provider.name == "YouTube"
+            ):
+                image_url = mes.embeds[0].thumbnail.url
+                send_embed.add_field(
+                    name="YouTube:",
+                    value=f"{mes.embeds[0].author.name}: [{mes.embeds[0].title}]({mes.embeds[0].url})",
+                )
 
             # if the image url is STILL blank and the message has a sticker
             if image_url == "" and mes.stickers:
