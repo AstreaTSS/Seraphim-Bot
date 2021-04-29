@@ -248,6 +248,7 @@ async def base_generate(bot, mes: discord.Message, no_attachments=False):
                 send_embed.add_field(
                     name="YouTube:",
                     value=f"{mes.embeds[0].author.name}: [{mes.embeds[0].title}]({mes.embeds[0].url})",
+                    inline=False,
                 )
 
             # if the image url is STILL blank and the message has a sticker
