@@ -169,6 +169,13 @@ class ValidChannelConverter(commands.TextChannelConverter):
         return chan
 
 
+class WizardQuestion:
+    def __init__(self, question, converter, action):
+        self.question: str = question
+        self.converter: typing.Callable = converter
+        self.action: typing.Callable = action
+
+
 class WizardManager:
     """A class that allows you to make a wizard of sorts, allowing a more intuitive way of getting multiple inputs from a user."""
 
@@ -178,17 +185,21 @@ class WizardManager:
         timeout: float,
         final_text: str,
         color=discord.Colour(0x4378FC),
+        pass_self=False,
     ):
         self.embed_title = embed_title
         self.timeout = timeout
         self.final_text = final_text
         self.color = color
+        self.pass_self = pass_self
 
-        self.questions = []
+        self.questions: typing.List[WizardQuestion] = []
         self.ori_mes: typing.Optional[discord.Message] = None
 
-    def add_question(self, question: str, converter, action):
-        self.questions.append((question, converter, action))
+    def add_question(
+        self, question: str, converter: typing.Callable, action: typing.Callable
+    ):
+        self.questions.append(WizardQuestion(question, converter, action))
 
     async def run(self, ctx: commands.Context):
         def check(m):
@@ -204,7 +215,7 @@ class WizardManager:
         )
 
         for question in self.questions:
-            wizard_embed.description = question[0]
+            wizard_embed.description = question.question
 
             if not self.ori_mes:
                 self.ori_mes = await ctx.reply(embed=wizard_embed)
@@ -229,7 +240,7 @@ class WizardManager:
 
             try:
                 converted = await discord.utils.maybe_coroutine(
-                    question[1], ctx, reply.content
+                    question.converter, ctx, reply.content
                 )
             except:
                 wizard_embed.description = "Invalid input. Exiting..."
@@ -237,7 +248,12 @@ class WizardManager:
                 await self.ori_mes.edit(embed=wizard_embed)
                 return
 
-            await discord.utils.maybe_coroutine(question[2], ctx, converted)
+            if not self.pass_self:
+                await discord.utils.maybe_coroutine(question.action, ctx, converted)
+            else:
+                await discord.utils.maybe_coroutine(
+                    question.action, ctx, converted, self
+                )
 
         wizard_embed.description = self.final_text
         wizard_embed.set_footer(text=discord.Embed.Empty)

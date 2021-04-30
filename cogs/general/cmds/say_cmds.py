@@ -6,6 +6,7 @@ import typing
 import discord
 from discord.ext import commands
 
+import common.classes as custom_classes
 import common.image_utils as image_utils
 import common.utils as utils
 
@@ -13,41 +14,6 @@ import common.utils as utils
 class SayCMDS(commands.Cog, name="Say"):
     def __init__(self, bot):
         self.bot = bot
-
-    async def setup_helper(self, ctx, ori_mes, question, code_mes=True):
-        def check(m):
-            return m.author == ctx.author and m.channel == ctx.channel
-
-        if code_mes:
-            await ori_mes.edit(
-                content=(
-                    "```\n"
-                    + question
-                    + "\n\nYou have 10 minutes to reply to each question, otherwise this will automatically be exited."
-                    + '\nIf you wish to exit at any time, just say "exit".\n```'
-                )
-            )
-        else:
-            await ori_mes.edit(
-                content=(
-                    "Due to Discord limitations, this question looks slightly different.\n\n"
-                    + question
-                    + "\n\nYou have 10 minutes to reply to each question, otherwise this will automatically be exited."
-                    + '\nIf you wish to exit at any time, just say "exit".'
-                )
-            )
-
-        try:
-            reply = await self.bot.wait_for("message", check=check, timeout=600.0)
-        except asyncio.TimeoutError:
-            await ori_mes.edit(content="```\nFailed to reply. Exiting...\n```")
-            return None
-        else:
-            if reply.content.lower() == "exit":
-                await ori_mes.edit(content="```\nExiting...\n```")
-                return None
-            else:
-                return reply
 
     @commands.command()
     @commands.check(utils.proper_permissions)
@@ -107,88 +73,73 @@ class SayCMDS(commands.Cog, name="Say"):
     async def embed_say(self, ctx):
         """Allows people with Manage Server permissions to speak with the bot with a fancy embed. Will open a wizard-like prompt."""
 
-        optional_channel = None
-        optional_color = None
-
-        ori = await ctx.reply("```\nSetting up...\n```")
-
-        reply = await self.setup_helper(
-            ctx,
-            ori,
-            (
-                "Because of this command's complexity, this command requires a little wizard.\n\n"
-                + "1. If you wish to do so, which channel do you want to send this message to? If you just want to send it in "
-                + 'this channel, just say "skip".'
-            ),
+        wizard = custom_classes.WizardManager(
+            "Embed Say Wizard", 120, "Setup complete.", pass_self=True
         )
-        if reply == None:
-            return
-        elif reply.content.lower() != "skip":
-            try:
-                optional_channel = await commands.TextChannelConverter().convert(
-                    ctx, reply.content
-                )
-            except commands.BadArgument:
-                await ori.edit(content="```\nFailed to get channel. Exiting...\n```")
-                return
 
-        reply = await self.setup_helper(
-            ctx,
-            ori,
-            (
-                "2. If you wish to do so, what color, in hex (ex. #000000), would you like the embed to have. Case-insensitive, "
-                + "does not require '#'.\nIf you just want the default color, say \"skip\"."
-            ),
+        question_1 = (
+            "Because of this command's complexity, this command requires a little wizard.\n\n"
+            + "1. If you wish to do so, which channel do you want to send this message to? If you just want to send it in "
+            + 'this channel, just say "skip".'
         )
-        if reply == None:
-            return
-        elif reply.content.lower() != "skip":
-            try:
-                optional_color = await commands.ColourConverter().convert(
-                    ctx, reply.content.lower()
-                )
-            except commands.BadArgument:
-                await ori.edit(content="```\nFailed to get hex color. Exiting...\n```")
-                return
 
-        say_embed = discord.Embed()
+        async def chan_convert(ctx, content):
+            if content.lower() == "skip":
+                return None
+            return await commands.TextChannelConverter().convert(ctx, content)
 
-        reply = await self.setup_helper(
-            ctx,
-            ori,
-            (
-                "3. What will be the title of the embed? Markdown (fancy discord editing) will work with titles."
-            ),
+        def chan_action(ctx, converted, self):
+            self.optional_channel = converted
+
+        wizard.add_question(question_1, chan_convert, chan_action)
+
+        question_2 = (
+            "2. If you wish to do so, what color, in hex (ex. #000000), would you like the embed to have. Case-insensitive, "
+            + "does not require '#'.\nIf you just want the default color, say \"skip\"."
         )
-        if reply is None:
-            return
-        else:
-            say_embed.title = reply.content
 
-        reply = await self.setup_helper(
-            ctx,
-            ori,
-            (
-                "4. What will be the content of the embed? Markdown (fancy discord editing) will work with content."
-            ),
-        )
-        if reply is None:
-            return
-        else:
-            say_embed.description = reply.content
+        async def color_convert(ctx, content):
+            if content.lower() == "skip":
+                return None
+            return await commands.ColourConverter().convert(ctx, content.lower())
 
-        if optional_color != None:
-            say_embed.colour = optional_color
+        def color_action(ctx, converted, self):
+            self.optional_color = converted
 
-        if optional_channel is None:
-            await ctx.send(embed=say_embed)
-        else:
-            await optional_channel.send(embed=say_embed)
-            await ctx.reply(f"Done! Check out {optional_channel.mention}!")
+        wizard.add_question(question_2, color_convert, color_action)
 
-        await ori.edit(content="```\nSetup complete.\n```")
+        question_3 = "3. What will be the title of the embed? Markdown (fancy discord editing) will work with titles."
+
+        def no_convert(ctx, content):
+            return content
+
+        def title_action(ctx, converted, self):
+            self.say_embed = discord.Embed()
+            self.say_embed.title = converted
+
+        wizard.add_question(question_3, no_convert, title_action)
+
+        question_4 = "4. What will be the content of the embed? Markdown (fancy discord editing) will work with content."
+
+        async def final_action(ctx, converted, self):
+            self.say_embed.description = converted
+
+            if getattr(self, "optional_color"):
+                self.say_embed.color = self.optional_color
+
+            if getattr(self, "optional_channel"):
+                await ctx.send(embed=self.say_embed)
+            else:
+                await self.optional_channel.send(embed=self.say_embed)
+                await ctx.reply(f"Done! Check out {self.optional_channel.mention}!")
+
+        wizard.add_question(question_4, no_convert, final_action)
+
+        await wizard.run(ctx)
 
 
 def setup(bot):
+    importlib.reload(custom_classes)
+    importlib.reload(image_utils)
     importlib.reload(utils)
     bot.add_cog(SayCMDS(bot))
