@@ -1,6 +1,6 @@
-import asyncio
 import importlib
 import io
+import json
 import typing
 
 import discord
@@ -136,6 +136,36 @@ class SayCMDS(commands.Cog, name="Say"):
         wizard.add_question(question_4, no_convert, final_action)
 
         await wizard.run(ctx)
+
+    class JSONConverter(commands.Converter):
+        async def convert(self, ctx: commands.Context, argument: str):
+            try:
+                return json.loads(argument)
+            except ValueError:
+                raise commands.BadArgument(f"The argument provided was not valid JSON!")
+
+    @commands.command()
+    @commands.check(utils.proper_permissions)
+    async def raw_embed_say(
+        self,
+        ctx: commands.Context,
+        optional_channel: typing.Optional[discord.TextChannel],
+        *,
+        json: JSONConverter,
+    ):
+        """Allows people with Manage Server permissions to speak with the bot with a fancy embed with the JSON provided.
+        This is a more low-level alternative to embed-say. If you know Discord Embed JSON, this allows you to use that.
+        See https://discord.com/developers/docs/resources/channel#embed-object for the valid format.
+        Do not use this if you have no idea what the above means. embed-say works fine."""
+
+        embed = discord.Embed.from_dict(json)
+        if embed.to_dict() == {}:
+            raise commands.BadArgument("The data provided is either invalid or empty!")
+        elif len(embed) > 6000:
+            raise commands.BadArgument("The embed is too big to send!")
+        else:
+            chan = optional_channel or ctx.channel
+            await chan.send(embed=embed)
 
 
 def setup(bot):
