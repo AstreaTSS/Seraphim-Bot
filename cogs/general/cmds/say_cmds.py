@@ -127,7 +127,7 @@ class SayCMDS(commands.Cog, name="Say"):
             if getattr(self, "optional_color"):
                 self.say_embed.color = self.optional_color
 
-            if getattr(self, "optional_channel"):
+            if not getattr(self, "optional_channel"):
                 await ctx.send(embed=self.say_embed)
             else:
                 await self.optional_channel.send(embed=self.say_embed)
