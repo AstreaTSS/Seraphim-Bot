@@ -197,7 +197,9 @@ class ImageCMDs(commands.Cog, name="Image"):
                 compressed_size = self.get_size(compress_image)
 
             finally:
-                ori_image.close()
+                del image_data
+                if ori_image:
+                    ori_image.close()
 
             try:
                 com_img_file = discord.File(compress_image, f"image.{ext}")
@@ -249,7 +251,9 @@ class ImageCMDs(commands.Cog, name="Image"):
                 compress = functools.partial(self.pil_compress, ori_image, ext, flags)
                 converted_image = await self.bot.loop.run_in_executor(None, compress)
             finally:
-                ori_image.close()
+                del image_data
+                if ori_image:
+                    ori_image.close()
 
             try:
                 convert_img_file = discord.File(converted_image, f"image.{ext}")
@@ -338,9 +342,12 @@ class ImageCMDs(commands.Cog, name="Image"):
 
                 if resize_size > 8388608:
                     resized_image.close()
+                    del resized_image
                     raise commands.BadArgument("Resulting image was over 8 MiB!")
             finally:
-                ori_image.close()
+                del image_data
+                if ori_image:
+                    ori_image.close()
 
             try:
                 resized_img_file = discord.File(resized_image, f"image.{ext}")
