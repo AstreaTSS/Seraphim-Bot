@@ -9,17 +9,12 @@ from pathlib import Path
 import aiohttp
 import discord
 from discord.ext import commands
-from discord.ext.commands.core import has_permissions
 
 
-async def proper_permissions(ctx):
+async def proper_permissions(ctx: commands.Context):
     # checks if author has admin or manage guild perms or is the owner
-    permissions = ctx.author.guild_permissions
-    return (
-        permissions.administrator
-        or permissions.manage_guild
-        or ctx.guild.owner_id == ctx.author.id
-    )
+    permissions = ctx.channel.permissions_for(ctx.author)
+    return permissions.administrator or permissions.manage_guild
 
 
 async def fetch_needed(bot, payload):
