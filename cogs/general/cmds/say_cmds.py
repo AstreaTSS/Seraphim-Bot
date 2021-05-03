@@ -129,10 +129,11 @@ class SayCMDS(commands.Cog, name="Say"):
 
         await wizard.run(ctx)
 
-    class JSONConverter(commands.Converter):
+    class EmbedConverter(commands.Converter):
         async def convert(self, ctx: commands.Context, argument: str):
             try:
-                return json.loads(argument)
+                json = json.loads(argument)
+                return discord.Embed.from_dict(json)
             except ValueError:
                 raise commands.BadArgument(f"The argument provided was not valid JSON!")
 
@@ -143,14 +144,13 @@ class SayCMDS(commands.Cog, name="Say"):
         ctx: commands.Context,
         optional_channel: typing.Optional[discord.TextChannel],
         *,
-        json: JSONConverter,
+        embed: EmbedConverter,
     ):
         """Allows people with Manage Server permissions to speak with the bot with a fancy embed with the JSON provided.
         This is a more low-level alternative to embed-say. If you know Discord Embed JSON, this allows you to use that.
         See https://discord.com/developers/docs/resources/channel#embed-object for the valid format.
         Do not use this if you have no idea what the above means. embed-say works fine."""
 
-        embed = discord.Embed.from_dict(json)
         if embed.to_dict() == {}:
             raise commands.BadArgument("The data provided is either invalid or empty!")
         elif len(embed) > 6000:
