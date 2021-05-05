@@ -388,7 +388,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
                 del image_data
 
             await ctx.send(
-                f"From: {ctx.author.mention}\n\n{message}",
+                f"> From: {ctx.author.mention}\n{message}",
                 file=file_to_send,
                 allowed_mentions=allowed_mentions,
             )
