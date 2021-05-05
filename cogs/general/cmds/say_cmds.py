@@ -30,24 +30,30 @@ class SayCMDS(commands.Cog, name="Say"):
         file_io = None
         allowed_mentions = utils.generate_mentions(ctx)
 
-        if ctx.message.attachments and len(ctx.message.attachments) > 1:
-            raise utils.CustomCheckFailure(
-                "I cannot say messages with more than one attachment due to resource limits."
-            )
+        if ctx.message.attachments:
+            if len(ctx.message.attachments) > 1:
+                raise utils.CustomCheckFailure(
+                    "I cannot say messages with more than one attachment due to resource limits."
+                )
 
-        try:
-            image_data = await image_utils.get_file_bytes(
-                ctx.message.attachments[0].url, 8388608, equal_to=False
-            )  # 8 MiB
-            file_io = io.BytesIO(image_data)
-            file_to_send = discord.File(
-                file_io, filename=ctx.message.attachments[0].filename
-            )
-        except:
-            if file_io:
-                file_io.close()
-        finally:
-            del image_data
+            try:
+                is_spoiler = ctx.message.attachments[0].is_spoiler()
+
+                image_data = await image_utils.get_file_bytes(
+                    ctx.message.attachments[0].url, 8388608, equal_to=False
+                )  # 8 MiB
+                file_io = io.BytesIO(image_data)
+                file_to_send = discord.File(
+                    file_io,
+                    filename=ctx.message.attachments[0].filename,
+                    spoiler=is_spoiler,
+                )
+            except:
+                if file_io:
+                    file_io.close()
+                raise
+            finally:
+                del image_data
 
         if not optional_channel:
             await ctx.send(
