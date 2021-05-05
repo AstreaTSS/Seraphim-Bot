@@ -349,9 +349,12 @@ class HelperCMDs(commands.Cog, name="Helper"):
             allowed_mentions=allowed_mentions,
         )
 
+    def quote_message(argument: str):
+        return "\n".join(f"> {line}" for line in argument.splitlines())
+
     @commands.command(aliases=["spoil"])
     async def spoiler(
-        self, ctx: commands.Context, *, message: typing.Optional[str] = ""
+        self, ctx: commands.Context, *, message: typing.Optional[quote_message] = ""
     ):
         """Allows you to send a message that has a file marked as a spoiler.
         Just send the message you want to send along with the the file, and you'll be good to go.
@@ -368,7 +371,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
             raise utils.CustomCheckFailure(
                 "I cannot spoil more than one attachment due to resource limits!"
             )
-        elif len(message) > 1950:
+        elif len(message) > 1975:
             raise commands.BadArgument("This message is too long for me to send!")
 
         async with ctx.channel.typing():
@@ -389,14 +392,8 @@ class HelperCMDs(commands.Cog, name="Helper"):
             finally:
                 del image_data
 
-            quoted_mes = "\n".join(f"> {line}" for line in message.splitlines())
-            if len(quoted_mes) > 2000:
-                raise utils.CustomCheckFailure(
-                    "This message is too long for me to send!"
-                )
-
             await ctx.send(
-                f"From {ctx.author.mention}:\n{quoted_mes}",
+                f"From {ctx.author.mention}:\n{message}",
                 file=file_to_send,
                 allowed_mentions=allowed_mentions,
             )
