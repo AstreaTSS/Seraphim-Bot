@@ -103,19 +103,14 @@ def generate_mentions(ctx: commands.Context):
     # sourcery skip: remove-unnecessary-else
     # generates an AllowedMentions object that is similar to what a user can usually use
 
-    permissions = ctx.author.guild_permissions
-    # i assume mention_everyone also means they can ping all roles
-    can_mention = (
-        permissions.administrator
-        or permissions.mention_everyone
-        or ctx.guild.owner_id == ctx.author.id
-    )
+    permissions = ctx.channel.permissions_for(ctx.author)
+    can_mention = permissions.administrator or permissions.mention_everyone
 
     if can_mention:
         # i could use a default AllowedMentions object, but this is more clear
         return discord.AllowedMentions(everyone=True, users=True, roles=True)
     else:
-        pingable_roles = [r for r in ctx.guild.roles if r.mentionable]
+        pingable_roles = tuple(r for r in ctx.guild.roles if r.mentionable)
         return discord.AllowedMentions(everyone=False, users=True, roles=pingable_roles)
 
 
