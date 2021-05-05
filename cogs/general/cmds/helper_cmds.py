@@ -350,7 +350,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         )
 
     @commands.command(aliases=["spoil"])
-    async def spoiler(self, ctx: commands.Context, *, message: str):
+    async def spoiler(self, ctx: commands.Context, *, message: typing.Optional[str]):
         """Allows you to send a message that has a file marked as a spoiler.
         Just send the message you want to send along with the the file, and you'll be good to go.
         The file must be under 8 MiB. The actual text in the message itself will not be spoiled.
@@ -386,6 +386,9 @@ class HelperCMDs(commands.Cog, name="Helper"):
                 raise
             finally:
                 del image_data
+
+            if not message:
+                message = ""
 
             quoted_mes = "\n".join(f"> {line}" for line in message.splitlines())
             if len(quoted_mes) > 2000:
