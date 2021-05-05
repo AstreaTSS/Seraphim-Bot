@@ -360,6 +360,9 @@ class HelperCMDs(commands.Cog, name="Helper"):
         file_io = None
         allowed_mentions = utils.generate_mentions(ctx)
 
+        if not message:
+            message = ""
+
         if not ctx.message.attachments:
             raise commands.BadArgument("There's no attachment to mark as a spoiler!")
         elif len(ctx.message.attachments) > 1:
@@ -386,9 +389,6 @@ class HelperCMDs(commands.Cog, name="Helper"):
                 raise
             finally:
                 del image_data
-
-            if not message:
-                message = ""
 
             quoted_mes = "\n".join(f"> {line}" for line in message.splitlines())
             if len(quoted_mes) > 2000:
