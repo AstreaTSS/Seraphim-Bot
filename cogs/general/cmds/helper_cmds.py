@@ -350,7 +350,9 @@ class HelperCMDs(commands.Cog, name="Helper"):
         )
 
     @commands.command(aliases=["spoil"])
-    async def spoiler(self, ctx: commands.Context, *, message: typing.Optional[str]):
+    async def spoiler(
+        self, ctx: commands.Context, *, message: typing.Optional[str] = ""
+    ):
         """Allows you to send a message that has a file marked as a spoiler.
         Just send the message you want to send along with the the file, and you'll be good to go.
         The file must be under 8 MiB. The actual text in the message itself will not be spoiled.
@@ -359,9 +361,6 @@ class HelperCMDs(commands.Cog, name="Helper"):
         file_to_send = None
         file_io = None
         allowed_mentions = utils.generate_mentions(ctx)
-
-        if not message:
-            message = ""
 
         if not ctx.message.attachments:
             raise commands.BadArgument("There's no attachment to mark as a spoiler!")
