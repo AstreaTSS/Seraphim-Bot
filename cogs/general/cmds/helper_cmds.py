@@ -367,7 +367,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
                 "I cannot spoil more than one attachment due to resource limits!"
             )
         elif len(message) > 1950:
-            raise commands.BadArgument("I cannot send messages that are that long!")
+            raise commands.BadArgument("This message is too long for me to send!")
 
         async with ctx.channel.typing():
             try:
@@ -388,6 +388,11 @@ class HelperCMDs(commands.Cog, name="Helper"):
                 del image_data
 
             quoted_mes = "\n".join(f"> {line}" for line in message.splitlines())
+            if len(quoted_mes) > 2000:
+                raise utils.CustomCheckFailure(
+                    "This message is too long for me to send!"
+                )
+
             await ctx.send(
                 f"From {ctx.author.mention}:\n{quoted_mes}",
                 file=file_to_send,
