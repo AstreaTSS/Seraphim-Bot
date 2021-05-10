@@ -171,7 +171,7 @@ class SayCMDS(commands.Cog, name="Say"):
         elif len(embed) > 6000:
             raise commands.BadArgument("The embed is too big to send!")
         else:
-            await chan.send(embed=data)
+            await chan.send(embed=embed)
 
 
 def setup(bot):
