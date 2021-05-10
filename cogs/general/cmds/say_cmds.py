@@ -19,13 +19,21 @@ class SayCMDS(commands.Cog, name="Say"):
     @commands.command()
     @commands.check(utils.proper_permissions)
     async def say(
-        self,
-        ctx: commands.Context,
-        optional_channel: typing.Optional[discord.TextChannel],
-        *,
-        message,
+        self, ctx: commands.Context, *, message: str,
     ):
-        """Allows people with Manage Server permissions to speak with the bot. You can provide a channel and upload any attachments you wish to use."""
+        """Allows people with Manage Server permissions to speak with the bot.
+        You can provide a channel and upload any attachments you wish to use."""
+
+        first_argument = message.split(" ")[0]
+
+        try:
+            channel = await commands.TextChannelConverter().convert(ctx, first_argument)
+        except commands.BadArgument:
+            channel = ctx.channel
+
+        rest_of_message = (
+            message if channel == ctx.channel else " ".join(message.split(" ")[1:])
+        )
 
         file_to_send = None
         file_io = None
@@ -56,16 +64,20 @@ class SayCMDS(commands.Cog, name="Say"):
             finally:
                 del image_data
 
-        if not optional_channel:
+        if channel == ctx.channel:
             await ctx.send(
-                content=message, file=file_to_send, allowed_mentions=allowed_mentions,
+                content=rest_of_message,
+                file=file_to_send,
+                allowed_mentions=allowed_mentions,
             )
 
         else:
-            await optional_channel.send(
-                content=message, file=file_to_send, allowed_mentions=allowed_mentions,
+            await channel.send(
+                content=rest_of_message,
+                file=file_to_send,
+                allowed_mentions=allowed_mentions,
             )
-            await ctx.reply(f"Done! Check out {optional_channel.mention}!")
+            await ctx.reply(f"Done! Check out {channel.mention}!")
 
     @commands.command()
     @commands.check(utils.proper_permissions)
