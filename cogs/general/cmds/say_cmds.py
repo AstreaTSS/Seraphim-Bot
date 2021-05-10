@@ -178,6 +178,8 @@ class SayCMDS(commands.Cog, name="Say"):
             raise commands.BadArgument("The embed is too big to send!")
         else:
             await chan.send(embed=embed)
+            if chan != ctx.channel:
+                await ctx.reply(f"Done! Check out {chan.mention}!")
 
 
 def setup(bot):
