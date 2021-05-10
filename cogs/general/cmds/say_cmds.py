@@ -160,7 +160,9 @@ class SayCMDS(commands.Cog, name="Say"):
                     # python has a hard time with how some iso strings are
                     # dateutil should solve that problem, hopefully
                     try:
-                        timestamp_date = dateutil.parser.isoparse(argument["timestamp"])
+                        timestamp_date = dateutil.parser.isoparse(
+                            argument_json["timestamp"]
+                        )
                     except ValueError:
                         raise commands.BadArgument(
                             "The timestamp provided was not valid!"
