@@ -135,31 +135,43 @@ class SayCMDS(commands.Cog, name="Say"):
 
         await wizard.run(ctx)
 
-    class EmbedConverter(commands.Converter):
+    class RawEmbedSayConverter(commands.Converter):
         async def convert(self, ctx: commands.Context, argument: str):
+            first_argument = argument.split(" ")[0]
+
+            try:
+                channel = await commands.TextChannelConverter().convert(
+                    ctx, first_argument
+                )
+            except commands.BadArgument:
+                channel = ctx.channel
+
             try:
                 argument_json = json.loads(argument)
-                return discord.Embed.from_dict(argument_json)
+                return channel, discord.Embed.from_dict(argument_json)
             except ValueError:
                 raise commands.BadArgument(f"The argument provided was not valid JSON!")
 
     @commands.command()
     @commands.check(utils.proper_permissions)
     async def raw_embed_say(
-        self, ctx: commands.Context, *, embed: EmbedConverter,
+        self, ctx: commands.Context, *, data: RawEmbedSayConverter,
     ):
         """Allows people with Manage Server permissions to speak with the bot with a fancy embed with the JSON provided.
         This is a more low-level alternative to embed-say. If you know Discord Embed JSON, this allows you to use that.
         See https://discord.com/developers/docs/resources/channel#embed-object for the valid format.
-        Do not use this if you have no idea what the above means. embed-say works fine."""
+        Do not use this if you have no idea what the above means. embed-say works fine.
+        If you mention a channel before the embed data, the bot will send it to that channel."""
+
+        chan: discord.TextChannel = data[0]
+        embed: discord.Embed = data[1]
 
         if embed.to_dict() == {}:
             raise commands.BadArgument("The data provided is either invalid or empty!")
         elif len(embed) > 6000:
             raise commands.BadArgument("The embed is too big to send!")
         else:
-            chan = ctx.channel
-            await chan.send(embed=embed)
+            await chan.send(embed=data)
 
 
 def setup(bot):
