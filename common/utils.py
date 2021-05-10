@@ -94,6 +94,32 @@ async def user_from_id(bot, guild, user_id):
     return user
 
 
+def embed_check(embed: discord.Embed) -> bool:
+    """Checks if an embed is valid, as per Discord's guidelines.
+    See https://discord.com/developers/docs/resources/channel#embed-limits for details."""
+    if len(embed) > 6000:
+        return False
+
+    if embed.title and embed.title > 256:
+        return False
+    if embed.description and embed.description > 2048:
+        return False
+    if embed.author and embed.author.name and embed.author.name > 256:
+        return False
+    if embed.footer and embed.footer.text and embed.footer.text > 2048:
+        return False
+    if embed.fields:
+        if len(embed.fields) > 25:
+            return False
+        for field in embed.fields:
+            if field.name and field.name > 1024:
+                return False
+            if field.value and field.value > 2048:
+                return False
+
+    return True
+
+
 def deny_mentions(user):
     # generates an AllowedMentions object that only pings the user specified
     return discord.AllowedMentions(everyone=False, users=[user], roles=False)

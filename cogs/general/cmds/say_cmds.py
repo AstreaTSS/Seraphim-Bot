@@ -1,7 +1,6 @@
 import importlib
 import io
 import json
-import typing
 
 import dateutil.parser
 import discord
@@ -119,9 +118,14 @@ class SayCMDS(commands.Cog, name="Say"):
 
         wizard.add_question(question_2, color_convert, color_action)
 
-        question_3 = "3. What will be the title of the embed? Markdown (fancy discord editing) will work with titles."
+        question_3 = (
+            "3. What will be the title of the embed? Markdown (fancy discord editing) will work with titles.\n"
+            + "Make sure the title is less than or equal to 256 characters."
+        )
 
         def no_convert(ctx, content):
+            if len(content) > 256:
+                raise commands.BadArgument("The title is too large!")
             return content
 
         def title_action(ctx, converted, self):
@@ -135,10 +139,10 @@ class SayCMDS(commands.Cog, name="Say"):
         async def final_action(ctx, converted, self):
             self.say_embed.description = converted
 
-            if getattr(self, "optional_color"):
+            if getattr(self, "optional_color", None):
                 self.say_embed.color = self.optional_color
 
-            if not getattr(self, "optional_channel"):
+            if not getattr(self, "optional_channel", None):
                 await ctx.send(embed=self.say_embed)
             else:
                 await self.optional_channel.send(embed=self.say_embed)
@@ -208,8 +212,11 @@ class SayCMDS(commands.Cog, name="Say"):
 
         if embed.to_dict() == {}:
             raise commands.BadArgument("The data provided is either invalid or empty!")
-        elif len(embed) > 6000:
-            raise commands.BadArgument("The embed is too big to send!")
+        elif not utils.embed_check(embed):
+            raise commands.BadArgument(
+                "The embed violates one or more of Discord's limits.\n"
+                + "See https://discord.com/developers/docs/resources/channel#embed-limits for more information."
+            )
         else:
             await chan.send(embed=embed)
             if chan != ctx.channel:
