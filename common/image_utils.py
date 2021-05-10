@@ -168,11 +168,11 @@ class URLToImage(commands.Converter):
             r"((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)",
             argument,
         )
-        if urls != []:
+        if urls:
             first_url = urls[0][0]
 
             possible_url = await get_image_url(first_url)
-            if possible_url != None:
+            if possible_url:
                 return possible_url
             elif (
                 ctx.message.embeds != []

@@ -359,7 +359,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         """Allows you to send a message that has a file marked as a spoiler.
         Just send the message you want to send along with the the file, and you'll be good to go.
         The file must be under 8 MiB. The actual text in the message itself will not be spoiled.
-        Useful if you're on mobile, which for some reason, does not have the ability to mark a file as a spoiler."""
+        Useful if you're on mobile, which for some reason does not have the ability to mark a file as a spoiler."""
 
         file_to_send = None
         file_io = None

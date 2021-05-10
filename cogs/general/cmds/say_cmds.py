@@ -138,8 +138,8 @@ class SayCMDS(commands.Cog, name="Say"):
     class EmbedConverter(commands.Converter):
         async def convert(self, ctx: commands.Context, argument: str):
             try:
-                json = json.loads(argument)
-                return discord.Embed.from_dict(json)
+                argument_json = json.loads(argument)
+                return discord.Embed.from_dict(argument_json)
             except ValueError:
                 raise commands.BadArgument(f"The argument provided was not valid JSON!")
 
