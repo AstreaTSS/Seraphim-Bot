@@ -3,6 +3,7 @@ import io
 import json
 import typing
 
+import dateutil.parser
 import discord
 from discord.ext import commands
 
@@ -153,10 +154,29 @@ class SayCMDS(commands.Cog, name="Say"):
             )
 
             try:
-                argument_json = json.loads(rest_of_argument)
+                argument_json: dict = json.loads(rest_of_argument)
+
+                if argument_json.get("timestamp"):
+                    # python has a hard time with how some iso strings are
+                    # dateutil should solve that problem, hopefully
+                    try:
+                        timestamp_date = dateutil.parser.isoparse(argument["timestamp"])
+                    except ValueError:
+                        raise commands.BadArgument(
+                            "The timestamp provided was not valid!"
+                        )
+                    argument_json["timestamp"] = timestamp_date.isoformat()
+            except ValueError:
+                raise commands.BadArgument(
+                    "The argument provided was not valid embed JSON!"
+                )
+
+            try:
                 return channel, discord.Embed.from_dict(argument_json)
             except ValueError:
-                raise commands.BadArgument(f"The argument provided was not valid JSON!")
+                raise commands.BadArgument(
+                    "Could not convert argument to an embed. Is it invalid?"
+                )
 
     @commands.command()
     @commands.check(utils.proper_permissions)

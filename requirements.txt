@@ -9,3 +9,4 @@ jishaku
 discord-py-slash-command
 python-dotenv
 numexpr
+python-dateutil
