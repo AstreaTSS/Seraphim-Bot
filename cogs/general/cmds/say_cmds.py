@@ -146,11 +146,7 @@ class SayCMDS(commands.Cog, name="Say"):
     @commands.command()
     @commands.check(utils.proper_permissions)
     async def raw_embed_say(
-        self,
-        ctx: commands.Context,
-        optional_channel: typing.Optional[discord.TextChannel],
-        *,
-        embed: EmbedConverter,
+        self, ctx: commands.Context, *, embed: EmbedConverter,
     ):
         """Allows people with Manage Server permissions to speak with the bot with a fancy embed with the JSON provided.
         This is a more low-level alternative to embed-say. If you know Discord Embed JSON, this allows you to use that.
@@ -162,7 +158,7 @@ class SayCMDS(commands.Cog, name="Say"):
         elif len(embed) > 6000:
             raise commands.BadArgument("The embed is too big to send!")
         else:
-            chan = optional_channel or ctx.channel
+            chan = ctx.channel
             await chan.send(embed=embed)
 
 
