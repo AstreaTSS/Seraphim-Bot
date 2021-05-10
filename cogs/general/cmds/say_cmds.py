@@ -146,8 +146,14 @@ class SayCMDS(commands.Cog, name="Say"):
             except commands.BadArgument:
                 channel = ctx.channel
 
+            rest_of_argument = (
+                argument
+                if channel == ctx.channel
+                else " ".join(argument.split(" ")[1:])
+            )
+
             try:
-                argument_json = json.loads(argument)
+                argument_json = json.loads(rest_of_argument)
                 return channel, discord.Embed.from_dict(argument_json)
             except ValueError:
                 raise commands.BadArgument(f"The argument provided was not valid JSON!")
