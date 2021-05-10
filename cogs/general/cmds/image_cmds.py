@@ -1,4 +1,3 @@
-import functools
 import importlib
 import io
 import math
@@ -10,6 +9,7 @@ import discord
 import humanize
 from discord.ext import commands
 from discord.ext import flags
+from jishaku.functools import executor_function
 from PIL import Image
 
 import common.image_utils as image_utils
@@ -30,6 +30,7 @@ class ImageCMDs(commands.Cog, name="Image"):
 
         return size
 
+    @executor_function
     def pil_compress(self, image, ext, flags):
         try:
             pil_image = Image.open(image)
@@ -82,6 +83,7 @@ class ImageCMDs(commands.Cog, name="Image"):
         finally:
             pil_image.close()
 
+    @executor_function
     def pil_resize(
         self,
         image,
@@ -190,8 +192,7 @@ class ImageCMDs(commands.Cog, name="Image"):
                 if img_format != "default":
                     ext = flags["format"]
 
-                compress = functools.partial(self.pil_compress, ori_image, ext, flags)
-                compress_image = await self.bot.loop.run_in_executor(None, compress)
+                compress_image = await self.pil_compress(ori_image, ext, flags)
 
                 ori_size = self.get_size(ori_image)
                 compressed_size = self.get_size(compress_image)
@@ -248,8 +249,7 @@ class ImageCMDs(commands.Cog, name="Image"):
                 flags["ori_ext"] = mimetype.split("/")[1]
                 ext = img_type
 
-                compress = functools.partial(self.pil_compress, ori_image, ext, flags)
-                converted_image = await self.bot.loop.run_in_executor(None, compress)
+                converted_image = await self.pil_compress(ori_image, ext, flags)
             finally:
                 del image_data
                 if ori_image:
@@ -321,8 +321,13 @@ class ImageCMDs(commands.Cog, name="Image"):
                 mimetype = discord.utils._get_mime_type_for_image(image_data)
                 ext = mimetype.split("/")[1]
 
-                resize = functools.partial(
-                    self.pil_resize,
+                (
+                    resized_image,
+                    ori_width,
+                    ori_height,
+                    new_width,
+                    new_height,
+                ) = await self.pil_resize(
                     ori_image,
                     ext,
                     flags["percent"],
@@ -330,14 +335,6 @@ class ImageCMDs(commands.Cog, name="Image"):
                     flags["height"],
                     filter,
                 )
-
-                (
-                    resized_image,
-                    ori_width,
-                    ori_height,
-                    new_width,
-                    new_height,
-                ) = await self.bot.loop.run_in_executor(None, resize)
                 resize_size = self.get_size(resized_image)
 
                 if resize_size > 8388608:
