@@ -214,7 +214,7 @@ class ImageCMDs(commands.Cog, name="Image"):
                 compress_image.close()
                 raise
 
-            await ctx.reply(content=content, file=com_img_file)
+        await ctx.reply(content=content, file=com_img_file)
 
     @flags.add_flag("-shrink", "--shrink", type=bool, default=False)
     @flags.add_flag("-quality", "--quality", default=80, type=int)
@@ -261,7 +261,7 @@ class ImageCMDs(commands.Cog, name="Image"):
                 converted_image.close()
                 raise
 
-            await ctx.reply(file=convert_img_file)
+        await ctx.reply(file=convert_img_file)
 
     @flags.add_flag("-percent", "--percent", type=float)
     @flags.add_flag("-width", "--width", type=int)
@@ -359,7 +359,7 @@ class ImageCMDs(commands.Cog, name="Image"):
                 resized_image.close()
                 raise
 
-            await ctx.reply(content=content, file=resized_img_file)
+        await ctx.reply(content=content, file=resized_img_file)
 
 
 def setup(bot):

@@ -271,7 +271,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
             finally:
                 del emoji_data
 
-            await ctx.reply(f"Added {str(emoji)}!")
+        await ctx.reply(f"Added {str(emoji)}!")
 
     @commands.command(aliases=["copyemoji", "steal_emoji", "stealemoji"])
     @commands.check(utils.proper_permissions)
@@ -392,11 +392,11 @@ class HelperCMDs(commands.Cog, name="Helper"):
             finally:
                 del image_data
 
-            await ctx.send(
-                f"From {ctx.author.mention}:\n{message}",
-                file=file_to_send,
-                allowed_mentions=allowed_mentions,
-            )
+        await ctx.send(
+            f"From {ctx.author.mention}:\n{message}",
+            file=file_to_send,
+            allowed_mentions=allowed_mentions,
+        )
 
 
 def setup(bot):

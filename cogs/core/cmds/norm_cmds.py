@@ -65,7 +65,7 @@ class NormCMDs(commands.Cog, name="Normal"):
             except:  # basically any other error
                 raise commands.BadArgument("This is not a valid expression!")
 
-            await ctx.reply(f"Result: `{value.item()}`")
+        await ctx.reply(f"Result: `{value.item()}`")
 
     @commands.command()
     async def support(self, ctx):
