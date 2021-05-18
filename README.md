@@ -1,6 +1,6 @@
 # Seraphim
 
-![Seraphim Logo](https://cdn.discordapp.com/avatars/700857077672706120/3436b2471afc77f3fdf6579ddd32deec.png?size=256)
+<img src="https://i.imgur.com/sXO7lNt.png" alt="drawing" width="256"/>
 
 A personal bot made for features usually not seen with other bots, done poorly by other bots, or done by bots with poor uptimes. This bot is meant to be an extension to other bots - it will not handle the basics like banning and kicking. Use another bot for that.
 
