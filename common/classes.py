@@ -55,12 +55,18 @@ class TimeDurationConverter(commands.Converter):
 
     convert_dict = {
         "s": 1,
+        "sec": 1,
+        "secs": 1,
         "second": 1,
         "seconds": 1,
         "m": 60,  # s * 60
+        "min": 60,
+        "mins": 60,
         "minute": 60,
         "minutes": 60,
         "h": 3600,  # m * 60
+        "hr": 3600,
+        "hrs": 3600,
         "hour": 3600,
         "hours": 3600,
         "d": 86400,  # h * 24
