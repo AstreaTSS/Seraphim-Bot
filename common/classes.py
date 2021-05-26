@@ -242,8 +242,10 @@ class WizardManager:
                 converted = await discord.utils.maybe_coroutine(
                     question.converter, ctx, reply.content
                 )
-            except:
-                wizard_embed.description = "Invalid input. Exiting..."
+            except Exception as e:  # base exceptions really shouldn't be caught
+                wizard_embed.description = (
+                    f"Invalid input. Exiting...\n\nError: {str(e)}"
+                )
                 wizard_embed.set_footer(text=discord.Embed.Empty)
                 await self.ori_mes.edit(embed=wizard_embed)
                 return
