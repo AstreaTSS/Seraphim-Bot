@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://i.imgur.com/CpPe8zE.png" alt="Seraphim's Logo" width="700"/>
+  <img src="https://cdn.discordapp.com/attachments/775913661264035840/846957724390654002/SeraphimLogo.png" alt="Seraphim's Logo" width="700"/>
 </p>
   
 <p align="center">
