@@ -123,7 +123,7 @@ class SayCMDS(commands.Cog, name="Say"):
             + "Make sure the title is less than or equal to 256 characters."
         )
 
-        def no_convert(ctx, content):
+        def title_convert(ctx, content):
             if len(content) > 256:
                 raise commands.BadArgument("The title is too large!")
             return content
@@ -132,9 +132,12 @@ class SayCMDS(commands.Cog, name="Say"):
             self.say_embed = discord.Embed()
             self.say_embed.title = converted
 
-        wizard.add_question(question_3, no_convert, title_action)
+        wizard.add_question(question_3, title_convert, title_action)
 
         question_4 = "4. What will be the content of the embed? Markdown (fancy discord editing) will work with content."
+
+        def no_convert(ctx, content):
+            return content
 
         async def final_action(ctx, converted, self):
             self.say_embed.description = converted
