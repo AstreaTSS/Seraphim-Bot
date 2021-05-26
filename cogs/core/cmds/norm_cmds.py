@@ -72,6 +72,11 @@ class NormCMDs(commands.Cog, name="Normal"):
         """Gives an invite link to the support server."""
         await ctx.reply("Support server:\nhttps://discord.gg/NSdetwGjpK")
 
+    @commands.command(aliases=["documentation", "doc", "docs"])
+    async def wiki(self, ctx):
+        """Gives a link for Seraphim's wiki."""
+        await ctx.reply("Seraphim's wiki:\nhttps://sonictbm.gitbook.io/seraphim/")
+
     @commands.command()
     async def invite(self, ctx):
         """Gives an invite link to invite the bot."""
