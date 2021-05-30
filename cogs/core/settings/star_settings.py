@@ -9,7 +9,7 @@ import common.utils as utils
 
 
 @groups.group(name="starboard", aliases=["sb"])
-@commands.check(utils.proper_permissions)
+@utils.proper_permissions()
 async def main_cmd(ctx):
     """The base for messing around with the starboard. Check the subcommands for more info.
     Requires Manage Server permissions or higher."""
@@ -18,7 +18,7 @@ async def main_cmd(ctx):
 
 
 @main_cmd.command()
-@commands.check(utils.proper_permissions)
+@utils.proper_permissions()
 async def channel(ctx, channel: typing.Optional[cclasses.ValidChannelConverter]):
     """Allows you to either get the starboard channel (no argument) or set the starboard channel (with argument)."""
 
@@ -32,7 +32,7 @@ async def channel(ctx, channel: typing.Optional[cclasses.ValidChannelConverter])
 
 
 @main_cmd.command()
-@commands.check(utils.proper_permissions)
+@utils.proper_permissions()
 async def limit(ctx, limit: typing.Optional[int]):
     """Allows you to either get the amount of stars needed to get on the starboard (no argument) or set the amount (with argument)."""
     if limit:
@@ -48,7 +48,7 @@ async def limit(ctx, limit: typing.Optional[int]):
 
 
 @main_cmd.command()
-@commands.check(utils.proper_permissions)
+@utils.proper_permissions()
 async def remove_reaction(ctx, toggle: typing.Optional[bool]):
     """Allows you to either see if people who react to a star to their messages will have their reactions removed (no argument) or allows you to toggle that (with argument)."""
 
@@ -65,7 +65,7 @@ async def remove_reaction(ctx, toggle: typing.Optional[bool]):
 
 
 @main_cmd.command()
-@commands.check(utils.proper_permissions)
+@utils.proper_permissions()
 async def toggle(ctx, toggle: typing.Optional[bool]):
     """Allows you to either see if all starboard-related commands and actions are on or off (no argument) or allows you to toggle that (with argument).
     If you wish to set the toggle, both the starboard channel and the star limit must be set first."""
@@ -89,7 +89,7 @@ async def toggle(ctx, toggle: typing.Optional[bool]):
 
 
 @main_cmd.command(aliases=["edit_messages, editmessage, editmessages"])
-@commands.check(utils.proper_permissions)
+@utils.proper_permissions()
 async def edit_message(ctx, toggle: typing.Optional[bool]):
     """Controls if the starboard message is edited when the original is. Defaults to being on.
     Displays the current option if no argument is given, sets the current option to the argument (yes/no) if given."""
@@ -110,7 +110,7 @@ def star_toggle_check(ctx):
 
 
 @main_cmd.group(aliases=["bl"], ignore_extra=True)
-@commands.check(utils.proper_permissions)
+@utils.proper_permissions()
 @commands.check(star_toggle_check)
 async def blacklist(ctx):
     """The base command for the star blacklist. See the subcommands for more info.
@@ -121,7 +121,7 @@ async def blacklist(ctx):
 
 
 @blacklist.command(name="list")
-@commands.check(utils.proper_permissions)
+@utils.proper_permissions()
 @commands.check(star_toggle_check)
 async def _list(ctx):
     """Returns a list of channels that have been blacklisted. Messages from channels that are blacklisted won’t be starred."""
@@ -147,7 +147,7 @@ async def _list(ctx):
 
 
 @blacklist.command()
-@commands.check(utils.proper_permissions)
+@utils.proper_permissions()
 @commands.check(star_toggle_check)
 async def add(ctx, channel: cclasses.ValidChannelConverter):
     """Adds the channel to the blacklist."""
@@ -163,7 +163,7 @@ async def add(ctx, channel: cclasses.ValidChannelConverter):
 
 
 @blacklist.command()
-@commands.check(utils.proper_permissions)
+@utils.proper_permissions()
 @commands.check(star_toggle_check)
 async def remove(ctx, channel: discord.TextChannel):
     """Removes the channel from the blacklist."""

@@ -10,7 +10,7 @@ import common.utils as utils
 @groups.group(
     name="ping_roles", aliases=["pingroles", "pingrole", "rolepings", "roleping"]
 )
-@commands.check(utils.proper_permissions)
+@utils.proper_permissions()
 async def main_cmd(ctx):
     """The base command for managing all of the pingable roles. See the help for the subcommands for more info.
     Only people with Manage Server permissions or higher can use these commands."""
@@ -27,7 +27,7 @@ async def list(ctx: commands.Context):
 
 
 @main_cmd.command()
-@commands.check(utils.proper_permissions)
+@utils.proper_permissions()
 async def add(
     ctx,
     role: fuzzys.FuzzyRoleConverter,
@@ -60,7 +60,7 @@ async def add(
 
 
 @main_cmd.command()
-@commands.check(utils.proper_permissions)
+@utils.proper_permissions()
 async def cooldown(
     ctx,
     role: fuzzys.FuzzyRoleConverter,
@@ -85,7 +85,7 @@ async def cooldown(
 
 
 @main_cmd.command()
-@commands.check(utils.proper_permissions)
+@utils.proper_permissions()
 async def remove(ctx, *, role: fuzzys.FuzzyRoleConverter):
     """Removes that role from the roles able to be pinged.
     The role can be an ID, a mention, or a name. If it's a name, it does not need to be in quotes."""

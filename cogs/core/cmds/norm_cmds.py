@@ -141,7 +141,7 @@ class NormCMDs(commands.Cog, name="Normal"):
         )
 
     @prefixes.command(ignore_extra=False)
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def add(self, ctx, prefix):
         """Addes the prefix to the bot for the server this command is used in, allowing it to be used for commands of the bot.
         If it's more than one word or has a space at the end, surround the prefix with quotes so it doesn't get lost."""
@@ -161,7 +161,7 @@ class NormCMDs(commands.Cog, name="Normal"):
             raise commands.BadArgument("The server already has this prefix!")
 
     @prefixes.command(ignore_extra=False, aliases=["delete"])
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def remove(self, ctx, prefix):
         """Deletes a prefix from the bot from the server this command is used in. The prefix must have existed in the first place.
         If it's more than one word or has a space at the end, surround the prefix with quotes so it doesn't get lost."""

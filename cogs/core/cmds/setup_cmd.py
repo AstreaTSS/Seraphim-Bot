@@ -14,7 +14,7 @@ class SetupCMD(commands.Cog, name="Setup"):
         self.bot = bot
 
     @groups.group()
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def setup(self, ctx):
         """The base command for using the setup commands. See the help for the subcommands for more info.
         Only people with Manage Server permissions or higher can use these commands.
@@ -24,7 +24,7 @@ class SetupCMD(commands.Cog, name="Setup"):
             await ctx.send_help(ctx.command)
 
     @setup.command(aliases=["sb"])
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def starboard(self, ctx: commands.Context):
         """Allows you to set up the starboard for Seraphim in an easy-to-understand way.
         Only people with Manage Server permissions or higher can use these commands.

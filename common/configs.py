@@ -79,7 +79,7 @@ class GuildConfig:
             entry["prefixes"],
             entry["disables"],
             entry["mer"],
-            entry.get("restore_roles_toggle"),
+            entry.get("restore_roles_toggle"),  # TODO
             entry.get("default_perms_check"),
             entry.get("custom_perm_roles"),
         )

@@ -28,8 +28,8 @@ class CmdControl(commands.Cog, name="Command Control"):
 
             return command.qualified_name
 
-    @commands.check(utils.proper_permissions)
     @commands.command()
+    @utils.proper_permissions()
     async def disable(self, ctx, member: discord.Member, *, command: CommandConverter):
         """Disables the command specified for the specified user.
         You can disable all commands for a user too by specifing 'all' for a user.
@@ -60,8 +60,8 @@ class CmdControl(commands.Cog, name="Command Control"):
         else:
             await ctx.reply(f"All commands disabled for {member.display_name}.")
 
-    @commands.check(utils.proper_permissions)
     @commands.command(aliases=["re_enable"])
+    @utils.proper_permissions()
     async def reenable(self, ctx, member: discord.Member, *, command: CommandConverter):
         """Re-enables the command specified for the specified user.
         You can re-eanble all commands for a user too (if they were denied all commands) by specifing 'all' for a user.

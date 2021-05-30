@@ -19,7 +19,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         self.bot = bot
 
     @commands.command(aliases=["restoreroles"])
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def restore_roles(self, ctx, member: discord.Member):
         """Restores the roles a user had before leaving, suggesting they left less than an hour ago.
         The user running this command must have Manage Server permissions.
@@ -54,7 +54,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
                 continue
             elif role > top_role or not role in ctx.guild.roles or role.managed:
                 unadded_roles.append(role)
-            elif role in member.roles:
+            elif member._roles.has(role.id):
                 continue
             else:
                 added_roles.append(role)
@@ -95,7 +95,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         await ctx.reply(final_msg_str, allowed_mentions=utils.deny_mentions(ctx.author))
 
     @commands.command(aliases=["togglensfw"])
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def toggle_nsfw(self, ctx, channel: typing.Optional[discord.TextChannel]):
         """Toggles either the provided channel or the channel the command is used it on or off NSFW mode.
         Useful for mobile devices, which for some reason cannot do this.
@@ -123,7 +123,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
             )
 
     @commands.command()
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def suppress(self, ctx, msg: discord.Message):
         """Suppresses any embeds on the message, if there were any.
         Useful if you're a mobile user.
@@ -146,7 +146,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
             )
 
     @commands.command()
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def unsuppress(self, ctx, msg: discord.Message):
         """Unsuppresses any embeds that were previously suppressed, if there were any.
         Yes, this is something bots can do, but for some reason, normal users can't.
@@ -171,10 +171,10 @@ class HelperCMDs(commands.Cog, name="Helper"):
             )
 
     @commands.command(aliases=["addemoji"])
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def add_emoji(
         self,
-        ctx,
+        ctx: commands.Context,
         emoji_name,
         emoji: typing.Union[image_utils.URLToImage, discord.PartialEmoji, None],
     ):
@@ -274,7 +274,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         await ctx.reply(f"Added {str(emoji)}!")
 
     @commands.command(aliases=["copyemoji", "steal_emoji", "stealemoji"])
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def copy_emoji(self, ctx: commands.Context, emoji: discord.PartialEmoji):
         """Adds the emoji given to the server the command is run in, thus copying it.
         Useful if you have Discord Nitro and want to add some emojis from other servers into yours.

@@ -11,10 +11,13 @@ import discord
 from discord.ext import commands
 
 
-async def proper_permissions(ctx: commands.Context):
-    # checks if author has admin or manage guild perms or is the owner
-    permissions = ctx.channel.permissions_for(ctx.author)
-    return permissions.administrator or permissions.manage_guild
+def proper_permissions():
+    async def predicate(ctx: commands.Context):
+        # checks if author has admin or manage guild perms or is the owner
+        permissions = ctx.channel.permissions_for(ctx.author)
+        return permissions.administrator or permissions.manage_guild
+
+    return commands.check(predicate)
 
 
 async def fetch_needed(bot, payload):

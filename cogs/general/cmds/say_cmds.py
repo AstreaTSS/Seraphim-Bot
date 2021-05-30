@@ -16,7 +16,7 @@ class SayCMDS(commands.Cog, name="Say"):
         self.bot = bot
 
     @commands.command()
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def say(
         self, ctx: commands.Context, *, message: str,
     ):
@@ -79,7 +79,7 @@ class SayCMDS(commands.Cog, name="Say"):
             await ctx.reply(f"Done! Check out {channel.mention}!")
 
     @commands.command()
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def embed_say(self, ctx):
         """Allows people with Manage Server permissions to speak with the bot with a fancy embed. Will open a wizard-like prompt."""
 
@@ -200,7 +200,7 @@ class SayCMDS(commands.Cog, name="Say"):
                 )
 
     @commands.command()
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def raw_embed_say(
         self, ctx: commands.Context, *, data: RawEmbedSayConverter,
     ):

@@ -59,7 +59,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         await ctx.send_help(ctx.command)
 
     @sb.command()
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def setup(self, ctx: commands.Context):
         """An alias for `setup starboard`. Use the help command for that for more information."""
         sb_setup_cmd: typing.Optional[commands.Command] = ctx.bot.get_command(
@@ -78,7 +78,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         await ctx.invoke(sb_setup_cmd)
 
     @sb.command(aliases=["conf", "config"])
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def settings(self, ctx: commands.Context):
         """An alias for `settings starboard`. Use the help command for that for more information."""
         msg = ctx.message
@@ -491,7 +491,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         return starboard_entry
 
     @sb.command()
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def force(self, ctx, msg: discord.Message):
         """Forces a message onto the starboard, regardless of how many stars it has.
         The message either needs to be a message ID of a message in the channel the command is being run in,
@@ -512,7 +512,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         )
 
     @sb.command()
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def freeze(self, ctx, msg: discord.Message):
         """Freezes a message's star count. It does not have to be starred.
         The message either needs to be a message ID of a message in the channel the command is being run in,
@@ -529,7 +529,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         await ctx.reply("The message's star count has been frozen.")
 
     @sb.command()
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def trash(
         self, ctx, msg: typing.Union[discord.Message, custom_classes.UsableIDConverter]
     ):
@@ -566,7 +566,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         await ctx.reply("The message has been trashed.")
 
     @sb.command()
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def unfreeze(
         self, ctx, msg: typing.Union[discord.Message, custom_classes.UsableIDConverter]
     ):
@@ -588,7 +588,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         await ctx.reply("The message's star count has been unfrozen.")
 
     @sb.command()
-    @commands.check(utils.proper_permissions)
+    @utils.proper_permissions()
     async def untrash(
         self, ctx, msg: typing.Union[discord.Message, custom_classes.UsableIDConverter]
     ):
