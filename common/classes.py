@@ -101,9 +101,8 @@ class TimeDurationConverter(commands.Converter):
             if (
                 chara.isdigit() or chara == "."
             ):  # if a character is a digit or a '.' - aka if the character is part of a number
-                if (
-                    format_entry
-                ):  # if this already exists, that means there was a format before the current number
+                # if the below already exists, that means there was a format before the current number
+                if format_entry:
                     # basically, this number represents the start of a new part of the duration, and we need to add in the old one
                     # format entry should have the format of the previous part, so store that
                     time_format_list.append("".join(format_entry))
@@ -116,9 +115,14 @@ class TimeDurationConverter(commands.Converter):
                     value_entry
                 ):  # if this already exists, that means we just came off a number
                     # so we need to store that number and prepare to get the measurement unit after it
-                    time_value_list.append(
-                        float("".join(value_entry))
-                    )  # numbers are floats
+                    try:
+                        time_value_list.append(
+                            float("".join(value_entry))
+                        )  # numbers are floats
+                    except ValueError:  # because you could do ".s"
+                        raise commands.BadArgument(
+                            f"Argument {argument} is not a valid time duration."
+                        )
                     value_entry.clear()
 
                 format_entry.append(chara)  # slowly build up our unit
