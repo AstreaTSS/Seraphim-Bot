@@ -2,23 +2,26 @@
 import asyncio
 import datetime
 import typing
+from dataclasses import dataclass
+from dataclasses import field
 
 import discord
 from discord.ext import commands
 
 
+@dataclass
 class SnipedMessage:
-    """A special class for sniped messages, using slots to keep the memory usage to a minimum."""
+    """A special class for sniped messages."""
 
     __slots__ = ("embed", "time_modified")
 
-    def __init__(self, embed: discord.Embed):
-        self.embed = embed
-        self.time_modified = datetime.datetime.utcnow()
+    embed: discord.Embed
+    time_modified = datetime.datetime.utcnow()
 
 
 class UsableIDConverter(commands.IDConverter):
-    """The internal ID converter, but usable."""
+    """The internal ID converter, but usable.
+    Will be replaced by the ObjectConverter in d.py 2.0."""
 
     async def convert(self, ctx: commands.Context, argument: str):
         match = self._get_id_match(argument)
@@ -29,7 +32,7 @@ class UsableIDConverter(commands.IDConverter):
 
 
 class SetAsyncQueue(asyncio.Queue):
-    """A special type of async queue that uses a set instead of a queue.
+    """A special type of async queue that uses a set instead of a list.
     Useful when we don't want duplicates."""
 
     def _init(self, maxsize):
@@ -101,6 +104,7 @@ class TimeDurationConverter(commands.Converter):
             if (
                 chara.isdigit() or chara == "."
             ):  # if a character is a digit or a '.' - aka if the character is part of a number
+
                 # if the below already exists, that means there was a format before the current number
                 if format_entry:
                     # basically, this number represents the start of a new part of the duration, and we need to add in the old one
@@ -179,32 +183,27 @@ class ValidChannelConverter(commands.TextChannelConverter):
         return chan
 
 
+@dataclass
 class WizardQuestion:
-    def __init__(self, question, converter, action):
-        self.question: str = question
-        self.converter: typing.Callable = converter
-        self.action: typing.Callable = action
+    __slots__ = ("question", "converter", "action")
+
+    question: str
+    converter: typing.Callable
+    action: typing.Callable
 
 
+@dataclass
 class WizardManager:
     """A class that allows you to make a wizard of sorts, allowing a more intuitive way of getting multiple inputs from a user."""
 
-    def __init__(
-        self,
-        embed_title: str,
-        timeout: float,
-        final_text: str,
-        color=discord.Colour(0x4378FC),
-        pass_self=False,
-    ):
-        self.embed_title = embed_title
-        self.timeout = timeout
-        self.final_text = final_text
-        self.color = color
-        self.pass_self = pass_self
+    embed_title: str
+    final_text: str
+    color: discord.Color = discord.Color(0x4378FC)
+    timeout: float = 120
+    pass_self: bool = False
 
-        self.questions: typing.List[WizardQuestion] = []
-        self.ori_mes: typing.Optional[discord.Message] = None
+    questions: typing.List[WizardQuestion] = field(default=[], init=False)
+    ori_mes: typing.Optional[discord.Message] = field(default=None, init=False)
 
     def add_question(
         self, question: str, converter: typing.Callable, action: typing.Callable

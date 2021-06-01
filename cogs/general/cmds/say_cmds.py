@@ -84,7 +84,7 @@ class SayCMDS(commands.Cog, name="Say"):
         """Allows people with Manage Server permissions to speak with the bot with a fancy embed. Will open a wizard-like prompt."""
 
         wizard = custom_classes.WizardManager(
-            "Embed Say Wizard", 120, "Setup complete.", pass_self=True
+            "Embed Say Wizard", "Setup complete.", pass_self=True
         )
 
         question_1 = (

@@ -37,7 +37,7 @@ class SetupCMD(commands.Cog, name="Setup"):
             )
         )
         wizard = custom_classes.WizardManager(
-            embed_title="Starboard Setup", timeout=120.0, final_text=final_str
+            embed_title="Starboard Setup", final_text=final_str
         )
 
         question_str = "".join(
