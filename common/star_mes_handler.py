@@ -217,8 +217,10 @@ async def base_generate(bot, mes: discord.Message, no_attachments=False):
             else:
                 send_embed = cant_display(send_embed, mes.attachments, 0)
         else:
+            # http://urlregex.com/
             urls = re.findall(
-                r"^(http|https)\://[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,6}(/\S*)?$", content,
+                r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
+                content,
             )
             if urls != []:
                 first_url = urls[0][0]

@@ -164,8 +164,10 @@ class URLToImage(commands.Converter):
     # gets either the URL or the image from an argument
 
     async def convert(self, ctx, argument):
+        # http://urlregex.com/
         urls = re.findall(
-            r"^(http|https)\://[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,6}(/\S*)?$", argument,
+            r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
+            argument,
         )
         if urls:
             first_url = urls[0][0]
