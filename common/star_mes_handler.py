@@ -218,8 +218,7 @@ async def base_generate(bot, mes: discord.Message, no_attachments=False):
                 send_embed = cant_display(send_embed, mes.attachments, 0)
         else:
             urls = re.findall(
-                r"((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)",
-                content,
+                r"^(http|https)\://[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,6}(/\S*)?$", content,
             )
             if urls != []:
                 first_url = urls[0][0]

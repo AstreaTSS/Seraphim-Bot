@@ -165,8 +165,7 @@ class URLToImage(commands.Converter):
 
     async def convert(self, ctx, argument):
         urls = re.findall(
-            r"((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)",
-            argument,
+            r"^(http|https)\://[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,6}(/\S*)?$", argument,
         )
         if urls:
             first_url = urls[0][0]
