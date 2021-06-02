@@ -223,7 +223,7 @@ async def base_generate(bot, mes: discord.Message, no_attachments=False):
                 content,
             )
             if urls != []:
-                first_url = urls[0][0]
+                first_url = urls[0]
 
                 possible_url = await image_utils.get_image_url(first_url)
                 if possible_url != None:
