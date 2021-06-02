@@ -217,40 +217,45 @@ async def base_generate(bot, mes: discord.Message, no_attachments=False):
             else:
                 send_embed = cant_display(send_embed, mes.attachments, 0)
         else:
-            # http://urlregex.com/
-            urls = re.findall(
-                r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
-                content,
-            )
-            if urls != []:
-                first_url = urls[0]
-
-                possible_url = await image_utils.get_image_url(first_url)
-                if possible_url != None:
-                    image_url = possible_url
-
-            # if the image url is still blank and the message has a gifv embed
-            if image_url == "" and mes.embeds != [] and mes.embeds[0].type == "gifv":
-                if (
-                    mes.embeds[0].thumbnail.url != discord.Embed.Empty
-                ):  # if there is a thumbnail url
-                    image_url = mes.embeds[0].thumbnail.url
-
-            # if the image url is STILL blank and there's a youtube video
-            if (
-                image_url == ""
-                and mes.embeds
-                and mes.embeds[0].type == "video"
-                and mes.embeds[0].provider != discord.Embed.Empty
-                and mes.embeds[0].provider.name != discord.Embed.Empty
-                and mes.embeds[0].provider.name == "YouTube"
-            ):
-                image_url = mes.embeds[0].thumbnail.url
-                send_embed.add_field(
-                    name="YouTube:",
-                    value=f"{mes.embeds[0].author.name}: [{mes.embeds[0].title}]({mes.embeds[0].url})",
-                    inline=False,
+            if not mes.flags.suppress_embeds:  # would suppress images too
+                # http://urlregex.com/
+                urls = re.findall(
+                    r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
+                    content,
                 )
+                if urls != []:
+                    first_url = urls[0]
+
+                    possible_url = await image_utils.get_image_url(first_url)
+                    if possible_url != None:
+                        image_url = possible_url
+
+                # if the image url is still blank and the message has a gifv embed
+                if (
+                    image_url == ""
+                    and mes.embeds != []
+                    and mes.embeds[0].type == "gifv"
+                ):
+                    if (
+                        mes.embeds[0].thumbnail.url != discord.Embed.Empty
+                    ):  # if there is a thumbnail url
+                        image_url = mes.embeds[0].thumbnail.url
+
+                # if the image url is STILL blank and there's a youtube video
+                if (
+                    image_url == ""
+                    and mes.embeds
+                    and mes.embeds[0].type == "video"
+                    and mes.embeds[0].provider != discord.Embed.Empty
+                    and mes.embeds[0].provider.name != discord.Embed.Empty
+                    and mes.embeds[0].provider.name == "YouTube"
+                ):
+                    image_url = mes.embeds[0].thumbnail.url
+                    send_embed.add_field(
+                        name="YouTube:",
+                        value=f"{mes.embeds[0].author.name}: [{mes.embeds[0].title}]({mes.embeds[0].url})",
+                        inline=False,
+                    )
 
             # if the image url is STILL blank and the message has a sticker
             if image_url == "" and mes.stickers:
@@ -259,7 +264,7 @@ async def base_generate(bot, mes: discord.Message, no_attachments=False):
                 ].image_url:  # its possible for this to be None if its a weird format
                     image_url = str(mes.stickers[0].image_url)
                 else:  # as of right now, you cannot send content with a sticker, so we might as well
-                    send_embed.description = "*This message is a sticker that I cannot display. Please view the original message to see it.*"
+                    send_embed.description = "*This message has a sticker that I cannot display. Please view the original message to see it.*"
 
             if not no_attachments and mes.attachments:
                 send_embed = cant_display(send_embed, mes.attachments, 0)
