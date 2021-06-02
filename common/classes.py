@@ -198,7 +198,7 @@ class WizardManager:
     timeout: float = 120
     pass_self: bool = False
 
-    questions: typing.List[WizardQuestion] = field(default=[], init=False)
+    questions: typing.List[WizardQuestion] = field(default_factory=[], init=False)
     ori_mes: typing.Optional[discord.Message] = field(default=None, init=False)
 
     def add_question(
