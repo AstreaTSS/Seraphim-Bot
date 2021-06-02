@@ -13,8 +13,6 @@ from discord.ext import commands
 class SnipedMessage:
     """A special class for sniped messages."""
 
-    __slots__ = ("embed", "time_modified")
-
     embed: discord.Embed
     time_modified = datetime.datetime.utcnow()
 
@@ -185,8 +183,6 @@ class ValidChannelConverter(commands.TextChannelConverter):
 
 @dataclass
 class WizardQuestion:
-    __slots__ = ("question", "converter", "action")
-
     question: str
     converter: typing.Callable
     action: typing.Callable
