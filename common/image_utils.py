@@ -91,7 +91,10 @@ async def get_image_url(url: str):
             return gif_url
 
     else:
-        file_type = await type_from_url(url)
+        try:
+            file_type = await type_from_url(url)
+        except aiohttp.InvalidURL:
+            return None
 
         image_endings = ("jpg", "jpeg", "png", "gif", "webp")
         image_extensions = tuple(image_endings)  # no idea why I have to do this
