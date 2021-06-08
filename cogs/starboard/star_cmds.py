@@ -455,7 +455,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         await ctx.reply(embed=star_embed)
 
     async def initial_get(
-        self, ctx, msg, forced=False, do_not_create=False
+        self, ctx, msg, forced=False, do_not_create=False, bypass_int_check=False,
     ) -> star_classes.StarboardEntry:
         if not ctx.bot.config.getattr(ctx.guild.id, "star_toggle"):
             raise utils.CustomCheckFailure(
@@ -463,7 +463,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
             )
 
         if isinstance(msg, int):
-            if do_not_create:
+            if do_not_create and not bypass_int_check:
                 raise commands.BadArgument(
                     "The message must be in the channel the command is being run in."
                 )
@@ -619,7 +619,9 @@ class StarCMDs(commands.Cog, name="Starboard"):
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
 
-        starboard_entry = await self.initial_get(ctx, msg, do_not_create=True)
+        starboard_entry = await self.initial_get(
+            ctx, msg, do_not_create=True, bypass_int_check=True
+        )
 
         starboard_chan = self.bot.get_channel(starboard_entry.starboard_id)
         try:
