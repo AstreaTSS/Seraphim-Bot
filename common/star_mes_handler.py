@@ -3,7 +3,6 @@ import collections
 import re
 
 import discord
-from discord import embeds
 
 import common.image_utils as image_utils
 import common.star_utils as star_utils
@@ -33,7 +32,10 @@ def cant_display(embed: discord.Embed, attachments: list, index=0):
     return embed
 
 
-async def base_generate(bot, mes: discord.Message, no_attachments=False):
+async def base_generate(
+    bot: discord.Client, mes: discord.Message, no_attachments: bool = False
+):
+    # sourcery no-metrics
     # generates core of star messages
     image_url = ""
 

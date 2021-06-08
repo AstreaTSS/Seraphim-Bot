@@ -22,7 +22,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
     """Commands for the starboard. See the settings command to set up the starboard."""
 
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
 
     def get_star_rankings(self, custom_filter):
         user_star_dict = collections.Counter()
@@ -606,6 +606,46 @@ class StarCMDs(commands.Cog, name="Starboard"):
         self.bot.starboard.update(starboard_entry)
 
         await ctx.reply("The message has been untrashed.")
+
+    @sb.command(aliases=["update"])
+    @utils.proper_permissions()
+    async def refresh(
+        self, ctx, msg: typing.Union[discord.Message, custom_classes.UsableIDConverter]
+    ):
+        """Refreshes a starboard entry, using the internal generator to remake the starboard message.
+        Useful if you want to use the new starboard message features or if you want to update the avatar.
+        The original message must also still exist.
+        The message either needs to be a message ID of a message,
+        a {channel id}-{message id} format, or the message link itself.
+        You must have Manage Server permissions or higher to run this command."""
+
+        starboard_entry = await self.initial_get(ctx, msg, do_not_create=True)
+
+        starboard_chan = self.bot.get_channel(starboard_entry.starboard_id)
+        try:
+            starboard_msg = await starboard_chan.fetch_message(
+                starboard_entry.star_var_id
+            )
+        except discord.HTTPException or AttributeError:
+            raise utils.CustomCheckFailure(
+                "The starboard message cannot be found! Make sure the bot can see the channel."
+            )
+
+        ori_chan = self.bot.get_channel(starboard_entry.ori_chan_id)
+        try:
+            ori_msg = await ori_chan.fetch_message(starboard_entry.ori_mes_id)
+        except discord.HTTPException or AttributeError:
+            raise utils.CustomCheckFailure(
+                "The original message cannot be found! Make sure the bot can see the channel."
+            )
+
+        new_embed = await star_mes.star_generate(self.bot, ori_msg)
+        new_content = star_utils.generate_content_str(starboard_entry)
+
+        await starboard_msg.edit(content=new_content, embed=new_embed)
+        await ctx.reply(
+            f"Updated! Check out {starboard_msg.jump_url} to see the updated message!"
+        )
 
     @commands.command(hidden=True)
     @commands.is_owner()
