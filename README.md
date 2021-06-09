@@ -1,7 +1,7 @@
 <p align="center">
-  <img src="https://cdn.discordapp.com/attachments/775913661264035840/846957724390654002/SeraphimLogo.png" alt="Seraphim's Logo" width="700"/>
+  <img src="https://cdn.discordapp.com/attachments/465547475839746058/852011002638762005/SeraphimLogo.png" alt="Seraphim's Logo" width="700"/>
 </p>
-  
+
 <p align="center">
   <a href="https://sonictbm.gitbook.io/seraphim/">Wiki/Documentation</a>
 </p>
