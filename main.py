@@ -119,7 +119,7 @@ async def on_init_load():
 
         db_url = os.environ.get("DB_URL")
         bot.pool = await asyncpg.create_pool(
-            db_url, min_size=2, max_size=5, init=add_json_converter
+            db_url, min_size=2, max_size=10, init=add_json_converter
         )
 
     bot.load_extension("jishaku")

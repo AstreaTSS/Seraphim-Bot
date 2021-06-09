@@ -82,7 +82,7 @@ class DBHandler(commands.Cog):
 
     @commit_loop.before_loop
     async def before_commit_loop(self):
-        if self.bot.init_load:
+        if not self.bot.added_db_info:
             await self.get_dbs()
 
             while self.bot.config.entries == {}:
