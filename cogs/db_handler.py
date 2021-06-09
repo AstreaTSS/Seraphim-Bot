@@ -57,7 +57,7 @@ class DBHandler(commands.Cog):
         for entry_id in self.bot.starboard.updated:
             entry = self.bot.starboard.get(entry_id)
             update_sb.append(self.get_required_from_entry(entry))
-        delete_sb = tuple(tuple(entry_id) for entry_id in self.bot.starboard.removed)
+        delete_sb = tuple([entry_id] for entry_id in self.bot.starboard.removed)
         self.bot.starboard.reset_deltas()
 
         insert_config = [
