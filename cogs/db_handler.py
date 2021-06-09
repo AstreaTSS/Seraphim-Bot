@@ -124,7 +124,7 @@ class DBHandler(commands.Cog):
                 if insert_sb:
                     str_builder = [
                         "INSERT INTO starboard(ori_mes_id, ori_chan_id, star_var_id, ",
-                        "starboard_id, author_id, ori_reactors, var_reactions ",
+                        "starboard_id, author_id, ori_reactors, var_reactors, ",
                         "guild_id, forced, frozen, trashed) VALUES($1, $2, $3, $4, ",
                         "$5, $6, $7, $8, $9, $10, $11)",
                     ]
