@@ -133,7 +133,7 @@ class DBHandler(commands.Cog):
                 if update_sb:
                     str_builder = [
                         "UPDATE starboard SET ori_chan_id = $2, star_var_id = $3, starboard_id = $4, ",
-                        "author_id = $5, ori_reactors = $6, var_reactions = $7, guild_id = $8, ",
+                        "author_id = $5, ori_reactors = $6, var_reactors = $7, guild_id = $8, ",
                         "forced = $9, frozen = $10, trashed = $11 WHERE ori_mes_id = $1",
                     ]
                     query = "".join(str_builder)
