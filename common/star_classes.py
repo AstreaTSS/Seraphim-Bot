@@ -58,35 +58,34 @@ class StarboardEntry:
         trashed,
         updated=False,
     ):
-        self.ori_mes_id = ori_mes_id
-        self.ori_chan_id = ori_chan_id
-        self.star_var_id = star_var_id
-        self.starboard_id = starboard_id
-        self.author_id = author_id
-        self.ori_reactors = set(ori_reactors)
-        self.var_reactors = set(var_reactors)
-        self.guild_id = guild_id
-        self.forced = forced
-        self.frozen = frozen
-        self.trashed = trashed
-        self.updated = updated
+        self.ori_mes_id: int = ori_mes_id
+        self.ori_chan_id: int = ori_chan_id
+        self.star_var_id: typing.Optional[int] = star_var_id
+        self.starboard_id: typing.Optional[int] = starboard_id
+        self.author_id: int = author_id
+        self.ori_reactors: typing.Set[int] = set(ori_reactors)
+        self.var_reactors: typing.Set[int] = set(var_reactors)
+        self.guild_id: int = guild_id
+        self.forced: bool = forced
+        self.frozen: bool = frozen
+        self.trashed: bool = trashed
+        self.updated: bool = updated
 
     @classmethod
     def from_row(cls, row):
         """Returns an entry from a row."""
-        data = row["data"]
         return cls(
             row["ori_mes_id"],
-            data["ori_chan_id"],
-            data["star_var_id"],
-            data["starboard_id"],
-            data["author_id"],
-            data["ori_reactors"],
-            data["var_reactors"],
-            data["guild_id"],
-            data["forced"],
-            data["frozen"],
-            data["trashed"],
+            row["ori_chan_id"],
+            row["star_var_id"],
+            row["starboard_id"],
+            row["author_id"],
+            row["ori_reactors"],
+            row["var_reactors"],
+            row["guild_id"],
+            row["forced"],
+            row["frozen"],
+            row["trashed"],
         )
 
     @classmethod
@@ -122,10 +121,6 @@ class StarboardEntry:
                 False,
                 updated=True,
             )
-
-    def to_dict(self) -> dict:
-        """Converts this class to a dict."""
-        return {key: getattr(self, key) for key in self.__slots__ if hasattr(self, key)}
 
     def get_reactors(self) -> typing.Set[int]:
         """Gets the total reactors, a mix of ori and var reactors."""
