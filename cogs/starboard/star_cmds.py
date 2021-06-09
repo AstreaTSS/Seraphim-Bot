@@ -608,6 +608,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         await ctx.reply("The message has been untrashed.")
 
     @sb.command(aliases=["update"])
+    @commands.cooldown(1, 5, commands.BucketType.guild)
     @utils.proper_permissions()
     async def refresh(
         self, ctx, msg: typing.Union[discord.Message, custom_classes.UsableIDConverter]
