@@ -9,12 +9,14 @@ import discord
 from discord.ext import commands
 
 
-@dataclass
 class SnipedMessage:
     """A special class for sniped messages."""
 
-    embed: discord.Embed
-    time_modified = datetime.datetime.utcnow()
+    __slots__ = ("embed", "time_modified")
+
+    def __init__(self, embed: discord.Embed):
+        self.embed = embed
+        self.time_modified = datetime.datetime.utcnow()
 
 
 class UsableIDConverter(commands.IDConverter):
