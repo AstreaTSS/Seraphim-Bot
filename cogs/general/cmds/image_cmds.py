@@ -301,13 +301,13 @@ class ImageCMDs(commands.Cog, name="Image"):
                 "You cannot have a percentage and a width/height at the same time!"
             )
 
-        if flags["percent"] and not flags["percent"] > 0:
+        if flags["percent"] and flags["percent"] <= 0:
             raise commands.BadArgument("The percent must be greater than 0!")
 
-        if flags["width"] and not flags["width"] > 0:
+        if flags["width"] and flags["width"] <= 0:
             raise commands.BadArgument("The width must be greater than 0!")
 
-        if flags["height"] and not flags["height"] > 0:
+        if flags["height"] and flags["height"] <= 0:
             raise commands.BadArgument("The height must be greater than 0!")
 
         async with ctx.channel.typing():

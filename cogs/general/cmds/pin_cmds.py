@@ -30,7 +30,7 @@ class PinCMDs(commands.Cog, name="Pinboard"):
         pins = await ctx.channel.pins()
         pins.reverse()  # pins are retrived newest -> oldest, we want to do the opposite
 
-        if not len(pins) > chan_entry["limit"]:
+        if len(pins) <= chan_entry["limit"]:
             raise utils.CustomCheckFailure(
                 "The number of pins is below or at the limit!"
             )

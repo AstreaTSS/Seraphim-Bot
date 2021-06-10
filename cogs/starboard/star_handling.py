@@ -53,7 +53,7 @@ class Star(commands.Cog):
         except discord.Forbidden:
             return
         except discord.HTTPException:
-            utils.msg_to_owner(
+            await utils.msg_to_owner(
                 self.bot,
                 f"{payload.message_id}: could not find Message object. Channel: {payload.channel_id}",
             )

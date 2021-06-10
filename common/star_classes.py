@@ -131,7 +131,7 @@ class StarboardEntry:
 
         return self.ori_reactors | self.var_reactors
 
-    def get_reactors_from_type(self, type_of_reactor: ReactorType) -> typing.List[int]:
+    def get_reactors_from_type(self, type_of_reactor: ReactorType) -> typing.Set[int]:
         """Gets the reactors for the type specified. Useful if you want the output to vary."""
         if type_of_reactor == ReactorType.ORI_REACTORS:
             return self.ori_reactors
@@ -232,15 +232,15 @@ class StarboardEntries:
 
     def get(self, entry_id, check_for_var=False) -> typing.Optional[StarboardEntry]:
         """Gets an entry based on the ID provides."""
-        if self.entries[entry_id]:
-            if not check_for_var or self.entries[entry_id].star_var_id:
-                return self.entries[entry_id]
-            else:
-                return None
-        else:
+        if not self.entries[entry_id]:
             return discord.utils.find(
                 lambda e: e and e.star_var_id == entry_id, self.entries.values()
             )
+
+        if not check_for_var or self.entries[entry_id].star_var_id:
+            return self.entries[entry_id]
+        else:
+            return None
 
     def get_list(self, list_filter) -> typing.List[StarboardEntry]:
         """Gets specific entries based on the filter (a lambda or function) specified."""

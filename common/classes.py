@@ -90,8 +90,6 @@ class TimeDurationConverter(commands.Converter):
     async def convert(self, ctx, argument: str):
         time_value_list = []  # will be list of all numbers, ie the '60' in '60d'
         time_format_list = []  # will be list of all formats, ie the 'd' in '60d'
-        time_span = 0  # will be how long the duration is, in seconds
-
         value_entry = []
         format_entry = []
 
@@ -152,11 +150,10 @@ class TimeDurationConverter(commands.Converter):
                 f"Argument {argument} is not a valid time duration."
             )
 
-        for time_value, time_format in zip(time_value_list, time_format_list):
-            # build up the time span by going through each seperate value and format
-            # and processing it into seconds, and then adding it to the total seconds
-            # the duration represents
-            time_span += self.to_seconds(time_value, time_format)
+        time_span = sum(
+            self.to_seconds(time_value, time_format)
+            for time_value, time_format in zip(time_value_list, time_format_list)
+        )
 
         # timedeltas are generally useful for this type of stuff
         return datetime.timedelta(seconds=time_span)

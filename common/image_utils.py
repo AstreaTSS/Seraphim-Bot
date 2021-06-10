@@ -134,18 +134,13 @@ async def get_file_bytes(url: str, limit: int, equal_to=True):
 
 def image_from_ctx(ctx: commands.Context):
     """To be used with URLToImage. Gets image from context, via an embed or via its attachments."""
-    if ctx.message.attachments:
-        if (
-            ctx.message.attachments[0]
-            .proxy_url.lower()
-            .endswith(ctx.bot.image_extensions)
-        ):
-            return ctx.message.attachments[0].proxy_url
-        else:
-            raise commands.BadArgument("Attachment provided is not a valid image.")
-
-    else:
+    if not ctx.message.attachments:
         raise commands.BadArgument("No URL or image given!")
+
+    if ctx.message.attachments[0].proxy_url.lower().endswith(ctx.bot.image_extensions):
+        return ctx.message.attachments[0].proxy_url
+    else:
+        raise commands.BadArgument("Attachment provided is not a valid image.")
 
 
 class ImageTypeChecker(commands.Converter):

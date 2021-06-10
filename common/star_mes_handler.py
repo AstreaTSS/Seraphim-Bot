@@ -89,16 +89,17 @@ async def base_generate(
             author = await utils.user_from_id(bot, mes.guild, author_id)
 
         author_str = ""
-        if author == None:
+        if author is None:
             author_str = mes.embeds[0].author.name
         else:
             author_str = f"{author.display_name} ({str(author)})"
 
         icon = (
             snipe_embed.author.icon_url
-            if author == None
+            if author is None
             else str(author.avatar_url_as(format=None, static_format="png", size=128))
         )
+
         content = snipe_embed.description
 
         send_embed = discord.Embed(
@@ -109,10 +110,6 @@ async def base_generate(
         )
         send_embed.set_author(name=author_str, icon_url=icon)
 
-    # generic embed support. we make sure the message is from a bot to make sure that
-    # discord-generated embeds do not hopefully get picked up... it's not perfect, though.
-    # the final check checks if the embed is not a twitter embed, which annoyingly can blend in as any other embed
-    # the check, of course, is far from perfect. twitter embed support is planned out for later
     elif (
         mes.author.bot
         and mes.embeds != []
@@ -161,16 +158,17 @@ async def base_generate(
             ref_auth_str = ""
             ref_mes_url = ""
 
-            if (
-                mes.reference.resolved
-                and isinstance(mes.reference.resolved, discord.Message)
-            ) or mes.reference.cached_message:
+            if mes.reference.resolved and isinstance(
+                mes.reference.resolved, discord.Message
+            ):
                 # saves time fetching messages if possible
-                reply_mes = (
-                    mes.reference.cached_message
-                    if mes.reference.cached_message
-                    else mes.reference.resolved
-                )
+                reply_mes = mes.reference.cached_message or mes.reference.resolved
+                ref_author = reply_mes.author
+                ref_mes_url = reply_mes.jump_url
+
+            elif mes.reference.cached_message:
+                # saves time fetching messages if possible
+                reply_mes = mes.reference.cached_message or mes.reference.resolved
                 ref_author = reply_mes.author
                 ref_mes_url = reply_mes.jump_url
 
@@ -186,11 +184,7 @@ async def base_generate(
                     except discord.HTTPException:
                         pass
 
-            if ref_author:
-                ref_auth_str = ref_author.display_name
-            else:
-                ref_auth_str = "a message"
-
+            ref_auth_str = ref_author.display_name if ref_author else "a message"
             if not ref_mes_url and mes.reference.message_id and mes.reference.guild_id:
                 ref_mes_url = f"https://discord.com/channels/{mes.reference.guild_id}/{mes.reference.channel_id}/{mes.reference.message_id}"
 
@@ -237,11 +231,10 @@ async def base_generate(
                     image_url == ""
                     and mes.embeds != []
                     and mes.embeds[0].type == "gifv"
-                ):
-                    if (
-                        mes.embeds[0].thumbnail.url != discord.Embed.Empty
-                    ):  # if there is a thumbnail url
-                        image_url = mes.embeds[0].thumbnail.url
+                ) and (
+                    mes.embeds[0].thumbnail.url != discord.Embed.Empty
+                ):  # if there is a thumbnail url
+                    image_url = mes.embeds[0].thumbnail.url
 
                 # if the image url is STILL blank and there's a youtube video
                 if (

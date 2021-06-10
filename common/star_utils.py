@@ -50,7 +50,7 @@ def get_author_id(mes, bot):
         dank_embed = mes.embeds[0]
         basic_author = dank_embed.author.name  # name EX: Sonic49#0121
         author = mes.guild.get_member_named(basic_author)
-        author_id = mes.author.id if author == None else author.id  # just in case
+        author_id = mes.author.id if author is None else author.id  # just in case
 
     elif (
         mes.author.id == bot.user.id
@@ -224,24 +224,21 @@ async def star_entry_refresh(
         star_var_mes = await star_var_chan.fetch_message(starboard_entry.star_var_id)
     except discord.HTTPException as e:
         # if exception: most likely this is because starboard channel has moved, so this is a fix
-        if isinstance(e, (discord.NotFound, discord.Forbidden)):
-            ori_chan = bot.get_channel(starboard_entry.ori_chan_id)
-            if ori_chan == None or ori_chan.guild.id != guild_id:
-                return
+        if not isinstance(e, (discord.NotFound, discord.Forbidden)):
+            raise e
 
-            try:
-                ori_mes = await ori_chan.fetch_message(starboard_entry.ori_mes_id)
-            except discord.HTTPException:
-                return
+        ori_chan = bot.get_channel(starboard_entry.ori_chan_id)
+        if ori_chan is None or ori_chan.guild.id != guild_id:
+            return
 
-            import common.star_mes_handler  # very dirty import, i know
+        try:
+            ori_mes = await ori_chan.fetch_message(starboard_entry.ori_mes_id)
+        except discord.HTTPException:
+            return
 
-            star_var_mes = await common.star_mes_handler.send(
-                bot, ori_mes, unique_stars
-            )
-        else:
-            raise (e)
+        import common.star_mes_handler  # very dirty import, i know
 
+        star_var_mes = await common.star_mes_handler.send(bot, ori_mes)
     ori_starred = star_var_mes.embeds[0]
 
     if (
