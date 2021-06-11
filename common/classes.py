@@ -9,7 +9,7 @@ import discord
 from discord.ext import commands
 
 
-@dataclass()
+@dataclass
 class SnipedMessage:
     """A special class for sniped messages."""
 

@@ -119,7 +119,7 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
                     option_type = discord_slash.SlashCommandOptionType(
                         option["type"]
                     ).name
-                    required_txt = ", required" if option["required"] else ""
+                    required_txt = ", required" if option.get("required") else ""
                     entry_str_list.append(
                         f"{option['name']} (type {option_type}{required_txt}) - {option['description']}"
                     )
@@ -131,10 +131,10 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
         pages = paginator.FieldPages(ctx, entries=slash_entries, per_page=6)
         await pages.paginate()
 
-    @commands.command(hidden=True, aliases=["registerslashcmds"])
-    async def register_slash_cmds(self, ctx):
-        await self.bot.slash.register_all_commands()
-        await ctx.reply("Registered commands.")
+    @commands.command(hidden=True, aliases=["syncslashcmds"])
+    async def sync_slash_cmds(self, ctx):
+        await self.bot.slash.sync_all_commands()
+        await ctx.reply("Synced commands.")
 
     @commands.command(hidden=True, aliases=["removeslashcmd"])
     async def remove_slash_cmd(
