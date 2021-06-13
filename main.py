@@ -94,18 +94,23 @@ async def on_init_load():
     bot.owner = application.owner
 
     # is this overboard for a joke? yes.
-    bot.death_messages = []
+    bot.death_messages = ()
     mc_en_us_url = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.17/assets/minecraft/lang/en_us.json"
     async with aiohttp.ClientSession() as session:
         async with session.get(mc_en_us_url) as resp:
             mc_en_us_config = await resp.json(content_type="text/plain")
 
-            for key, value in mc_en_us_config.items():
-                if key.startswith("death.") and key not in (
+            death_messages = tuple(
+                value
+                for key, value in mc_en_us_config.items()
+                if key.startswith("death.")
+                and key
+                not in (
                     "death.attack.message_too_long",
                     "death.attack.badRespawnPoint.link",
-                ):
-                    bot.death_messages.append(value)
+                )
+            )
+            bot.death_messages = death_messages
 
     if not hasattr(bot, "pool"):
 
