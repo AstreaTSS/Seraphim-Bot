@@ -29,62 +29,6 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
         await ctx.reply("All extensions reloaded!")
 
     @commands.command(hidden=True)
-    async def refresh_extensions(self, ctx):
-        def ext_str(list_files):
-            exten_list = [f"`{k}`" for k in list_files]
-            return ", ".join(exten_list)
-
-        unloaded_files = []
-        reloaded_files = []
-        loaded_files = []
-        not_loaded = []
-
-        ext_files = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))
-
-        to_unload = [
-            e
-            for e in self.bot.extensions.keys()
-            if e not in ext_files and e != "cogs.db_handler"
-        ]
-        for ext in to_unload:
-            self.bot.unload_extension(ext)
-            unloaded_files.append(ext)
-
-        for ext in ext_files:
-            try:
-                self.bot.reload_extension(ext)
-                reloaded_files.append(ext)
-            except commands.ExtensionNotLoaded:
-                try:
-                    self.bot.load_extension(ext)
-                    loaded_files.append(ext)
-                except commands.ExtensionNotFound as e:
-                    await utils.error_handle(self.bot, e)
-                except commands.NoEntryPointError:
-                    not_loaded.append(ext)
-                except commands.ExtensionFailed as e:
-                    await utils.error_handle(self.bot, e)
-            except commands.ExtensionNotFound as e:
-                await utils.error_handle(self.bot, e)
-            except commands.NoEntryPointError:
-                not_loaded.append(ext)
-            except commands.ExtensionFailed as e:
-                await utils.error_handle(self.bot, e)
-
-        msg_content = collections.deque()
-
-        if unloaded_files != []:
-            msg_content.append(f"Unloaded: {ext_str(unloaded_files)}")
-        if loaded_files != []:
-            msg_content.append(f"Loaded: {ext_str(loaded_files)}")
-        if reloaded_files != []:
-            msg_content.append(f"Reloaded: {ext_str(reloaded_files)}")
-        if not_loaded != []:
-            msg_content.append(f"Didn't load: {ext_str(not_loaded)}")
-
-        await ctx.reply("\n".join(msg_content))
-
-    @commands.command(hidden=True)
     async def list_loaded_extensions(self, ctx):
         exten_list = [f"`{k}`" for k in self.bot.extensions.keys()]
         exten_str = ", ".join(exten_list)

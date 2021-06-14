@@ -1,10 +1,8 @@
 import importlib
-import math
 import random
 import re
 
 import discord
-import numexpr
 from discord.ext import commands
 from discord_slash import cog_ext
 from discord_slash import SlashContext
@@ -125,31 +123,6 @@ class SlashCMDS(commands.Cog):
         "description": "The expression to evaluate.",
         "required": True,
     }
-
-    @cog_ext.cog_slash(
-        name="calculate",
-        description="Calculates the value of the given expression.",
-        options=[expression_content_option],
-    )
-    async def calc(self, ctx: SlashContext, expression: str):
-        await ctx.defer(hidden=True)  # who knows
-
-        PI = math.pi  # just in case someone wants it
-
-        try:
-            # a bit of a hacky way of doing it, but it works
-            value = numexpr.evaluate(expression)
-        except ZeroDivisionError:
-            await ctx.send(content="Cannot divide by zero!", hidden=True)
-            return
-        except OverflowError:
-            await ctx.send(content="This expression causes an overflow!", hidden=True)
-            return
-        except:  # basically any other error
-            await ctx.send(content="This is not a valid expression!", hidden=True)
-            return
-
-        await ctx.send(content=f"Result: `{value.item()}`", hidden=True)
 
     @commands.Cog.listener()
     async def on_slash_command_error(self, ctx, ex):
