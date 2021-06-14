@@ -273,9 +273,7 @@ async def base_generate(
 async def star_generate(bot, mes):
     # base generate but with more fields
     send_embed = await base_generate(bot, mes)
-    send_embed.add_field(
-        name="Original", value=f"**[Jump]({mes.jump_url})**", inline=True
-    )
+    send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})", inline=True)
     send_embed.set_footer(text=f"ID: {mes.id}")
 
     return send_embed
