@@ -26,6 +26,8 @@ class OnCMDError(commands.Cog):
         if isinstance(error, commands.CommandInvokeError):
             original = error.original
             if not isinstance(original, discord.HTTPException):
+                await ctx.reply(embed=self.error_embed_generate(str(error)))
+            else:
                 await utils.error_handle(self.bot, error, ctx)
         elif isinstance(error, flags.ArgumentParsingError):
             await ctx.reply(embed=self.error_embed_generate(str(error)))

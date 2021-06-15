@@ -153,9 +153,21 @@ async def base_generate(
                     description=content[:halfway],
                     timestamp=mes.created_at,
                 )
-                send_embed.add_field(
-                    name="Message continued:", value=content[halfway:], inline=False
-                )
+
+                if len(content[halfway:]) <= 1024:
+                    send_embed.add_field(
+                        name="Message continued:", value=content[halfway:], inline=False
+                    )
+                else:
+                    three_fourths = round(len(content) / 4) * 3
+                    send_embed.add_field(
+                        name="Part 2:",
+                        value=content[halfway:three_fourths],
+                        inline=False,
+                    )
+                    send_embed.add_field(
+                        name="Part 3:", value=content[three_fourths:], inline=False
+                    )
         else:
             send_embed = discord.Embed(
                 colour=discord.Colour(0xCFCA76),
