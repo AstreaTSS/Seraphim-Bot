@@ -318,7 +318,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
             discord.CategoryChannel,
             discord.Role,
             discord.PartialEmoji,
-            custom_classes.UsableIDConverter,
+            custom_classes.ObjectConverter,
         ],
     ):
         """Gets the creation date and time of many, MANY Discord related things, like members, emojis, messages, and much more.
@@ -326,8 +326,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         Names, IDs, mentions... try it out and see.
         Will return the time in UTC in MM/DD/YY HH:MM:SS in 24-hour time."""
 
-        obj_id = argument.id if not isinstance(argument, int) else argument
-        obj_creation = discord.utils.snowflake_time(obj_id)
+        obj_creation = discord.utils.snowflake_time(argument.id)
         time_format = obj_creation.strftime("%x %X UTC")
 
         if isinstance(argument, discord.Role) and argument.is_default():

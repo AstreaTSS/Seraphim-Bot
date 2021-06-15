@@ -35,10 +35,10 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
 
     @commands.command(hidden=True, aliases=["list_slash_commands", "listslashcmds"])
     async def list_slash_cmds(
-        self, ctx, guild_id: typing.Optional[custom_classes.UsableIDConverter]
+        self, ctx, guild: typing.Optional[custom_classes.ObjectConverter]
     ):
         slash_cmds = await discord_slash.utils.manage_commands.get_all_commands(
-            self.bot.user.id, self.bot.http.token, guild_id
+            self.bot.user.id, self.bot.http.token, guild.id
         )
         slash_entries = []
 
@@ -83,12 +83,12 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
     async def remove_slash_cmd(
         self,
         ctx,
-        cmd_id: custom_classes.UsableIDConverter,
+        cmd: custom_classes.ObjectConverter,
         guild_id: typing.Optional[discord.Guild],
     ):
 
         await discord_slash.utils.manage_commands.remove_slash_command(
-            self.bot.user.id, self.bot.http.token, guild_id, cmd_id
+            self.bot.user.id, self.bot.http.token, guild_id, cmd.id
         )
 
         await ctx.reply("Removed command.")

@@ -17,16 +17,16 @@ class SnipedMessage:
     time_modified: datetime.datetime = field(default_factory=datetime.datetime.utcnow)
 
 
-class UsableIDConverter(commands.IDConverter):
-    """The internal ID converter, but usable.
-    Will be replaced by the ObjectConverter in d.py 2.0."""
+class ObjectConverter(commands.IDConverter):
+    """A replica of the object converter from d.py 2.0, somewhat.
+    Channel and role mentions aren't supported here."""
 
     async def convert(self, ctx: commands.Context, argument: str):
         match = self._get_id_match(argument)
         try:
-            return int(match.group(1))
+            return discord.Object(int(match.group(1)))
         except:
-            raise commands.MessageNotFound(argument)
+            raise commands.BadArgument(f"{argument} is not a valid Discord ID!")
 
 
 class SetAsyncQueue(asyncio.Queue):

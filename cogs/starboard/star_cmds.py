@@ -364,15 +364,14 @@ class StarCMDs(commands.Cog, name="Starboard"):
     async def stats(
         self,
         ctx: commands.Context,
-        msg: typing.Union[discord.Message, custom_classes.UsableIDConverter],
+        msg: typing.Union[discord.Message, custom_classes.ObjectConverter],
     ):
         """Gets the starboard stats for a message. The message must had at least one star at some point, but does not need to be on the starboard.
         The message either needs to be a message ID of a message in the guild the command is being run in,
         a {channel id}-{message id} format, or the message link itself.
         The message can either be the original message or the starboard variant message."""
 
-        msg_id = msg.id if isinstance(msg, discord.Message) else msg
-        starboard_entry: star_classes.StarboardEntry = self.bot.starboard.get(msg_id)
+        starboard_entry: star_classes.StarboardEntry = self.bot.starboard.get(msg.id)
 
         if not starboard_entry or starboard_entry.guild_id != ctx.guild.id:
             raise commands.BadArgument(
@@ -418,15 +417,14 @@ class StarCMDs(commands.Cog, name="Starboard"):
     async def reactors(
         self,
         ctx: commands.Context,
-        msg: typing.Union[discord.Message, custom_classes.UsableIDConverter],
+        msg: typing.Union[discord.Message, custom_classes.ObjectConverter],
     ):
         """Gets the first 50 star reactors for a message. The message must had at least one star at some point, but does not need to be on the starboard.
         The message either needs to be a message ID of a message in the guild the command is being run in,
         a {channel id}-{message id} format, or the message link itself.
         The message can either be the original message or the starboard variant message."""
 
-        msg_id = msg.id if isinstance(msg, discord.Message) else msg
-        starboard_entry: star_classes.StarboardEntry = self.bot.starboard.get(msg_id)
+        starboard_entry: star_classes.StarboardEntry = self.bot.starboard.get(msg.id)
 
         if not starboard_entry or starboard_entry.guild_id != ctx.guild.id:
             raise commands.BadArgument(
@@ -462,16 +460,16 @@ class StarCMDs(commands.Cog, name="Starboard"):
                 "Starboard is not turned on for this server!"
             )
 
-        if isinstance(msg, int):
-            if do_not_create and not bypass_int_check:
-                raise commands.BadArgument(
-                    "The message must be in the channel the command is being run in."
-                )
-            msg_id = msg
-        else:
-            msg_id = msg.id
+        if (
+            not isinstance(msg, discord.Message)
+            and do_not_create
+            and not bypass_int_check
+        ):
+            raise commands.BadArgument(
+                "The message must be in the channel the command is being run in."
+            )
 
-        starboard_entry = ctx.bot.starboard.get(msg_id)
+        starboard_entry = ctx.bot.starboard.get(msg.id)
         if not starboard_entry:
             if not do_not_create:
                 author_id = star_utils.get_author_id(msg, ctx.bot)
@@ -533,7 +531,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
     @sb.command()
     @utils.proper_permissions()
     async def trash(
-        self, ctx, msg: typing.Union[discord.Message, custom_classes.UsableIDConverter]
+        self, ctx, msg: typing.Union[discord.Message, custom_classes.ObjectConverter]
     ):
         """Removes a message from the starboard and prevents it from being starred again until untrashed.
         The message needs to a message that is on the starboard. It can be either the original or the starred message.
@@ -570,7 +568,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
     @sb.command()
     @utils.proper_permissions()
     async def unfreeze(
-        self, ctx, msg: typing.Union[discord.Message, custom_classes.UsableIDConverter]
+        self, ctx, msg: typing.Union[discord.Message, custom_classes.ObjectConverter]
     ):
         """Unfreezes a message's star count. The message must have been frozen before.
         The message either needs to be a message ID of a message
@@ -592,7 +590,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
     @sb.command()
     @utils.proper_permissions()
     async def untrash(
-        self, ctx, msg: typing.Union[discord.Message, custom_classes.UsableIDConverter]
+        self, ctx, msg: typing.Union[discord.Message, custom_classes.ObjectConverter]
     ):
         """Untrashes a message, allowing it to be starred and put on the starboard. The message must have been trashed before.
         The message either needs to be a message ID of a message,
@@ -613,7 +611,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
     @commands.cooldown(1, 5, commands.BucketType.guild)
     @utils.proper_permissions()
     async def refresh(
-        self, ctx, msg: typing.Union[discord.Message, custom_classes.UsableIDConverter]
+        self, ctx, msg: typing.Union[discord.Message, custom_classes.ObjectConverter]
     ):
         """Refreshes a starboard entry, using the internal generator to remake the starboard message.
         Useful if you want to use the new starboard message features or if you want to update the avatar.
