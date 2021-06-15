@@ -343,7 +343,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         allowed_mentions.replied_user = True
 
         await ctx.reply(
-            f"{obj_name} was created at: `{time_format}` (MM/DD/YY HH:MM:SS)",
+            f"{obj_name} was created at: `{time_format}` (DD/MM/YY HH:MM:SS)",
             allowed_mentions=allowed_mentions,
         )
 
