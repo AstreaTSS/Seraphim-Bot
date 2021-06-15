@@ -328,9 +328,9 @@ class HelperCMDs(commands.Cog, name="Helper"):
         """Gets the creation date and time of many, MANY Discord related things, like members, emojis, messages, and much more.
         It would be too numberous to list what all can be converted (but usually, anything with a Discord ID will work) and how you input them.
         Names, IDs, mentions... try it out and see.
-        Will return the time in UTC in MM/DD/YY HH:MM:SS in 24-hour time."""
+        Will return the time in UTC in DD/MM/YY HH:MM:SS in 24-hour time."""
 
-        time_format = argument.created_at.strftime("%x %X UTC")
+        time_format = argument.created_at.strftime("%d/%m/%y %H/%M/%S UTC")
 
         if isinstance(argument, (discord.Member, discord.User)):
             obj_name = f"`{discord.utils.escape_markdown(str(argument))}`"
