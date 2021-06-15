@@ -330,7 +330,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         Names, IDs, mentions... try it out and see.
         Will return the time in UTC in DD/MM/YY HH:MM:SS in 24-hour time."""
 
-        time_format = argument.created_at.strftime("%d/%m/%y %H/%M/%S UTC")
+        time_format = argument.created_at.strftime("%d/%m/%y %H:%M:%S UTC")
 
         if isinstance(argument, (discord.Member, discord.User)):
             obj_name = f"`{discord.utils.escape_markdown(str(argument))}`"
