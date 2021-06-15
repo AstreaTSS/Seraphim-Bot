@@ -137,12 +137,25 @@ async def base_generate(
         author = f"{mes.author.display_name} ({str(mes.author)})"
         icon = str(mes.author.avatar_url_as(format=None, static_format="png", size=128))
 
-        if content != "":
-            send_embed = discord.Embed(
-                colour=discord.Colour(0xCFCA76),
-                description=content,
-                timestamp=mes.created_at,
-            )
+        if content:
+            if len(content) < 2000:
+                send_embed = discord.Embed(
+                    colour=discord.Colour(0xCFCA76),
+                    description=content,
+                    timestamp=mes.created_at,
+                )
+            else:
+                # for nitro users
+                # not a perfect way of doing it but close enough
+                halfway = round(len(content) / 2)
+                send_embed = discord.Embed(
+                    colour=discord.Colour(0xCFCA76),
+                    description=content[:halfway],
+                    timestamp=mes.created_at,
+                )
+                send_embed.add_field(
+                    name="Message continued:", value=content[halfway:], inline=False
+                )
         else:
             send_embed = discord.Embed(
                 colour=discord.Colour(0xCFCA76),
