@@ -292,7 +292,11 @@ async def base_generate(
     if image_url != "":
         send_embed.set_image(url=image_url)
 
-    return send_embed
+    if utils.embed_check(send_embed):
+        return send_embed
+    else:
+        # unlikely to happen, but who knows
+        raise ValueError(f"Embed was too big to process for {mes.jump_url}!")
 
 
 async def star_generate(bot, mes):
