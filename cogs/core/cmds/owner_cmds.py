@@ -1,9 +1,8 @@
 #!/usr/bin/env python3.8
-import collections
 import importlib
-import os
 import typing
 
+import discord
 import discord_slash
 from discord.ext import commands
 
@@ -85,7 +84,7 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
         self,
         ctx,
         cmd_id: custom_classes.UsableIDConverter,
-        guild_id: typing.Optional[custom_classes.UsableIDConverter],
+        guild_id: typing.Optional[discord.Guild],
     ):
 
         await discord_slash.utils.manage_commands.remove_slash_command(

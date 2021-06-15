@@ -487,6 +487,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
                 raise commands.BadArgument(
                     "This message does not have an entry here internally."
                 )
+        elif starboard_entry.guild_id != ctx.guild.id:
+            raise commands.BadArgument("Invalid entry!")
 
         return starboard_entry
 
