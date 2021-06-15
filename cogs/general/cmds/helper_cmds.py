@@ -316,6 +316,10 @@ class HelperCMDs(commands.Cog, name="Helper"):
             discord.TextChannel,
             discord.VoiceChannel,
             discord.CategoryChannel,
+            discord.StoreChannel,
+            discord.StageChannel,
+            discord.Invite,
+            discord.Guild,
             discord.Role,
             discord.PartialEmoji,
             custom_classes.ObjectConverter,
@@ -326,14 +330,9 @@ class HelperCMDs(commands.Cog, name="Helper"):
         Names, IDs, mentions... try it out and see.
         Will return the time in UTC in MM/DD/YY HH:MM:SS in 24-hour time."""
 
-        obj_creation = discord.utils.snowflake_time(argument.id)
-        time_format = obj_creation.strftime("%x %X UTC")
+        time_format = argument.created_at.strftime("%x %X UTC")
 
-        if isinstance(argument, discord.Role) and argument.is_default():
-            # the @everyone role has the same id as the guild it's in
-            # most people are probably looking for the guilds creation date, so...
-            obj_name = f"`{discord.utils.escape_markdown(argument.guild.name)}`"
-        elif isinstance(argument, (discord.Member, discord.User)):
+        if isinstance(argument, (discord.Member, discord.User)):
             obj_name = f"`{discord.utils.escape_markdown(str(argument))}`"
         elif hasattr(argument, "name"):
             obj_name = f"`{discord.utils.escape_markdown(argument.name)}`"
