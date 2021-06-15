@@ -100,8 +100,8 @@ async def user_from_id(bot, guild, user_id):
 def embed_check(embed: discord.Embed) -> bool:
     """Checks if an embed is valid, as per Discord's guidelines.
     See https://discord.com/developers/docs/resources/channel#embed-limits for details."""
-    if len(embed) > 6000:
-        return False
+    # if len(embed) > 6000: broken as of right now
+    #     return False
 
     if embed.title and len(embed.title) > 256:
         return False

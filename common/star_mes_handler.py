@@ -156,7 +156,7 @@ async def base_generate(
 
                 if len(content[halfway:]) <= 1024:
                     send_embed.add_field(
-                        name="Message continued:", value=content[halfway:], inline=False
+                        name="Continued:", value=content[halfway:], inline=False
                     )
                 else:
                     three_fourths = round(len(content) / 4) * 3
