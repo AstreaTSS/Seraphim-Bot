@@ -66,7 +66,7 @@ def get_author_id(mes, bot):
 
         try:
             author_id = int(mes.embeds[0].footer.text.replace("Author ID: ", ""))
-            return getattr(mes.guild.get_member(author_id), "id") or mes.author.id
+            return getattr(mes.guild.get_member(author_id), "id", None) or mes.author.id
         except ValueError:
             pass
 
