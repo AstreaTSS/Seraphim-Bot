@@ -80,14 +80,14 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
 
         self.bot.snipes[type_of][chan_id] = []
 
-    @commands.command()
+    @commands.command(aliases=["snipr"])
     async def snipe(self, ctx, chan: typing.Optional[discord.TextChannel], msg_num=1):
         """Allows you to get the last or the nth to last deleted message from the channel mentioned or the channel this was used in.
         Any message that had been deleted over a minute ago will not be able to be sniped."""
 
         await self.snipe_handle(ctx, chan, msg_num, "deletes")
 
-    @commands.command()
+    @commands.command(aliases=["editsnipr", "edit_snipe", "edit_snipr"])
     async def editsnipe(
         self, ctx, chan: typing.Optional[discord.TextChannel], msg_num=1
     ):
