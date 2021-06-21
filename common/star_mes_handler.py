@@ -146,7 +146,7 @@ async def base_generate(
                 )
             else:
                 # for nitro users
-                # not a perfect way of doing it but close enough
+                # not a perfect way of doing it but good enough
                 halfway = round(len(content) / 2)
                 send_embed = discord.Embed(
                     colour=discord.Colour(0xCFCA76),
@@ -183,15 +183,10 @@ async def base_generate(
             ref_auth_str = ""
             ref_mes_url = ""
 
-            if mes.reference.resolved and isinstance(
-                mes.reference.resolved, discord.Message
-            ):
-                # saves time fetching messages if possible
-                reply_mes = mes.reference.cached_message or mes.reference.resolved
-                ref_author = reply_mes.author
-                ref_mes_url = reply_mes.jump_url
-
-            elif mes.reference.cached_message:
+            if (
+                mes.reference.resolved
+                and isinstance(mes.reference.resolved, discord.Message)
+            ) or mes.reference.cached_message:
                 # saves time fetching messages if possible
                 reply_mes = mes.reference.cached_message or mes.reference.resolved
                 ref_author = reply_mes.author
