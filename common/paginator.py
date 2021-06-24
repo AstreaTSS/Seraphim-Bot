@@ -178,6 +178,9 @@ class Pages:
     async def checked_show_page(self, page):
         if page != 0 and page <= self.maximum_pages:
             await self.show_page(page)
+        else:
+            # components are wack
+            await self.show_current_page()
 
     async def first_page(self):
         """goes to the first page"""
@@ -303,7 +306,7 @@ class Pages:
                     "component", check=self.react_check, timeout=120.0
                 )
                 self.component_context = ctx
-                await asyncio.sleep(0.1)  # we work so fast we have to slow things down
+                await asyncio.sleep(0.15)  # we work so fast we have to slow things down
             except asyncio.TimeoutError:
                 self.paginating = False
                 try:
@@ -312,7 +315,6 @@ class Pages:
                     pass
                 finally:
                     break
-                break
 
             await self.match()
 
