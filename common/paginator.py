@@ -179,9 +179,6 @@ class Pages:
     async def checked_show_page(self, page):
         if page != 0 and page <= self.maximum_pages:
             await self.show_page(page)
-        else:
-            # components are wack
-            await self.show_current_page()
 
     async def first_page(self):
         """goes to the first page"""
@@ -205,8 +202,6 @@ class Pages:
 
     async def numbered_page(self):
         """lets you type a page number to go to"""
-        await self.component_context.defer(edit_origin=True)
-
         to_delete = []
         to_delete.append(await self.channel.send("What page do you want to go to?"))
 
@@ -306,6 +301,7 @@ class Pages:
                 ctx: ComponentContext = await self.bot.wait_for(
                     "component", check=self.react_check, timeout=120.0
                 )
+                await ctx.defer(edit_origin=True)  # so we don't error out
                 self.component_context = ctx
             except asyncio.TimeoutError:
                 self.paginating = False
