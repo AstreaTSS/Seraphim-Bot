@@ -192,9 +192,8 @@ class ImageCMDs(commands.Cog, name="Image"):
                 if img_format != "default":
                     ext = flags["format"]
 
-                compress_image = await self.pil_compress(ori_image, ext, flags)
-
                 ori_size = self.get_size(ori_image)
+                compress_image = await self.pil_compress(ori_image, ext, flags)
                 compressed_size = self.get_size(compress_image)
 
             finally:
