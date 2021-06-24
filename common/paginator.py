@@ -150,8 +150,9 @@ class Pages:
             return await self.context.reply(content=content, embed=embed)
 
         if not first:
-            await self.component_context.edit_origin(content=content, embed=embed)
-            return
+            return await self.component_context.edit_origin(
+                content=content, embed=embed
+            )
 
         buttons = []
         gone_once = False
@@ -306,7 +307,6 @@ class Pages:
                     "component", check=self.react_check, timeout=120.0
                 )
                 self.component_context = ctx
-                await asyncio.sleep(0.15)  # we work so fast we have to slow things down
             except asyncio.TimeoutError:
                 self.paginating = False
                 try:
