@@ -303,6 +303,7 @@ class Pages:
                     "component", check=self.react_check, timeout=120.0
                 )
                 self.component_context = ctx
+                await asyncio.sleep(0.1)  # we work so fast we have to slow things down
             except asyncio.TimeoutError:
                 self.paginating = False
                 try:
