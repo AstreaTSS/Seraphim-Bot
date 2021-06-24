@@ -201,6 +201,8 @@ class Pages:
 
     async def numbered_page(self):
         """lets you type a page number to go to"""
+        await self.component_context.defer(hidden=True)
+
         to_delete = []
         to_delete.append(await self.channel.send("What page do you want to go to?"))
 
