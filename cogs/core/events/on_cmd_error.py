@@ -29,6 +29,11 @@ class OnCMDError(commands.Cog):
                 await ctx.reply(embed=self.error_embed_generate(str(error)))
             else:
                 await utils.error_handle(self.bot, error, ctx)
+        elif isinstance(error, commands.DisabledCommand):
+            await self.error_embed_generate(
+                f"{str(error)}. This was most likely due to "
+                + "it being buggy or broken in some way - please wait for it to be re-enabled."
+            )
         elif isinstance(error, flags.ArgumentParsingError):
             await ctx.reply(embed=self.error_embed_generate(str(error)))
         elif isinstance(error, commands.TooManyArguments):
