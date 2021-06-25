@@ -304,7 +304,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
             # this shouldn't happen due to how the PartialEmoji converter works, but you never know
             raise commands.BadArgument("This emoji is not a custom emoji!")
 
-    @commands.command()
+    @commands.command(ignore_extra=False)
     async def created(
         # fmt: off
         self, ctx: commands.Context, *,
@@ -323,12 +323,17 @@ class HelperCMDs(commands.Cog, name="Helper"):
             discord.Role,
             discord.PartialEmoji,
             custom_classes.ObjectConverter,
+            None,
         ],
     ):
         """Gets the creation date and time of many, MANY Discord related things, like members, emojis, messages, and much more.
         It would be too numberous to list what all can be converted (but usually, anything with a Discord ID will work) and how you input them.
         Names, IDs, mentions... try it out and see.
+        Defaults to getting creation date of the user who runs it if no value is provided.
         Will return the time in UTC in DD/MM/YY HH:MM:SS in 24-hour time."""
+
+        if argument is None:
+            argument = ctx.author
 
         time_format = argument.created_at.strftime("%d/%m/%y %H:%M:%S UTC")
 
