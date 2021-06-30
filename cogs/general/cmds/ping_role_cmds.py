@@ -17,7 +17,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         self.bot = bot
 
     @commands.command(aliases=["pingrole", "roleping", "role_ping"])
-    async def ping_role(self, ctx, *, role_obj: fuzzys.FuzzyRoleConverter):
+    async def ping_role(self, ctx, *, role: fuzzys.FuzzyRoleConverter):
         """Pings the role specified if the role isn't on cooldown and has been added to a list."""
 
         ping_roles = self.bot.config.getattr(ctx.guild.id, "pingable_roles")
@@ -25,10 +25,10 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         if ping_roles == {}:
             raise utils.CustomCheckFailure("There are no roles for you to ping!")
 
-        if str(role_obj.id) not in ping_roles.keys():
+        if str(role.id) not in ping_roles.keys():
             raise commands.BadArgument("That role isn't pingable!")
 
-        role_entry = ping_roles[str(role_obj.id)]
+        role_entry = ping_roles[str(role.id)]
 
         now = datetime.datetime.utcnow()
         time_period = datetime.timedelta(seconds=role_entry["time_period"])
@@ -37,16 +37,16 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
 
         if now < next_use:
             till_next_time = next_use - now
-            time_text = humanize.precisedelta(till_next_time, format="%0.0f")
+            time_text = humanize.precisedelta(till_next_time, format="%0.1f")
             raise utils.CustomCheckFailure(
-                f"You cannot ping that role yet! Please wait: `{time_text}` before trying to ping the role again."
+                f"You cannot ping that role yet! Please wait `{time_text}` before trying to ping the role again."
             )
         else:
             await ctx.reply(
-                role_obj.mention, allowed_mentions=discord.AllowedMentions(roles=True)
+                role.mention, allowed_mentions=discord.AllowedMentions(roles=True)
             )
 
-            ping_roles[str(role_obj.id)]["last_used"] = now.timestamp()
+            ping_roles[str(role.id)]["last_used"] = now.timestamp()
             self.bot.config.setattr(ctx.guild.id, pingable_roles=ping_roles)
 
     @commands.command(
