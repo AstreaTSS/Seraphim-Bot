@@ -138,36 +138,11 @@ async def base_generate(
         icon = str(mes.author.avatar_url_as(format=None, static_format="png", size=128))
 
         if content:
-            if len(content) < 2000:
-                send_embed = discord.Embed(
-                    colour=discord.Colour(0xCFCA76),
-                    description=content,
-                    timestamp=mes.created_at,
-                )
-            else:
-                # for nitro users
-                # not a perfect way of doing it but good enough
-                halfway = round(len(content) / 2)
-                send_embed = discord.Embed(
-                    colour=discord.Colour(0xCFCA76),
-                    description=content[:halfway],
-                    timestamp=mes.created_at,
-                )
-
-                if len(content[halfway:]) <= 1024:
-                    send_embed.add_field(
-                        name="Continued:", value=content[halfway:], inline=False
-                    )
-                else:
-                    three_fourths = round(len(content) / 4) * 3
-                    send_embed.add_field(
-                        name="Part 2:",
-                        value=content[halfway:three_fourths],
-                        inline=False,
-                    )
-                    send_embed.add_field(
-                        name="Part 3:", value=content[three_fourths:], inline=False
-                    )
+            send_embed = discord.Embed(
+                colour=discord.Colour(0xCFCA76),
+                description=content,
+                timestamp=mes.created_at,
+            )
         else:
             send_embed = discord.Embed(
                 colour=discord.Colour(0xCFCA76),
