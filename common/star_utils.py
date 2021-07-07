@@ -261,7 +261,7 @@ async def star_entry_refresh(
         )
 
 
-async def fetch_needed(bot: commands.Bot, payload):
+async def fetch_needed(bot: commands.Bot, payload: discord.RawReactionActionEvent):
     # fetches info from payload
     channel = bot.get_channel(payload.channel_id)
     mes = await channel.fetch_message(payload.message_id)

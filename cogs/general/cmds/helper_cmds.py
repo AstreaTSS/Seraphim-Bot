@@ -28,18 +28,14 @@ class HelperCMDs(commands.Cog, name="Helper"):
 
         guild_entry = self.bot.role_rolebacks.get(ctx.guild.id)
         if not guild_entry:
-            raise commands.BadArgument(
-                "That member did not leave in the last 15 minutes!"
-            )
+            raise commands.BadArgument("That member did not leave in the last hour!")
 
         member_entry = guild_entry.get(member.id)
         if member_entry == None:
-            raise commands.BadArgument(
-                "That member did not leave in the last 15 minutes!"
-            )
+            raise commands.BadArgument("That member did not leave in the last hour!")
 
         now = datetime.datetime.utcnow()
-        hour_prior = now - datetime.timedelta(minutes=15)
+        hour_prior = now - datetime.timedelta(hours=1)
 
         if member_entry["time"] < hour_prior:
             del self.bot.role_rolebacks[ctx.guild.id][member_entry["id"]]
