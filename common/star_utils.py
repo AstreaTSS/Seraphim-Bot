@@ -1,7 +1,6 @@
 #!/usr/bin/env python3.8
-import collections
-
 import discord
+from discord.ext import commands
 
 import common.star_classes as star_classes
 
@@ -260,6 +259,14 @@ async def star_entry_refresh(
                 starboard_entry.guild_id,
             )
         )
+
+
+async def fetch_needed(bot: commands.Bot, payload):
+    # fetches info from payload
+    channel = bot.get_channel(payload.channel_id)
+    mes = await channel.fetch_message(payload.message_id)
+
+    return mes.author, mes.channel, mes
 
 
 def star_check(bot, payload):

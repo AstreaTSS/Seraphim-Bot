@@ -49,8 +49,10 @@ class Star(commands.Cog):
             return
 
         try:
-            user, channel, mes = await utils.fetch_needed(self.bot, payload)
+            user, channel, mes = await star_utils.fetch_needed(self.bot, payload)
         except discord.Forbidden:
+            return
+        except AttributeError:
             return
         except discord.HTTPException:
             await utils.msg_to_owner(
@@ -119,10 +121,12 @@ class Star(commands.Cog):
             return
 
         try:
-            user, channel, mes = await utils.fetch_needed(self.bot, payload)
+            user, channel, mes = await star_utils.fetch_needed(self.bot, payload)
         except discord.NotFound:
             return
         except discord.Forbidden:
+            return
+        except AttributeError:
             return
 
         if (

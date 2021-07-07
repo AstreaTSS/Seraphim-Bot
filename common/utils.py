@@ -20,20 +20,6 @@ def proper_permissions():
     return commands.check(predicate)
 
 
-async def fetch_needed(bot, payload):
-    # fetches info from payload
-    guild = bot.get_guild(payload.guild_id)
-    user = guild.get_member(payload.user_id)
-
-    if user is None:  # rare, but it's happened
-        user = await guild.fetch_member(payload.user_id)
-
-    channel = bot.get_channel(payload.channel_id)
-    mes = await channel.fetch_message(payload.message_id)
-
-    return user, channel, mes
-
-
 async def error_handle(bot, error, ctx=None):
     # handles errors and sends them to owner
     if isinstance(error, aiohttp.ServerDisconnectedError):
