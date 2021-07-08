@@ -266,7 +266,28 @@ async def fetch_needed(bot: commands.Bot, payload: discord.RawReactionActionEven
     channel = bot.get_channel(payload.channel_id)
     mes = await channel.fetch_message(payload.message_id)
 
-    return mes.author, mes.channel, mes
+    if payload.event_type == "REACTION_ADD":
+        user = payload.member
+    else:
+        # sadly, we have to be a bit wasteful here
+        guild = bot.get_guild(payload.guild_id)
+        user = guild.get_member(payload.user_id)
+
+        if user is None:  # rare, but it's happened
+            try:
+                user = await guild.fetch_member(payload.user_id)
+            except discord.HTTPException:
+                # realisitcally, this shouldn't happen much
+                # we prefer a member over a user, but sometimes you gotta make due with what you have
+                user = bot.get_user(
+                    payload.user_id
+                )  # unlikely to produce much of a result
+                if user is None:
+                    # last resort
+                    # if this fails, will be silently ignored
+                    user = await bot.fetch_user(payload.user_id)
+
+    return user, mes.channel, mes
 
 
 def star_check(bot, payload):
