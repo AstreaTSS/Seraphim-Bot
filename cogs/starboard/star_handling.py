@@ -51,7 +51,7 @@ class Star(commands.Cog):
         try:
             user, channel, mes = await star_utils.fetch_needed(self.bot, payload)
         except discord.NotFound:
-            retrun
+            return
         except discord.Forbidden:
             return
         except AttributeError:
