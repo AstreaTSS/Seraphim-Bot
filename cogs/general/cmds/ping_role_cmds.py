@@ -30,16 +30,18 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
 
         role_entry = ping_roles[str(role.id)]
 
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc)
         time_period = datetime.timedelta(seconds=role_entry["time_period"])
-        last_used = datetime.datetime.utcfromtimestamp(role_entry["last_used"])
+        last_used = datetime.datetime.utcfromtimestamp(role_entry["last_used"]).replace(
+            tzinfo=datetime.timezone.utc
+        )
         next_use = last_used + time_period
 
         if now < next_use:
             till_next_time = next_use - now
-            time_text = humanize.precisedelta(till_next_time, format="%0.1f")
             raise utils.CustomCheckFailure(
-                f"You cannot ping that role yet! Please wait `{time_text}` before trying to ping the role again."
+                "You cannot ping that role yet! Please wait "
+                + f"<t:{int(till_next_time.timestamp())}:R> before trying to ping the role again."
             )
         else:
             await ctx.reply(
