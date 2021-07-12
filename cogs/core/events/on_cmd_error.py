@@ -48,7 +48,7 @@ class OnCMDError(commands.Cog):
             await ctx.reply(
                 embed=self.error_embed_generate(
                     "You're doing that command too fast! "
-                    + f"Try again in `{humanize.precisedelta(delta_wait, format='%0.0f')}`."
+                    + f"Try again in `{humanize.precisedelta(delta_wait, format='%0.1f')}`."
                 )
             )
         elif isinstance(
