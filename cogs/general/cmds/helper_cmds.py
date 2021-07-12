@@ -331,7 +331,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         if argument is None:
             argument = ctx.author
 
-        time_format = argument.created_at.strftime("%d/%m/%y %H:%M:%S UTC")
+        time_format = argument.created_at.replace(tzinfo=datetime.timezone.utc)
 
         if isinstance(argument, (discord.Member, discord.User)):
             obj_name = f"`{discord.utils.escape_markdown(str(argument))}`"
@@ -344,7 +344,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         allowed_mentions.replied_user = True
 
         await ctx.reply(
-            f"{obj_name} was created at: `{time_format}` (DD/MM/YY HH:MM:SS)",
+            f"{obj_name} was created at: <t:{int(time_format.timestamp())}>",
             allowed_mentions=allowed_mentions,
         )
 
