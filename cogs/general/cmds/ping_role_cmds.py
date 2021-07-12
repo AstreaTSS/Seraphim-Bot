@@ -40,8 +40,8 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         if now < next_use:
             till_next_time = next_use - now
             raise utils.CustomCheckFailure(
-                "You cannot ping that role yet! Please wait "
-                + f"<t:{int(till_next_time.timestamp())}:R> before trying to ping the role again."
+                "You cannot ping that role yet! Please try again in "
+                + f"<t:{int(till_next_time.timestamp())}:R> seconds."
             )
         else:
             await ctx.reply(
