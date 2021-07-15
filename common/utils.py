@@ -69,6 +69,9 @@ async def msg_to_owner(bot, content, split=True):
 
 
 async def user_from_id(bot, guild, user_id):
+    if user_id is None:
+        return None
+
     # gets a user from id. attempts via guild first, then attempts globally
     user = guild.get_member(user_id)  # member in guild
     if user is None:

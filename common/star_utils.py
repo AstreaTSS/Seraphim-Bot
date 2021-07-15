@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands
 
 import common.star_classes as star_classes
+import common.utils as utils
 
 
 def get_reactor_type(mes_id, starboard_entry: star_classes.StarboardEntry):
@@ -34,7 +35,7 @@ def get_star_emoji(num_stars):
         return "✨"
 
 
-def get_author_id(mes, bot):
+async def get_author_id(mes, bot):
     # gets author id from message
     author_id = None
     if (
@@ -65,7 +66,7 @@ def get_author_id(mes, bot):
 
         try:
             author_id = int(mes.embeds[0].footer.text.replace("Author ID: ", ""))
-            return getattr(mes.guild.get_member(author_id), "id", None) or mes.author.id
+            return await utils.user_from_id(bot, mes.guild, author_id)
         except ValueError:
             pass
 
@@ -100,7 +101,7 @@ async def modify_stars(bot, mes: discord.Message, reactor_id, operation):
 
     starboard_entry = bot.starboard.get(mes.id)
     if not starboard_entry:
-        author_id = get_author_id(mes, bot)
+        author_id = await get_author_id(mes, bot)
         starboard_entry = star_classes.StarboardEntry.new_entry(
             mes, author_id, reactor_id
         )

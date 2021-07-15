@@ -85,7 +85,7 @@ async def base_generate(
         if entry:
             author = await utils.user_from_id(bot, mes.guild, entry.author_id)
         else:
-            author_id = star_utils.get_author_id(mes, bot)
+            author_id = await star_utils.get_author_id(mes, bot)
             author = await utils.user_from_id(bot, mes.guild, author_id)
 
         author_str = ""

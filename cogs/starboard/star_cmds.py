@@ -472,7 +472,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         starboard_entry = ctx.bot.starboard.get(msg.id)
         if not starboard_entry:
             if not do_not_create:
-                author_id = star_utils.get_author_id(msg, ctx.bot)
+                author_id = await star_utils.get_author_id(msg, ctx.bot)
                 starboard_entry = star_classes.StarboardEntry.new_entry(
                     msg, author_id, None, forced=forced
                 )
