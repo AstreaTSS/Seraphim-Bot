@@ -35,7 +35,7 @@ def get_star_emoji(num_stars):
         return "✨"
 
 
-async def get_author_id(mes, bot):
+def get_author_id(mes: discord.Message, bot: commands.Bot):
     # gets author id from message
     author_id = None
     if (
@@ -65,13 +65,9 @@ async def get_author_id(mes, bot):
         # mostly accurate, as Seraphim doesn't cache usernames (although if message is old, it might not get it)
 
         try:
-            author_id = int(mes.embeds[0].footer.text.replace("Author ID: ", ""))
-            return await utils.user_from_id(bot, mes.guild, author_id)
+            return int(mes.embeds[0].footer.text.replace("Author ID: ", ""))
         except ValueError:
-            pass
-
-        return mes.author.id
-
+            return mes.author.id
     else:
         author_id = mes.author.id
 
@@ -101,7 +97,7 @@ async def modify_stars(bot, mes: discord.Message, reactor_id, operation):
 
     starboard_entry = bot.starboard.get(mes.id)
     if not starboard_entry:
-        author_id = await get_author_id(mes, bot)
+        author_id = get_author_id(mes, bot)
         starboard_entry = star_classes.StarboardEntry.new_entry(
             mes, author_id, reactor_id
         )

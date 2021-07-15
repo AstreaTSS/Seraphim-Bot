@@ -85,11 +85,15 @@ async def base_generate(
         if entry:
             author = await utils.user_from_id(bot, mes.guild, entry.author_id)
         else:
-            author_id = await star_utils.get_author_id(mes, bot)
+            author_id = star_utils.get_author_id(mes, bot)
             author = await utils.user_from_id(bot, mes.guild, author_id)
 
         author_str = ""
-        if author is None:
+        if author is None or author.id in (
+            270904126974590976,
+            499383056822435840,
+            bot.user.id,
+        ):
             author_str = mes.embeds[0].author.name
         else:
             author_str = f"{author.display_name} ({str(author)})"
@@ -97,6 +101,7 @@ async def base_generate(
         icon = (
             snipe_embed.author.icon_url
             if author is None
+            or author.id in (270904126974590976, 499383056822435840, bot.user.id)
             else str(author.avatar_url_as(format=None, static_format="png", size=128))
         )
 

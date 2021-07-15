@@ -393,7 +393,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
             (
                 f"**Original Message ID:** {starboard_entry.ori_mes_id}",
                 f"**Original Channel:** <#{starboard_entry.ori_chan_id}>",
-                f"**Original Author:** <@{starboard_entry.author_id}>",
+                f"**Original Author:** {f'<@{starboard_entry.author_id}>' if starboard_entry.author_id else None}",
                 f"**Original Message Link:** [Here!]({ori_url})",
                 "",
                 f"**Total Stars:** {len(starboard_entry.get_reactors())}",
@@ -472,7 +472,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         starboard_entry = ctx.bot.starboard.get(msg.id)
         if not starboard_entry:
             if not do_not_create:
-                author_id = await star_utils.get_author_id(msg, ctx.bot)
+                author_id = star_utils.get_author_id(msg, ctx.bot)
                 starboard_entry = star_classes.StarboardEntry.new_entry(
                     msg, author_id, None, forced=forced
                 )
