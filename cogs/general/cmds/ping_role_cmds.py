@@ -38,18 +38,17 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         next_use = last_used + time_period
 
         if now < next_use:
-            till_next_time = next_use - now
             raise utils.CustomCheckFailure(
                 "You cannot ping that role yet! Please try again in "
-                + f"<t:{int(till_next_time.timestamp())}:R> seconds."
-            )
-        else:
-            await ctx.reply(
-                role.mention, allowed_mentions=discord.AllowedMentions(roles=True)
+                + f"<t:{int(next_use.timestamp())}:R>."
             )
 
-            ping_roles[str(role.id)]["last_used"] = now.timestamp()
-            self.bot.config.setattr(ctx.guild.id, pingable_roles=ping_roles)
+        await ctx.reply(
+            role.mention, allowed_mentions=discord.AllowedMentions(roles=True)
+        )
+
+        ping_roles[str(role.id)]["last_used"] = now.timestamp()
+        self.bot.config.setattr(ctx.guild.id, pingable_roles=ping_roles)
 
     @commands.command(
         aliases=[
