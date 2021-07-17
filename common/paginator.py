@@ -136,7 +136,7 @@ class Pages:
 
         if self.paginating and first:
             p.append("")
-            p.append("Confused? React with \N{INFORMATION SOURCE} for more info.")
+            p.append("Confused? Use the \N{INFORMATION SOURCE} button for more info.")
 
         self.embed.description = "\n".join(p)
 
@@ -266,7 +266,7 @@ class Pages:
             await self.component_context.edit_origin(
                 content="The help command has stopped running.",
                 embed=None,
-                components=[],
+                components=None,
             )
         except:
             pass
@@ -306,7 +306,7 @@ class Pages:
             except asyncio.TimeoutError:
                 self.paginating = False
                 try:
-                    await self.component_context.edit_origin(components=[])
+                    await self.component_context.edit_origin(components=None)
                 except:
                     pass
                 finally:
