@@ -308,7 +308,6 @@ class HelperCMDs(commands.Cog, name="Helper"):
         argument: typing.Union[
             discord.Member,
             discord.User,
-            discord.Message,
             discord.TextChannel,
             discord.VoiceChannel,
             discord.CategoryChannel,
@@ -318,7 +317,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
             discord.Guild,
             discord.Role,
             discord.PartialEmoji,
-            custom_classes.ObjectConverter,
+            discord.PartialMessage,
             None,
         ],
     ):
