@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://sonictbm.gitbook.io/seraphim/">Wiki/Documentation</a>
+  <a href="https://astrea.gitbook.io/seraphim/">Wiki/Documentation</a>
 </p>
 
 A personal bot made for features usually not seen with other bots, done poorly by other bots, or done by bots with poor uptimes. This bot is meant to be an extension to other bots - it will not handle the basics like banning and kicking. Use another bot for that.

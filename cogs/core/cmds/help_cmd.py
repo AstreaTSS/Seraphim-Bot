@@ -31,7 +31,7 @@ class HelpPaginator(paginator.Pages):
         self.embed.title = self.title
 
         if self.is_bot:
-            value = "Check out the wiki for Seraphim here: https://sonictbm.gitbook.io/seraphim/"
+            value = "Check out the wiki for Seraphim here: https://astrea.gitbook.io/seraphim/"
             self.embed.add_field(name="Wiki", value=value, inline=False)
 
         self.embed.set_footer(

@@ -52,7 +52,7 @@ class NormCMDs(commands.Cog, name="Normal"):
     @commands.command(aliases=["documentation", "doc", "docs"])
     async def wiki(self, ctx):
         """Gives a link for Seraphim's wiki."""
-        await ctx.reply("Seraphim's wiki:\nhttps://sonictbm.gitbook.io/seraphim/")
+        await ctx.reply("Seraphim's wiki:\nhttps://astrea.gitbook.io/seraphim/")
 
     @commands.command()
     async def invite(self, ctx):
