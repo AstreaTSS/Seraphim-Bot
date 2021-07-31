@@ -14,8 +14,8 @@ class EasterEggs(commands.Cog, name="Easter Egg", command_attrs=dict(hidden=True
         SERAPHIM by Odyssey ft. Jessa"""
         await ctx.reply("https://www.youtube.com/watch?v=4wWYVzwtHGg")
 
-    @commands.command(aliases=["sonic"])
-    async def sonic49(self, ctx):
+    @commands.command(aliases=["sonic", "sonic49"])
+    async def astrea(self, ctx):
         await ctx.reply(
             "Yes, that's my owner, thanks very much for using this pointless command."
         )

@@ -69,7 +69,7 @@ class NormCMDs(commands.Cog, name="Normal"):
             collections.deque()
         )  # is this pointless? yeah, mostly (there's a slight performance boost), but why not
 
-        msg_list.append("Hi! I'm Seraphim, Sonic49's personal bot!")
+        msg_list.append("Hi! I'm Seraphim, Astrea's personal bot!")
         msg_list.append(
             "I was created initially as a starboard bot as other starboard bots had poor uptime, "
             + "but I've since been expanded to other functions, too."
@@ -97,7 +97,7 @@ class NormCMDs(commands.Cog, name="Normal"):
 
         source_list = collections.deque()
         source_list.append(
-            "My source code is [here!](https://github.com/Sonic4999/Seraphim-Bot)"
+            "My source code is [here!](https://github.com/Astrea49/Seraphim-Bot)"
         )
         source_list.append(
             "This code might not be the best code out there, but you may have some use for it."
