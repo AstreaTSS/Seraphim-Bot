@@ -1,14 +1,5 @@
 from discord.ext import commands
-from discord.ext import flags
 from discord.ext.commands.core import hooked_wrapped_callback
-
-
-def flag_group(**kwargs):
-    def inner(func):
-        cls = kwargs.get("cls", CustomFlagGroup)
-        return cls(func, **kwargs)
-
-    return inner
 
 
 def group(**kwargs):
@@ -42,6 +33,8 @@ class CustomGroup(commands.Group):
             injected = hooked_wrapped_callback(self, ctx, self.callback)
             await injected(*ctx.args, **ctx.kwargs)
 
+        ctx.invoked_parents.append(ctx.invoked_with)
+
         if trigger and ctx.invoked_subcommand:
             ctx.invoked_with = trigger
             await ctx.invoked_subcommand.invoke(ctx)
@@ -50,7 +43,3 @@ class CustomGroup(commands.Group):
             view.index = previous
             view.previous = previous
             await super().invoke(ctx)
-
-
-class CustomFlagGroup(CustomGroup, flags.FlagGroup):
-    pass

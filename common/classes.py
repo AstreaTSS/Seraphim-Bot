@@ -8,25 +8,15 @@ from dataclasses import field
 import discord
 from discord.ext import commands
 
+import common.utils as utils
+
 
 @dataclass
 class SnipedMessage:
     """A special class for sniped messages."""
 
     embed: discord.Embed
-    time_modified: datetime.datetime = field(default_factory=datetime.datetime.utcnow)
-
-
-class ObjectConverter(commands.IDConverter):
-    """A replica of the object converter from d.py 2.0, somewhat.
-    Channel and role mentions aren't supported here."""
-
-    async def convert(self, ctx: commands.Context, argument: str):
-        match = self._get_id_match(argument)
-        try:
-            return discord.Object(int(match.group(1)))
-        except:
-            raise commands.BadArgument(f"{argument} is not a valid Discord ID!")
+    time_modified: datetime.datetime = field(default_factory=discord.utils.utcnow)
 
 
 class SetAsyncQueue(asyncio.Queue):
@@ -210,7 +200,7 @@ class WizardManager:
         wizard_embed = discord.Embed(title=self.embed_title, colour=self.color)
         wizard_embed.set_author(
             name=f"{ctx.bot.user.name}",
-            icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='png', size=128))}",
+            icon_url=utils.get_icon_url(ctx.guild.me.avatar),
         )
         wizard_embed.set_footer(
             text="If you wish to stop this setup at any time, just type in 'exit'."

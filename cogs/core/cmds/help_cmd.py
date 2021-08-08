@@ -11,12 +11,15 @@ import common.paginator as paginator
 
 
 class HelpPaginator(paginator.Pages):
-    def __init__(self, help_command, ctx, entries, *, per_page=4):
+    def __init__(self, help_command, ctx: commands.Context, entries, *, per_page=4):
         super().__init__(ctx, entries=entries, per_page=per_page)
-        self.reaction_emojis.append(paginator.ReactionEmoji("❔", self.show_bot_help))
+        self.reaction_emojis.append(paginator.ReactionEmoji("❔", 1, self.show_bot_help))
+        self.reaction_emojis[6] = paginator.ReactionEmoji(
+            "ℹ️", 1, self.show_help
+        )  # would use paginators version instead
         self.total = len(entries)
         self.help_command = help_command
-        self.prefix = help_command.clean_prefix
+        self.prefix = ctx.clean_prefix
         self.is_bot = False
 
     def get_bot_page(self, page):
@@ -49,7 +52,7 @@ class HelpPaginator(paginator.Pages):
                 name=f"Page {page}/{self.maximum_pages} ({self.total} commands)"
             )
 
-    async def show_help(self):
+    async def show_help(self, inter: discord.Interaction):
         """shows this message"""
 
         self.embed.title = "Paginator help"
@@ -69,7 +72,7 @@ class HelpPaginator(paginator.Pages):
         self.embed.set_footer(
             text=f"We were on page {self.current_page} before this message."
         )
-        await self.component_context.edit_origin(embed=self.embed)
+        await inter.response.edit_message(embed=self.embed)
 
         async def go_back_to_current_page():
             await asyncio.sleep(30.0)
@@ -77,7 +80,7 @@ class HelpPaginator(paginator.Pages):
 
         self.bot.loop.create_task(go_back_to_current_page())
 
-    async def show_bot_help(self):
+    async def show_bot_help(self, inter: discord.Interaction):
         """shows how to use the bot"""
 
         self.embed.title = "Using the bot"
@@ -107,7 +110,7 @@ class HelpPaginator(paginator.Pages):
         self.embed.set_footer(
             text=f"We were on page {self.current_page} before this message."
         )
-        await self.component_context.edit_origin(embed=self.embed)
+        await inter.response.edit_message(embed=self.embed)
 
         async def go_back_to_current_page():
             await asyncio.sleep(30.0)
@@ -120,7 +123,9 @@ class PaginatedHelpCommand(commands.HelpCommand):
     def __init__(self):
         super().__init__(
             command_attrs={
-                "cooldown": commands.Cooldown(1, 3.0, commands.BucketType.member),
+                "cooldown": commands.CooldownMapping.from_cooldown(
+                    1, 3.0, type=commands.BucketType.member
+                ),
                 "help": "Shows help about the bot, a command, or a category",
             }
         )

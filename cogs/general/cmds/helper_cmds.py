@@ -34,7 +34,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         if member_entry == None:
             raise commands.BadArgument("That member did not leave in the last hour!")
 
-        now = datetime.datetime.utcnow()
+        now = discord.utils.utcnow()
         hour_prior = now - datetime.timedelta(hours=1)
 
         if member_entry["time"] < hour_prior:
@@ -308,11 +308,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         argument: typing.Union[
             discord.Member,
             discord.User,
-            discord.TextChannel,
-            discord.VoiceChannel,
-            discord.CategoryChannel,
-            discord.StoreChannel,
-            discord.StageChannel,
+            discord.abc.GuildChannel,
             discord.Invite,
             discord.Guild,
             discord.Role,

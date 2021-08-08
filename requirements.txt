@@ -1,11 +1,9 @@
-discord.py~=1.7.3
+git+https://github.com/Rapptz/discord.py.git
 asyncpg==0.23.0
 rapidfuzz~=1.4.1
 websockets~=9.1
 humanize==3.10.0
 Pillow==8.3.1
-discord-flags~=2.1.1
 jishaku==2.1.0
-discord-py-slash-command==2.3.1
 python-dotenv==0.18.0
 python-dateutil~=2.8.1

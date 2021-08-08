@@ -1,13 +1,11 @@
 #!/usr/bin/env python3.8
 import collections
-import datetime
 import importlib
 import random
 import typing
 
 import discord
 from discord.ext import commands
-from discord.ext import flags
 
 import common.classes as custom_classes
 import common.fuzzys as fuzzys
@@ -103,37 +101,36 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
         await self.bot.process_commands(msg)
 
-    @flags.add_flag("-role", "--role", type=discord.Role)
-    @flags.add_flag("-user", "--user", type=discord.Member)
-    @flags.add_flag("-bots", "--bots", type=bool, default=True)
-    @sb.command(cls=flags.FlagCommand, aliases=["msg_top", "msglb", "msg_lb"])
+    class MsgTopFlags(commands.FlagConverter):
+        role: typing.Optional[discord.Role]
+        user: typing.Optional[discord.Member]
+        bots: bool = True
+
+    @sb.command(aliases=["msg_top", "msglb", "msg_lb"])
     @commands.cooldown(1, 5, commands.BucketType.member)
-    async def msgtop(self, ctx, **flags):
+    async def msgtop(self, ctx, *, flags: MsgTopFlags):
         """Allows you to view the top 10 starred messages on a server. Cooldown of once every 5 seconds per user.
-        Flags: --user <user>: allows you to view the top starred messages by the user specified.
-        --role <role>: allows you to view the top starred messages by users who have the role specified.
-        --bots <true/false>: if bot messages will be on the leaderboard."""
+        Flags: user: <user> - allows you to view the top starred messages by the user specified.
+        role: <role> - allows you to view the top starred messages by users who have the role specified.
+        :bots <true/false> - if bot messages will be on the leaderboard."""
 
-        optional_member: typing.Optional[discord.Member] = flags["user"]
-        optional_role: typing.Optional[discord.Role] = flags["role"]
-        if optional_role:
-            role_members = frozenset(r.id for r in optional_role.members)
+        if flags.role:
+            role_members = frozenset(r.id for r in flags.role.members)
 
-        if optional_member and optional_member.bot and not flags["bots"]:
+        if flags.user and flags.user.bot and not flags.bots:
             raise commands.BadArgument(
                 "You can't just specify a user who is a bot and then filter out bots."
             )
-        if optional_member and optional_role and optional_member not in role_members:
+        if flags.user and flags.role and flags.user not in role_members:
             raise commands.BadArgument(
                 "You can't just specify both a user and a role and have that user not have that role."
             )
 
-        if optional_member:
+        if flags.user:
             guild_entries = self.bot.starboard.get_list(
-                lambda e: e.guild_id == ctx.guild.id
-                and e.author_id == optional_member.id
+                lambda e: e.guild_id == ctx.guild.id and e.author_id == flags.user.id
             )
-        elif optional_role:
+        elif flags.role:
             guild_entries = self.bot.starboard.get_list(
                 lambda e: e.guild_id == ctx.guild.id and e.author_id in role_members
             )
@@ -147,21 +144,21 @@ class StarCMDs(commands.Cog, name="Starboard"):
                 "There are no starboard entries for this server, role, and/or for this user!"
             )
 
-        if optional_member:
+        if flags.user:
             top_embed = discord.Embed(
-                title=f"Top starred messages in {ctx.guild.name} by {optional_member.display_name} ({str(optional_member)})",
+                title=f"Top starred messages in {ctx.guild.name} by {flags.user.display_name} ({str(flags.user)})",
                 colour=discord.Colour(0xCFCA76),
-                timestamp=datetime.datetime.utcnow(),
+                timestamp=discord.utils.utcnow(),
             )
         else:
             top_embed = discord.Embed(
                 title=f"Top starred messages in {ctx.guild.name}",
                 colour=discord.Colour(0xCFCA76),
-                timestamp=datetime.datetime.utcnow(),
+                timestamp=discord.utils.utcnow(),
             )
         top_embed.set_author(
             name=f"{self.bot.user.name}",
-            icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='png', size=128))}",
+            icon_url=utils.get_icon_url(ctx.guild.me.avatar),
         )
         top_embed.set_footer(text="As of")
 
@@ -177,20 +174,20 @@ class StarCMDs(commands.Cog, name="Starboard"):
             url = f"https://discordapp.com/channels/{ctx.guild.id}/{starboard_id}/{entry.star_var_id}"
             num_stars = len(entry.get_reactors())
 
-            if optional_role:
+            if flags.role:
                 member = (
                     ctx.guild.get_member(entry.author_id)
-                    if not optional_member
-                    else optional_member
+                    if not flags.user
+                    else flags.user
                 )
             else:
                 member = (
                     await utils.user_from_id(self.bot, ctx.guild, entry.author_id)
-                    if not optional_member
-                    else optional_member
+                    if not flags.user
+                    else flags.user
                 )
 
-            if flags["bots"] or not member or not member.bot:
+            if flags.bots or (not member or not member.bot):
                 author_str = (
                     f"{member.display_name} ({str(member)})"
                     if member
@@ -210,16 +207,18 @@ class StarCMDs(commands.Cog, name="Starboard"):
             )
         await ctx.reply(embed=top_embed)
 
-    @flags.add_flag("-role", "--role", type=discord.Role)
-    @flags.add_flag("-bots", "--bots", type=bool, default=True)
-    @sb.command(cls=flags.FlagCommand, name="top", aliases=["leaderboard", "lb"])
+    class TopFlags(commands.FlagConverter):
+        role: typing.Optional[discord.Role]
+        bots: bool = True
+
+    @sb.command(name="top", aliases=["leaderboard", "lb"])
     @commands.cooldown(1, 5, commands.BucketType.member)
-    async def top(self, ctx, **flags):
+    async def top(self, ctx, *, flags: TopFlags):
         """Allows you to view the top 10 people with the most stars on a server. Cooldown of once every 5 seconds per user.
         Flags: --role <role>: allows you to filter by the role specified, only counting those who have that role.
         --bots <true/false>: if bot messages will be on the leaderboard."""
 
-        optional_role: typing.Optional[discord.Role] = flags["role"]
+        optional_role = flags.role
         if optional_role:
             role_members = frozenset(r.id for r in optional_role.members)
             user_star_list = self.get_star_rankings(
@@ -238,23 +237,23 @@ class StarCMDs(commands.Cog, name="Starboard"):
         top_embed = discord.Embed(
             title=f"Star Leaderboard for {ctx.guild.name}",
             colour=discord.Colour(0xCFCA76),
-            timestamp=datetime.datetime.utcnow(),
+            timestamp=discord.utils.utcnow(),
         )
         top_embed.set_author(
             name=f"{self.bot.user.name}",
-            icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='png', size=128))}",
+            icon_url=utils.get_icon_url(ctx.guild.me.avatar),
         )
 
         actual_entry_count = 0
         filtered_star_list = []
 
         for entry in user_star_list:
-            if actual_entry_count > 9 and flags["bots"]:
+            if actual_entry_count > 9 and flags.bots:
                 break
 
             member = await utils.user_from_id(self.bot, ctx.guild, entry[0])
 
-            if flags["bots"] or not member or not member.bot:
+            if flags.bots or not member or not member.bot:
                 filtered_star_list.append(entry)
 
                 if actual_entry_count < 10:
@@ -276,7 +275,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
             raise utils.CustomCheckFailure(
                 "There are no non-bot starboard entries for this server!"
             )
-        elif not flags["bots"] or optional_role:
+        elif not flags.bots or optional_role:
             top_embed.set_footer(
                 text=f"Your filtered {self.get_user_placing(filtered_star_list, ctx.author.id)}"
             )
@@ -304,11 +303,11 @@ class StarCMDs(commands.Cog, name="Starboard"):
             place_embed = discord.Embed(
                 colour=discord.Colour(0xCFCA76),
                 description=placing,
-                timestamp=datetime.datetime.utcnow(),
+                timestamp=discord.utils.utcnow(),
             )
             place_embed.set_author(
                 name=f"{self.bot.user.name}",
-                icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='png',size=128))}",
+                icon_url=utils.get_icon_url(ctx.guild.me.avatar),
             )
             place_embed.set_footer(text="Sent")
 
@@ -362,9 +361,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
     @sb.command(aliases=["info", "information"])
     async def stats(
-        self,
-        ctx: commands.Context,
-        msg: typing.Union[discord.Message, custom_classes.ObjectConverter],
+        self, ctx: commands.Context, msg: typing.Union[discord.Message, discord.Object],
     ):
         """Gets the starboard stats for a message. The message must had at least one star at some point, but does not need to be on the starboard.
         The message either needs to be a message ID of a message in the guild the command is being run in,
@@ -387,7 +384,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         star_embed = discord.Embed(
             colour=discord.Colour(0xCFCA76),
             title="Stats for message given:",
-            timestamp=datetime.datetime.utcnow(),
+            timestamp=discord.utils.utcnow(),
         )
         star_embed.description = "\n".join(
             (
@@ -415,9 +412,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
     @sb.command()
     async def reactors(
-        self,
-        ctx: commands.Context,
-        msg: typing.Union[discord.Message, custom_classes.ObjectConverter],
+        self, ctx: commands.Context, msg: typing.Union[discord.Message, discord.Object],
     ):
         """Gets the first 50 star reactors for a message. The message must had at least one star at some point, but does not need to be on the starboard.
         The message either needs to be a message ID of a message in the guild the command is being run in,
@@ -441,7 +436,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         star_embed = discord.Embed(
             colour=discord.Colour(0xCFCA76),
             title="Reactors for message given:",
-            timestamp=datetime.datetime.utcnow(),
+            timestamp=discord.utils.utcnow(),
         )
         star_embed.description = "\n".join(
             (
@@ -530,9 +525,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
     @sb.command()
     @utils.proper_permissions()
-    async def trash(
-        self, ctx, msg: typing.Union[discord.Message, custom_classes.ObjectConverter]
-    ):
+    async def trash(self, ctx, msg: typing.Union[discord.Message, discord.Object]):
         """Removes a message from the starboard and prevents it from being starred again until untrashed.
         The message needs to a message that is on the starboard. It can be either the original or the starred message.
         The message either needs to be a message ID of a message,
@@ -567,9 +560,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
     @sb.command()
     @utils.proper_permissions()
-    async def unfreeze(
-        self, ctx, msg: typing.Union[discord.Message, custom_classes.ObjectConverter]
-    ):
+    async def unfreeze(self, ctx, msg: typing.Union[discord.Message, discord.Object]):
         """Unfreezes a message's star count. The message must have been frozen before.
         The message either needs to be a message ID of a message
         a {channel id}-{message id} format, or the message link itself.
@@ -589,9 +580,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
     @sb.command()
     @utils.proper_permissions()
-    async def untrash(
-        self, ctx, msg: typing.Union[discord.Message, custom_classes.ObjectConverter]
-    ):
+    async def untrash(self, ctx, msg: typing.Union[discord.Message, discord.Object]):
         """Untrashes a message, allowing it to be starred and put on the starboard. The message must have been trashed before.
         The message either needs to be a message ID of a message,
         a {channel id}-{message id} format, or the message link itself.
@@ -610,9 +599,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
     @sb.command(aliases=["update"])
     @commands.cooldown(1, 5, commands.BucketType.guild)
     @utils.proper_permissions()
-    async def refresh(
-        self, ctx, msg: typing.Union[discord.Message, custom_classes.ObjectConverter]
-    ):
+    async def refresh(self, ctx, msg: typing.Union[discord.Message, discord.Object]):
         """Refreshes a starboard entry, using the internal generator to remake the starboard message.
         Useful if you want to use the new starboard message features or if you want to update the avatar.
         The original message must also still exist.

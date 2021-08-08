@@ -5,10 +5,8 @@ from dataclasses import dataclass
 from dataclasses import field
 
 import discord
+from discord.ext import commands
 from discord.ext.commands import Paginator as CommandPaginator
-from discord_slash import ButtonStyle
-from discord_slash import ComponentContext
-from discord_slash import manage_components
 
 # most of this code has been copied from https://github.com/Rapptz/RoboDanny
 
@@ -22,13 +20,41 @@ class ReactionEmoji:
     """An easy to use wrapper around reactions."""
 
     emoji: str
+    row: int
     function: typing.Callable
     uuid: str = field(default_factory=gen_uuid)
 
     def to_button(self):
-        return manage_components.create_button(
-            style=ButtonStyle.primary, emoji=self.emoji, custom_id=self.uuid
+        button = discord.ui.Button(
+            style=discord.ButtonStyle.primary,
+            emoji=self.emoji,
+            custom_id=self.uuid,
+            row=self.row,
         )
+        button.callback = self.function  # very dirty
+        return button
+
+
+def generate_view(
+    emojis: typing.List[ReactionEmoji],
+    author: typing.Union[discord.Member, discord.User],
+):
+    class PaginatorView(discord.ui.View):
+        def __init__(self):
+            super().__init__(timeout=120)
+
+        async def interaction_check(self, interaction: discord.Interaction) -> bool:
+            return interaction.user.id == author.id
+
+        async def on_timeout(self):
+            return await super().stop()
+
+    view = PaginatorView()
+
+    for emoji in emojis:
+        view.add_item(emoji.to_button())
+
+    return view
 
 
 class CannotPaginate(Exception):
@@ -61,13 +87,13 @@ class Pages:
         Our permissions for the channel.
     """
 
-    def __init__(self, ctx, *, entries, per_page=12, show_entry_count=True):
+    def __init__(
+        self, ctx: commands.Context, *, entries, per_page=12, show_entry_count=True
+    ):
         self.bot = ctx.bot
         self.context = ctx
         self.entries = entries
         self.message = ctx.message
-        self.component_context: typing.Optional[ComponentContext] = None
-        self.actionrows: typing.List[dict] = []
         self.channel = ctx.channel
         self.author = ctx.author
         self.per_page = per_page
@@ -79,13 +105,13 @@ class Pages:
         self.paginating = len(entries) > per_page
         self.show_entry_count = show_entry_count
         self.reaction_emojis = [
-            ReactionEmoji("⏮️", self.first_page),
-            ReactionEmoji("◀️", self.previous_page),
-            ReactionEmoji("▶️", self.next_page),
-            ReactionEmoji("⏭️", self.last_page),
-            ReactionEmoji("🔢", self.numbered_page),
-            ReactionEmoji("⏹️", self.stop_pages),
-            ReactionEmoji("ℹ️", self.show_help),
+            ReactionEmoji("⏮️", 0, self.first_page),
+            ReactionEmoji("◀️", 0, self.previous_page),
+            ReactionEmoji("▶️", 0, self.next_page),
+            ReactionEmoji("⏭️", 0, self.last_page),
+            ReactionEmoji("🔢", 1, self.numbered_page),
+            ReactionEmoji("⏹️", 1, self.stop_pages),
+            ReactionEmoji("ℹ️", 1, self.show_help),
         ]
 
         if ctx.guild is not None:
@@ -140,7 +166,7 @@ class Pages:
 
         self.embed.description = "\n".join(p)
 
-    async def show_page(self, page, *, first=False):
+    async def show_page(self, page, *, interaction: discord.Interaction, first=False):
         self.current_page = page
         entries = self.get_page(page)
         content = self.get_content(entries, page, first=first)
@@ -150,57 +176,39 @@ class Pages:
             return await self.context.reply(content=content, embed=embed)
 
         if not first:
-            return await self.component_context.edit_origin(
-                content=content, embed=embed
-            )
-
-        buttons = []
-        gone_once = False
-
-        for index, reaction in enumerate(self.reaction_emojis):
-            if index > 3 and not gone_once:
-                self.actionrows.append(manage_components.create_actionrow(*buttons))
-                buttons.clear()
-                gone_once = True
-
-            if self.maximum_pages == 2 and reaction.emoji in ("⏮️", "⏭️"):
-                # no |<< or >>| buttons if we only have two pages
-                # we can't forbid it if someone ends up using it but remove
-                # it from the default set
-                continue
-
-            buttons.append(reaction.to_button())
-        self.actionrows.append(manage_components.create_actionrow(*buttons))
+            return await interaction.response.edit_message(content=content, embed=embed)
 
         self.message = await self.context.reply(
-            content=content, embed=embed, components=self.actionrows
+            content=content,
+            embed=embed,
+            view=generate_view(self.reaction_emojis, self.author),
         )
 
-    async def checked_show_page(self, page):
+    async def checked_show_page(self, page, inter: discord.Interaction):
         if page != 0 and page <= self.maximum_pages:
-            await self.show_page(page)
+            await self.show_page(page, interaction=inter)
 
-    async def first_page(self):
+    async def first_page(self, inter: discord.Interaction):
         """goes to the first page"""
-        await self.show_page(1)
+        await self.show_page(1, interaction=inter)
 
-    async def last_page(self):
+    async def last_page(self, inter: discord.Interaction):
         """goes to the last page"""
-        await self.show_page(self.maximum_pages)
+        await self.show_page(self.maximum_pages, interaction=inter)
 
-    async def next_page(self):
+    async def next_page(self, inter: discord.Interaction):
         """goes to the next page"""
-        await self.checked_show_page(self.current_page + 1)
+        await self.checked_show_page(self.current_page + 1, inter)
 
-    async def previous_page(self):
+    async def previous_page(self, inter: discord.Interaction):
         """goes to the previous page"""
-        await self.checked_show_page(self.current_page - 1)
+        await self.checked_show_page(self.current_page - 1, inter)
 
-    async def show_current_page(self):
+    async def show_current_page(self, inter: discord.Interaction):
         if self.paginating:
-            await self.show_page(self.current_page)
+            await self.show_page(self.current_page, inter)
 
-    async def numbered_page(self):
+    async def numbered_page(self, inter: discord.Interaction):
         """lets you type a page number to go to"""
         to_delete = []
         to_delete.append(await self.channel.send("What page do you want to go to?"))
@@ -221,7 +229,7 @@ class Pages:
             page = int(msg.content)
             to_delete.append(msg)
             if page != 0 and page <= self.maximum_pages:
-                await self.show_page(page)
+                await self.show_page(page, inter)
             else:
                 to_delete.append(
                     await self.channel.send(
@@ -235,7 +243,7 @@ class Pages:
         except Exception:
             pass
 
-    async def show_help(self):
+    async def show_help(self, inter: discord.Interaction):
         """shows this message"""
         messages = ["Welcome to the interactive paginator!\n"]
         messages.append(
@@ -252,7 +260,7 @@ class Pages:
         embed.set_footer(
             text=f"We were on page {self.current_page} before this message."
         )
-        await self.component_context.edit_origin(content=None, embed=embed)
+        await inter.response.edit_message(content=None, embed=embed)
 
         async def go_back_to_current_page():
             await asyncio.sleep(60.0)
@@ -260,59 +268,25 @@ class Pages:
 
         self.bot.loop.create_task(go_back_to_current_page())
 
-    async def stop_pages(self):
+    async def stop_pages(self, inter: discord.Interaction):
         """stops the interactive pagination session"""
         try:
-            await self.component_context.edit_origin(
-                content="The help command has stopped running.",
-                embed=None,
-                components=None,
+            await inter.response.edit_message(
+                content="The help command has stopped running.", embed=None, view=None,
             )
         except:
             pass
         finally:
             self.paginating = False
 
-    def react_check(self, ctx: ComponentContext):
-        if ctx.author_id != self.author.id:
-            return False
-
-        if ctx.origin_message_id != self.message.id:
-            return False
-
-        to_check = ctx.custom_id
-        for reaction in self.reaction_emojis:
-            if to_check == reaction.uuid:
-                self.match = reaction.function
-                return True
-        return False
-
     async def paginate(self):
         """Actually paginate the entries and run the interactive loop if necessary."""
-        first_page = self.show_page(1, first=True)
+        first_page = self.show_page(1, interaction=None, first=True)
         if not self.paginating:
             await first_page
         else:
             # allow us to react to reactions right away if we're paginating
             self.bot.loop.create_task(first_page)
-
-        while self.paginating:
-            try:
-                ctx: ComponentContext = await self.bot.wait_for(
-                    "component", check=self.react_check, timeout=120.0
-                )
-                await ctx.defer(edit_origin=True)  # so we don't error out
-                self.component_context = ctx
-            except asyncio.TimeoutError:
-                self.paginating = False
-                try:
-                    await self.component_context.edit_origin(components=None)
-                except:
-                    pass
-                finally:
-                    break
-
-            await self.match()
 
 
 class FieldPages(Pages):

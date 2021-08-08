@@ -1,7 +1,9 @@
 #!/usr/bin/env python3.8
 import collections
 import importlib
+import random
 import time
+import typing
 
 import discord
 from discord.ext import commands
@@ -43,6 +45,32 @@ class NormCMDs(commands.Cog, name="Normal"):
             )
         else:
             await ctx.reply(f"{ctx.author.mention}, that message is too long!")
+
+    @commands.command()
+    async def kill(
+        self, ctx: commands.Context, target: typing.Union[discord.Member, str]
+    ):
+        "Allows you to kill the victim specified using the iconic Minecraft kill command messages."
+        if len(str(target)) > 1900:
+            await ctx.send(hidden=True, content="The content you provided is too long.")
+            return
+
+        if isinstance(target, discord.Member):
+            victim_str = f"**{target.display_name}**"
+        else:
+            victim_str = f"**{discord.utils.escape_markdown(target)}**"
+
+        author_str = f"**{ctx.author.display_name}**"
+        kill_msg = random.choice(self.bot.death_messages)
+
+        kill_msg = kill_msg.replace("%1$s", victim_str)
+        kill_msg = kill_msg.replace("%2$s", author_str)
+        kill_msg = kill_msg.replace("%3$s", "*Seraphim*")
+        kill_msg = f"{kill_msg}."
+
+        kill_embed = discord.Embed(colour=discord.Colour.red(), description=kill_msg)
+
+        await ctx.send(embeds=[kill_embed])
 
     @commands.command()
     async def support(self, ctx):
@@ -92,7 +120,7 @@ class NormCMDs(commands.Cog, name="Normal"):
         )
         about_embed.set_author(
             name=f"{self.bot.user.name}",
-            icon_url=f"{str(ctx.guild.me.avatar_url_as(format=None,static_format='png', size=128))}",
+            icon_url=utils.get_icon_url(ctx.guild.me.avatar),
         )
 
         source_list = collections.deque()

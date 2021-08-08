@@ -102,7 +102,7 @@ async def base_generate(
             snipe_embed.author.icon_url
             if author is None
             or author.id in (270904126974590976, 499383056822435840, bot.user.id)
-            else str(author.avatar_url_as(format=None, static_format="png", size=128))
+            else utils.get_icon_url(mes.author.avatar)
         )
 
         content = snipe_embed.description
@@ -128,7 +128,7 @@ async def base_generate(
     ):
 
         author = f"{mes.author.display_name} ({str(mes.author)})"
-        icon = str(mes.author.avatar_url_as(format=None, static_format="png", size=128))
+        icon = utils.get_icon_url(mes.author.avatar)
 
         send_embed = discord.Embed(
             colour=discord.Colour(0xCFCA76),
@@ -140,7 +140,7 @@ async def base_generate(
     else:
         content = utils.get_content(mes)
         author = f"{mes.author.display_name} ({str(mes.author)})"
-        icon = str(mes.author.avatar_url_as(format=None, static_format="png", size=128))
+        icon = utils.get_icon_url(mes.author.avatar)
 
         if content:
             send_embed = discord.Embed(
@@ -156,7 +156,7 @@ async def base_generate(
             )
         send_embed.set_author(name=author, icon_url=icon)
 
-        if mes.type == discord.MessageType.default and mes.reference:
+        if mes.type == discord.MessageType.reply:
             # checks if message has inline reply
 
             ref_author = None
@@ -254,10 +254,8 @@ async def base_generate(
 
             # if the image url is STILL blank and the message has a sticker
             if image_url == "" and mes.stickers:
-                if mes.stickers[
-                    0
-                ].image_url:  # its possible for this to be None if its a weird format
-                    image_url = str(mes.stickers[0].image_url)
+                if mes.stickers[0].format != discord.StickerFormatType.lottie:
+                    image_url = str(mes.stickers[0].url)
                 else:  # as of right now, you cannot send content with a sticker, so we might as well
                     send_embed.description = "*This message has a sticker that I cannot display. Please view the original message to see it.*"
 

@@ -8,7 +8,6 @@ from enum import Enum
 import discord
 import humanize
 from discord.ext import commands
-from discord.ext import flags
 from jishaku.functools import executor_function
 from PIL import Image
 
@@ -37,7 +36,7 @@ class ImageCMDs(commands.Cog, name="Image"):
             compress_image = io.BytesIO()
 
             if (
-                flags["ori_ext"] in ("gif", "webp")
+                flags.ori_ext in ("gif", "webp")
                 and ext not in ("gif", "webp")
                 and pil_image.is_animated
             ):
@@ -45,12 +44,12 @@ class ImageCMDs(commands.Cog, name="Image"):
                     "Cannot convert an animated image to this file type!"
                 )
 
-            if flags["shrink"]:
+            if flags.shrink:
                 width = pil_image.width
                 height = pil_image.height
 
                 if width > 1920 or height > 1920:
-                    bigger = width if width > height else height
+                    bigger = max(width, height)
                     factor = math.ceil(bigger / 1920)
                     pil_image = pil_image.reduce(factor=factor)
 
@@ -58,7 +57,7 @@ class ImageCMDs(commands.Cog, name="Image"):
                 if pil_image.mode != "RGB":
                     pil_image = pil_image.convert("RGB")
                 pil_image.save(
-                    compress_image, format=ext, quality=flags["quality"], optimize=True
+                    compress_image, format=ext, quality=flags.quality, optimize=True
                 )
             elif ext in ("gif", "png"):
                 pil_image.save(compress_image, format=ext, optimize=True)
@@ -67,7 +66,7 @@ class ImageCMDs(commands.Cog, name="Image"):
                     compress_image,
                     format=ext,
                     minimize_size=True,
-                    quality=flags["quality"],
+                    quality=flags.quality,
                 )
             else:
                 compress_image.close()
@@ -148,30 +147,34 @@ class ImageCMDs(commands.Cog, name="Image"):
         except KeyError:
             raise commands.BadArgument(f"Invalid filter `{argument}` provided!")
 
-    @flags.add_flag("-shrink", "--shrink", type=bool, default=True)
-    @flags.add_flag("-format", "--format", type=str, default="default")
-    @flags.add_flag("-quality", "--quality", default=70, type=int)
-    @flags.command()
+    class CompressFlags(commands.FlagConverter):
+        # TODO: move flag checks into a flag converter thing
+        shrink: bool = True
+        format: str = "default"
+        quality: int = 70
+
+    @commands.command()
     async def compress(
-        self, ctx, url: typing.Optional[image_utils.URLToImage], **flags
+        self, ctx, url: typing.Optional[image_utils.URLToImage], *, flags: CompressFlags
     ):
         """Compresses down the image given.
         It must be an image of type GIF, JPG, PNG, or WEBP. It must also be under 8 MB.
         Image quality will take a hit, and the image will shrink down if it's too big (unless you specify to not shrink the image).
-        Flags --shrink <true/false> (specifies to shrink the image - it will by default)
-        --format <format> (converts the image to the specified format, and it must be 'gif, jpg, png, or webp' \
+        Flags:
+        shrink: <true/false> (specifies to shrink the image - it will by default)
+        format: <format> (converts the image to the specified format, and it must be 'gif, jpg, png, or webp' \
         - the resulting image will be in the same format as the original by default)
-        --quality <number> (specifies quality from 0-100, only works with JPG and WEBP files, default is 70)"""
+        quality: <number> (specifies quality from 0-100, only works with JPG and WEBP files, default is 70)"""
 
-        if flags["format"] == "default":
+        if flags.format == "default":
             img_format = "default"
         else:
             img_type_checker = image_utils.ImageTypeChecker
             img_format = await img_type_checker.convert(
-                img_type_checker, ctx, flags["format"]
+                img_type_checker, ctx, flags.format
             )
 
-        if not 0 <= flags["quality"] <= 100:
+        if not 0 <= flags.quality <= 100:
             raise commands.BadArgument("Quality must be a number between 0-100!")
 
         if not url:
@@ -187,7 +190,7 @@ class ImageCMDs(commands.Cog, name="Image"):
 
                 mimetype = discord.utils._get_mime_type_for_image(image_data)
                 ext = mimetype.split("/")[1]
-                flags["ori_ext"] = ext
+                flags.ori_ext = ext  # yes, this is dirty
 
                 if img_format != "default":
                     ext = img_format
@@ -215,22 +218,26 @@ class ImageCMDs(commands.Cog, name="Image"):
 
         await ctx.reply(content=content, file=com_img_file)
 
-    @flags.add_flag("-shrink", "--shrink", type=bool, default=False)
-    @flags.add_flag("-quality", "--quality", default=80, type=int)
-    @flags.command(aliases=["image_convert"])
+    class ConvertFlags(commands.FlagConverter):
+        shrink: bool = False
+        quality: int = 80
+
+    @commands.command(aliases=["image_convert"])
     async def img_convert(
         self,
         ctx,
         url: typing.Optional[image_utils.URLToImage],
         img_type: image_utils.ImageTypeChecker,
-        **flags,
+        *,
+        flags: ConvertFlags,
     ):
         """Converts the given image into the specified image type.
         Both the image and the specified image type must be of type GIF, JP(E)G, PNG, or WEBP. The image must also be under 8 MB.
-        Flags: --shrink <true/false> (specifies to shrink the image - it won't by default)
-        --quality <number> (specifies quality from 0-100, only works with JPG and WEBP files, default is 80)"""
+        Flags:
+        shrink: <true/false> (specifies to shrink the image - it won't by default)
+        quality: <number> (specifies quality from 0-100, only works with JPG and WEBP files, default is 80)"""
 
-        if not 0 <= flags["quality"] <= 100:
+        if not 0 <= flags.quality <= 100:
             raise commands.BadArgument("Quality must be a number between 0-100!")
 
         if not url:
@@ -245,7 +252,7 @@ class ImageCMDs(commands.Cog, name="Image"):
                 ori_image = io.BytesIO(image_data)
 
                 mimetype = discord.utils._get_mime_type_for_image(image_data)
-                flags["ori_ext"] = mimetype.split("/")[1]
+                flags.ori_ext = mimetype.split("/")[1]
                 ext = img_type
 
                 converted_image = await self.pil_compress(ori_image, ext, flags)
@@ -262,51 +269,50 @@ class ImageCMDs(commands.Cog, name="Image"):
 
         await ctx.reply(file=convert_img_file)
 
-    @flags.add_flag("-percent", "--percent", type=float)
-    @flags.add_flag("-width", "--width", type=int)
-    @flags.add_flag("-height", "--height", type=int)
-    @flags.add_flag("-filter", "--filter", type=str)
-    @flags.command(aliases=["image_resize"])
+    class ResizeFlags(commands.FlagConverter):
+        percent: typing.Optional[float]
+        width: typing.Optional[int]
+        height: typing.Optional[int]
+        filter: str = "BILINEAR"
+
+    @commands.command(aliases=["image_resize"])
     async def img_resize(
-        self, ctx, url: typing.Optional[image_utils.URLToImage], **flags
+        self, ctx, url: typing.Optional[image_utils.URLToImage], *, flags: ResizeFlags
     ):
         """Resizes the image as specified by the flags.
         The image must be of type GIF, JP(E)G, PNG, or WEBP. The image must also be under 8 MB.
 
-        Required flags:
-        --percent <percent> (specifies the percent to reduce it to - whole numbers with no %, like '50', please.)
-        --width <width> (specifies the width to reduce it to - it must be a whole number and greater than 0.)
-        --height <height> (specifies the height to reduce it to - it must be a whole number and greater than 0.)
+        Required flags (one of these three must be present):
+        percent: <percent> (specifies the percent to reduce it to - whole numbers with no %, like '50', please.)
+        width: <width> (specifies the width to reduce it to - it must be a whole number and greater than 0.)
+        height: <height> (specifies the height to reduce it to - it must be a whole number and greater than 0.)
 
         Optional flags:
-        --filter <filter> (specifies which resampling filter to use while downsizing - see \
+        filter: <filter> (specifies which resampling filter to use while downsizing - see \
         https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-filters for the filters and which \
-        one is best for you. Default is Bicubic.)
+        one is best for you. Default is Bilinear.)
         """
 
-        if flags["filter"]:
-            filter = self.str_to_filter(flags["filter"])
-        else:
-            filter = Image.BICUBIC
+        filter = self.str_to_filter(flags.filter)
 
         if not url:
             url = image_utils.image_from_ctx(ctx)
 
-        if not (flags["percent"] or flags["width"] or flags["height"]):
+        if not (flags.percent or flags.width or flags.height):
             raise commands.BadArgument("No resizing arguments passed!")
 
-        if flags["percent"] and (flags["width"] or flags["height"]):
+        if flags.percent and (flags.width or flags.height):
             raise commands.BadArgument(
                 "You cannot have a percentage and a width/height at the same time!"
             )
 
-        if flags["percent"] and flags["percent"] <= 0:
+        if flags.percent and flags.percent <= 0:
             raise commands.BadArgument("The percent must be greater than 0!")
 
-        if flags["width"] and flags["width"] <= 0:
+        if flags.width and flags.width <= 0:
             raise commands.BadArgument("The width must be greater than 0!")
 
-        if flags["height"] and flags["height"] <= 0:
+        if flags.height and flags.height <= 0:
             raise commands.BadArgument("The height must be greater than 0!")
 
         async with ctx.channel.typing():
@@ -327,12 +333,7 @@ class ImageCMDs(commands.Cog, name="Image"):
                     new_width,
                     new_height,
                 ) = await self.pil_resize(
-                    ori_image,
-                    ext,
-                    flags["percent"],
-                    flags["width"],
-                    flags["height"],
-                    filter,
+                    ori_image, ext, flags.percent, flags.width, flags.height, filter,
                 )
                 resize_size = self.get_size(resized_image)
 
@@ -351,7 +352,7 @@ class ImageCMDs(commands.Cog, name="Image"):
                 content = (
                     f"Original Image Dimensions: {ori_width}x{ori_height}\n"
                     + f"New Image Dimensions: {new_width}x{new_height}\n"
-                    + f"Resized To: {flags['percent'] or round(((new_width / ori_width) * 100), 2)}%\n"
+                    + f"Resized To: {flags.percent or round(((new_width / ori_width) * 100), 2)}%\n"
                     + f"New Image Size: {humanize.naturalsize(resize_size, binary=True)}"
                 )
             except:

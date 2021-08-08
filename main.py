@@ -3,12 +3,10 @@ import asyncio
 import json
 import logging
 import os
-from datetime import datetime
 
 import aiohttp
 import asyncpg
 import discord
-import discord_slash
 import websockets
 from discord.ext import commands
 from discord.ext.commands.bot import _default as bot_default
@@ -90,9 +88,6 @@ async def on_init_load():
     bot.image_extensions = tuple(("jpg", "jpeg", "png", "gif", "webp"))
     bot.added_db_info = False
 
-    application = await bot.application_info()
-    bot.owner = application.owner
-
     # is this overboard for a joke? yes.
     bot.death_messages = ()
     mc_en_us_url = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.17/assets/minecraft/lang/en_us.json"
@@ -141,7 +136,8 @@ async def on_init_load():
             except commands.NoEntryPointError:
                 pass
 
-    await bot.slash.sync_all_commands()  # need to do this as otherwise slash cmds wont work
+    application = await bot.application_info()
+    bot.owner = application.owner
 
 
 class SeraphimBot(commands.Bot):
@@ -157,7 +153,7 @@ class SeraphimBot(commands.Bot):
         self._checks.append(global_checks)
 
     async def on_ready(self):
-        utcnow = datetime.utcnow()
+        utcnow = discord.utils.utcnow()
         time_format = utcnow.strftime("%x %X UTC")
 
         connect_msg = (
@@ -198,7 +194,7 @@ class SeraphimBot(commands.Bot):
         """A simple extension of get_content. If it doesn't manage to get a command, it changes the string used
         to get the command from - to _ and retries. Convenient for the end user."""
 
-        ctx = await super().get_context(message, cls=cls)
+        ctx: commands.Context = await super().get_context(message, cls=cls)
         if ctx.command is None and ctx.invoked_with:
             ctx.command = self.all_commands.get(ctx.invoked_with.replace("-", "_"))
 
@@ -232,7 +228,6 @@ bot = SeraphimBot(
     allowed_mentions=mentions,
     intents=intents,
 )
-slash = discord_slash.SlashCommand(bot, override_type=True)
 
 try:
     import uvloop

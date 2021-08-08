@@ -1,8 +1,6 @@
 #!/usr/bin/env python3.8
 import collections
-import datetime
 import logging
-import os
 import traceback
 from pathlib import Path
 
@@ -86,35 +84,10 @@ async def user_from_id(bot, guild, user_id):
     return user
 
 
-def embed_length(embed: discord.Embed) -> int:
-    """Returns the length of an embed.
-    __len__ in 1.7.X is broken, so this is a backport of the 2.0 one."""
-
-    total = len(embed.title) + len(embed.description)
-    for field in getattr(embed, "_fields", []):
-        total += len(field["name"]) + len(field["value"])
-
-    try:
-        footer_text = embed._footer["text"]
-    except (AttributeError, KeyError):
-        pass
-    else:
-        total += len(footer_text)
-
-    try:
-        author = embed._author
-    except AttributeError:
-        pass
-    else:
-        total += len(author["name"])
-
-    return total
-
-
 def embed_check(embed: discord.Embed) -> bool:
     """Checks if an embed is valid, as per Discord's guidelines.
     See https://discord.com/developers/docs/resources/channel#embed-limits for details."""
-    if embed_length(embed) > 6000:
+    if len(embed) > 6000:
         return False
 
     if embed.title and len(embed.title) > 256:
@@ -202,17 +175,30 @@ def get_all_extensions(str_path, folder="cogs"):
     return ext_files
 
 
-def get_content(message: discord.Message):
+def get_content(message: discord.Message):  # sourcery no-metrics
     """Because system_content isn't perfect.
     More or less a copy of system_content with name being swapped with display_name and DM message types removed."""
 
     if message.type is discord.MessageType.default:
         return message.content
 
+    if message.type is discord.MessageType.recipient_add:
+        if message.channel.type is discord.ChannelType.group:
+            return f"{message.author.display_name} added {message.mentions[0].display_name} to the group."
+        else:
+            return f"{message.author.display_name} added {message.mentions[0].display_name} to the thread."
+
+    if message.type is discord.MessageType.recipient_remove:
+        if message.channel.type is discord.ChannelType.group:
+            return f"{message.author.display_name} removed {message.mentions[0].display_name} from the group."
+        else:
+            return f"{message.author.display_name} removed {message.mentions[0].display_name} from the thread."
+
+    if message.type is discord.MessageType.channel_name_change:
+        return f"{message.author.display_name} changed the channel name: **{message.content}**"
+
     if message.type is discord.MessageType.pins_add:
-        return "{0.display_name} pinned a message to this channel.".format(
-            message.author
-        )
+        return f"{message.author.display_name} pinned a message to this channel."
 
     if message.type is discord.MessageType.new_member:
         formats = [
@@ -231,35 +217,40 @@ def get_content(message: discord.Message):
             "Yay you made it, {0}!",
         ]
 
-        # manually reconstruct the epoch with millisecond precision, because
-        # datetime.datetime.timestamp() doesn't return the exact posix
-        # timestamp with the precision that we need
-        created_at_ms = int(
-            (message.created_at - datetime.datetime(1970, 1, 1)).total_seconds() * 1000
-        )
+        created_at_ms = int(message.created_at.timestamp() * 1000)
         return formats[created_at_ms % len(formats)].format(message.author.display_name)
 
     if message.type is discord.MessageType.premium_guild_subscription:
-        return f'{os.environ.get("BOOST_EMOJI_NAME")} {message.author.display_name} just boosted the server!'
+        if not message.content:
+            return f"{message.author.display_name} just boosted the server!"
+        else:
+            return f"{message.author.display_name} just boosted the server **{message.content}** times!"
 
     if message.type is discord.MessageType.premium_guild_tier_1:
-        return f'{os.environ.get("BOOST_EMOJI_NAME")} {message.author.display_name} just boosted the server! {message.guild} has achieved **Level 1!**'
+        if not message.content:
+            return f"{message.author.display_name} just boosted the server! {message.guild} has achieved **Level 1!**"
+        else:
+            return f"{message.author.display_name} just boosted the server **{message.content}** times! {message.guild} has achieved **Level 1!**"
 
     if message.type is discord.MessageType.premium_guild_tier_2:
-        return f'{os.environ.get("BOOST_EMOJI_NAME")} {message.author.display_name} just boosted the server! {message.guild} has achieved **Level 2!**'
+        if not message.content:
+            return f"{message.author.display_name} just boosted the server! {message.guild} has achieved **Level 2!**"
+        else:
+            return f"{message.author.display_name} just boosted the server **{message.content}** times! {message.guild} has achieved **Level 2!**"
 
     if message.type is discord.MessageType.premium_guild_tier_3:
-        return f'{os.environ.get("BOOST_EMOJI_NAME")} {message.author.display_name} just boosted the server! {message.guild} has achieved **Level 3!**'
+        if not message.content:
+            return f"{message.author.display_name} just boosted the server! {message.guild} has achieved **Level 3!**"
+        else:
+            return f"{message.author.display_name} just boosted the server **{message.content}** times! {message.guild} has achieved **Level 3!**"
 
     if message.type is discord.MessageType.channel_follow_add:
-        return "{0.author.display_name} has added {0.content} to this channel".format(
-            message
+        return (
+            f"{message.author.display_name} has added {message.content} to this channel"
         )
 
     if message.type is discord.MessageType.guild_stream:
-        return "{0.author.display_name} is live! Now streaming {0.author.activity.name}".format(
-            message
-        )
+        return f"{message.author.display_name} is live! Now streaming {message.author.activity.name}"
 
     if message.type is discord.MessageType.guild_discovery_disqualified:
         return "This server has been removed from Server Discovery because it no longer passes all the requirements. Check Server Settings for more details."
@@ -273,6 +264,21 @@ def get_content(message: discord.Message):
     if message.type is discord.MessageType.guild_discovery_grace_period_final_warning:
         return "This server has failed Discovery activity requirements for 3 weeks in a row. If this server fails for 1 more week, it will be removed from Discovery."
 
+    if message.type is discord.MessageType.thread_created:
+        return f"{message.author.display_name} started a thread: **{message.content}**. See all **threads**."
+
+    if message.type is discord.MessageType.reply:
+        return message.content
+
+    if message.type is discord.MessageType.thread_starter_message:
+        if message.reference is None or message.reference.resolved is None:
+            return "Sorry, we couldn't load the first message in this thread"
+
+        return message.reference.resolved.content  # type: ignore
+
+    if message.type is discord.MessageType.guild_invite_reminder:
+        return "Wondering who to invite?\nStart by inviting anyone who can help you build the server!"
+
     else:
         raise discord.InvalidArgument("This message has an invalid type!")
 
@@ -282,6 +288,13 @@ def bool_friendly_str(bool_to_convert):
         return "on"
     else:
         return "off"
+
+
+def get_icon_url(asset: discord.Asset):
+    if asset.is_animated():
+        return str(asset.replace(format="gif", size=128))
+    else:
+        return str(asset.replace(format="png", size=128))
 
 
 class CustomCheckFailure(commands.CheckFailure):

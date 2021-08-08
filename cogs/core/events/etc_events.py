@@ -12,7 +12,7 @@ class EtcEvents(commands.Cog):
 
     @tasks.loop(minutes=7.5)
     async def rollback_roles_cleanup(self):
-        now = datetime.datetime.utcnow()
+        now = discord.utils.utcnow()
         hour_prior = now - datetime.timedelta(hours=1)
 
         for member_entry in list(self.bot.role_rolebacks.values()):
@@ -29,7 +29,7 @@ class EtcEvents(commands.Cog):
 
         self.bot.role_rolebacks[member.guild.id][member.id] = {
             "roles": member.roles,
-            "time": datetime.datetime.utcnow(),
+            "time": discord.utils.utcnow(),
             "id": member.id,
         }
 

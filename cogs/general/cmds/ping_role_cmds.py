@@ -30,7 +30,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
 
         role_entry = ping_roles[str(role.id)]
 
-        now = datetime.datetime.now(datetime.timezone.utc)
+        now = discord.utils.utcnow()
         time_period = datetime.timedelta(seconds=role_entry["time_period"])
         last_used = datetime.datetime.utcfromtimestamp(role_entry["last_used"]).replace(
             tzinfo=datetime.timezone.utc
@@ -79,10 +79,10 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
                 )
                 time_text = None
 
-                now = datetime.datetime.utcnow()
+                now = discord.utils.utcnow()
                 last_used = datetime.datetime.utcfromtimestamp(
                     ping_roles[role]["last_used"]
-                )
+                ).replace(tzinfo=datetime.timezone.utc)
                 next_use = last_used + period_delta
 
                 if now < next_use:

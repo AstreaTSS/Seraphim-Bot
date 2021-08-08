@@ -3,9 +3,7 @@ import datetime
 import importlib
 
 import discord
-import humanize
 from discord.ext import commands
-from discord.ext import flags
 
 import common.utils as utils
 
@@ -34,8 +32,6 @@ class OnCMDError(commands.Cog):
                 f"{str(error)}. This was most likely due to "
                 + "it being buggy or broken in some way - please wait for it to be re-enabled."
             )
-        elif isinstance(error, flags.ArgumentParsingError):
-            await ctx.reply(embed=self.error_embed_generate(str(error)))
         elif isinstance(error, commands.TooManyArguments):
             await ctx.reply(
                 embed=self.error_embed_generate(
@@ -44,11 +40,13 @@ class OnCMDError(commands.Cog):
                 )
             )
         elif isinstance(error, commands.CommandOnCooldown):
-            delta_wait = datetime.timedelta(seconds=error.retry_after)
+            till = discord.utils.utcnow() + datetime.timedelta(
+                seconds=error.retry_after
+            )
             await ctx.reply(
                 embed=self.error_embed_generate(
                     "You're doing that command too fast! "
-                    + f"Try again in `{humanize.precisedelta(delta_wait, format='%0.1f')}`."
+                    + f"Try again in {discord.utils.format_dt(till, format='R')}."
                 )
             )
         elif isinstance(

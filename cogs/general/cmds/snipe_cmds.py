@@ -19,7 +19,7 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
         self.auto_cleanup.cancel()
 
     def snipe_cleanup(self, type_of, chan_id):
-        now = datetime.datetime.utcnow()
+        now = discord.utils.utcnow()
         one_minute = datetime.timedelta(minutes=1)
         one_minute_ago = now - one_minute
 
@@ -31,7 +31,7 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
 
     @tasks.loop(minutes=5)
     async def auto_cleanup(self):
-        now = datetime.datetime.utcnow()
+        now = discord.utils.utcnow()
         one_minute = datetime.timedelta(minutes=1)
         one_minute_ago = now - one_minute
 
