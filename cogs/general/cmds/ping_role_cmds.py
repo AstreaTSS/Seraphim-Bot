@@ -40,7 +40,7 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
         if now < next_use:
             raise utils.CustomCheckFailure(
                 "You cannot ping that role yet! Please try again "
-                + f"<t:{int(next_use.timestamp())}:R>."
+                + discord.utils.format_dt(next_use, style="R")
             )
 
         await ctx.reply(

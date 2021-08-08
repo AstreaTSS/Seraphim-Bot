@@ -339,7 +339,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         allowed_mentions.replied_user = True
 
         await ctx.reply(
-            f"{obj_name} was created at: <t:{int(time_format.timestamp())}>",
+            f"{obj_name} was created on {discord.utils.format_dt(time_format, style='F')}",
             allowed_mentions=allowed_mentions,
         )
 

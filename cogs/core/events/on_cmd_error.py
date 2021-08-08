@@ -46,7 +46,7 @@ class OnCMDError(commands.Cog):
             await ctx.reply(
                 embed=self.error_embed_generate(
                     "You're doing that command too fast! "
-                    + f"Try again in {discord.utils.format_dt(till, format='R')}."
+                    + f"Try again {discord.utils.format_dt(till, style='R')}."
                 )
             )
         elif isinstance(
