@@ -222,27 +222,27 @@ def get_content(message: discord.Message):  # sourcery no-metrics
 
     if message.type is discord.MessageType.premium_guild_subscription:
         if not message.content:
-            return f"{message.author.display_name} just boosted the server!"
+            return f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just boosted the server!"
         else:
-            return f"{message.author.display_name} just boosted the server **{message.content}** times!"
+            return f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just boosted the server **{message.content}** times!"
 
     if message.type is discord.MessageType.premium_guild_tier_1:
         if not message.content:
-            return f"{message.author.display_name} just boosted the server! {message.guild} has achieved **Level 1!**"
+            return f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just boosted the server! {message.guild} has achieved **Level 1!**"
         else:
-            return f"{message.author.display_name} just boosted the server **{message.content}** times! {message.guild} has achieved **Level 1!**"
+            return f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just boosted the server **{message.content}** times! {message.guild} has achieved **Level 1!**"
 
     if message.type is discord.MessageType.premium_guild_tier_2:
         if not message.content:
-            return f"{message.author.display_name} just boosted the server! {message.guild} has achieved **Level 2!**"
+            return f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just boosted the server! {message.guild} has achieved **Level 2!**"
         else:
-            return f"{message.author.display_name} just boosted the server **{message.content}** times! {message.guild} has achieved **Level 2!**"
+            return f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just boosted the server **{message.content}** times! {message.guild} has achieved **Level 2!**"
 
     if message.type is discord.MessageType.premium_guild_tier_3:
         if not message.content:
-            return f"{message.author.display_name} just boosted the server! {message.guild} has achieved **Level 3!**"
+            return f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just boosted the server! {message.guild} has achieved **Level 3!**"
         else:
-            return f"{message.author.display_name} just boosted the server **{message.content}** times! {message.guild} has achieved **Level 3!**"
+            return f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just boosted the server **{message.content}** times! {message.guild} has achieved **Level 3!**"
 
     if message.type is discord.MessageType.channel_follow_add:
         return (
