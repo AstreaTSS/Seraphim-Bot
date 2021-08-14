@@ -5,7 +5,6 @@ import typing
 import discord
 from discord.ext import commands
 
-import common.classes as custom_classes
 import common.manage_commands as manage_commands
 import common.paginator as paginator
 import common.star_classes as star_classes
@@ -72,10 +71,7 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
 
     @commands.command(hidden=True, aliases=["removeslashcmd"])
     async def remove_slash_cmd(
-        self,
-        ctx,
-        cmd: custom_classes.ObjectConverter,
-        guild: typing.Optional[discord.Guild],
+        self, ctx, cmd: discord.Object, guild: typing.Optional[discord.Guild],
     ):
 
         await manage_commands.remove_slash_command(
@@ -94,7 +90,6 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
 def setup(bot):
     importlib.reload(utils)
     importlib.reload(star_classes)
-    importlib.reload(custom_classes)
     importlib.reload(paginator)
     importlib.reload(manage_commands)
 
