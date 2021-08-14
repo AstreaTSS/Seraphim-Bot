@@ -66,12 +66,10 @@ class SlashCMDS(commands.Cog):
                 ):
                     # if there are resolved member objects and there are only one of them
                     # i'd rather not deal with making the kill cmd deal with 2+ targets
-                    target = data["resolved"]["members"][
-                        list(data["resolved"]["members"].keys())[0]
-                    ]["nick"]
+                    target = tuple(data["resolved"]["members"].values())[0]["nick"]
                     # the above is more confusing than it should be
                     # basically, it gets the first (and only) member from the resolved members
-                    # (to do so, we have to get a list of every key in the members thing since
+                    # (to do so, we have to get a list of every value in the members thing since
                     # discord doesn't provide the data in a list, and then get the only key in there
                     # and then get the members nickname, if it has any)
                 if (
@@ -80,9 +78,7 @@ class SlashCMDS(commands.Cog):
                     and len(data["resolved"]["users"].keys()) == 1
                 ):
                     # same as member check, but for users, and we see if we already got a member first
-                    target = data["resolved"]["users"][
-                        list(data["resolved"]["users"].keys())[0]
-                    ]["username"]
+                    target = tuple(data["resolved"]["users"].values())[0]["username"]
 
             if not target:
                 target = data["options"][0][
