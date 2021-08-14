@@ -11,12 +11,12 @@ import common.manage_commands as manage_commands
 class SlashCMDS(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
-        self.bot.loop.create_task(self.register_cmds())
 
-    def cog_unload(self):
-        self.bot.loop.create_task(self.remove_cmds())
+    async def cog_check(self, ctx):
+        return await self.bot.is_owner(ctx.author)
 
-    async def register_cmds(self):
+    @commands.command(hidden=True)
+    async def register_slash_cmds(self, ctx):
         await manage_commands.add_slash_command(
             self.bot.user.id,
             self.bot.http.token,
@@ -26,8 +26,7 @@ class SlashCMDS(commands.Cog):
             [manage_commands.create_option("target", "The target to kill.", 3, True)],
         )
 
-    async def remove_cmds(self):
-        await manage_commands.remove_all_commands(self.bot.user.id, self.bot.http.token)
+        await ctx.reply("Done!")
 
     @commands.Cog.listener()
     async def on_interaction(self, inter: discord.Interaction):
