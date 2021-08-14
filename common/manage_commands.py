@@ -1,0 +1,170 @@
+"""
+A standalone version of d.py-interactions's own utils.manage_commands.
+Parts were removed and changed for my purposes.
+https://github.com/discord-py-interactions/discord-py-interactions/blob/master/discord_slash/utils/manage_commands.py
+"""
+import asyncio
+import typing
+
+import aiohttp
+
+
+class RequestFailure(Exception):
+    """
+    Request to Discord API has failed.
+    """
+
+    def __init__(self, status: int, msg: str):
+        self.status = status
+        self.msg = msg
+        super().__init__(f"Request failed with resp: {self.status} | {self.msg}")
+
+
+async def add_slash_command(
+    bot_id,
+    bot_token: str,
+    guild_id,
+    cmd_name: str,
+    description: str,
+    options: list = None,
+):
+    """
+    A coroutine that sends a slash command add request to Discord API.
+    :param bot_id: User ID of the bot.
+    :param bot_token: Token of the bot.
+    :param guild_id: ID of the guild to add command. Pass `None` to add global command.
+    :param cmd_name: Name of the command. Must match the regular expression ``^[a-z0-9_-]{1,32}$``.
+    :param description: Description of the command.
+    :param options: List of the function.
+    :return: JSON Response of the request.
+    :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
+    """
+    url = f"https://discord.com/api/v8/applications/{bot_id}"
+    url += "/commands" if not guild_id else f"/guilds/{guild_id}/commands"
+    base = {"name": cmd_name, "description": description, "options": options or []}
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            url, headers={"Authorization": f"Bot {bot_token}"}, json=base
+        ) as resp:
+            if resp.status == 429:
+                _json = await resp.json()
+                await asyncio.sleep(_json["retry_after"])
+                return await add_slash_command(
+                    bot_id, bot_token, guild_id, cmd_name, description, options
+                )
+            if not 200 <= resp.status < 300:
+                raise RequestFailure(resp.status, await resp.text())
+            return await resp.json()
+
+
+async def remove_slash_command(bot_id, bot_token, guild_id, cmd_id):
+    """
+    A coroutine that sends a slash command remove request to Discord API.
+    :param bot_id: User ID of the bot.
+    :param bot_token: Token of the bot.
+    :param guild_id: ID of the guild to remove command. Pass `None` to remove global command.
+    :param cmd_id: ID of the command.
+    :return: Response code of the request.
+    :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
+    """
+    url = f"https://discord.com/api/v8/applications/{bot_id}"
+    url += "/commands" if not guild_id else f"/guilds/{guild_id}/commands"
+    url += f"/{cmd_id}"
+    async with aiohttp.ClientSession() as session:
+        async with session.delete(
+            url, headers={"Authorization": f"Bot {bot_token}"}
+        ) as resp:
+            if resp.status == 429:
+                _json = await resp.json()
+                await asyncio.sleep(_json["retry_after"])
+                return await remove_slash_command(bot_id, bot_token, guild_id, cmd_id)
+            if not 200 <= resp.status < 300:
+                raise RequestFailure(resp.status, await resp.text())
+            return resp.status
+
+
+async def get_all_commands(bot_id, bot_token, guild_id=None):
+    """
+    A coroutine that sends a slash command get request to Discord API.
+    :param bot_id: User ID of the bot.
+    :param bot_token: Token of the bot.
+    :param guild_id: ID of the guild to get commands. Pass `None` to get all global commands.
+    :return: JSON Response of the request.
+    :raises: :class:`.error.RequestFailure` - Requesting to Discord API has failed.
+    """
+    url = f"https://discord.com/api/v8/applications/{bot_id}"
+    url += "/commands" if not guild_id else f"/guilds/{guild_id}/commands"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            url, headers={"Authorization": f"Bot {bot_token}"}
+        ) as resp:
+            if resp.status == 429:
+                _json = await resp.json()
+                await asyncio.sleep(_json["retry_after"])
+                return await get_all_commands(bot_id, bot_token, guild_id)
+            if not 200 <= resp.status < 300:
+                raise RequestFailure(resp.status, await resp.text())
+            return await resp.json()
+
+
+async def remove_all_commands(bot_id, bot_token, guild_ids: typing.List[int] = None):
+    """
+    Remove all slash commands.
+    :param bot_id: User ID of the bot.
+    :param bot_token: Token of the bot.
+    :param guild_ids: List of the guild ID to remove commands. Pass ``None`` to remove only the global commands.
+    """
+
+    await remove_all_commands_in(bot_id, bot_token, None)
+
+    for x in guild_ids or []:
+        try:
+            await remove_all_commands_in(bot_id, bot_token, x)
+        except RequestFailure:
+            pass
+
+
+async def remove_all_commands_in(bot_id, bot_token, guild_id=None):
+    """
+    Remove all slash commands in area.
+    :param bot_id: User ID of the bot.
+    :param bot_token: Token of the bot.
+    :param guild_id: ID of the guild to remove commands. Pass `None` to remove all global commands.
+    """
+    commands = await get_all_commands(bot_id, bot_token, guild_id)
+
+    for x in commands:
+        await remove_slash_command(bot_id, bot_token, guild_id, x["id"])
+
+
+def create_option(
+    name: str, description: str, option_type: int, required: bool, choices: list = None,
+) -> dict:
+    """
+    Creates option used for creating slash command.
+    :param name: Name of the option.
+    :param description: Description of the option.
+    :param option_type: Type of the option.
+    :param required: Whether this option is required.
+    :param choices: Choices of the option. Can be empty.
+    :return: dict
+    .. note::
+        An option with ``required=False`` will not pass anything to the command function if the user doesn't pass that option when invoking the command.
+        You must set the the relevant argument's function to a default argument, eg ``argname = None``.
+    .. note::
+        ``choices`` must either be a list of `option type dicts <https://discord.com/developers/docs/interactions/slash-commands#applicationcommandoptionchoice>`_
+        or a list of single string values.
+    """
+    choices = choices or []
+    choices = [
+        choice if isinstance(choice, dict) else {"name": choice, "value": choice}
+        for choice in choices
+    ]
+    return {
+        "name": name,
+        "description": description,
+        "type": option_type,
+        "required": required,
+        "choices": choices,
+    }
