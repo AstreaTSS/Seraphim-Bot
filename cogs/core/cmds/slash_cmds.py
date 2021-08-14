@@ -48,7 +48,7 @@ class SlashCMDS(commands.Cog):
                     and len(data["resolved"]["members"].keys()) == 1
                 ):
                     target = data["resolved"]["members"][
-                        data["resolved"]["members"].keys()[0]
+                        list(data["resolved"]["members"].keys())[0]
                     ]["nick"]
                 if (
                     not target
@@ -56,7 +56,7 @@ class SlashCMDS(commands.Cog):
                     and len(data["resolved"]["users"].keys()) == 1
                 ):
                     target = data["resolved"]["users"][
-                        data["resolved"]["users"].keys()[0]
+                        list(data["resolved"]["users"].keys())[0]
                     ]["username"]
 
             if not target:
