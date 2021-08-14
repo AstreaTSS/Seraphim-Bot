@@ -11,6 +11,13 @@ import common.star_classes as star_classes
 import common.utils as utils
 
 
+class Dummy:
+    __slots__ = "id"
+
+    def __init__(self) -> None:
+        self.id = None
+
+
 class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
     def __init__(self, bot):
         self.bot = bot
@@ -34,6 +41,9 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
 
     @commands.command(hidden=True, aliases=["list_slash_commands", "listslashcmds"])
     async def list_slash_cmds(self, ctx, guild: typing.Optional[discord.Guild]):
+        if guild is None:
+            guild = Dummy()
+
         slash_cmds = await manage_commands.get_all_commands(
             self.bot.user.id, self.bot.http.token, guild.id
         )
@@ -73,6 +83,8 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
     async def remove_slash_cmd(
         self, ctx, cmd: discord.Object, guild: typing.Optional[discord.Guild],
     ):
+        if guild is None:
+            guild = Dummy()
 
         await manage_commands.remove_slash_command(
             self.bot.user.id, self.bot.http.token, guild.id, cmd.id
@@ -81,6 +93,9 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
 
     @commands.command(hidden=True, aliases=["removeallslashcmds"])
     async def remove_all_slash_cmds(self, ctx, guild: typing.Optional[discord.Guild]):
+        if guild is None:
+            guild = Dummy()
+
         await manage_commands.remove_all_commands(
             self.bot.user.id, self.bot.http.token, guild.id
         )
