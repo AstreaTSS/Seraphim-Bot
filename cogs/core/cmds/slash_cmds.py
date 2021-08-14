@@ -16,7 +16,7 @@ class SlashCMDS(commands.Cog):
         return await self.bot.is_owner(ctx.author)
 
     @commands.command(hidden=True)
-    async def register_slash_cmds(self, ctx):
+    async def register_kill_cmd(self, ctx):
         await manage_commands.add_slash_command(
             self.bot.user.id,
             self.bot.http.token,
@@ -24,6 +24,23 @@ class SlashCMDS(commands.Cog):
             "kill",
             "Allows you to kill the victim specified using the iconic Minecraft kill command messages.",
             [manage_commands.create_option("target", "The target to kill.", 3, True)],
+        )
+
+        await ctx.reply("Done!")
+
+    @commands.command(hidden=True)
+    async def register_reverse_cmd(self, ctx):
+        await manage_commands.add_slash_command(
+            self.bot.user.id,
+            self.bot.http.token,
+            None,
+            "reverse",
+            "Reverses the content given.",
+            [
+                manage_commands.create_option(
+                    "content", "The content to reverse.", 3, True
+                )
+            ],
         )
 
         await ctx.reply("Done!")
@@ -74,6 +91,9 @@ class SlashCMDS(commands.Cog):
 
             await self.kill(inter, target)
 
+        elif data["name"] == "reverse":
+            await self.reverse(inter, data["options"][0]["value"])
+
     async def kill(self, inter: discord.Interaction, target: str):
         if len(target) > 1900:
             await inter.response.send_message(
@@ -94,6 +114,9 @@ class SlashCMDS(commands.Cog):
         kill_embed = discord.Embed(colour=discord.Colour.red(), description=kill_msg)
 
         await inter.response.send_message(embed=kill_embed)
+
+    async def reverse(self, inter: discord.Interaction, content: str):
+        await inter.response.send_message(content=f"{content[::-1]}", ephemeral=True)
 
 
 def setup(bot):
