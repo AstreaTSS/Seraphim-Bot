@@ -123,7 +123,7 @@ async def blacklist(ctx):
 @blacklist.command(name="list")
 @utils.proper_permissions()
 @commands.check(star_toggle_check)
-async def _list(ctx):
+async def _list(ctx: commands.Context):
     """Returns a list of channels that have been blacklisted. Messages from channels that are blacklisted won’t be starred."""
 
     channel_id_list = ctx.bot.config.getattr(ctx.guild.id, "star_blacklist")
@@ -131,7 +131,7 @@ async def _list(ctx):
         channel_mentions = []
 
         for channel_id in channel_id_list.copy():
-            channel = ctx.bot.get_channel(channel_id)
+            channel = ctx.guild.get_channel(channel_id)
 
             if channel:
                 channel_mentions.append(channel.mention)

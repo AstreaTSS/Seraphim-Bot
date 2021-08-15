@@ -11,7 +11,7 @@ import common.utils as utils
 
 class Star(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
         self.star_task = bot.loop.create_task(self.starboard_queue())
 
     def cog_unload(self):
@@ -21,19 +21,15 @@ class Star(commands.Cog):
         while True:
             entry = await self.bot.star_queue.get()
 
-            chan = self.bot.get_channel(entry[0])
+            chan = self.bot.get_partial_messageable(entry[0])
             starboard_entry = self.bot.starboard.get(entry[1])
 
-            # if the channel and the entry for the message exists in the bot and if the entry is above or at the required amount
+            # if the entry for the message exists in the bot and if the entry is above or at the required amount
             # for that server
-            if (
-                chan
-                and starboard_entry
-                and (
-                    len(starboard_entry.get_reactors())
-                    >= self.bot.config.getattr(entry[2], "star_limit")
-                    or starboard_entry.forced
-                )
+            if starboard_entry and (
+                len(starboard_entry.get_reactors())
+                >= self.bot.config.getattr(entry[2], "star_limit")
+                or starboard_entry.forced
             ):
                 try:
                     mes = await chan.fetch_message(entry[1])
@@ -165,12 +161,11 @@ class Star(commands.Cog):
         # have to waste API calls on it, but sometimes we do.
         mes = payload.cached_message
         if not mes:
-            chan = self.bot.get_channel(payload.channel_id)
-            if chan:
-                try:
-                    mes = await chan.fetch_message(payload.message_id)
-                except discord.HTTPException:
-                    pass
+            chan = self.bot.get_partial_messageable(payload.channel_id)
+            try:
+                mes = await chan.fetch_message(payload.message_id)
+            except discord.HTTPException:
+                pass
 
         # if message exists and the edit message toggle is on
         if mes and self.bot.config.getattr(mes.guild.id, "star_edit_messages"):

@@ -15,7 +15,7 @@ class PinCMDs(commands.Cog, name="Pinboard"):
 
     @commands.command(aliases=["pin_all"])
     @utils.proper_permissions()
-    async def pinall(self, ctx):
+    async def pinall(self, ctx: commands.Context):
         """Retroactively moves overflowing pins from the channel this command is used in to the destination channel.
         Useful if you just mapped a channel and need to move old pin entries.
         Requires Manage Server permissions or higher."""
@@ -35,7 +35,7 @@ class PinCMDs(commands.Cog, name="Pinboard"):
                 "The number of pins is below or at the limit!"
             )
 
-        des_chan = self.bot.get_channel(chan_entry["destination"])
+        des_chan = ctx.guild.get_channel(chan_entry["destination"])
         if des_chan is None:
             raise utils.CustomCheckFailure(
                 "The destination channel doesn't exist anymore! Please fix this in the config."

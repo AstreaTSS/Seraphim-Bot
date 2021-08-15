@@ -542,21 +542,23 @@ class StarCMDs(commands.Cog, name="Starboard"):
         starboard_entry.updated = False
         self.bot.starboard.update(starboard_entry)
 
-        chan = self.bot.get_channel(starboard_entry.starboard_id)
-        if chan:
-            try:
-                mes = await chan.fetch_message(starboard_entry.star_var_id)
-                await mes.delete()
-                self.bot.star_queue.remove_from_copy(
-                    (
-                        starboard_entry.ori_chan_id,
-                        starboard_entry.ori_mes_id,
-                        starboard_entry.guild_id,
-                    )
+        chan = self.bot.get_partial_messageable(starboard_entry.starboard_id)
+        try:
+            mes = await chan.fetch_message(starboard_entry.star_var_id)
+            await mes.delete()
+            self.bot.star_queue.remove_from_copy(
+                (
+                    starboard_entry.ori_chan_id,
+                    starboard_entry.ori_mes_id,
+                    starboard_entry.guild_id,
                 )
-            except discord.HTTPException:
-                pass
-        await ctx.reply("The message has been trashed.")
+            )
+            await ctx.reply("The message has been trashed.")
+        except discord.HTTPException:
+            raise commands.BadArgument(
+                "I couldn't trash this message! I most likely "
+                + "lack the permissions to do so."
+            )
 
     @sb.command()
     @utils.proper_permissions()
@@ -611,7 +613,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
             ctx, msg, do_not_create=True, bypass_int_check=True
         )
 
-        starboard_chan = self.bot.get_channel(starboard_entry.starboard_id)
+        starboard_chan = self.bot.get_partial_messageable(starboard_entry.starboard_id)
         try:
             starboard_msg = await starboard_chan.fetch_message(
                 starboard_entry.star_var_id
@@ -621,7 +623,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
                 "The starboard message cannot be found! Make sure the bot can see the channel."
             )
 
-        ori_chan = self.bot.get_channel(starboard_entry.ori_chan_id)
+        ori_chan = self.bot.get_partial_messageable(starboard_entry.ori_chan_id)
         try:
             ori_msg = await ori_chan.fetch_message(starboard_entry.ori_mes_id)
         except discord.HTTPException or AttributeError:

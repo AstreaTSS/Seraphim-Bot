@@ -12,7 +12,7 @@ class PinHandler(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_message(self, msg):
+    async def on_message(self, msg: discord.Message):
         if msg.type != discord.MessageType.pins_add or not msg.guild:
             return
 
@@ -28,7 +28,7 @@ class PinHandler(commands.Cog):
         if len(pins) > chan_entry["limit"]:
             early_entry = pins[-1]
 
-            des_chan = self.bot.get_channel(chan_entry["destination"])
+            des_chan = msg.guild.get_channel(chan_entry["destination"])
             if des_chan is None:
                 return
 

@@ -141,7 +141,10 @@ async def modify_stars(bot, mes: discord.Message, reactor_id, operation):
 
 
 async def sync_prev_reactors(
-    bot, author_id, starboard_entry: star_classes.StarboardEntry, remove=True
+    bot: commands.Bot,
+    author_id,
+    starboard_entry: star_classes.StarboardEntry,
+    remove=True,
 ):
     # syncs reactors stored in db with actual reactors on Discord
 
@@ -176,42 +179,40 @@ async def sync_prev_reactors(
     ori_mes = None
     star_mes = None
 
-    ori_mes_chan = bot.get_channel(starboard_entry.ori_chan_id)
-    if ori_mes_chan:
-        try:
-            ori_mes = await ori_mes_chan.fetch_message(starboard_entry.ori_mes_id)
-            await sync_reactors(
-                bot,
-                ori_mes,
-                starboard_entry,
-                star_classes.ReactorType.ORI_REACTORS,
-                remove,
-            )
-        except:
-            pass
+    ori_mes_chan = bot.get_partial_messageable(starboard_entry.ori_chan_id)
+    try:
+        ori_mes = await ori_mes_chan.fetch_message(starboard_entry.ori_mes_id)
+        await sync_reactors(
+            bot,
+            ori_mes,
+            starboard_entry,
+            star_classes.ReactorType.ORI_REACTORS,
+            remove,
+        )
+    except:
+        pass
 
-    starboard_chan = bot.get_channel(starboard_entry.starboard_id)
-    if starboard_chan:
-        try:
-            star_mes = await starboard_chan.fetch_message(starboard_entry.star_var_id)
-            await sync_reactors(
-                bot,
-                star_mes,
-                starboard_entry,
-                star_classes.ReactorType.VAR_REACTORS,
-                remove,
-            )
-        except:
-            pass
+    starboard_chan = bot.get_partial_messageable(starboard_entry.starboard_id)
+    try:
+        star_mes = await starboard_chan.fetch_message(starboard_entry.star_var_id)
+        await sync_reactors(
+            bot,
+            star_mes,
+            starboard_entry,
+            star_classes.ReactorType.VAR_REACTORS,
+            remove,
+        )
+    except:
+        pass
 
     return starboard_entry
 
 
 async def star_entry_refresh(
-    bot, starboard_entry: star_classes.StarboardEntry, guild_id
+    bot: commands.Bot, starboard_entry: star_classes.StarboardEntry, guild_id
 ):
     # refreshes a starboard entry mes
-    star_var_chan = bot.get_channel(
+    star_var_chan = bot.get_partial_messageable(
         starboard_entry.starboard_id
     )  # TODO: ignore cases where bot can't access/use channel
     unique_stars = len(starboard_entry.get_reactors())
@@ -223,10 +224,7 @@ async def star_entry_refresh(
         if not isinstance(e, (discord.NotFound, discord.Forbidden)):
             raise e
 
-        ori_chan = bot.get_channel(starboard_entry.ori_chan_id)
-        if ori_chan is None or ori_chan.guild.id != guild_id:
-            return
-
+        ori_chan = bot.get_partial_messageable(starboard_entry.ori_chan_id)
         try:
             ori_mes = await ori_chan.fetch_message(starboard_entry.ori_mes_id)
         except discord.HTTPException:
@@ -235,6 +233,7 @@ async def star_entry_refresh(
         import common.star_mes_handler  # very dirty import, i know
 
         star_var_mes = await common.star_mes_handler.send(bot, ori_mes)
+
     ori_starred = star_var_mes.embeds[0]
 
     if (
@@ -260,7 +259,7 @@ async def star_entry_refresh(
 
 async def fetch_needed(bot: commands.Bot, payload: discord.RawReactionActionEvent):
     # fetches info from payload
-    channel = bot.get_channel(payload.channel_id)
+    channel = bot.get_partial_messageable(payload.channel_id)
     mes = await channel.fetch_message(payload.message_id)
 
     if payload.event_type == "REACTION_ADD":

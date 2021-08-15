@@ -30,7 +30,7 @@ async def main_cmd(ctx):
 
 @main_cmd.command(name="list")
 @utils.proper_permissions()
-async def _list(ctx):
+async def _list(ctx: commands.Context):
     """Returns a list of channels that have their pins mapped to another channel, and the max limit before they overflow to that other channel."""
 
     pin_config = ctx.bot.config.getattr(ctx.guild.id, "pin_config")
@@ -44,7 +44,7 @@ async def _list(ctx):
     for entry in pin_config.keys():
         entry_text = None
         try:
-            entry_chan = ctx.bot.get_channel(int(entry))
+            entry_chan = ctx.guild.get_channel(int(entry))
             entry_text = entry_chan.mention
         except ValueError or AttributeError:
             if entry == "default":
@@ -54,7 +54,7 @@ async def _list(ctx):
                     "Something weird happened when trying to run this command, and I couldn't get something. Join the support server to report this."
                 )
 
-        des_chan = ctx.bot.get_channel(pin_config[entry]["destination"])
+        des_chan = ctx.guild.get_channel(pin_config[entry]["destination"])
 
         if not entry_text or des_chan:
             limit = pin_config[entry]["limit"]

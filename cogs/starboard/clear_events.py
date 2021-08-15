@@ -9,7 +9,7 @@ import common.star_utils as star_utils
 
 class ClearEvents(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
 
     async def auto_clear_stars(self, payload):
         star_variant = self.bot.starboard.get(payload.message_id)
@@ -31,22 +31,23 @@ class ClearEvents(commands.Cog):
                 self.bot.starboard.delete(star_variant.ori_mes_id)
 
                 if star_variant.star_var_id != None:
-                    star_chan = self.bot.get_channel(star_variant.starboard_id)
-                    if star_chan:
-                        try:
-                            star_mes = await star_chan.fetch_message(
-                                star_variant.star_var_id
+                    star_chan = self.bot.get_partial_messageable(
+                        star_variant.starboard_id
+                    )
+                    try:
+                        star_mes = await star_chan.fetch_message(
+                            star_variant.star_var_id
+                        )
+                        await star_mes.delete()
+                        self.bot.star_queue.remove_from_copy(
+                            (
+                                star_variant.ori_chan_id,
+                                star_variant.ori_mes_id,
+                                star_variant.guild_id,
                             )
-                            await star_mes.delete()
-                            self.bot.star_queue.remove_from_copy(
-                                (
-                                    star_variant.ori_chan_id,
-                                    star_variant.ori_mes_id,
-                                    star_variant.guild_id,
-                                )
-                            )
-                        except discord.HTTPException:
-                            pass
+                        )
+                    except discord.HTTPException:
+                        pass
             else:
                 star_variant.star_var_id = None
                 star_variant.starboard_id = None
@@ -67,22 +68,23 @@ class ClearEvents(commands.Cog):
                     self.bot.starboard.delete(star_variant.ori_mes_id)
 
                     if star_variant.star_var_id != None:
-                        star_chan = self.bot.get_channel(star_variant.starboard_id)
-                        if star_chan:
-                            try:
-                                star_mes = await star_chan.fetch_message(
-                                    star_variant.star_var_id
+                        star_chan = self.bot.get_partial_messageable(
+                            star_variant.starboard_id
+                        )
+                        try:
+                            star_mes = await star_chan.fetch_message(
+                                star_variant.star_var_id
+                            )
+                            await star_mes.delete()
+                            self.bot.star_queue.remove_from_copy(
+                                (
+                                    star_variant.ori_chan_id,
+                                    star_variant.ori_mes_id,
+                                    star_variant.guild_id,
                                 )
-                                await star_mes.delete()
-                                self.bot.star_queue.remove_from_copy(
-                                    (
-                                        star_variant.ori_chan_id,
-                                        star_variant.ori_mes_id,
-                                        star_variant.guild_id,
-                                    )
-                                )
-                            except discord.HTTPException:
-                                pass
+                            )
+                        except discord.HTTPException:
+                            pass
                 else:
                     star_variant.star_var_id = None
                     star_variant.starboard_id = None
