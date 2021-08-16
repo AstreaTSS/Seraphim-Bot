@@ -168,7 +168,11 @@ class Star(commands.Cog):
                 return
 
         # if message exists and the edit message toggle is on
-        if mes and self.bot.config.getattr(mes.guild.id, "star_edit_messages"):
+        if (
+            mes
+            and mes.guild
+            and self.bot.config.getattr(mes.guild.id, "star_edit_messages")
+        ):
             starboard_entry = self.bot.starboard.get(mes.id, check_for_var=True)
 
             # if the starboard entry exists and the star variant of the entry is not the message edited
