@@ -165,7 +165,7 @@ class Star(commands.Cog):
             try:
                 mes = await chan.fetch_message(payload.message_id)
             except discord.HTTPException:
-                pass
+                return
 
         # if message exists and the edit message toggle is on
         if mes and self.bot.config.getattr(mes.guild.id, "star_edit_messages"):
