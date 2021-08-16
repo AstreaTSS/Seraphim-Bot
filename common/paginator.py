@@ -47,7 +47,10 @@ def generate_view(
             return interaction.user.id == author.id
 
         async def on_timeout(self):
-            return await self.stop()
+            try:
+                await self.stop()
+            except TypeError:
+                pass  # ??????
 
     view = PaginatorView()
 
