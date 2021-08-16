@@ -26,17 +26,17 @@ class PinHandler(commands.Cog):
         pins = await msg.channel.pins()
 
         if len(pins) > chan_entry["limit"]:
-            early_entry = pins[-1]
 
+            entry = pins[-1] if not chan_entry["reversed"] else pins[0]
             des_chan = msg.guild.get_channel(chan_entry["destination"])
             if des_chan is None:
                 return
 
-            send_embed = await star_mes.star_generate(self.bot, early_entry)
+            send_embed = await star_mes.star_generate(self.bot, entry)
             send_embed.color = discord.Colour.default()
 
             await des_chan.send(embed=send_embed)
-            await early_entry.unpin()
+            await entry.unpin()
 
 
 def setup(bot):

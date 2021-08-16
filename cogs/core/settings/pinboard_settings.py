@@ -51,15 +51,19 @@ async def _list(ctx: commands.Context):
                 entry_text = entry
             else:
                 raise utils.CustomCheckFailure(
-                    "Something weird happened when trying to run this command, and I couldn't get something. Join the support server to report this."
+                    "Something weird happened when trying to run this command, and I couldn't get something. "
+                    + "Join the support server to report this."
                 )
 
         des_chan = ctx.guild.get_channel(pin_config[entry]["destination"])
 
-        if not entry_text or des_chan:
+        if entry_text and des_chan:
             limit = pin_config[entry]["limit"]
+            reversed = pin_config[entry]["reversed"]
 
-            entries_list.append(f"{entry_text} -> {des_chan.mention} (Limit: {limit})")
+            entries_list.append(
+                f"{entry_text} -> {des_chan.mention} (Limit: {limit}, reversed: {reversed})"
+            )
         else:
             del pin_config[entry]
             ctx.bot.config.setattr(ctx.guild.id, pin_config=pin_config)
@@ -86,12 +90,20 @@ async def _map(
 
     pin_config = ctx.bot.config.getattr(ctx.guild.id, "pin_config")
     if isinstance(entry, discord.TextChannel):
-        pin_config[str(entry.id)] = {"destination": destination.id, "limit": limit}
+        pin_config[str(entry.id)] = {
+            "destination": destination.id,
+            "limit": limit,
+            "reversed": False,
+        }
         await ctx.reply(
             f"Overflowing pins from {entry.mention} will now appear in {destination.mention}."
         )
     else:
-        pin_config["default"] = {"destination": destination.id, "limit": limit}
+        pin_config["default"] = {
+            "destination": destination.id,
+            "limit": limit,
+            "reversed": False,
+        }
         await ctx.reply(
             f"Overflowing pins from channels that are not mapped to any other channels will now appear in {destination.mention}."
         )
@@ -137,6 +149,34 @@ async def unmap(ctx, entry: typing.Union[discord.TextChannel, DefaultValidator])
         else:
             del pin_config["default"]
             await ctx.reply(f"Unmapped default pinboard channel.")
+        ctx.bot.config.setattr(ctx.guild.id, pin_config=pin_config)
+    except KeyError:
+        raise commands.BadArgument("That channel wasn't mapped in the first place!")
+
+
+@main_cmd.command(aliases=["reversed"])
+@utils.proper_permissions()
+async def reverse(
+    ctx, entry: typing.Union[discord.TextChannel, DefaultValidator], value: bool
+):
+    """Determines if the way old pins are removed are reversed or not.
+    Typically, if an overflowing pin is added, the oldest pin entry gets removed to make way for the new pin.
+    This effectively makes it so the new pin gets sent to the pinboard instead.
+    Useful if you wish to keep a few pins around forever."""
+
+    try:
+        pin_config = ctx.bot.config.getattr(ctx.guild.id, "pin_config")
+        if isinstance(entry, discord.TextChannel):
+            pin_config[str(entry.id)]["reversed"] = value
+            await ctx.reply(
+                f"Set if the pin removal is reversed or not for {entry.mention} to: {value}."
+            )
+        else:
+            pin_config["default"]["reversed"] = value
+            await ctx.reply(
+                "Set if the pin removal is reversed or not for the "
+                + f"default pinboard channel to: {value}."
+            )
         ctx.bot.config.setattr(ctx.guild.id, pin_config=pin_config)
     except KeyError:
         raise commands.BadArgument("That channel wasn't mapped in the first place!")
