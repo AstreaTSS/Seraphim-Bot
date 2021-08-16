@@ -21,8 +21,9 @@ class Star(commands.Cog):
         while True:
             entry = await self.bot.star_queue.get()
 
-            chan = self.bot.get_partial_messageable(entry[0])
             starboard_entry = self.bot.starboard.get(entry[1])
+            guild = self.bot.get_guild(starboard_entry.guild_id)
+            chan = guild.get_channel_or_thread(entry[0])
 
             # if the entry for the message exists in the bot and if the entry is above or at the required amount
             # for that server
@@ -161,25 +162,28 @@ class Star(commands.Cog):
         # have to waste API calls on it, but sometimes we do.
         mes = payload.cached_message
         if not mes:
-            chan = self.bot.get_partial_messageable(payload.channel_id)
+
+            guild = self.bot.get_guild(payload.guild_id)
+            if not guild:
+                return
+
+            chan = guild.get_channel_or_thread(payload.channel_id)
             try:
                 mes = await chan.fetch_message(payload.message_id)
-            except discord.HTTPException:
+            except discord.HTTPException or AttributeError:
                 return
 
         # if message exists and the edit message toggle is on
-        if (
-            mes
-            and mes.guild
-            and self.bot.config.getattr(mes.guild.id, "star_edit_messages")
-        ):
+        if mes and self.bot.config.getattr(mes.guild.id, "star_edit_messages"):
             starboard_entry = self.bot.starboard.get(mes.id, check_for_var=True)
 
             # if the starboard entry exists and the star variant of the entry is not the message edited
             if starboard_entry and starboard_entry.star_var_id != mes.id:
                 new_embed = await star_mes.star_generate(self.bot, mes)
 
-                star_chan = mes.guild.get_channel(starboard_entry.starboard_id)
+                star_chan = mes.guild.get_channel_or_thread(
+                    starboard_entry.starboard_id
+                )
                 if star_chan:
                     try:
                         starboard_mes = await star_chan.fetch_message(

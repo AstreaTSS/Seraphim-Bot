@@ -179,7 +179,11 @@ async def sync_prev_reactors(
     ori_mes = None
     star_mes = None
 
-    ori_mes_chan = bot.get_partial_messageable(starboard_entry.ori_chan_id)
+    guild = bot.get_guild(starboard_entry.guild_id)
+    if not guild:
+        return starboard_entry
+
+    ori_mes_chan = guild.get_channel_or_thread(starboard_entry.ori_chan_id)
     try:
         ori_mes = await ori_mes_chan.fetch_message(starboard_entry.ori_mes_id)
         await sync_reactors(
@@ -192,7 +196,7 @@ async def sync_prev_reactors(
     except:
         pass
 
-    starboard_chan = bot.get_partial_messageable(starboard_entry.starboard_id)
+    starboard_chan = guild.get_channel_or_thread(starboard_entry.starboard_id)
     try:
         star_mes = await starboard_chan.fetch_message(starboard_entry.star_var_id)
         await sync_reactors(
@@ -212,7 +216,11 @@ async def star_entry_refresh(
     bot: commands.Bot, starboard_entry: star_classes.StarboardEntry, guild_id
 ):
     # refreshes a starboard entry mes
-    star_var_chan = bot.get_partial_messageable(
+    guild = bot.get_guild(guild_id)
+    if not guild:
+        return
+
+    star_var_chan = guild.get_channel_or_thread(
         starboard_entry.starboard_id
     )  # TODO: ignore cases where bot can't access/use channel
     unique_stars = len(starboard_entry.get_reactors())
@@ -224,7 +232,7 @@ async def star_entry_refresh(
         if not isinstance(e, (discord.NotFound, discord.Forbidden)):
             raise e
 
-        ori_chan = bot.get_partial_messageable(starboard_entry.ori_chan_id)
+        ori_chan = guild.get_channel_or_thread(starboard_entry.ori_chan_id)
         try:
             ori_mes = await ori_chan.fetch_message(starboard_entry.ori_mes_id)
         except discord.HTTPException:
@@ -259,14 +267,14 @@ async def star_entry_refresh(
 
 async def fetch_needed(bot: commands.Bot, payload: discord.RawReactionActionEvent):
     # fetches info from payload
-    channel = bot.get_partial_messageable(payload.channel_id)
+    guild = bot.get_guild(payload.guild_id)
+    channel = guild.get_channel_or_thread(payload.channel_id)
     mes = await channel.fetch_message(payload.message_id)
 
     if payload.event_type == "REACTION_ADD":
         user = payload.member
     else:
         # sadly, we have to be a bit wasteful here
-        guild = bot.get_guild(payload.guild_id)
         user = guild.get_member(payload.user_id)
 
         if user is None:  # rare, but it's happened

@@ -175,12 +175,12 @@ async def base_generate(
             elif mes.reference.message_id:
                 # fetches message from info given by MessageReference
                 # note the message id might not be provided, so we check if it is
-                ref_chan = bot.get_partial_messageable(mes.reference.channel_id)
+                ref_chan = mes.guild.get_channel_or_thread(mes.reference.channel_id)
                 try:
                     ref_mes = await ref_chan.fetch_message(mes.reference.message_id)
                     ref_author = ref_mes.author
                     ref_mes_url = ref_mes.jump_url
-                except discord.HTTPException:
+                except discord.HTTPException or AttributeError:
                     pass
 
             ref_auth_str = ref_author.display_name if ref_author else "a message"

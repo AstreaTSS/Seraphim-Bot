@@ -319,7 +319,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
     @sb.command()
     @commands.cooldown(1, 2, commands.BucketType.guild)
-    async def random(self, ctx):
+    async def random(self, ctx: commands.Context):
         """Gets a random starboard entry from the server it's being run in.
         May not work 100% of the time, but it should be reliable enough."""
 
@@ -335,7 +335,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         random_entry = random.choice(valid_entries)
         starboard_id = random_entry.starboard_id
 
-        starboard_chan = ctx.guild.get_channel(starboard_id)
+        starboard_chan = ctx.guild.get_channel_or_thread(starboard_id)
         if starboard_chan is None:
             raise utils.CustomCheckFailure(
                 "I couldn't find the starboard channel for the entry I picked."
@@ -542,7 +542,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         starboard_entry.updated = False
         self.bot.starboard.update(starboard_entry)
 
-        chan = self.bot.get_partial_messageable(starboard_entry.starboard_id)
+        chan = msg.guild.get_channel_or_thread(starboard_entry.starboard_id)
         try:
             mes = await chan.fetch_message(starboard_entry.star_var_id)
             await mes.delete()
@@ -554,7 +554,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
                 )
             )
             await ctx.reply("The message has been trashed.")
-        except discord.HTTPException:
+        except discord.HTTPException or AttributeError:
             raise commands.BadArgument(
                 "I couldn't trash this message! I most likely "
                 + "lack the permissions to do so."
@@ -613,7 +613,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
             ctx, msg, do_not_create=True, bypass_int_check=True
         )
 
-        starboard_chan = self.bot.get_partial_messageable(starboard_entry.starboard_id)
+        starboard_chan = msg.guild.get_channel_or_thread(starboard_entry.starboard_id)
         try:
             starboard_msg = await starboard_chan.fetch_message(
                 starboard_entry.star_var_id
@@ -623,7 +623,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
                 "The starboard message cannot be found! Make sure the bot can see the channel."
             )
 
-        ori_chan = self.bot.get_partial_messageable(starboard_entry.ori_chan_id)
+        ori_chan = msg.guild.get_channel_or_thread(starboard_entry.ori_chan_id)
         try:
             ori_msg = await ori_chan.fetch_message(starboard_entry.ori_mes_id)
         except discord.HTTPException or AttributeError:
