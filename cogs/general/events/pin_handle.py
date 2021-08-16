@@ -24,7 +24,7 @@ class PinHandler(commands.Cog):
             return
 
         pins = await msg.channel.pins()
-        await utils.msg_to_owner(self.bot, pins)
+        await utils.msg_to_owner(self.bot, chan_entry["reversed"])
 
         if len(pins) > chan_entry["limit"]:
 
