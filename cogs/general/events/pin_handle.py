@@ -1,3 +1,4 @@
+import asyncio
 import importlib
 
 import discord
@@ -23,6 +24,7 @@ class PinHandler(commands.Cog):
         if not chan_entry:
             return
 
+        await asyncio.sleep(0.5)  # idk, pins() doesn't work correctly otherwise
         pins = await msg.channel.pins()
 
         if len(pins) > chan_entry["limit"]:
