@@ -434,7 +434,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
 
         await ctx.reply(
             f"{user.mention}'s avatar: {avatar_url}",
-            allowed_mentions=discord.AllowedMentions.none(),
+            allowed_mentions=utils.deny_mentions(ctx.author),
         )
 
 
