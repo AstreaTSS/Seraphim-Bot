@@ -411,6 +411,8 @@ class HelperCMDs(commands.Cog, name="Helper"):
         As Seraphim (or, well, me) is kept constatly up to date, this means you can get guild-specific \
         avatars with this command.
         Defaults to getting the avatar of the user who ran the command if no user is provided.
+        Due to limitations, if you wish to provide an input for the user you wish to get an icon of and \
+        it has spaces, you will need to wrap it with quotes.
 
         Optional flags:
         guild: <true/false> - whether to get the guild-specific avatar of a user or not. Defaults to getting \
@@ -430,7 +432,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         else:
             avatar_url = utils.get_icon_url(avatar_asset, size=flags.size)
 
-        await ctx.send(
+        await ctx.reply(
             f"{user.mention}'s avatar: {avatar_url}",
             allowed_mentions=discord.AllowedMentions.none(),
         )

@@ -193,7 +193,7 @@ class FuzzyMemberConverter(FuzzyConverter[discord.Member]):
         else:
             return member
 
-    async def convert(self, ctx, argument) -> discord.Member:
+    async def convert(self, ctx: commands.Context, argument) -> discord.Member:
         result = None
         match = self._get_id_match(argument) or re.match(r"<@!?([0-9]+)>$", argument)
 
@@ -203,10 +203,7 @@ class FuzzyMemberConverter(FuzzyConverter[discord.Member]):
                 ctx.message.mentions, id=user_id
             )
         elif len(argument) > 5 and argument[-5] == "#":
-            username, _, discriminator = argument.rpartition("#")
-            result = discord.utils.get(
-                ctx.guild.members, name=username, discriminator=discriminator
-            )
+            result = ctx.guild.get_member_named(argument)
 
         if result == None:
             result = await self.extract_from_list(
