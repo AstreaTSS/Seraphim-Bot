@@ -200,7 +200,7 @@ class WizardManager:
         wizard_embed = discord.Embed(title=self.embed_title, colour=self.color)
         wizard_embed.set_author(
             name=f"{ctx.bot.user.name}",
-            icon_url=utils.get_icon_url(ctx.guild.me.avatar),
+            icon_url=utils.get_icon_url(ctx.guild.me.display_avatar),
         )
         wizard_embed.set_footer(
             text="If you wish to stop this setup at any time, just type in 'exit'."

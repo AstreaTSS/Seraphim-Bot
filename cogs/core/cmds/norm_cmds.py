@@ -120,7 +120,7 @@ class NormCMDs(commands.Cog, name="Normal"):
         )
         about_embed.set_author(
             name=f"{self.bot.user.name}",
-            icon_url=utils.get_icon_url(ctx.guild.me.avatar),
+            icon_url=utils.get_icon_url(ctx.guild.me.display_avatar),
         )
 
         source_list = collections.deque()

@@ -158,7 +158,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
             )
         top_embed.set_author(
             name=f"{self.bot.user.name}",
-            icon_url=utils.get_icon_url(ctx.guild.me.avatar),
+            icon_url=utils.get_icon_url(ctx.guild.me.display_avatar),
         )
         top_embed.set_footer(text="As of")
 
@@ -241,7 +241,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         )
         top_embed.set_author(
             name=f"{self.bot.user.name}",
-            icon_url=utils.get_icon_url(ctx.guild.me.avatar),
+            icon_url=utils.get_icon_url(ctx.guild.me.display_avatar),
         )
 
         actual_entry_count = 0
@@ -307,7 +307,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
             )
             place_embed.set_author(
                 name=f"{self.bot.user.name}",
-                icon_url=utils.get_icon_url(ctx.guild.me.avatar),
+                icon_url=utils.get_icon_url(ctx.guild.me.display_avatar),
             )
             place_embed.set_footer(text="Sent")
 

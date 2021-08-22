@@ -102,7 +102,7 @@ async def base_generate(
             snipe_embed.author.icon_url
             if author is None
             or author.id in (270904126974590976, 499383056822435840, bot.user.id)
-            else utils.get_icon_url(mes.author.avatar)
+            else utils.get_icon_url(mes.author.display_avatar)
         )
 
         content = snipe_embed.description
@@ -128,7 +128,7 @@ async def base_generate(
     ):
 
         author = f"{mes.author.display_name} ({str(mes.author)})"
-        icon = utils.get_icon_url(mes.author.avatar)
+        icon = utils.get_icon_url(mes.author.display_avatar)
 
         send_embed = discord.Embed(
             colour=discord.Colour(0xCFCA76),
@@ -140,7 +140,7 @@ async def base_generate(
     else:
         content = utils.get_content(mes)
         author = f"{mes.author.display_name} ({str(mes.author)})"
-        icon = utils.get_icon_url(mes.author.avatar)
+        icon = utils.get_icon_url(mes.author.display_avatar)
 
         if content:
             send_embed = discord.Embed(

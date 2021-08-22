@@ -20,7 +20,7 @@ class FuzzyConverter(commands.IDConverter):
         )
         selection_embed.set_author(
             name=f"{ctx.guild.me.name}",
-            icon_url=utils.get_icon_url(ctx.guild.me.avatar),
+            icon_url=utils.get_icon_url(ctx.guild.me.display_avatar),
         )
 
         return selection_embed
