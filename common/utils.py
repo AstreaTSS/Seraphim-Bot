@@ -291,11 +291,23 @@ def bool_friendly_str(bool_to_convert):
         return "off"
 
 
-def get_icon_url(asset: discord.Asset):
+def get_icon_url(asset: discord.Asset, size=128):
     if asset.is_animated():
-        return str(asset.replace(format="gif", size=128))
+        return str(asset.replace(format="gif", size=size))
     else:
-        return str(asset.replace(format="png", size=128))
+        return str(asset.replace(format="png", size=size))
+
+
+def generate_default_embed(
+    guild: discord.Guild, title=discord.Embed.Empty, description=discord.Embed.Empty
+):
+    embed = discord.Embed(
+        title=title, colour=discord.Colour(0x4378FC), description=description,
+    )
+    embed.set_author(
+        name=f"{guild.me.name}", icon_url=get_icon_url(guild.me.display_avatar),
+    )
+    return embed
 
 
 class CustomCheckFailure(commands.CheckFailure):

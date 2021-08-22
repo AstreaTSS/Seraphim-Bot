@@ -76,9 +76,7 @@ async def tenor_handle(url: str):
 
             try:
                 return resp_json["results"][0]["media"][0]["gif"]["url"]
-            except KeyError:
-                return None
-            except IndexError:
+            except (KeyError, IndexError):
                 return None
 
 
@@ -109,27 +107,27 @@ async def get_file_bytes(url: str, limit: int, equal_to=True):
     # gets a file as long as it's under the limit (in bytes)
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:
-            if resp.status == 200:
-                try:
-                    if equal_to:
-                        await resp.content.readexactly(
-                            limit + 1
-                        )  # we want this to error out even if the file is exactly the limit
-                        raise commands.BadArgument(
-                            f"The file/URL given is over {humanize.naturalsize(limit, binary=True)}!"
-                        )
-                    else:
-                        await resp.content.readexactly(limit)
-                        raise commands.BadArgument(
-                            f"The file/URL given is at or over {humanize.naturalsize(limit, binary=True)}!"
-                        )
-
-                except asyncio.IncompleteReadError as e:
-                    # essentially, we're exploting the fact that readexactly will error out if
-                    # the url given is less than the limit
-                    return e.partial
-            else:
+            if resp.status != 200:
                 raise commands.BadArgument("I can't get this file/URL!")
+
+            try:
+                if equal_to:
+                    await resp.content.readexactly(
+                        limit + 1
+                    )  # we want this to error out even if the file is exactly the limit
+                    raise commands.BadArgument(
+                        f"The file/URL given is over {humanize.naturalsize(limit, binary=True)}!"
+                    )
+                else:
+                    await resp.content.readexactly(limit)
+                    raise commands.BadArgument(
+                        f"The file/URL given is at or over {humanize.naturalsize(limit, binary=True)}!"
+                    )
+
+            except asyncio.IncompleteReadError as e:
+                # essentially, we're exploting the fact that readexactly will error out if
+                # the url given is less than the limit
+                return e.partial
 
 
 def image_from_ctx(ctx: commands.Context):
@@ -143,7 +141,7 @@ def image_from_ctx(ctx: commands.Context):
         raise commands.BadArgument("Attachment provided is not a valid image.")
 
 
-class ImageTypeChecker(commands.Converter):
+class ImageTypeChecker(commands.Converter[str]):
     # given image type to convert, checks to see if image type speciified is valid.
 
     async def convert(self, ctx, argument: str):
@@ -158,7 +156,7 @@ class ImageTypeChecker(commands.Converter):
             )
 
 
-class URLToImage(commands.Converter):
+class URLToImage(commands.Converter[str]):
     # gets either the URL or the image from an argument
 
     async def convert(self, ctx, argument):

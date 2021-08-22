@@ -39,7 +39,18 @@ class SetAsyncQueue(asyncio.Queue):
         self._queuecopy.discard(item)
 
 
-class TimeDurationConverter(commands.Converter):
+class PowerofTwoConverter(commands.Converter[int]):
+    """A converter to check if the argument provided is a valid Discord power of 2."""
+
+    def convert(self, ctx: commands.Context, argument: str):
+        if not (argument.isdigit() and discord.utils.valid_icon_size(int(argument))):
+            raise commands.BadArgument(
+                f"{argument} is not a power of 2 between 16 and 4096."
+            )
+        return int(argument)
+
+
+class TimeDurationConverter(commands.Converter[datetime.timedelta]):
     """Converts a string to a time duration.
     Works very similarly to YAGPDB's time duration converter.
     In fact, entering in a time duration that works for YAG will probably work here."""
@@ -101,9 +112,8 @@ class TimeDurationConverter(commands.Converter):
                 value_entry.append(chara)  # slowly build up our number
 
             else:
-                if (
-                    value_entry
-                ):  # if this already exists, that means we just came off a number
+                if value_entry:
+                    # if this already exists, that means we just came off a number
                     # so we need to store that number and prepare to get the measurement unit after it
                     try:
                         time_value_list.append(

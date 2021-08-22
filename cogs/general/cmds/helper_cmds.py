@@ -65,7 +65,8 @@ class HelperCMDs(commands.Cog, name="Helper"):
             except discord.HTTPException as error:
                 raise utils.CustomCheckFailure(
                     "Something happened while trying to restore the roles this user had.\n"
-                    + "This shouldn't be happening, and this should have been caught earlier by the bot. Try contacting the bot owner about it.\n"
+                    + "This shouldn't be happening, and this should have been caught earlier "
+                    + "by the bot. Try contacting the bot owner about it.\n"
                     + f"Error: {error}"
                 )
         else:
@@ -391,6 +392,47 @@ class HelperCMDs(commands.Cog, name="Helper"):
             file=file_to_send,
             allowed_mentions=allowed_mentions,
         )
+
+    class AvatarFlags(commands.FlagConverter):
+        guild: bool = True
+        animated: bool = True
+        size: custom_classes.PowerofTwoConverter = 4096
+
+    @commands.command()
+    async def avatar(
+        self,
+        ctx: commands.Context,
+        user: typing.Union[discord.Member, discord.User, None],
+        *,
+        flags: AvatarFlags,
+    ):
+        """Gets the avatar of the user.
+        As Seraphim (or, well, me) is kept constatly up to date, this means you can get guild-specific \
+        avatars with this command.
+        Defaults to getting the avatar of the user who ran the command if no user is provided.
+
+        Optional flags:
+        guild: <true/false> - whether to get the guild-specific avatar of a user or not. Defaults to getting \
+        the guild specific avatar.
+        animated: <true/false> - whether to get the animated version or not, if it exists. Defaults to getting \
+        the animated version.
+        size: <power of two between 16 and 4096> - the size of the image. Defaults to 4096 (or whatever the max \
+        size of the avatar is).
+        """
+
+        if not user:
+            user = ctx.author
+
+        avatar_asset = user.display_avatar if flags.guild else user.avatar
+        if not flags.animated:
+            avatar_url = str(avatar_asset.replace(format="png", size=flags.size))
+        else:
+            avatar_url = utils.get_icon_url(avatar_asset, size=flags.size)
+
+        icon_embed = utils.generate_default_embed(ctx.guild, description=avatar_url)
+        icon_embed.set_image(url=avatar_url)
+
+        await ctx.send(embed=icon_embed)
 
 
 def setup(bot):

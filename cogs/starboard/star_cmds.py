@@ -110,7 +110,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
     @commands.cooldown(1, 5, commands.BucketType.member)
     async def msgtop(self, ctx, *, flags: MsgTopFlags):
         """Allows you to view the top 10 starred messages on a server. Cooldown of once every 5 seconds per user.
-        Flags: user: <user> - allows you to view the top starred messages by the user specified.
+        Optional flags:
+        user: <user> - allows you to view the top starred messages by the user specified.
         role: <role> - allows you to view the top starred messages by users who have the role specified.
         :bots <true/false> - if bot messages will be on the leaderboard."""
 
