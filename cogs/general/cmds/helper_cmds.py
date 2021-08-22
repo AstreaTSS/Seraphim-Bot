@@ -50,7 +50,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
                 continue
             elif role > top_role or not role in ctx.guild.roles or role.managed:
                 unadded_roles.append(role)
-            elif member._roles.has(role.id):
+            elif member.get_role(role.id):
                 continue
             else:
                 added_roles.append(role)
