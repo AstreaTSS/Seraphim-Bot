@@ -1,12 +1,12 @@
 #!/usr/bin/env python3.8
 import asyncio
-import json
 import logging
 import os
 
 import aiohttp
 import asyncpg
 import discord
+import orjson
 import websockets
 from discord.ext import commands
 from discord.ext.commands.bot import _default as bot_default
@@ -113,7 +113,7 @@ async def on_init_load():
             await conn.set_type_codec(
                 "jsonb",
                 encoder=discord.utils._to_json,
-                decoder=json.loads,
+                decoder=orjson.loads,
                 schema="pg_catalog",
             )
 

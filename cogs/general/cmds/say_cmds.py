@@ -1,9 +1,9 @@
 import importlib
 import io
-import json
 
 import dateutil.parser
 import discord
+import orjson
 from discord.ext import commands
 
 import common.classes as custom_classes
@@ -173,7 +173,7 @@ class SayCMDS(commands.Cog, name="Say"):
             )
 
             try:
-                argument_json: dict = json.loads(rest_of_argument)
+                argument_json: dict = orjson.loads(rest_of_argument)
 
                 if argument_json.get("timestamp"):
                     # python has a hard time with how some iso strings are
