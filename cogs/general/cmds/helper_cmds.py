@@ -430,12 +430,16 @@ class HelperCMDs(commands.Cog, name="Helper"):
         else:
             avatar_url = utils.get_icon_url(avatar_asset, size=flags.size)
 
-        await ctx.send(avatar_url)
+        await ctx.send(
+            f"{user.mention}'s avatar: {avatar_url}",
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
 
 
 def setup(bot):
     importlib.reload(utils)
     importlib.reload(image_utils)
     importlib.reload(custom_classes)
+    importlib.reload(fuzzys)
 
     bot.add_cog(HelperCMDs(bot))

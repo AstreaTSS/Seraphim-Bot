@@ -130,14 +130,18 @@ class FuzzyConverter(commands.IDConverter[T_co]):
     async def selection_handler(self, ctx, options):
         entries = [o[0] for o in options]
         selection_embed = self.norm_embed_gen(ctx, entries)
-        await ctx.reply(embed=selection_embed)
+        reply_msg: discord.Message = await ctx.reply(embed=selection_embed)
 
         def check(m):
             return m.channel == ctx.channel and m.author == ctx.author
 
         try:
-            msg = await ctx.bot.wait_for("message", timeout=15.0, check=check)
+            msg: discord.Message = await ctx.bot.wait_for(
+                "message", timeout=15.0, check=check
+            )
+            await msg.channel.delete_messages((msg, reply_msg))
         except asyncio.TimeoutError:
+            await reply_msg.delete(delay=2)
             raise commands.BadArgument("No entry selected. Canceling command.")
 
         else:
@@ -198,10 +202,10 @@ class FuzzyMemberConverter(FuzzyConverter[discord.Member]):
             result = ctx.guild.get_member(user_id) or discord.utils.get(
                 ctx.message.mentions, id=user_id
             )
-        elif "#" in argument:
-            hash_split = argument.split("#")
+        elif len(argument) > 5 and argument[-5] == "#":
+            username, _, discriminator = argument.rpartition("#")
             result = discord.utils.get(
-                ctx.guild.members, name=hash_split[0], discriminator=hash_split[1]
+                ctx.guild.members, name=username, discriminator=discriminator
             )
 
         if result == None:
