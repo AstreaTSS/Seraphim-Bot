@@ -1,6 +1,7 @@
 import asyncio
 import collections
 import re
+from typing import TypeVar
 
 import discord
 from discord.ext import commands
@@ -9,8 +10,10 @@ from rapidfuzz import process
 
 import common.utils as utils
 
+T_co = TypeVar("T_co", covariant=True)
 
-class FuzzyConverter(commands.IDConverter):
+
+class FuzzyConverter(commands.IDConverter[T_co]):
     """General class for fuzzy matching. Contains functions
     needed to fuzzy convert."""
 
@@ -186,7 +189,7 @@ class FuzzyMemberConverter(FuzzyConverter[discord.Member]):
         else:
             return member
 
-    async def convert(self, ctx, argument):
+    async def convert(self, ctx, argument) -> discord.Member:
         result = None
         match = self._get_id_match(argument) or re.match(r"<@!?([0-9]+)>$", argument)
 
@@ -223,7 +226,7 @@ class FuzzyRoleConverter(FuzzyConverter[discord.Role]):
         else:
             return role
 
-    async def convert(self, ctx, argument):
+    async def convert(self, ctx, argument) -> discord.Role:
         result = None
         match = self._get_id_match(argument) or re.match(r"<@!?([0-9]+)>$", argument)
 
