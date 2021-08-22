@@ -150,9 +150,9 @@ class FuzzyConverter(commands.IDConverter):
                     return entries[selection - 1]
 
 
-class FuzzyMemberConverter(FuzzyConverter):
+class FuzzyMemberConverter(FuzzyConverter[discord.Member]):
     """Uses fuzzy matching to match strings to a member.
-    Most of this initial code is very similar code to MemberConverter
+    Most of this initial code is very similar code to MemberConverter.
     Checks for ID then mention, username with discrim, then...
     fuzzy searches via nicks first, then usernames"""
 
@@ -211,7 +211,7 @@ class FuzzyMemberConverter(FuzzyConverter):
         return result
 
 
-class FuzzyRoleConverter(FuzzyConverter):
+class FuzzyRoleConverter(FuzzyConverter[discord.Role]):
     """Uses fuzzy matching to match strings to a role.
     ID, mention, then name. Since getting the wrong role can be dangerous, we take
     some extra steps just in case."""

@@ -8,6 +8,7 @@ from discord.ext import commands
 from PIL import Image
 
 import common.classes as custom_classes
+import common.fuzzys as fuzzys
 import common.image_utils as image_utils
 import common.utils as utils
 
@@ -402,7 +403,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
     async def avatar(
         self,
         ctx: commands.Context,
-        user: typing.Union[discord.Member, discord.User, None],
+        user: typing.Union[fuzzys.FuzzyMemberConverter, discord.User, None],
         *,
         flags: AvatarFlags,
     ):
@@ -429,10 +430,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         else:
             avatar_url = utils.get_icon_url(avatar_asset, size=flags.size)
 
-        icon_embed = utils.generate_default_embed(ctx.guild, description=avatar_url)
-        icon_embed.set_image(url=avatar_url)
-
-        await ctx.send(embed=icon_embed)
+        await ctx.send(avatar_url)
 
 
 def setup(bot):
