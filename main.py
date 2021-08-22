@@ -112,7 +112,7 @@ async def on_init_load():
         async def add_json_converter(conn):
             await conn.set_type_codec(
                 "jsonb",
-                encoder=discord.utils.to_json,
+                encoder=discord.utils._to_json,
                 decoder=json.loads,
                 schema="pg_catalog",
             )
