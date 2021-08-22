@@ -1,6 +1,6 @@
 git+https://github.com/Rapptz/discord.py.git@b8898c7788b7d0b5d2a129912b1e14df87aed0f0
 asyncpg==0.24.0
-rapidfuzz~=1.4.1
+rapidfuzz==1.5.0
 websockets~=9.1
 humanize==3.11.0
 Pillow==8.3.1
