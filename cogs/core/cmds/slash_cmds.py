@@ -46,7 +46,8 @@ class SlashCMDS(commands.Cog):
         elif inter.data.resolved.users and len(inter.data.resolved.users.keys()) == 1:
             victim_str = tuple(inter.data.resolved.users.values())[0].display_name
         else:
-            victim_str = target
+            victim_str = discord.utils.escape_markdown(target)
+        victim_str = f"**{victim_str}**"
 
         author_str = f"**{inter.author.display_name}**"
 
