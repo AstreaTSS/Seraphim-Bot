@@ -21,6 +21,19 @@ def proper_permissions():
     return commands.check(predicate)
 
 
+def bot_proper_perms():
+    async def predicate(ctx: commands.Context):
+        # checks if the bot has admin or manage guild perms or is the owner
+        permissions = ctx.channel.permissions_for(ctx.me)
+        if not permissions.administrator:
+            raise NotEnoughPerms(
+                "The bot does not have the permissions needed to run this command."
+            )
+        return True
+
+    return commands.check(predicate)
+
+
 async def error_handle(
     bot, error, ctx: typing.Union[commands.Context, SlashInteraction, None] = None
 ):
@@ -318,4 +331,8 @@ def generate_default_embed(
 class CustomCheckFailure(commands.CheckFailure):
     # custom classs for custom prerequisite failures outside of normal command checks
     # this class is so minor i'm not going to bother to migrate it to classes.py
+    pass
+
+
+class NotEnoughPerms(commands.CheckFailure):
     pass

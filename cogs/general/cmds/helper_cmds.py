@@ -21,6 +21,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
 
     @commands.command(aliases=["restoreroles"])
     @utils.proper_permissions()
+    @utils.bot_proper_perms()
     async def restore_roles(self, ctx, member: discord.Member):
         """Restores the roles a user had before leaving, suggesting they left less than an hour ago.
         The user running this command must have Manage Server permissions.
@@ -94,6 +95,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
 
     @commands.command(aliases=["togglensfw"])
     @utils.proper_permissions()
+    @utils.bot_proper_perms()
     async def toggle_nsfw(self, ctx, channel: typing.Optional[discord.TextChannel]):
         """Toggles either the provided channel or the channel the command is used it on or off NSFW mode.
         Useful for mobile devices, which for some reason cannot do this.
@@ -122,6 +124,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
 
     @commands.command()
     @utils.proper_permissions()
+    @utils.bot_proper_perms()
     async def suppress(self, ctx, msg: discord.Message):
         """Suppresses any embeds on the message, if there were any.
         Useful if you're a mobile user.
@@ -145,6 +148,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
 
     @commands.command()
     @utils.proper_permissions()
+    @utils.bot_proper_perms()
     async def unsuppress(self, ctx, msg: discord.Message):
         """Unsuppresses any embeds that were previously suppressed, if there were any.
         Yes, this is something bots can do, but for some reason, normal users can't.
@@ -170,6 +174,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
 
     @commands.command(aliases=["addemoji"])
     @utils.proper_permissions()
+    @utils.bot_proper_perms()
     async def add_emoji(
         self,
         ctx: commands.Context,
@@ -273,6 +278,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
 
     @commands.command(aliases=["copyemoji", "steal_emoji", "stealemoji"])
     @utils.proper_permissions()
+    @utils.bot_proper_perms()
     async def copy_emoji(self, ctx: commands.Context, emoji: discord.PartialEmoji):
         """Adds the emoji given to the server the command is run in, thus copying it.
         Useful if you have Discord Nitro and want to add some emojis from other servers into yours.
@@ -349,6 +355,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         return "\n".join(f"> {line}" for line in argument.splitlines())
 
     @commands.command(aliases=["spoil"])
+    @utils.bot_proper_perms()
     async def spoiler(
         self, ctx: commands.Context, *, message: typing.Optional[quote_message] = ""
     ):

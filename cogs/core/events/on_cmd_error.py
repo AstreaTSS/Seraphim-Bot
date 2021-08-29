@@ -54,7 +54,7 @@ class OnCMDError(commands.Cog):
             (commands.ConversionError, commands.UserInputError, commands.BadArgument),
         ):
             await ctx.reply(embed=self.error_embed_generate(str(error)))
-        elif isinstance(error, utils.CustomCheckFailure):
+        elif isinstance(error, (utils.CustomCheckFailure, utils.NotEnoughPerms)):
             await ctx.reply(embed=self.error_embed_generate(str(error)))
         elif isinstance(error, commands.CheckFailure):
             if ctx.guild:

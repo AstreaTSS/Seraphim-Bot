@@ -17,6 +17,7 @@ class SayCMDS(commands.Cog, name="Say"):
 
     @commands.command()
     @utils.proper_permissions()
+    @utils.bot_proper_perms()
     async def say(
         self, ctx: commands.Context, *, message: str,
     ):
@@ -80,6 +81,7 @@ class SayCMDS(commands.Cog, name="Say"):
 
     @commands.command()
     @utils.proper_permissions()
+    @utils.bot_proper_perms()
     async def embed_say(self, ctx):
         """Allows people with Manage Server permissions to speak with the bot with a fancy embed. Will open a wizard-like prompt."""
 

@@ -54,7 +54,7 @@ class SetupCMD(commands.Cog, name="Setup"):
             ctx.bot.config.setattr(ctx.guild.id, starboard_id=converted.id)
 
         wizard.add_question(
-            question_str, commands.TextChannelConverter().convert, set_chan
+            question_str, custom_classes.ValidChannelConverter().convert, set_chan
         )
 
         question_str = "".join(

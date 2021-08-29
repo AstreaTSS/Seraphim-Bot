@@ -15,6 +15,7 @@ class PinCMDs(commands.Cog, name="Pinboard"):
 
     @commands.command(aliases=["pin_all"])
     @utils.proper_permissions()
+    @utils.bot_proper_perms()
     async def pinall(self, ctx: commands.Context):
         """Retroactively moves overflowing pins from the channel this command is used in to the destination channel.
         Useful if you just mapped a channel and need to move old pin entries.
