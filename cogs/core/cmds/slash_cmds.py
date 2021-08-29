@@ -48,10 +48,9 @@ class SlashCMDS(commands.Cog):
         else:
             victim_str = target
 
-        author_str = f"**{inter.user.display_name}**" if inter.user else f"**you**"
+        author_str = f"**{inter.author.display_name}**"
 
         kill_msg = random.choice(self.bot.death_messages)
-
         kill_msg = kill_msg.replace("%1$s", victim_str)
         kill_msg = kill_msg.replace("%2$s", author_str)
         kill_msg = kill_msg.replace("%3$s", "*Seraphim*")
