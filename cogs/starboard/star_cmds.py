@@ -77,6 +77,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
     @sb.command(aliases=["conf", "config"])
     @utils.proper_permissions()
+    @utils.bot_proper_perms()
     async def settings(self, ctx: commands.Context):
         """An alias for `settings starboard`. Use the help command for that for more information."""
         msg = ctx.message
@@ -320,6 +321,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
     @sb.command()
     @commands.cooldown(1, 2, commands.BucketType.guild)
+    @utils.bot_proper_perms()
     async def random(self, ctx: commands.Context):
         """Gets a random starboard entry from the server it's being run in.
         May not work 100% of the time, but it should be reliable enough."""
@@ -488,6 +490,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
     @sb.command()
     @utils.proper_permissions()
+    @utils.bot_proper_perms()
     async def force(self, ctx, msg: discord.Message):
         """Forces a message onto the starboard, regardless of how many stars it has.
         The message either needs to be a message ID of a message in the channel the command is being run in,
@@ -509,6 +512,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
     @sb.command()
     @utils.proper_permissions()
+    @utils.bot_proper_perms()
     async def freeze(self, ctx, msg: discord.Message):
         """Freezes a message's star count. It does not have to be starred.
         The message either needs to be a message ID of a message in the channel the command is being run in,
@@ -526,6 +530,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
     @sb.command()
     @utils.proper_permissions()
+    @utils.bot_proper_perms()
     async def trash(self, ctx, msg: typing.Union[discord.Message, discord.Object]):
         """Removes a message from the starboard and prevents it from being starred again until untrashed.
         The message needs to a message that is on the starboard. It can be either the original or the starred message.
@@ -563,6 +568,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
     @sb.command()
     @utils.proper_permissions()
+    @utils.bot_proper_perms()
     async def unfreeze(self, ctx, msg: typing.Union[discord.Message, discord.Object]):
         """Unfreezes a message's star count. The message must have been frozen before.
         The message either needs to be a message ID of a message
@@ -602,6 +608,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
     @sb.command(aliases=["update"])
     @commands.cooldown(1, 5, commands.BucketType.guild)
     @utils.proper_permissions()
+    @utils.bot_proper_perms()
     async def refresh(self, ctx, msg: typing.Union[discord.Message, discord.Object]):
         """Refreshes a starboard entry, using the internal generator to remake the starboard message.
         Useful if you want to use the new starboard message features or if you want to update the avatar.

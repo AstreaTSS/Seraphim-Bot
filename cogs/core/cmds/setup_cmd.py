@@ -25,6 +25,7 @@ class SetupCMD(commands.Cog, name="Setup"):
 
     @setup.command(aliases=["sb"])
     @utils.proper_permissions()
+    @utils.bot_proper_perms()
     async def starboard(self, ctx: commands.Context):
         """Allows you to set up the starboard for Seraphim in an easy-to-understand way.
         Only people with Manage Server permissions or higher can use these commands.

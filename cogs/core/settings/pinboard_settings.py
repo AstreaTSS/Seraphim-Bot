@@ -20,6 +20,7 @@ class DefaultValidator(commands.Converter):
 
 @groups.group(name="pinboard")
 @utils.proper_permissions()
+@utils.bot_proper_perms()
 async def main_cmd(ctx):
     """Base command for managing the pinboard. See the subcommands below.
     Requires Manage Server permissions or higher."""
@@ -30,6 +31,7 @@ async def main_cmd(ctx):
 
 @main_cmd.command(name="list")
 @utils.proper_permissions()
+@utils.bot_proper_perms()
 async def _list(ctx: commands.Context):
     """Returns a list of channels that have their pins mapped to another channel, and the max limit before they overflow to that other channel."""
 
@@ -78,6 +80,7 @@ async def _list(ctx: commands.Context):
 
 @main_cmd.command(name="map")
 @utils.proper_permissions()
+@utils.bot_proper_perms()
 async def _map(
     ctx,
     entry: typing.Union[cclasses.ValidChannelConverter, DefaultValidator],
@@ -112,6 +115,7 @@ async def _map(
 
 @main_cmd.command(aliases=["pinlimit"])
 @utils.proper_permissions()
+@utils.bot_proper_perms()
 async def pin_limit(
     ctx, entry: typing.Union[discord.TextChannel, DefaultValidator], limit: int
 ):
@@ -136,6 +140,7 @@ async def pin_limit(
 
 @main_cmd.command()
 @utils.proper_permissions()
+@utils.bot_proper_perms()
 async def unmap(ctx, entry: typing.Union[discord.TextChannel, DefaultValidator]):
     """Umaps the entry channel (either 'default' or an actual channel), so overflowing pins do not get put into another channel.
     The channel must have been mapped before.
@@ -156,6 +161,7 @@ async def unmap(ctx, entry: typing.Union[discord.TextChannel, DefaultValidator])
 
 @main_cmd.command(aliases=["reversed"])
 @utils.proper_permissions()
+@utils.bot_proper_perms()
 async def reverse(
     ctx, entry: typing.Union[discord.TextChannel, DefaultValidator], value: bool
 ):

@@ -27,7 +27,9 @@ def bot_proper_perms():
         permissions = ctx.channel.permissions_for(ctx.me)
         if not permissions.administrator:
             raise NotEnoughPerms(
-                "The bot does not have the permissions needed to run this command."
+                "The bot does not have the permissions needed to run this command. "
+                + "As the bot is in beta right now, it needs administrative permissions "
+                + "to run its commands."
             )
         return True
 
