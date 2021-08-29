@@ -3,11 +3,13 @@ import collections
 import logging
 import os
 import traceback
+import typing
 from pathlib import Path
 
 import aiohttp
 import discord
 from discord.ext import commands
+from dislash import SlashInteraction
 
 
 def proper_permissions():
@@ -19,7 +21,9 @@ def proper_permissions():
     return commands.check(predicate)
 
 
-async def error_handle(bot, error, ctx=None):
+async def error_handle(
+    bot, error, ctx: typing.Union[commands.Context, SlashInteraction, None] = None
+):
     # handles errors and sends them to owner
     if isinstance(error, aiohttp.ServerDisconnectedError):
         to_send = "Disconnected from server!"
@@ -47,13 +51,14 @@ async def error_handle(bot, error, ctx=None):
     await msg_to_owner(bot, to_send, split)
 
     if ctx:
-        if hasattr(ctx, "reply"):
+        if isinstance(ctx, commands.Context):
             await ctx.reply(
                 "An internal error has occured. The bot owner has been notified."
             )
         else:
-            await ctx.channel.send(
-                content="An internal error has occured. The bot owner has been notified."
+            await ctx.reply(
+                content="An internal error has occured. The bot owner has been notified.",
+                ephemeral=True,
             )
 
 

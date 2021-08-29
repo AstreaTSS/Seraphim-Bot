@@ -10,6 +10,7 @@ import orjson
 import websockets
 from discord.ext import commands
 from discord.ext.commands.bot import _default as bot_default
+from dislash import InteractionClient
 from dotenv import load_dotenv
 
 import common.classes as custom_classes
@@ -228,6 +229,7 @@ bot = SeraphimBot(
     allowed_mentions=mentions,
     intents=intents,
 )
+slash = InteractionClient(bot, modify_send=False)
 
 try:
     import uvloop

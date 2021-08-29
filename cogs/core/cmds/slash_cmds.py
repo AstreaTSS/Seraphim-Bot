@@ -2,10 +2,10 @@ import importlib
 import random
 
 import discord
+import dislash
 from discord.ext import commands
-from discord.types.interactions import ApplicationCommandInteractionData
 
-import common.manage_commands as manage_commands
+import common.utils as utils
 
 
 class SlashCMDS(commands.Cog):
@@ -15,89 +15,39 @@ class SlashCMDS(commands.Cog):
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)
 
-    @commands.command(hidden=True)
-    async def register_kill_cmd(self, ctx):
-        await manage_commands.add_slash_command(
-            self.bot.user.id,
-            self.bot.http.token,
-            None,
-            "kill",
-            "Allows you to kill the victim specified using the iconic Minecraft kill command messages.",
-            [manage_commands.create_option("target", "The target to kill.", 3, True)],
-        )
-
-        await ctx.reply("Done!")
-
-    @commands.command(hidden=True)
-    async def register_reverse_cmd(self, ctx):
-        await manage_commands.add_slash_command(
-            self.bot.user.id,
-            self.bot.http.token,
-            None,
-            "reverse",
-            "Reverses the content given.",
-            [
-                manage_commands.create_option(
-                    "content", "The content to reverse.", 3, True
-                )
-            ],
-        )
-
-        await ctx.reply("Done!")
-
-    @commands.Cog.listener()
-    async def on_interaction(self, inter: discord.Interaction):
-        """An incredibly dirty way of doing slash commands.
-        This code is NOT pretty. But it should work.
-        """
-        if inter.type != discord.InteractionType.application_command:
-            return
-
-        data: ApplicationCommandInteractionData = inter.data
-
-        if data["name"] == "kill":
-            target = None
-
-            if data.get("resolved"):
-                # happens if the content has stuff like user/role/channel data from a mention
-                if (
-                    data["resolved"].get("members")
-                    and len(data["resolved"]["members"].keys()) == 1
-                ):
-                    # if there are resolved member objects and there are only one of them
-                    # i'd rather not deal with making the kill cmd deal with 2+ targets
-                    target = tuple(data["resolved"]["members"].values())[0]["nick"]
-                    # the above is more confusing than it should be
-                    # basically, it gets the first (and only) member from the resolved members
-                    # (to do so, we have to get a list of every value in the members thing since
-                    # discord doesn't provide the data in a list, and then get the only key in there
-                    # and then get the members nickname, if it has any)
-                if (
-                    not target
-                    and data["resolved"].get("users")
-                    and len(data["resolved"]["users"].keys()) == 1
-                ):
-                    # same as member check, but for users, and we see if we already got a member first
-                    target = tuple(data["resolved"]["users"].values())[0]["username"]
-
-            if not target:
-                target = data["options"][0][
-                    "value"
-                ]  # just the stuff in the target value
-
-            await self.kill(inter, target)
-
-        elif data["name"] == "reverse":
-            await self.reverse(inter, data["options"][0]["value"])
-
-    async def kill(self, inter: discord.Interaction, target: str):
-        if len(target) > 1900:
-            await inter.response.send_message(
-                content="The target you provided is too long.", ephemeral=True
+    @dislash.slash_command(
+        description="Reverses the content given.",
+        options=[
+            dislash.Option(
+                "content", "The content to reverse.", dislash.OptionType.STRING, True
             )
-            return
+        ],
+    )
+    async def reverse(self, inter: dislash.SlashInteraction, content: str):
+        await inter.reply(content=f"{content[::-1]}", ephemeral=True)
 
-        victim_str = f"**{target}**"
+    @dislash.slash_command(
+        description="Allows you to kill the victim specified using the iconic Minecraft kill command messages.",
+        options=[
+            dislash.Option(
+                "target", "The content to kill.", dislash.OptionType.STRING, True
+            )
+        ],
+    )
+    async def kill(self, inter: dislash.SlashInteraction, target: str):
+        if len(target) > 1900:
+            raise dislash.BadArgument("The target you provided is too long.")
+
+        victim_str = ""
+
+        # see if we got any resolved members or users - looks nicer to do
+        if inter.data.resolved.members and len(inter.data.resolved.members.keys()) == 1:
+            victim_str = tuple(inter.data.resolved.members.values())[0].display_name
+        elif inter.data.resolved.users and len(inter.data.resolved.users.keys()) == 1:
+            victim_str = tuple(inter.data.resolved.users.values())[0].display_name
+        else:
+            victim_str = target
+
         author_str = f"**{inter.user.display_name}**" if inter.user else f"**you**"
 
         kill_msg = random.choice(self.bot.death_messages)
@@ -108,13 +58,33 @@ class SlashCMDS(commands.Cog):
         kill_msg = f"{kill_msg}."
 
         kill_embed = discord.Embed(colour=discord.Colour.red(), description=kill_msg)
+        await inter.reply(embed=kill_embed)
 
-        await inter.response.send_message(embed=kill_embed)
+    def error_embed_generate(self, error_msg):
+        return discord.Embed(colour=discord.Colour.red(), description=error_msg)
 
-    async def reverse(self, inter: discord.Interaction, content: str):
-        await inter.response.send_message(content=f"{content[::-1]}", ephemeral=True)
+    @commands.Cog.listener()
+    async def on_slash_command_error(
+        self, inter: dislash.SlashInteraction, error: dislash.ApplicationCommandError
+    ):
+        if isinstance(
+            error,
+            (
+                dislash.BadArgument,
+                dislash.InteractionCheckFailure,
+                dislash.NotGuildOwner,
+            ),
+        ):
+            await inter.reply(embed=self.error_embed_generate(str(error)))
+        elif "Unknown interaction" in str(error):
+            await inter.channel.send(
+                f"{inter.author.mention}, the bot is a bit slow and so cannot do slash commands right now. Please wait a bit and try again.",
+                delete_after=3,
+            )
+        else:
+            await utils.error_handle(self.bot, error, inter)
 
 
 def setup(bot):
-    importlib.reload(manage_commands)
+    importlib.reload(utils)
     bot.add_cog(SlashCMDS(bot))
