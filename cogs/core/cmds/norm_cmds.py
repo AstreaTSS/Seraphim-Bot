@@ -140,7 +140,7 @@ class NormCMDs(commands.Cog, name="Normal"):
     @commands.group(invoke_without_command=True, aliases=["prefix"], ignore_extra=False)
     async def prefixes(self, ctx):
         """A way of getting all of the prefixes for this server. You can also add and remove prefixes via this command."""
-        prefixes = [f'"{p}"' for p in self.bot.config.getattr(ctx.guild.id, "prefixes")]
+        prefixes = [f"{p}" for p in self.bot.config.getattr(ctx.guild.id, "prefixes")]
         await ctx.reply(
             f"My prefixes for this server are: `{', '.join(prefixes)}`, but you can also mention me."
         )
