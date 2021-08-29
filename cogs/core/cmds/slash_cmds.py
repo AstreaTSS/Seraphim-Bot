@@ -36,7 +36,7 @@ class SlashCMDS(commands.Cog):
     )
     async def kill(self, inter: dislash.SlashInteraction, target: str):
         if len(target) > 1900:
-            raise dislash.BadArgument("The target you provided is too long.")
+            raise dislash.BadArgument("The target you provided is too large.")
 
         victim_str = ""
 
@@ -75,7 +75,9 @@ class SlashCMDS(commands.Cog):
                 dislash.NotGuildOwner,
             ),
         ):
-            await inter.reply(embed=self.error_embed_generate(str(error)))
+            await inter.reply(
+                embed=self.error_embed_generate(str(error)), ephemeral=True
+            )
         elif "Unknown interaction" in str(error):
             await inter.channel.send(
                 f"{inter.author.mention}, the bot is a bit slow and so cannot do slash commands right now. Please wait a bit and try again.",
