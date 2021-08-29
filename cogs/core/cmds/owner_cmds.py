@@ -1,11 +1,12 @@
 #!/usr/bin/env python3.8
 import importlib
 import typing
+from enum import Enum
 
 import discord
+import dislash
 from discord.ext import commands
 
-import common.manage_commands as manage_commands
 import common.paginator as paginator
 import common.star_classes as star_classes
 import common.utils as utils
@@ -39,14 +40,33 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
         exten_str = ", ".join(exten_list)
         await ctx.reply(f"Extensions: {exten_str}")
 
-    @commands.command(hidden=True, aliases=["list_slash_commands", "listslashcmds"])
-    async def list_slash_cmds(self, ctx, guild: typing.Optional[discord.Guild]):
-        if guild is None:
-            guild = Dummy()
+    class OptionTypeEnum(Enum):
+        # this is stupid
+        SUB_COMMAND = 1
+        SUB_COMMAND_GROUP = 2
+        STRING = 3
+        INTEGER = 4
+        BOOLEAN = 5
+        USER = 6
+        CHANNEL = 7
+        ROLE = 8
+        MENTIONABLE = 9
+        NUMBER = 10
 
-        slash_cmds = await manage_commands.get_all_commands(
-            self.bot.user.id, self.bot.http.token, guild.id
-        )
+    @commands.command(hidden=True, aliases=["list_slash_commands", "listslashcmds"])
+    async def list_slash_cmds(
+        self, ctx: commands.Context, guild: typing.Optional[discord.Guild]
+    ):
+
+        if not guild:
+            slash_cmds: typing.List[
+                dislash.ApplicationCommand
+            ] = ctx.bot.slash.global_commands
+        else:
+            slash_cmds: typing.List[
+                dislash.ApplicationCommand
+            ] = ctx.bot.slash.get_guild_commands(guild.id)
+
         slash_entries = []
 
         if not slash_cmds:
@@ -55,26 +75,28 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
             )
 
         for entry in slash_cmds:
-            entry_str_list = []
+            if isinstance(entry, dislash.SlashCommand):
+                entry_str_list = []
 
-            if "description" in entry.keys():
-                entry_str_list.append(entry["description"])
-            else:
-                entry_str_list.append("No description provided.")
+                if entry.description:
+                    entry_str_list.append(entry["description"])
+                else:
+                    entry_str_list.append("No description provided.")
 
-            if "options" in entry.keys():
-                entry_str_list.append("__Arguments:__")
+                if entry.options:
+                    entry_str_list.append("__Arguments:__")
 
-                for option in entry["options"]:
-                    option_type = option["type"]
-                    required_txt = ", required" if option.get("required") else ""
-                    entry_str_list.append(
-                        f"{option['name']} (type {option_type}{required_txt}) - {option['description']}"
-                    )
+                    for option in entry.options:
+                        option: dislash.Option
+                        option_type = self.OptionTypeEnum(option.type).name
+                        required_txt = ", required" if option.required else ""
+                        entry_str_list.append(
+                            f"{option['name']} (type {option_type}{required_txt}) - {option.description}"
+                        )
 
-            slash_entries.append(
-                (f"{entry['name']} - ID {entry['id']}", "\n".join(entry_str_list))
-            )
+                slash_entries.append(
+                    (f"{entry.name} - ID {entry.id}", "\n".join(entry_str_list))
+                )
 
         pages = paginator.FieldPages(ctx, entries=slash_entries, per_page=6)
         await pages.paginate()
@@ -83,22 +105,20 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
     async def remove_slash_cmd(
         self, ctx, cmd: discord.Object, guild: typing.Optional[discord.Guild],
     ):
-        if guild is None:
-            guild = Dummy()
+        if guild:
+            await ctx.bot.slash.delete_guild_command(guild.id, cmd.id)
+        else:
+            await ctx.bot.slash.delete_global_command(cmd.id)
 
-        await manage_commands.remove_slash_command(
-            self.bot.user.id, self.bot.http.token, guild.id, cmd.id
-        )
         await ctx.reply("Removed command.")
 
     @commands.command(hidden=True, aliases=["removeallslashcmds"])
     async def remove_all_slash_cmds(self, ctx, guild: typing.Optional[discord.Guild]):
-        if guild is None:
-            guild = Dummy()
+        if guild:
+            await ctx.bot.slash.delete_guild_commands(guild.id)
+        else:
+            await ctx.bot.slash.delete_global_commands()
 
-        await manage_commands.remove_all_commands(
-            self.bot.user.id, self.bot.http.token, guild.id
-        )
         await ctx.reply("Removed all commands.")
 
 
@@ -106,6 +126,5 @@ def setup(bot):
     importlib.reload(utils)
     importlib.reload(star_classes)
     importlib.reload(paginator)
-    importlib.reload(manage_commands)
 
     bot.add_cog(OwnerCMDs(bot))
