@@ -153,8 +153,8 @@ class ImageCMDs(commands.Cog, name="Image"):
         format: str = "default"
         quality: int = 70
 
-    @commands.command()
-    async def compress(
+    @commands.command(aliases=["image_compress"])
+    async def img_compress(
         self, ctx, url: typing.Optional[image_utils.URLToImage], *, flags: CompressFlags
     ):
         """Compresses down the image given.
