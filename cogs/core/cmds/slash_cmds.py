@@ -80,7 +80,8 @@ class SlashCMDS(commands.Cog):
             )
         elif "Unknown interaction" in str(error):
             await inter.channel.send(
-                f"{inter.author.mention}, the bot is a bit slow and so cannot do slash commands right now. Please wait a bit and try again.",
+                f"{inter.author.mention}, the bot is a bit slow and so cannot do slash commands "
+                + "right now. Please wait a bit and try again.",
                 delete_after=3,
             )
         else:

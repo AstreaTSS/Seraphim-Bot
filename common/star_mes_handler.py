@@ -102,7 +102,7 @@ async def base_generate(
             snipe_embed.author.icon_url
             if author is None
             or author.id in (270904126974590976, 499383056822435840, bot.user.id)
-            else utils.get_icon_url(mes.author.display_avatar)
+            else utils.get_icon_url(author.display_avatar)
         )
 
         content = snipe_embed.description
