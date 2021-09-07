@@ -35,7 +35,7 @@ class SayCMDS(commands.Cog, name="Say"):
             message if channel == ctx.channel else " ".join(message.split(" ")[1:])
         )
 
-        file_to_send = discord.utils.MISSING
+        file_to_send = None
         file_io = None
         allowed_mentions = utils.generate_mentions(ctx)
 
@@ -65,6 +65,8 @@ class SayCMDS(commands.Cog, name="Say"):
                 del image_data
 
         if channel == ctx.channel:
+            # girl manages to make files optional for the say command without doing
+            # too much if statements! typehinters hate her!
             await ctx.send(
                 content=rest_of_message,
                 file=file_to_send,
