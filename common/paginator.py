@@ -48,7 +48,7 @@ def generate_view(
 
         async def on_timeout(self):
             try:
-                await self.stop()
+                self.stop()
             except TypeError:
                 pass  # ??????
 
@@ -209,7 +209,7 @@ class Pages:
 
     async def show_current_page(self, inter: discord.Interaction):
         if self.paginating:
-            await self.show_page(self.current_page, inter)
+            await self.show_page(self.current_page, interaction=inter)
 
     async def numbered_page(self, inter: discord.Interaction):
         """lets you type a page number to go to"""
@@ -232,7 +232,7 @@ class Pages:
             page = int(msg.content)
             to_delete.append(msg)
             if page != 0 and page <= self.maximum_pages:
-                await self.show_page(page, inter)
+                await self.show_page(page, interaction=inter)
             else:
                 to_delete.append(
                     await self.channel.send(
@@ -267,7 +267,7 @@ class Pages:
 
         async def go_back_to_current_page():
             await asyncio.sleep(60.0)
-            await self.show_current_page()
+            await self.show_current_page(inter)
 
         self.bot.loop.create_task(go_back_to_current_page())
 

@@ -35,7 +35,7 @@ class SayCMDS(commands.Cog, name="Say"):
             message if channel == ctx.channel else " ".join(message.split(" ")[1:])
         )
 
-        file_to_send = None
+        file_to_send = discord.utils.MISSING
         file_io = None
         allowed_mentions = utils.generate_mentions(ctx)
 

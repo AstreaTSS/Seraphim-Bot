@@ -52,7 +52,7 @@ class NormCMDs(commands.Cog, name="Normal"):
     ):
         "Allows you to kill the victim specified using the iconic Minecraft kill command messages."
         if len(str(target)) > 1900:
-            await ctx.send(hidden=True, content="The content you provided is too long.")
+            await ctx.send(content="The content you provided is too long.")
             return
 
         if isinstance(target, discord.Member):

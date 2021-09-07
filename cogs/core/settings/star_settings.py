@@ -58,7 +58,7 @@ async def remove_reaction(ctx, toggle: typing.Optional[bool]):
 
     if toggle is None:
         await ctx.reply(
-            f"Remove self-reactions: **{utils.bool_friendly_str(toggle)(ctx.bot.config.getattr(ctx.guild.id, 'remove_reaction'))}**"
+            f"Remove self-reactions: **{utils.bool_friendly_str(ctx.bot.config.getattr(ctx.guild.id, 'remove_reaction'))}**"
         )
 
     else:

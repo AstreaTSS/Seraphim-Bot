@@ -79,7 +79,7 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
                 entry_str_list = []
 
                 if entry.description:
-                    entry_str_list.append(entry["description"])
+                    entry_str_list.append(entry.description)
                 else:
                     entry_str_list.append("No description provided.")
 
@@ -91,7 +91,7 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
                         option_type = self.OptionTypeEnum(option.type).name
                         required_txt = ", required" if option.required else ""
                         entry_str_list.append(
-                            f"{option['name']} (type {option_type}{required_txt}) - {option.description}"
+                            f"{option.name} (type {option_type}{required_txt}) - {option.description}"
                         )
 
                 slash_entries.append(

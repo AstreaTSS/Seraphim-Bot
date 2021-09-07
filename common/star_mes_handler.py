@@ -300,4 +300,4 @@ async def send(bot, mes: discord.Message):
 
         return starred
 
-    raise discord.NotFound("Unable to find starboard channel.")
+    raise discord.NotFound(21234, "Unable to find starboard channel.")
