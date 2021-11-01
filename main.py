@@ -172,7 +172,7 @@ class SeraphimBot(commands.Bot):
 
     async def on_ready(self):
         utcnow = discord.utils.utcnow()
-        time_format = utcnow.strftime("%x %X UTC")
+        time_format = discord.utils.format_dt(utcnow)
 
         connect_msg = (
             f"Logged in at `{time_format}`!"
