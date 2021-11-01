@@ -79,7 +79,7 @@ async def on_init_load():
     await bot.wait_until_ready()
 
     bot.config = configs.GuildConfigManager()
-    bot.star_queue = custom_classes.SetNoDupeAsyncQueue()
+    bot.star_queue = custom_classes.SetNoReaddAsyncQueue()
 
     bot.snipes = {"deletes": {}, "edits": {}}
     bot.role_rolebacks = {}

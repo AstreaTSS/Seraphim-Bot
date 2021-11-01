@@ -346,7 +346,7 @@ if typing.TYPE_CHECKING:
         # this should technically be in custom classes
         # but this is used in a lot of places for typehinting
         config: config.GuildConfigManager
-        star_queue: custom_classes.SetNoDupeAsyncQueue
+        star_queue: custom_classes.SetNoReaddAsyncQueue
         snipes: typing.Dict[
             typing.Literal["deletes", "edits"],
             typing.Dict[int, typing.List[custom_classes.SnipedMessage]],

@@ -43,9 +43,9 @@ class SetUpdateAsyncQueue(SetAsyncQueue[_T]):
         self._queue.add(item)
 
 
-class SetNoDupeAsyncQueue(asyncio.Queue[_T]):
+class SetNoReaddAsyncQueue(asyncio.Queue[_T]):
     """A special type of async queue that uses a set instead of a list.
-    Also ensures duplicates never happen."""
+    Also ensures entries cannot be re-added (at the expense of using more memory)."""
 
     def _init(self, maxsize):
         self._queue = set()
@@ -61,6 +61,9 @@ class SetNoDupeAsyncQueue(asyncio.Queue[_T]):
 
     def remove_from_copy(self, item):
         self._queuecopy.discard(item)
+
+    def clear_memory(self):
+        self._queuecopy.clear()
 
 
 class PowerofTwoConverter(commands.Converter[int]):
