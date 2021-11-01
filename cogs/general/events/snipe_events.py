@@ -5,11 +5,12 @@ from discord.ext import commands
 
 import common.classes as custom_classes
 import common.star_mes_handler as star_mes
+import common.utils as utils
 
 
 class SnipeEvents(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: utils.SeraphimBase = bot
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):

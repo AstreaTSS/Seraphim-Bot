@@ -21,7 +21,7 @@ class Dummy:
 
 class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: utils.SeraphimBase = bot
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)

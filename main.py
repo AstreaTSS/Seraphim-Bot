@@ -2,6 +2,7 @@
 import asyncio
 import logging
 import os
+import typing
 
 import aiohttp
 import asyncpg
@@ -78,9 +79,7 @@ def global_checks(ctx):  # sourcery skip: return-identity
 async def on_init_load():
     await bot.wait_until_ready()
 
-    bot.starboard = star_classes.StarboardEntries()
     bot.config = configs.GuildConfigManager()
-
     bot.star_queue = custom_classes.SetAsyncQueue()
 
     bot.snipes = {"deletes": {}, "edits": {}}
@@ -123,6 +122,8 @@ async def on_init_load():
             db_url, min_size=2, max_size=10, init=add_json_converter
         )
 
+        bot.starboard = star_classes.StarboardEntries(bot.pool)
+
     bot.load_extension("jishaku")
     bot.load_extension("cogs.db_handler")
     while not bot.added_db_info:
@@ -142,6 +143,22 @@ async def on_init_load():
 
 
 class SeraphimBot(commands.Bot):
+    config: configs.GuildConfigManager
+    star_queue: custom_classes.SetAsyncQueue
+    snipes: typing.Dict[
+        typing.Literal["deletes", "edits"],
+        typing.Dict[int, typing.List[custom_classes.SnipedMessage]],
+    ]
+    role_rolebacks: typing.Dict[
+        int, typing.Dict[typing.Literal["roles", "time", "id"], typing.Any]
+    ]
+    image_extensions: typing.Tuple[str, ...]
+    added_db_info: bool
+    death_messages: typing.Dict
+    pool: asyncpg.Pool
+    starboard: star_classes.StarboardEntries
+    owner: discord.User
+
     def __init__(
         self, command_prefix, help_command=bot_default, description=None, **options
     ):
@@ -205,8 +222,9 @@ class SeraphimBot(commands.Bot):
         try:
             await asyncio.wait_for(self.pool.close(), timeout=10)
         except asyncio.TimeoutError:
-            await self.pool.terminate()
+            self.pool.terminate()
 
+        self.starboard.stop()
         return await super().close()
 
 

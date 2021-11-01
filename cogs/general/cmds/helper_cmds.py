@@ -17,7 +17,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
     """A series of commands made for tasks that are usually difficult to do, especially on mobile."""
 
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: utils.SeraphimBase = bot
 
     @commands.command(aliases=["restoreroles"])
     @utils.proper_permissions()

@@ -13,7 +13,7 @@ import common.utils as utils
 
 class SayCMDS(commands.Cog, name="Say"):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: utils.SeraphimBase = bot
 
     @commands.command()
     @utils.proper_permissions()

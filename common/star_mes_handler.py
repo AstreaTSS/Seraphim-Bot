@@ -80,7 +80,7 @@ async def base_generate(
     ):  # if message is sniped message that's supported
         snipe_embed = mes.embeds[0]
 
-        entry = bot.starboard.get(mes.id)
+        entry = await bot.starboard.get(mes.id)
 
         if entry:
             author = await utils.user_from_id(bot, mes.guild, entry.author_id)
@@ -284,7 +284,7 @@ async def send(bot, mes: discord.Message):
     # sends message to starboard channel
 
     send_embed = await star_generate(bot, mes)
-    star_entry = bot.starboard.get(mes.id)
+    star_entry = await bot.starboard.get(mes.id)
     starboard_chan = mes.guild.get_channel(
         bot.config.getattr(mes.guild.id, "starboard_id")
     )

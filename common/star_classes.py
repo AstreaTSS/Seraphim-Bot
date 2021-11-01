@@ -1,10 +1,13 @@
 #!/usr/bin/env python3.8
+import asyncio
 import collections
 import enum
-import random
 import typing
 
+import asyncpg
+import attr
 import discord
+from lru import LRU
 
 
 class ReactorType(enum.Enum):
@@ -15,61 +18,25 @@ class ReactorType(enum.Enum):
     ALL_REACTORS = 3
 
 
+@attr.s(slots=True, eq=False)
 class StarboardEntry:
     """A way of representing a starboard entry in an easy way."""
 
-    __slots__ = (
-        "ori_mes_id",
-        "ori_chan_id",
-        "star_var_id",
-        "starboard_id",
-        "author_id",
-        "ori_reactors",
-        "var_reactors",
-        "guild_id",
-        "forced",
-        "updated",
-        "frozen",
-        "trashed",
-    )
-
-    def __repr__(self):
-        return (
-            f"<StarboardEntry ori_mes_id={self.ori_mes_id} ori_chan_id={self.ori_chan_id} star_var_id={self.star_var_id} "
-            + f"starboard_id={self.starboard_id} author_id={self.author_id} ori_reactors={(self.ori_reactors)} "
-            + f"var_reactors={(self.var_reactors)} guild_id={self.guild_id} forced={self.forced} updated={self.updated}>"
-        )
+    ori_mes_id: int = attr.ib()
+    ori_chan_id: int = attr.ib()
+    star_var_id: typing.Optional[int] = attr.ib()
+    starboard_id: typing.Optional[int] = attr.ib()
+    author_id: int = attr.ib()
+    ori_reactors: typing.Set[int] = attr.ib(converter=set)
+    var_reactors: typing.Set[int] = attr.ib(converter=set)
+    guild_id: int = attr.ib()
+    forced: bool = attr.ib()
+    frozen: bool = attr.ib()
+    trashed: bool = attr.ib()
+    updated: bool = attr.ib(default=False)
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.ori_mes_id == other.ori_mes_id
-
-    def __init__(
-        self,
-        ori_mes_id,
-        ori_chan_id,
-        star_var_id,
-        starboard_id,
-        author_id,
-        ori_reactors,
-        var_reactors,
-        guild_id,
-        forced,
-        frozen,
-        trashed,
-        updated=False,
-    ):
-        self.ori_mes_id: int = ori_mes_id
-        self.ori_chan_id: int = ori_chan_id
-        self.star_var_id: typing.Optional[int] = star_var_id
-        self.starboard_id: typing.Optional[int] = starboard_id
-        self.author_id: int = author_id
-        self.ori_reactors: typing.Set[int] = set(ori_reactors)
-        self.var_reactors: typing.Set[int] = set(var_reactors)
-        self.guild_id: int = guild_id
-        self.forced: bool = forced
-        self.frozen: bool = frozen
-        self.trashed: bool = trashed
-        self.updated: bool = updated
 
     @classmethod
     def from_row(cls, row):
@@ -89,7 +56,13 @@ class StarboardEntry:
         )
 
     @classmethod
-    def new_entry(cls, mes: discord.Message, author_id, reactor_id, forced=False):
+    def new_entry(
+        cls,
+        mes: discord.Message,
+        author_id: int,
+        reactor_id: typing.Optional[int],
+        forced: bool = False,
+    ):
         """Returns a new entry from base data."""
         if reactor_id:
             return cls(
@@ -142,7 +115,9 @@ class StarboardEntry:
         else:
             raise AttributeError("Invalid reactor type.")
 
-    def set_reactors_of_type(self, type_of_reactor: ReactorType, input: set):
+    def set_reactors_of_type(
+        self, type_of_reactor: ReactorType, input: typing.Set[int]
+    ):
         """Sets the reactors for the type specified. Useful if you want the output to vary."""
         if type_of_reactor == ReactorType.ORI_REACTORS:
             self.ori_reactors = input
@@ -152,7 +127,7 @@ class StarboardEntry:
             raise AttributeError("Invalid reactor type.")
 
     def check_reactor(
-        self, reactor_id, type_of_reactor=ReactorType.ALL_REACTORS
+        self, reactor_id: int, type_of_reactor=ReactorType.ALL_REACTORS
     ) -> bool:
         """Sees if the reactor ID provided is in the reactors for the type specified. Useful if you want the output to vary."""
         if type_of_reactor == ReactorType.ORI_REACTORS:
@@ -164,7 +139,7 @@ class StarboardEntry:
         else:
             raise AttributeError("Invalid reactor type.")
 
-    def add_reactor(self, reactor_id, type_of_reactor: ReactorType):
+    def add_reactor(self, reactor_id: int, type_of_reactor: ReactorType):
         """Adds a reactor to the reactor type specified. Will silently fail if the entry already exists."""
         if reactor_id not in self.get_reactors():
             if type_of_reactor == ReactorType.ORI_REACTORS:
@@ -174,79 +149,184 @@ class StarboardEntry:
             else:
                 raise AttributeError("Invalid reactor type.")
 
-    def remove_reactor(self, reactor_id):
+    def remove_reactor(self, reactor_id: int):
         """Removes a reactor from an entry. Will silently fail if the entry does not exists."""
         if reactor_id in self.get_reactors():
             self.ori_reactors.discard(reactor_id)
             self.var_reactors.discard(reactor_id)
 
 
+def entry_init():
+    return collections.defaultdict(lambda: None)
+
+
+@attr.s(slots=True, init=False)
 class StarboardEntries:
     """A way of managing starboard entries."""
 
-    __slots__ = ("entries", "added", "updated", "removed")
+    _pool: asyncpg.Pool = attr.ib()
+    # note: entry cache isn't really a dict, but for typehinting purposes this works
+    _entry_cache: typing.Dict[int, StarboardEntry] = attr.ib()
+    # typing is fun, isn't it?
+    _sql_queries: asyncio.Queue[
+        typing.Tuple[str, typing.Iterable[typing.Any]]
+    ] = attr.ib()
+    _sql_loop_task: asyncio.Task = attr.ib()
 
-    def __init__(self):
-        self.entries = collections.defaultdict(lambda: None)
-        self.added = set()
-        self.updated = set()
-        self.removed = set()
+    def __init__(self, pool: asyncpg.Pool, cache_size: int = 100):
+        self._pool = pool
+        self._entry_cache = LRU(
+            cache_size
+        )  # the 100 should be raised as the bot grows bigger
+        self._sql_queries = asyncio.Queue()
 
-    def reset_deltas(self):
-        """Resets the deltas so that they have nothing."""
-        self.added = set()
-        self.updated = set()
-        self.removed = set()
+        loop = asyncio.get_event_loop()
+        self._sql_loop_task = loop.create_task(self._sql_loop())
 
-    def add(self, entry: StarboardEntry, init=False):
-        """Adds an entry to the list of entries. Or, well, the dict of entries."""
-        if self.entries[entry.ori_mes_id]:
-            raise Exception(f"Entry {entry.ori_mes_id} already exists.")
+    def stop(self):
+        """Stops the SQL task loop."""
+        self._sql_loop_task.cancel()
 
-        self.entries[entry.ori_mes_id] = entry
-        if not init:
-            self.added.add(entry.ori_mes_id)
+    async def _sql_loop(self):
+        """Actually runs SQL updating, hopefully one after another.
 
-    def delete(self, entry_id):
-        """Removes an entry from the dict of entries."""
-        del self.entries[entry_id]
+        Saves speed on adding, deleting, and updating by offloading
+        this step here."""
+        async with self._pool.acquire() as conn:
+            try:
+                while True:
+                    query = await self._sql_queries.get()
+                    await conn.execute(query[0], *query[1])
+                    self._sql_queries.task_done()
+            except asyncio.CancelledError:
+                pass
 
-        if entry_id in self.added:
-            self.added.discard(entry_id)
-        else:
-            if entry_id in self.updated:
-                self.updated.discard(entry_id)
-            self.removed.add(entry_id)
+    def _get_required_from_entry(self, entry: StarboardEntry):
+        """Transforms data into the form needed for databases."""
+        return (
+            entry.ori_mes_id,
+            entry.ori_chan_id,
+            entry.star_var_id,
+            entry.starboard_id,
+            entry.author_id,
+            list(entry.ori_reactors),
+            list(entry.var_reactors),
+            entry.guild_id,
+            entry.forced,
+            entry.frozen,
+            entry.trashed,
+        )
+
+    def _str_builder_to_insert(self, str_builder, entry):
+        """Takes data from a string builder list and eventually
+        puts the data needed into the _sql_queries variable."""
+        query = "".join(str_builder)
+        args = self._get_required_from_entry(entry)
+        self._sql_queries.put_nowait((query, args))
+
+    def add(self, entry: StarboardEntry):
+        """Adds an entry to the collection of entries."""
+        self._entry_cache[entry.ori_mes_id] = entry
+
+        str_builder = [
+            "INSERT INTO starboard(ori_mes_id, ori_chan_id, star_var_id, ",
+            "starboard_id, author_id, ori_reactors, var_reactors, ",
+            "guild_id, forced, frozen, trashed) VALUES($1, $2, $3, $4, ",
+            "$5, $6, $7, $8, $9, $10, $11)",
+        ]
+        self._str_builder_to_insert(str_builder, entry)
+
+    def delete(self, entry_id: int):
+        """Removes an entry from the collection of entries."""
+        self._entry_cache.pop(entry_id, None)
+        self._sql_queries.put_nowait(
+            ("DELETE FROM starboard WHERE ori_mes_id = $1", [entry_id])
+        )
 
     def update(self, entry: StarboardEntry):
-        """Updates an entry in the dict of entries."""
-        if not self.entries[entry.ori_mes_id]:
-            raise KeyError(
-                f"Entry {entry.ori_chan_id} does not exist in the current entries."
-            )
+        """Updates an entry in the collection of entries, since the entries
+        cannot update themselves."""
+        entry_id = entry.ori_mes_id  # makes typehinting not complain
+        self._entry_cache.update(entry_id=entry)
 
-        self.entries[entry.ori_mes_id] = entry
+        str_builder = [
+            "UPDATE starboard SET ori_chan_id = $2, star_var_id = $3, starboard_id = $4, ",
+            "author_id = $5, ori_reactors = $6, var_reactors = $7, guild_id = $8, ",
+            "forced = $9, frozen = $10, trashed = $11 WHERE ori_mes_id = $1",
+        ]
+        self._str_builder_to_insert(str_builder, entry)
 
-        if entry.ori_mes_id not in self.added:
-            self.updated.add(entry.ori_mes_id)
+    async def get(
+        self, entry_id: int, check_for_var: bool = False
+    ) -> typing.Optional[StarboardEntry]:
+        """Gets an entry from the collection of entries."""
+        entry = None
 
-    def get(self, entry_id, check_for_var=False) -> typing.Optional[StarboardEntry]:
-        """Gets an entry based on the ID provides."""
-        if not self.entries[entry_id]:
-            return discord.utils.find(
-                lambda e: e and e.star_var_id == entry_id, self.entries.values()
-            )
-
-        if not check_for_var or self.entries[entry_id].star_var_id:
-            return self.entries[entry_id]
+        if self._entry_cache.has_key(entry_id):  # type: ignore
+            entry = self._entry_cache[entry_id]
         else:
+            entry = discord.utils.find(
+                lambda e: e and e.star_var_id == entry_id, self._entry_cache.values()
+            )
+
+        if not entry:
+            async with self._pool.acquire() as conn:
+                data = await conn.fetchrow(
+                    f"SELECT * FROM starboard WHERE ori_mes_id = {entry_id} OR star_var_id = {entry_id}"
+                )
+                if data:
+                    entry = StarboardEntry.from_row(data)
+                    self._entry_cache[entry_id] = entry
+
+        if entry and check_for_var and not entry.star_var_id:
             return None
 
-    def get_list(self, list_filter) -> typing.List[StarboardEntry]:
-        """Gets specific entries based on the filter (a lambda or function) specified."""
-        return [e for e in self.entries.values() if e and list_filter(e)]
+        return entry
 
-    def get_random(self, list_filter) -> StarboardEntry:
-        """Gets a random entry based on the filter (a lambda or function) specified."""
-        entries = self.get_list(list_filter)
-        return random.choice(entries)
+    async def raw_query(self, query: str):
+        async with self._pool.acquire() as conn:
+            data = await conn.fetch(f"SELECT * FROM starboard WHERE {query}")
+
+            if not data:
+                return None
+            return tuple(StarboardEntry.from_row(row) for row in data)
+
+    async def query_entries(
+        self, seperator: str = "AND", **conditions: typing.Dict[str, str]
+    ) -> typing.Optional[typing.Tuple[StarboardEntry, ...]]:
+        sql_conditions: list[str] = [
+            f"{key} = {value}" for key, value in conditions.items()
+        ]
+        combined_statements = f" {seperator} ".join(sql_conditions)
+
+        async with self._pool.acquire() as conn:
+            data = await conn.fetch(
+                f"SELECT * FROM starboard WHERE {combined_statements}"
+            )
+
+            if not data:
+                return None
+            return tuple(StarboardEntry.from_row(row) for row in data)
+
+    async def get_random(self, guild_id: int) -> typing.Optional[StarboardEntry]:
+        """Gets a random entry from a guild."""
+        # query adapted from
+        # https://github.com/Rapptz/RoboDanny/blob/1fb95d76d1b7685e2e2ff950e11cddfc96efbfec/cogs/stars.py#L1082
+        query = """SELECT *
+                   FROM starboard
+                   WHERE guild_id=$1
+                   AND star_var_id IS NOT NULL
+                   OFFSET FLOOR(RANDOM() * (
+                       SELECT COUNT(*)
+                       FROM starboard
+                       WHERE guild_id=$1
+                       AND star_var_id IS NOT NULL
+                   ))
+                   LIMIT 1
+                """
+
+        async with self._pool.acquire() as conn:
+            data = await conn.fetchrow(query, guild_id)
+            if not data:
+                return None
+            return StarboardEntry.from_row(data)

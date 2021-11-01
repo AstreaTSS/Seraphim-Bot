@@ -10,7 +10,7 @@ import common.utils as utils
 
 class SlashCMDS(commands.Cog):
     def __init__(self, bot):
-        self.bot: commands.Bot = bot
+        self.bot: utils.SeraphimBase = bot
 
     async def cog_check(self, ctx):
         return await self.bot.is_owner(ctx.author)

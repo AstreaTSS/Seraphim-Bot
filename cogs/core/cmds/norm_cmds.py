@@ -13,7 +13,7 @@ import common.utils as utils
 
 class NormCMDs(commands.Cog, name="Normal"):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: utils.SeraphimBase = bot
 
     @commands.command()
     async def ping(self, ctx):
