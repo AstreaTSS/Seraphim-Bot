@@ -162,7 +162,8 @@ def entry_init():
 
 @attr.s(slots=True, init=False)
 class StarboardEntries:
-    """A way of managing starboard entries."""
+    """A way of managing starboard entries.
+    Sort of like an ORM, but also not fully."""
 
     _pool: asyncpg.Pool = attr.ib()
     # note: entry cache isn't really a dict, but for typehinting purposes this works
@@ -284,6 +285,7 @@ class StarboardEntries:
         return entry
 
     async def raw_query(self, query: str):
+        """Queries the starboard database directly for entries based on the query."""
         async with self._pool.acquire() as conn:
             data = await conn.fetch(f"SELECT * FROM starboard WHERE {query}")
 
@@ -294,6 +296,10 @@ class StarboardEntries:
     async def query_entries(
         self, seperator: str = "AND", **conditions: typing.Dict[str, str]
     ) -> typing.Optional[typing.Tuple[StarboardEntry, ...]]:
+        """Queries entries based on conditions provided.
+
+        For example, you could do `query_entries(guild_id=143425)` to get
+        entries with that guild id."""
         sql_conditions: list[str] = [
             f"{key} = {value}" for key, value in conditions.items()
         ]
