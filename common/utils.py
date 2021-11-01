@@ -9,7 +9,6 @@ from pathlib import Path
 import aiohttp
 import discord
 from discord.ext import commands
-from dislash import SlashInteraction
 
 
 def proper_permissions():
@@ -36,9 +35,7 @@ def bot_proper_perms():
     return commands.check(predicate)
 
 
-async def error_handle(
-    bot, error, ctx: typing.Union[commands.Context, SlashInteraction, None] = None
-):
+async def error_handle(bot, error, ctx: typing.Union[commands.Context, None] = None):
     # handles errors and sends them to owner
     if isinstance(error, aiohttp.ServerDisconnectedError):
         to_send = "Disconnected from server!"
