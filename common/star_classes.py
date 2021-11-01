@@ -9,6 +9,8 @@ import attr
 import discord
 from lru import LRU
 
+import common.classes as cclass
+
 
 class ReactorType(enum.Enum):
     """A way of sorting through the reactor list types."""
@@ -160,6 +162,17 @@ def entry_init():
     return collections.defaultdict(lambda: None)
 
 
+@attr.s(slots=True, eq=False)
+class StarboardSQLEntry:
+    query: str = attr.ib()
+    args: typing.Sequence[typing.Any] = attr.ib()
+
+    def __eq__(self, other) -> int:
+        # if the ori_mes_id is the same with both
+        # ensures discard for sets work as intended
+        return isinstance(other, StarboardSQLEntry) and other.args[0] == self.args[0]
+
+
 @attr.s(slots=True, init=False)
 class StarboardEntries:
     """A way of managing starboard entries.
@@ -169,9 +182,7 @@ class StarboardEntries:
     # note: entry cache isn't really a dict, but for typehinting purposes this works
     _entry_cache: typing.Dict[int, StarboardEntry] = attr.ib()
     # typing is fun, isn't it?
-    _sql_queries: asyncio.Queue[
-        typing.Tuple[str, typing.Iterable[typing.Any]]
-    ] = attr.ib()
+    _sql_queries: cclass.SetUpdateAsyncQueue[StarboardSQLEntry] = attr.ib()
     _sql_loop_task: asyncio.Task = attr.ib()
 
     def __init__(self, pool: asyncpg.Pool, cache_size: int = 100):
@@ -179,7 +190,7 @@ class StarboardEntries:
         self._entry_cache = LRU(
             cache_size
         )  # the 100 should be raised as the bot grows bigger
-        self._sql_queries = asyncio.Queue()
+        self._sql_queries = cclass.SetUpdateAsyncQueue()
 
         loop = asyncio.get_event_loop()
         self._sql_loop_task = loop.create_task(self._sql_loop())
@@ -196,8 +207,8 @@ class StarboardEntries:
         async with self._pool.acquire() as conn:
             try:
                 while True:
-                    query = await self._sql_queries.get()
-                    await conn.execute(query[0], *query[1])
+                    entry = await self._sql_queries.get()
+                    await conn.execute(entry.query, entry.args)
                     self._sql_queries.task_done()
             except asyncio.CancelledError:
                 pass
@@ -223,7 +234,7 @@ class StarboardEntries:
         puts the data needed into the _sql_queries variable."""
         query = "".join(str_builder)
         args = self._get_required_from_entry(entry)
-        self._sql_queries.put_nowait((query, args))
+        self._sql_queries.put_nowait(StarboardSQLEntry(query, args))
 
     def add(self, entry: StarboardEntry):
         """Adds an entry to the collection of entries."""
@@ -241,7 +252,7 @@ class StarboardEntries:
         """Removes an entry from the collection of entries."""
         self._entry_cache.pop(entry_id, None)
         self._sql_queries.put_nowait(
-            ("DELETE FROM starboard WHERE ori_mes_id = $1", [entry_id])
+            StarboardSQLEntry("DELETE FROM starboard WHERE ori_mes_id = $1", [entry_id])
         )
 
     def update(self, entry: StarboardEntry):

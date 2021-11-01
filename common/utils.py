@@ -346,7 +346,7 @@ if typing.TYPE_CHECKING:
         # this should technically be in custom classes
         # but this is used in a lot of places for typehinting
         config: config.GuildConfigManager
-        star_queue: custom_classes.SetAsyncQueue
+        star_queue: custom_classes.SetNoDupeAsyncQueue
         snipes: typing.Dict[
             typing.Literal["deletes", "edits"],
             typing.Dict[int, typing.List[custom_classes.SnipedMessage]],
@@ -356,7 +356,7 @@ if typing.TYPE_CHECKING:
         ]
         image_extensions: typing.Tuple[str, ...]
         added_db_info: bool
-        death_messages: typing.Dict
+        death_messages: typing.Tuple[str, ...]
         pool: asyncpg.Pool
         starboard: star_classes.StarboardEntries
         owner: discord.User

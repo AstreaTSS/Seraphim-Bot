@@ -79,7 +79,7 @@ async def on_init_load():
     await bot.wait_until_ready()
 
     bot.config = configs.GuildConfigManager()
-    bot.star_queue = custom_classes.SetAsyncQueue()
+    bot.star_queue = custom_classes.SetNoDupeAsyncQueue()
 
     bot.snipes = {"deletes": {}, "edits": {}}
     bot.role_rolebacks = {}
@@ -141,23 +141,7 @@ async def on_init_load():
     bot.owner = application.owner
 
 
-class SeraphimBot(commands.Bot):
-    config: configs.GuildConfigManager
-    star_queue: custom_classes.SetAsyncQueue
-    snipes: typing.Dict[
-        typing.Literal["deletes", "edits"],
-        typing.Dict[int, typing.List[custom_classes.SnipedMessage]],
-    ]
-    role_rolebacks: typing.Dict[
-        int, typing.Dict[typing.Literal["roles", "time", "id"], typing.Any]
-    ]
-    image_extensions: typing.Tuple[str, ...]
-    added_db_info: bool
-    death_messages: typing.Dict
-    pool: asyncpg.Pool
-    starboard: star_classes.StarboardEntries
-    owner: discord.User
-
+class SeraphimBot(utils.SeraphimBase):
     def __init__(
         self, command_prefix, help_command=bot_default, description=None, **options
     ):
