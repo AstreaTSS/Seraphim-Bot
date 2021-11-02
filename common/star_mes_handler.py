@@ -33,7 +33,7 @@ def cant_display(embed: discord.Embed, attachments: list, index=0):
 
 
 async def base_generate(
-    bot: discord.Client, mes: discord.Message, no_attachments: bool = False
+    bot: utils.SeraphimBase, mes: discord.Message, no_attachments: bool = False
 ):
     # sourcery no-metrics
     # generates core of star messages
@@ -271,7 +271,7 @@ async def base_generate(
         raise ValueError(f"Embed was too big to process for {mes.jump_url}!")
 
 
-async def star_generate(bot, mes):
+async def star_generate(bot: utils.SeraphimBase, mes: discord.Message):
     # base generate but with more fields
     send_embed = await base_generate(bot, mes)
     send_embed.add_field(name="Original", value=f"[Jump]({mes.jump_url})", inline=True)

@@ -67,8 +67,7 @@ async def error_handle(bot, error, ctx: typing.Union[commands.Context, None] = N
         )
 
         await ctx.reply(
-            embed=error_embed,
-            ephemeral=True,
+            embed=error_embed, ephemeral=True,
         )
 
 
@@ -126,7 +125,7 @@ def embed_check(embed: discord.Embed) -> bool:
     return True
 
 
-def deny_mentions(user):
+def deny_mentions(user: discord.abc.Snowflake):
     # generates an AllowedMentions object that only pings the user specified
     return discord.AllowedMentions(everyone=False, users=[user], roles=False)
 
@@ -146,7 +145,7 @@ def generate_mentions(ctx: commands.Context):
         return discord.AllowedMentions(everyone=False, users=True, roles=pingable_roles)
 
 
-def error_format(error):
+def error_format(error: Exception):
     # simple function that formats an exception
     return "".join(
         traceback.format_exception(
@@ -155,7 +154,7 @@ def error_format(error):
     )
 
 
-def string_split(string):
+def string_split(string: str):
     # simple function that splits a string into 1950-character parts
     return [string[i : i + 1950] for i in range(0, len(string), 1950)]
 
@@ -299,8 +298,8 @@ def get_content(message: discord.Message):  # sourcery no-metrics
         raise discord.InvalidArgument("This message has an invalid type!")
 
 
-def bool_friendly_str(bool_to_convert):
-    if bool_to_convert == True:
+def bool_friendly_str(bool_to_convert: bool):
+    if bool_to_convert:
         return "on"
     else:
         return "off"

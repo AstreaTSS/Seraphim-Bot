@@ -242,8 +242,8 @@ class WizardManager:
     ):
         self.questions.append(WizardQuestion(question, converter, action))
 
-    async def run(self, ctx: commands.Context):
-        def check(m):
+    async def run(self, ctx: utils.SeraContextBase):
+        def check(m: discord.Message):
             return m.author == ctx.author and m.channel == ctx.channel
 
         wizard_embed = discord.Embed(title=self.embed_title, colour=self.color)
@@ -264,7 +264,7 @@ class WizardManager:
                 await self.ori_mes.edit(embed=wizard_embed)
 
             try:
-                reply = await ctx.bot.wait_for(
+                reply: discord.Message = await ctx.bot.wait_for(
                     "message", check=check, timeout=self.timeout
                 )
             except asyncio.TimeoutError:

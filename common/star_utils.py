@@ -3,9 +3,10 @@ import discord
 from discord.ext import commands
 
 import common.star_classes as star_classes
+import common.utils as utils
 
 
-def get_reactor_type(mes_id, starboard_entry: star_classes.StarboardEntry):
+def get_reactor_type(mes_id: int, starboard_entry: star_classes.StarboardEntry):
     return (
         star_classes.ReactorType.ORI_REACTORS
         if mes_id == starboard_entry.ori_mes_id
@@ -13,7 +14,9 @@ def get_reactor_type(mes_id, starboard_entry: star_classes.StarboardEntry):
     )
 
 
-def clear_stars(bot, starboard_entry: star_classes.StarboardEntry, mes_id):
+def clear_stars(
+    bot: utils.SeraphimBase, starboard_entry: star_classes.StarboardEntry, mes_id: int
+):
     # clears entries from either ori or var reactors, depending on mes_id
     type_of = get_reactor_type(mes_id, starboard_entry)
     new_reactors = set()
@@ -22,7 +25,7 @@ def clear_stars(bot, starboard_entry: star_classes.StarboardEntry, mes_id):
     bot.starboard.update(starboard_entry)
 
 
-def get_star_emoji(num_stars):
+def get_star_emoji(num_stars: int):
     # TODO: make this customizable
     if num_stars <= 6:
         return "⭐"
@@ -34,7 +37,7 @@ def get_star_emoji(num_stars):
         return "✨"
 
 
-def get_author_id(mes: discord.Message, bot: commands.Bot):
+def get_author_id(mes: discord.Message, bot: utils.SeraphimBase):
     # gets author id from message
     author_id = None
     if (
@@ -90,7 +93,9 @@ def generate_content_str(entry: star_classes.StarboardEntry):
         return f"{star_emoji} **{unique_stars}** | {ori_chan_mention}"
 
 
-async def modify_stars(bot, mes: discord.Message, reactor_id, operation):
+async def modify_stars(
+    bot: utils.SeraphimBase, mes: discord.Message, reactor_id: int, operation
+):
     # TODO: this method probably needs to be split up
     # modifies stars and creates an starboard entry if it doesn't exist already
 
@@ -147,7 +152,13 @@ async def sync_prev_reactors(
 ):
     # syncs reactors stored in db with actual reactors on Discord
 
-    async def sync_reactors(bot, mes, starboard_entry, type_of, remove):
+    async def sync_reactors(
+        bot: utils.SeraphimBase,
+        mes: discord.Message,
+        starboard_entry: star_classes.StarboardEntry,
+        type_of: star_classes.ReactorType,
+        remove: bool,
+    ):
         reactions = mes.reactions
         for reaction in reactions:
             if str(reaction) != "⭐":
@@ -212,7 +223,7 @@ async def sync_prev_reactors(
 
 
 async def star_entry_refresh(
-    bot: commands.Bot, starboard_entry: star_classes.StarboardEntry, guild_id
+    bot: utils.SeraphimBase, starboard_entry: star_classes.StarboardEntry, guild_id: int
 ):
     # refreshes a starboard entry mes
     guild = bot.get_guild(guild_id)
@@ -264,7 +275,9 @@ async def star_entry_refresh(
         )
 
 
-async def fetch_needed(bot: commands.Bot, payload: discord.RawReactionActionEvent):
+async def fetch_needed(
+    bot: utils.SeraphimBase, payload: discord.RawReactionActionEvent
+):
     # fetches info from payload
     guild = bot.get_guild(payload.guild_id)
     channel = guild.get_channel_or_thread(payload.channel_id)
@@ -293,7 +306,7 @@ async def fetch_needed(bot: commands.Bot, payload: discord.RawReactionActionEven
     return user, mes.channel, mes
 
 
-def star_check(bot, payload):
+def star_check(bot: utils.SeraphimBase, payload):
     # basic check for starboard stuff: is it in a guild, and is the starboard enabled here?
     return bool(
         payload.guild_id and bot.config.getattr(payload.guild_id, "star_toggle")
