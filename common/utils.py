@@ -60,9 +60,14 @@ async def error_handle(bot, error, ctx: typing.Union[commands.Context, None] = N
     await msg_to_owner(bot, to_send, split)
 
     if ctx:
-        await ctx.reply(
-            content="An internal error has occured. The bot owner has been notified.\n"
+        error_embed = discord.Embed(
+            colour=discord.Colour.red(),
+            description="An internal error has occured. The bot owner has been notified.\n"
             + f"Error (for bot owner purposes): {error}",
+        )
+
+        await ctx.reply(
+            embed=error_embed,
             ephemeral=True,
         )
 
