@@ -10,13 +10,13 @@ import common.utils as utils
 
 class OnCMDError(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: utils.SeraphimBase = bot
 
     def error_embed_generate(self, error_msg):
         return discord.Embed(colour=discord.Colour.red(), description=error_msg)
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx: commands.Context, error):
+    async def on_command_error(self, ctx: utils.SeraContextBase, error):
         # sourcery skip: remove-pass-elif
         if not ctx.bot.is_ready():
             return

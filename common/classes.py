@@ -16,7 +16,7 @@ _T = typing.TypeVar("_T")
 class SnipedMessage:
     """A special class for sniped messages."""
 
-    embed: discord.Embed
+    embed: discord.Embed = attr.ib()
     time_modified: datetime.datetime = attr.ib(factory=discord.utils.utcnow)
 
 
