@@ -13,8 +13,8 @@ class SnipeEvents(commands.Cog):
         self.bot: utils.SeraphimBase = bot
 
     @commands.Cog.listener()
-    async def on_message_delete(self, message):
-        if message.system_content != "":
+    async def on_message_delete(self, message: discord.Message):
+        if message.system_content != "" and message.guild:
             if message.channel.id not in self.bot.snipes["deletes"].keys():
                 self.bot.snipes["deletes"][message.channel.id] = []
 
@@ -32,11 +32,11 @@ class SnipeEvents(commands.Cog):
             )
 
     @commands.Cog.listener()
-    async def on_message_edit(self, before, after):
+    async def on_message_edit(self, before: discord.Message, after: discord.Message):
         if before.system_content == after.system_content:
             return
 
-        if before.system_content != "":
+        if before.system_content != "" and before.guild:
             if before.channel.id not in self.bot.snipes["edits"].keys():
                 self.bot.snipes["edits"][before.channel.id] = []
 
