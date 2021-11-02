@@ -168,7 +168,9 @@ class StarCMDs(commands.Cog, name="Starboard"):
         )
         top_embed.set_footer(text="As of")
 
-        sorted_entries = sorted(guild_entries, key=lambda e: len(e.get_reactors()), reverse=True)
+        sorted_entries = sorted(
+            guild_entries, key=lambda e: len(e.get_reactors()), reverse=True
+        )
 
         actual_entry_count = 0
         for entry in sorted_entries:
