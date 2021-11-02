@@ -28,9 +28,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         if query:
             guild_entries = await self.bot.starboard.raw_query(query=query)
         else:
-            guild_entries = await self.bot.starboard.query_entries(
-                conditions=conditions
-            )
+            guild_entries = await self.bot.starboard.query_entries(**conditions)
 
         if not guild_entries:
             return None
@@ -142,7 +140,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
                 query=f"guild_id = {ctx.guild.id} AND author_id IN ({','.join(role_members)})"
             )
         else:
-            guild_entries = await self.bot.starboard.query_entries(guild_id=ctx.bot.id)
+            guild_entries = await self.bot.starboard.query_entries(guild_id=ctx.guild.id)
 
         if not guild_entries:
             raise utils.CustomCheckFailure(
