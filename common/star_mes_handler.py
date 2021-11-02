@@ -280,7 +280,7 @@ async def star_generate(bot, mes):
     return send_embed
 
 
-async def send(bot, mes: discord.Message):
+async def send(bot: utils.SeraphimBase, mes: discord.Message):
     # sends message to starboard channel
 
     send_embed = await star_generate(bot, mes)

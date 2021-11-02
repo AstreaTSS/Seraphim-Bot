@@ -60,15 +60,11 @@ async def error_handle(bot, error, ctx: typing.Union[commands.Context, None] = N
     await msg_to_owner(bot, to_send, split)
 
     if ctx:
-        if isinstance(ctx, commands.Context):
-            await ctx.reply(
-                "An internal error has occured. The bot owner has been notified."
-            )
-        else:
-            await ctx.reply(
-                content="An internal error has occured. The bot owner has been notified.",
-                ephemeral=True,
-            )
+        await ctx.reply(
+            content="An internal error has occured. The bot owner has been notified.\n"
+            + f"Error (for bot owner purposes): {error}",
+            ephemeral=True,
+        )
 
 
 async def msg_to_owner(bot, content, split=True):

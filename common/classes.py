@@ -20,50 +20,62 @@ class SnipedMessage:
     time_modified: datetime.datetime = attr.ib(factory=discord.utils.utcnow)
 
 
-class SetAsyncQueue(asyncio.Queue[_T]):
-    """A special type of async queue that uses a set instead of a list."""
+if typing.TYPE_CHECKING:
 
-    def _init(self, maxsize):
-        self._queue = set()
+    class SetAsyncQueue(asyncio.Queue[_T]):
+        ...
 
-    def _get(self):
-        return self._queue.pop()
+    class SetUpdateAsyncQueue(SetAsyncQueue[_T]):
+        ...
 
-    def _put(self, item):
-        self._queue.add(item)
-
-
-class SetUpdateAsyncQueue(SetAsyncQueue[_T]):
-    """A special type of async queue that uses a set instead of a list.
-    Also updates instead of discards entries if it encounters a duplicate."""
-
-    def _put(self, item) -> None:
-        # admittedly, a hack, but a hack that's efficient
-        self._queue.discard(item)
-        self._queue.add(item)
+    class SetNoReaddAsyncQueue(asyncio.Queue[_T]):
+        ...
 
 
-class SetNoReaddAsyncQueue(asyncio.Queue[_T]):
-    """A special type of async queue that uses a set instead of a list.
-    Also ensures entries cannot be re-added (at the expense of using more memory)."""
+else:
 
-    def _init(self, maxsize):
-        self._queue = set()
-        self._queuecopy = set()
+    class SetAsyncQueue(asyncio.Queue):
+        """A special type of async queue that uses a set instead of a list."""
 
-    def _get(self):
-        return self._queue.pop()
+        def _init(self, maxsize):
+            self._queue = set()
 
-    def _put(self, item):
-        if item not in self._queuecopy:
+        def _get(self):
+            return self._queue.pop()
+
+        def _put(self, item):
             self._queue.add(item)
-            self._queuecopy.add(item)
 
-    def remove_from_copy(self, item):
-        self._queuecopy.discard(item)
+    class SetUpdateAsyncQueue(SetAsyncQueue):
+        """A special type of async queue that uses a set instead of a list.
+        Also updates instead of discards entries if it encounters a duplicate."""
 
-    def clear_memory(self):
-        self._queuecopy.clear()
+        def _put(self, item) -> None:
+            # admittedly, a hack, but a hack that's efficient
+            self._queue.discard(item)
+            self._queue.add(item)
+
+    class SetNoReaddAsyncQueue(asyncio.Queue):
+        """A special type of async queue that uses a set instead of a list.
+        Also ensures entries cannot be re-added (at the expense of using more memory)."""
+
+        def _init(self, maxsize):
+            self._queue = set()
+            self._queuecopy = set()
+
+        def _get(self):
+            return self._queue.pop()
+
+        def _put(self, item):
+            if item not in self._queuecopy:
+                self._queue.add(item)
+                self._queuecopy.add(item)
+
+        def remove_from_copy(self, item):
+            self._queuecopy.discard(item)
+
+        def clear_memory(self):
+            self._queuecopy.clear()
 
 
 class PowerofTwoConverter(commands.Converter[int]):

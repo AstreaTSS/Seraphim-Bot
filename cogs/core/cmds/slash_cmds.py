@@ -1,5 +1,6 @@
 import importlib
 import random
+import typing
 
 import discord
 from discord.ext import commands
@@ -41,24 +42,38 @@ class SlashCMDS(commands.Cog):
         if ctx.interaction:
             inter = ctx.interaction
 
+            if inter.data and not inter.data.get("resolved"):
+                victim_str = discord.utils.escape_markdown(target)
+
+            victim_raw: typing.Optional[str] = None
+
             # see if we got any resolved members or users - looks nicer to do
             if (
-                inter.data.resolved.members
-                and len(inter.data.resolved.members.keys()) == 1
+                inter.data["resolved"]["members"]
+                and len(inter.data["resolved"]["members"].keys()) == 1
             ):
-                victim_str = tuple(inter.data.resolved.members.values())[0].display_name
-            elif (
-                inter.data.resolved.users and len(inter.data.resolved.users.keys()) == 1
+                victim_raw = tuple(inter.data["resolved"]["members"].values())[0][
+                    "nick"
+                ]
+            if (
+                not victim
+                and inter.data["resolved"]["users"]
+                and len(inter.data["resolved"]["users"].keys()) == 1
             ):
-                victim_str = tuple(inter.data.resolved.users.values())[0].display_name
-            else:
-                victim_str = discord.utils.escape_markdown(target)
+                victim_raw = tuple(inter.data["resolved"]["users"].values())[0][
+                    "username"
+                ]
+
+            victim_str = (
+                discord.utils.escape_markdown(target) if not victim_raw else victim_raw
+            )
         else:
             try:
-                victim = await commands.MemberConverter().convert(ctx, victim_str)
+                converter = commands.MemberConverter()
+                victim = await converter.convert(ctx, target)
                 victim_str = victim.display_name
             except commands.BadArgument:
-                pass
+                victim_str = discord.utils.escape_markdown(target)
 
         victim_str = f"**{victim_str}**"
         author_str = f"**{ctx.author.display_name}**"

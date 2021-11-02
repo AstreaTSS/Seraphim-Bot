@@ -11,7 +11,7 @@ import common.utils as utils
 
 class DBHandler(commands.Cog):
     def __init__(self, bot: commands.Bot):
-        self.bot = bot
+        self.bot: utils.SeraphimBase = bot
         self.commit_loop.start()
 
     def cog_unload(self):

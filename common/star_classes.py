@@ -162,10 +162,13 @@ def entry_init():
     return collections.defaultdict(lambda: None)
 
 
-@attr.s(slots=True, eq=False)
+@attr.s(slots=True, eq=False, hash=False)
 class StarboardSQLEntry:
     query: str = attr.ib()
     args: typing.Sequence[typing.Any] = attr.ib()
+
+    def __hash__(self) -> int:
+        return self.args[0]
 
     def __eq__(self, other) -> int:
         # if the ori_mes_id is the same with both
@@ -181,9 +184,12 @@ class StarboardEntries:
     _pool: asyncpg.Pool = attr.ib()
     # note: entry cache isn't really a dict, but for typehinting purposes this works
     _entry_cache: typing.Dict[int, StarboardEntry] = attr.ib()
-    # typing is fun, isn't it?
-    _sql_queries: cclass.SetUpdateAsyncQueue[StarboardSQLEntry] = attr.ib()
     _sql_loop_task: asyncio.Task = attr.ib()
+
+    if typing.TYPE_CHECKING:
+        _sql_queries: cclass.SetUpdateAsyncQueue[StarboardSQLEntry]
+    else:
+        _sql_queries: cclass.SetUpdateAsyncQueue = attr.ib()
 
     def __init__(self, pool: asyncpg.Pool, cache_size: int = 100):
         self._pool = pool
@@ -205,10 +211,11 @@ class StarboardEntries:
         Saves speed on adding, deleting, and updating by offloading
         this step here."""
         async with self._pool.acquire() as conn:
+            conn: asyncpg.Connection
             try:
                 while True:
                     entry = await self._sql_queries.get()
-                    await conn.execute(entry.query, entry.args)
+                    await conn.execute(entry.query, timeout=60, *entry.args)
                     self._sql_queries.task_done()
             except asyncio.CancelledError:
                 pass
