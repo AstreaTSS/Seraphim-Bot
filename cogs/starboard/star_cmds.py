@@ -168,10 +168,10 @@ class StarCMDs(commands.Cog, name="Starboard"):
         )
         top_embed.set_footer(text="As of")
 
-        guild_entries.sort(reverse=True, key=lambda e: len(e.get_reactors()))
+        sorted_entries = sorted(guild_entries, key=lambda e: len(e.get_reactors()), reverse=True)
 
         actual_entry_count = 0
-        for entry in guild_entries:
+        for entry in sorted_entries:
             if actual_entry_count > 9:
                 break
 
