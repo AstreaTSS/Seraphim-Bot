@@ -12,7 +12,7 @@ import common.utils as utils
 
 class SnipeCMDs(commands.Cog, name="Snipe"):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: utils.SeraphimBase = bot
         self.auto_cleanup.start()
 
     def cog_unload(self):

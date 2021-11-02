@@ -5,14 +5,15 @@ import discord
 from discord.ext import commands
 
 import common.star_utils as star_utils
+import common.utils as utils
 
 
 class ClearEvents(commands.Cog):
     def __init__(self, bot):
-        self.bot: commands.Bot = bot
+        self.bot: utils.SeraphimBase = bot
 
     async def auto_clear_stars(self, payload):
-        star_variant = self.bot.starboard.get(payload.message_id)
+        star_variant = await self.bot.starboard.get(payload.message_id)
         if star_variant:
             star_utils.clear_stars(self.bot, star_variant, payload.message_id)
             await star_utils.star_entry_refresh(
@@ -24,7 +25,7 @@ class ClearEvents(commands.Cog):
         if not star_utils.star_check(self.bot, payload):
             return
 
-        star_variant = self.bot.starboard.get(payload.message_id)
+        star_variant = await self.bot.starboard.get(payload.message_id)
 
         if star_variant:
             if star_variant.star_var_id != payload.message_id:
@@ -59,7 +60,9 @@ class ClearEvents(commands.Cog):
         if not star_utils.star_check(self.bot, payload):
             return
 
-        init_star_variants = [self.bot.starboard.get(k) for k in payload.message_ids]
+        init_star_variants = [
+            await self.bot.starboard.get(k) for k in payload.message_ids
+        ]
         star_variants = [k for k in init_star_variants if k != None]
 
         if star_variants != []:
@@ -108,5 +111,6 @@ class ClearEvents(commands.Cog):
 
 
 def setup(bot):
+    importlib.reload(utils)
     importlib.reload(star_utils)
     bot.add_cog(ClearEvents(bot))

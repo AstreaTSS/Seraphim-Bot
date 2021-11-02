@@ -19,7 +19,7 @@ class ImageCMDs(commands.Cog, name="Image"):
     """A series of commands for manipulating images in certain ways."""
 
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: utils.SeraphimBase = bot
 
     def get_size(self, image: io.BytesIO):
         old_pos = image.tell()

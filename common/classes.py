@@ -2,41 +2,80 @@
 import asyncio
 import datetime
 import typing
-from dataclasses import dataclass
-from dataclasses import field
 
+import attr
 import discord
 from discord.ext import commands
 
 import common.utils as utils
 
+_T = typing.TypeVar("_T")
 
-@dataclass
+
+@attr.s(slots=True)
 class SnipedMessage:
     """A special class for sniped messages."""
 
     embed: discord.Embed
-    time_modified: datetime.datetime = field(default_factory=discord.utils.utcnow)
+    time_modified: datetime.datetime = attr.ib(factory=discord.utils.utcnow)
 
 
-class SetAsyncQueue(asyncio.Queue):
-    """A special type of async queue that uses a set instead of a list.
-    Useful when we don't want duplicates."""
+if typing.TYPE_CHECKING:
 
-    def _init(self, maxsize):
-        self._queue = set()
-        self._queuecopy = set()
+    class SetAsyncQueue(asyncio.Queue[_T]):
+        ...
 
-    def _get(self):
-        return self._queue.pop()
+    class SetUpdateAsyncQueue(SetAsyncQueue[_T]):
+        ...
 
-    def _put(self, item):
-        if item not in self._queuecopy:
+    class SetNoReaddAsyncQueue(asyncio.Queue[_T]):
+        ...
+
+
+else:
+
+    class SetAsyncQueue(asyncio.Queue):
+        """A special type of async queue that uses a set instead of a list."""
+
+        def _init(self, maxsize):
+            self._queue = set()
+
+        def _get(self):
+            return self._queue.pop()
+
+        def _put(self, item):
             self._queue.add(item)
-            self._queuecopy.add(item)
 
-    def remove_from_copy(self, item):
-        self._queuecopy.discard(item)
+    class SetUpdateAsyncQueue(SetAsyncQueue):
+        """A special type of async queue that uses a set instead of a list.
+        Also updates instead of discards entries if it encounters a duplicate."""
+
+        def _put(self, item) -> None:
+            # admittedly, a hack, but a hack that's efficient
+            self._queue.discard(item)
+            self._queue.add(item)
+
+    class SetNoReaddAsyncQueue(asyncio.Queue):
+        """A special type of async queue that uses a set instead of a list.
+        Also ensures entries cannot be re-added (at the expense of using more memory)."""
+
+        def _init(self, maxsize):
+            self._queue = set()
+            self._queuecopy = set()
+
+        def _get(self):
+            return self._queue.pop()
+
+        def _put(self, item):
+            if item not in self._queuecopy:
+                self._queue.add(item)
+                self._queuecopy.add(item)
+
+        def remove_from_copy(self, item):
+            self._queuecopy.discard(item)
+
+        def clear_memory(self):
+            self._queuecopy.clear()
 
 
 class PowerofTwoConverter(commands.Converter[int]):
@@ -178,25 +217,25 @@ class ValidChannelConverter(commands.TextChannelConverter):
         return chan
 
 
-@dataclass
+@attr.s(slots=True)
 class WizardQuestion:
-    question: str
-    converter: typing.Callable
-    action: typing.Callable
+    question: str = attr.ib()
+    converter: typing.Callable = attr.ib()
+    action: typing.Callable = attr.ib()
 
 
-@dataclass
+@attr.s
 class WizardManager:
     """A class that allows you to make a wizard of sorts, allowing a more intuitive way of getting multiple inputs from a user."""
 
-    embed_title: str
-    final_text: str
-    color: discord.Color = discord.Color(0x4378FC)
-    timeout: float = 120
-    pass_self: bool = False
+    embed_title: str = attr.ib()
+    final_text: str = attr.ib()
+    color: discord.Color = attr.ib(default=discord.Color(0x4378FC))
+    timeout: float = attr.ib(default=120)
+    pass_self: bool = attr.ib(default=False)
 
-    questions: typing.List[WizardQuestion] = field(default_factory=list, init=False)
-    ori_mes: typing.Optional[discord.Message] = field(default=None, init=False)
+    questions: typing.List[WizardQuestion] = attr.ib(factory=list, init=False)
+    ori_mes: typing.Optional[discord.Message] = attr.ib(default=None, init=False)
 
     def add_question(
         self, question: str, converter: typing.Callable, action: typing.Callable

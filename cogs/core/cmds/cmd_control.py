@@ -9,7 +9,7 @@ import common.utils as utils
 
 class CmdControl(commands.Cog, name="Command Control"):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: utils.SeraphimBase = bot
 
     class CommandConverter(commands.Converter):
         async def convert(self, ctx, argument):

@@ -11,7 +11,7 @@ import common.utils as utils
 
 class SetupCMD(commands.Cog, name="Setup"):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: utils.SeraphimBase = bot
 
     @groups.group()
     @utils.proper_permissions()

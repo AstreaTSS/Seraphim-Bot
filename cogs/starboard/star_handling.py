@@ -11,7 +11,7 @@ import common.utils as utils
 
 class Star(commands.Cog):
     def __init__(self, bot):
-        self.bot: commands.Bot = bot
+        self.bot: utils.SeraphimBase = bot
         self.star_task = bot.loop.create_task(self.starboard_queue())
 
     def cog_unload(self):
@@ -21,7 +21,7 @@ class Star(commands.Cog):
         while True:
             entry = await self.bot.star_queue.get()
 
-            starboard_entry = self.bot.starboard.get(entry[1])
+            starboard_entry = await self.bot.starboard.get(entry[1])
             guild = self.bot.get_guild(starboard_entry.guild_id)
             chan = guild.get_channel_or_thread(entry[0])
 
@@ -61,7 +61,7 @@ class Star(commands.Cog):
         ):
 
             if mes.author.id != user.id:
-                starboard_entry = self.bot.starboard.get(mes.id)
+                starboard_entry = await self.bot.starboard.get(mes.id)
 
                 if starboard_entry and (
                     starboard_entry.frozen or starboard_entry.trashed
@@ -75,7 +75,7 @@ class Star(commands.Cog):
                         await star_utils.modify_stars(
                             self.bot, mes, payload.user_id, "ADD"
                         )
-                        starboard_entry = self.bot.starboard.get(mes.id)
+                        starboard_entry = await self.bot.starboard.get(mes.id)
                         if not starboard_entry:
                             return
 
@@ -94,7 +94,7 @@ class Star(commands.Cog):
 
                     await star_utils.modify_stars(self.bot, mes, payload.user_id, "ADD")
 
-                    new_entry = self.bot.starboard.get(mes.id)
+                    new_entry = await self.bot.starboard.get(mes.id)
                     new_stars = len(new_entry.get_reactors())
                     if old_stars != new_stars:  # we don't want to refresh too often
                         await star_utils.star_entry_refresh(
@@ -133,7 +133,7 @@ class Star(commands.Cog):
             not in self.bot.config.getattr(mes.guild.id, "star_blacklist")
         ):
 
-            star_variant = self.bot.starboard.get(mes.id)
+            star_variant = await self.bot.starboard.get(mes.id)
 
             if star_variant and not star_variant.frozen and not star_variant.trashed:
                 await star_utils.modify_stars(
@@ -174,8 +174,12 @@ class Star(commands.Cog):
                 return
 
         # if message exists and the edit message toggle is on
-        if mes and self.bot.config.getattr(mes.guild.id, "star_edit_messages"):
-            starboard_entry = self.bot.starboard.get(mes.id, check_for_var=True)
+        if (
+            mes
+            and mes.guild
+            and self.bot.config.getattr(mes.guild.id, "star_edit_messages")
+        ):
+            starboard_entry = await self.bot.starboard.get(mes.id, check_for_var=True)
 
             # if the starboard entry exists and the star variant of the entry is not the message edited
             if starboard_entry and starboard_entry.star_var_id != mes.id:

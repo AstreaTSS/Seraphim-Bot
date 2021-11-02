@@ -9,7 +9,6 @@ from pathlib import Path
 import aiohttp
 import discord
 from discord.ext import commands
-from dislash import SlashInteraction
 
 
 def proper_permissions():
@@ -36,9 +35,7 @@ def bot_proper_perms():
     return commands.check(predicate)
 
 
-async def error_handle(
-    bot, error, ctx: typing.Union[commands.Context, SlashInteraction, None] = None
-):
+async def error_handle(bot, error, ctx: typing.Union[commands.Context, None] = None):
     # handles errors and sends them to owner
     if isinstance(error, aiohttp.ServerDisconnectedError):
         to_send = "Disconnected from server!"
@@ -49,14 +46,11 @@ async def error_handle(
 
         error_split = error_str.splitlines()
         chunks = [error_split[x : x + 20] for x in range(0, len(error_split), 20)]
-        for i in range(len(chunks)):
-            chunks[i][0] = f"```py\n{chunks[i][0]}"
-            chunks[i][len(chunks[i]) - 1] += "\n```"
+        for chunk_ in chunks:
+            chunk_[0] = f"```py\n{chunk_[0]}"
+            chunk_[len(chunk_) - 1] += "\n```"
 
-        final_chunks = []
-        for chunk in chunks:
-            final_chunks.append("\n".join(chunk))
-
+        final_chunks = ["\n".join(chunk) for chunk in chunks]
         if ctx and hasattr(ctx, "message") and hasattr(ctx.message, "jump_url"):
             final_chunks.insert(0, f"Error on: {ctx.message.jump_url}")
 
@@ -66,15 +60,11 @@ async def error_handle(
     await msg_to_owner(bot, to_send, split)
 
     if ctx:
-        if isinstance(ctx, commands.Context):
-            await ctx.reply(
-                "An internal error has occured. The bot owner has been notified."
-            )
-        else:
-            await ctx.reply(
-                content="An internal error has occured. The bot owner has been notified.",
-                ephemeral=True,
-            )
+        await ctx.reply(
+            content="An internal error has occured. The bot owner has been notified.\n"
+            + f"Error (for bot owner purposes): {error}",
+            ephemeral=True,
+        )
 
 
 async def msg_to_owner(bot, content, split=True):
@@ -338,3 +328,43 @@ class CustomCheckFailure(commands.CheckFailure):
 
 class NotEnoughPerms(commands.CheckFailure):
     pass
+
+
+if typing.TYPE_CHECKING:
+    # avoids circular imports this way
+
+    import asyncpg
+    import common.star_classes as star_classes
+    import common.classes as custom_classes
+    import common.configs as config
+
+    class SeraphimBase(commands.Bot):
+        # this should technically be in custom classes
+        # but this is used in a lot of places for typehinting
+        config: config.GuildConfigManager
+        star_queue: custom_classes.SetNoReaddAsyncQueue
+        snipes: typing.Dict[
+            typing.Literal["deletes", "edits"],
+            typing.Dict[int, typing.List[custom_classes.SnipedMessage]],
+        ]
+        role_rolebacks: typing.Dict[
+            int, typing.Dict[typing.Literal["roles", "time", "id"], typing.Any]
+        ]
+        image_extensions: typing.Tuple[str, ...]
+        added_db_info: bool
+        death_messages: typing.Tuple[str, ...]
+        pool: asyncpg.Pool
+        starboard: star_classes.StarboardEntries
+        owner: discord.User
+
+    class SeraContextBase(commands.Context):
+        bot: SeraphimBase
+
+
+else:
+
+    class SeraphimBase(commands.Bot):
+        ...
+
+    class SeraContextBase(commands.Context):
+        ...

@@ -2,6 +2,7 @@
 import asyncio
 import logging
 import os
+import typing
 
 import aiohttp
 import asyncpg
@@ -10,7 +11,6 @@ import orjson
 import websockets
 from discord.ext import commands
 from discord.ext.commands.bot import _default as bot_default
-from dislash import InteractionClient
 from dotenv import load_dotenv
 
 import common.classes as custom_classes
@@ -78,10 +78,8 @@ def global_checks(ctx):  # sourcery skip: return-identity
 async def on_init_load():
     await bot.wait_until_ready()
 
-    bot.starboard = star_classes.StarboardEntries()
     bot.config = configs.GuildConfigManager()
-
-    bot.star_queue = custom_classes.SetAsyncQueue()
+    bot.star_queue = custom_classes.SetNoReaddAsyncQueue()
 
     bot.snipes = {"deletes": {}, "edits": {}}
     bot.role_rolebacks = {}
@@ -123,6 +121,8 @@ async def on_init_load():
             db_url, min_size=2, max_size=10, init=add_json_converter
         )
 
+        bot.starboard = star_classes.StarboardEntries(bot.pool)
+
     bot.load_extension("jishaku")
     bot.load_extension("cogs.db_handler")
     while not bot.added_db_info:
@@ -141,7 +141,7 @@ async def on_init_load():
     bot.owner = application.owner
 
 
-class SeraphimBot(commands.Bot):
+class SeraphimBot(utils.SeraphimBase):
     def __init__(
         self, command_prefix, help_command=bot_default, description=None, **options
     ):
@@ -155,12 +155,12 @@ class SeraphimBot(commands.Bot):
 
     async def on_ready(self):
         utcnow = discord.utils.utcnow()
-        time_format = utcnow.strftime("%x %X UTC")
+        time_format = discord.utils.format_dt(utcnow)
 
         connect_msg = (
-            f"Logged in at `{time_format}`!"
+            f"Logged in at {time_format}!"
             if self.init_load == True
-            else f"Reconnected at `{time_format}`!"
+            else f"Reconnected at {time_format}!"
         )
 
         while not hasattr(self, "owner"):
@@ -205,8 +205,9 @@ class SeraphimBot(commands.Bot):
         try:
             await asyncio.wait_for(self.pool.close(), timeout=10)
         except asyncio.TimeoutError:
-            await self.pool.terminate()
+            self.pool.terminate()
 
+        self.starboard.stop()
         return await super().close()
 
 
@@ -229,7 +230,6 @@ bot = SeraphimBot(
     allowed_mentions=mentions,
     intents=intents,
 )
-slash = InteractionClient(bot, modify_send=False)
 
 try:
     import uvloop

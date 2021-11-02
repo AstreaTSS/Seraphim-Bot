@@ -3,7 +3,6 @@ import discord
 from discord.ext import commands
 
 import common.star_classes as star_classes
-import common.utils as utils
 
 
 def get_reactor_type(mes_id, starboard_entry: star_classes.StarboardEntry):
@@ -95,7 +94,7 @@ async def modify_stars(bot, mes: discord.Message, reactor_id, operation):
     # TODO: this method probably needs to be split up
     # modifies stars and creates an starboard entry if it doesn't exist already
 
-    starboard_entry = bot.starboard.get(mes.id)
+    starboard_entry = await bot.starboard.get(mes.id)
     if not starboard_entry:
         author_id = get_author_id(mes, bot)
         starboard_entry = star_classes.StarboardEntry.new_entry(
@@ -112,7 +111,7 @@ async def modify_stars(bot, mes: discord.Message, reactor_id, operation):
         type_of = get_reactor_type(mes.id, starboard_entry)
         await sync_prev_reactors(bot, author_id, starboard_entry)
 
-        starboard_entry = bot.starboard.get(starboard_entry.ori_mes_id)
+        starboard_entry = await bot.starboard.get(starboard_entry.ori_mes_id)
         starboard_entry.updated = True
 
     if author_id != reactor_id:
