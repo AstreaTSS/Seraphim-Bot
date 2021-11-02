@@ -1,68 +1,43 @@
 import collections
 import typing
 
+import attr
 
+
+def restore_roles_toggle_converter(restore_roles_toggle: typing.Optional[bool]):
+    return restore_roles_toggle if restore_roles_toggle != None else False
+
+
+def default_perms_check_converter(default_perms_check: typing.Optional[bool]):
+    return default_perms_check if default_perms_check != None else True
+
+
+def custom_perm_roles_converter(custom_perm_roles: typing.Optional[typing.List[int]]):
+    return custom_perm_roles if custom_perm_roles != None else []
+
+
+@attr.s(slots=True, eq=False)
 class GuildConfig:
     """A way of representing server configs in an easy way."""
 
-    __slots__ = (
-        "guild_id",
-        "starboard_id",
-        "star_limit",
-        "star_blacklist",
-        "star_toggle",
-        "remove_reaction",
-        "star_edit_messages",
-        "pingable_roles",
-        "pin_config",
-        "prefixes",
-        "disables",
-        "mer",
-        "restore_roles_toggle",
-        "default_perms_check",
-        "custom_perm_roles",
-    )
+    guild_id: int = attr.ib()
+    starboard_id: typing.Optional[int] = attr.ib()
+    star_limit: typing.Optional[int] = attr.ib()
+    star_blacklist: typing.List[int] = attr.ib()
+    star_toggle: bool = attr.ib()
+    remove_reaction: bool = attr.ib()
+    star_edit_messages: bool = attr.ib()
+    pingable_roles: dict = attr.ib()
+    pin_config: dict = attr.ib()
+    prefixes: list = attr.ib()
+    disables: dict = attr.ib()
+    mer: dict = attr.ib()
+    restore_roles_toggle: bool = attr.ib(converter=restore_roles_toggle_converter)
+    default_perms_check: bool = attr.ib(converter=default_perms_check_converter)
+    custom_perm_roles: typing.List[int] = attr.ib(converter=custom_perm_roles_converter)
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.guild_id == other.guild_id
-
-    def __init__(
-        self,
-        guild_id: int,
-        starboard_id: typing.Optional[int],
-        star_limit: typing.Optional[int],
-        star_blacklist: typing.List[int],
-        star_toggle: bool,
-        remove_reaction: bool,
-        star_edit_messages: bool,
-        pingable_roles: dict,
-        pin_config: dict,
-        prefixes: list,
-        disables: dict,
-        mer: dict,
-        restore_roles_toggle: bool,
-        default_perms_check: bool,
-        custom_perm_roles: typing.List[int],
-    ):
-        self.guild_id = guild_id
-        self.starboard_id = starboard_id
-        self.star_limit = star_limit
-        self.star_blacklist = star_blacklist
-        self.star_toggle = star_toggle
-        self.remove_reaction = remove_reaction
-        self.star_edit_messages = star_edit_messages
-        self.pingable_roles = pingable_roles
-        self.pin_config = pin_config
-        self.prefixes = prefixes
-        self.disables = disables
-        self.mer = mer
-        self.restore_roles_toggle = (
-            restore_roles_toggle if restore_roles_toggle != None else False
-        )
-        self.default_perms_check = (
-            default_perms_check if default_perms_check != None else True
-        )
-        self.custom_perm_roles = custom_perm_roles if custom_perm_roles != None else []
 
     @classmethod
     def from_db(cls, entry: dict):
@@ -79,9 +54,9 @@ class GuildConfig:
             entry["prefixes"],
             entry["disables"],
             entry["mer"],
-            entry.get("restore_roles_toggle"),  # TODO
-            entry.get("default_perms_check"),
-            entry.get("custom_perm_roles"),
+            entry.get("restore_roles_toggle"),  # type: ignore
+            entry.get("default_perms_check"),  # type: ignore
+            entry.get("custom_perm_roles"),  # type: ignore
         )
 
     @classmethod
@@ -111,15 +86,19 @@ class GuildConfig:
         return {key: getattr(self, key) for key in self.__slots__ if hasattr(self, key)}
 
 
+def entry_init():
+    return collections.defaultdict(lambda: None)
+
+
+@attr.s(slots=True)
 class GuildConfigManager:
     """A way of managing server entries."""
 
-    __slots__ = ("entries", "added", "updated")
-
-    def __init__(self):
-        self.entries = collections.defaultdict(lambda: None)
-        self.added = set()
-        self.updated = set()
+    entries: typing.DefaultDict[int, typing.Optional[GuildConfig]] = attr.ib(
+        factory=entry_init
+    )
+    added: typing.Set[int] = attr.ib(factory=set)
+    updated: typing.Set[int] = attr.ib(factory=set)
 
     def reset_deltas(self):
         """Resets the deltas so that they have nothing."""

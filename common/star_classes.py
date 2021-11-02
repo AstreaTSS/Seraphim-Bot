@@ -158,10 +158,6 @@ class StarboardEntry:
             self.var_reactors.discard(reactor_id)
 
 
-def entry_init():
-    return collections.defaultdict(lambda: None)
-
-
 @attr.s(slots=True, eq=False, hash=False)
 class StarboardSQLEntry:
     query: str = attr.ib()
