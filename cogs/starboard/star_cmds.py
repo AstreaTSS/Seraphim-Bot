@@ -130,6 +130,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
             raise commands.BadArgument(
                 "You can't just specify both a user and a role and have that user not have that role."
             )
+            
+        await ctx.defer()
 
         if flags.user:
             guild_entries = await self.bot.starboard.query_entries(
@@ -221,7 +223,9 @@ class StarCMDs(commands.Cog, name="Starboard"):
         """Allows you to view the top 10 people with the most stars on a server. Cooldown of once every 5 seconds per user.
         Flags: --role <role>: allows you to filter by the role specified, only counting those who have that role.
         --bots <true/false>: if bot messages will be on the leaderboard."""
-
+           
+        await ctx.defer()
+        
         optional_role = flags.role
         if optional_role:
             role_members = frozenset(str(r.id) for r in optional_role.members)
@@ -297,7 +301,9 @@ class StarCMDs(commands.Cog, name="Starboard"):
     ):
         """Allows you to get either your or whoever you mentioned’s position in the star leaderboard (like the top command, but only for one person).
         The user can be mentioned, searched up by ID, or you can say their name and the bot will attempt to search for that person."""
-
+        
+        await ctx.defer()
+        
         member = ctx.author if not user else user
         user_star_list = await self.get_star_rankings(guild_id=ctx.guild.id)
 
@@ -330,7 +336,9 @@ class StarCMDs(commands.Cog, name="Starboard"):
     async def random(self, ctx: commands.Context):
         """Gets a random starboard entry from the server it's being run in.
         May not work 100% of the time, but it should be reliable enough."""
-
+        
+        await ctx.defer()
+        
         random_entry = await self.bot.starboard.get_random(ctx.guild.id)
 
         if not random_entry:
@@ -372,6 +380,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
         The message either needs to be a message ID of a message in the guild the command is being run in,
         a {channel id}-{message id} format, or the message link itself.
         The message can either be the original message or the starboard variant message."""
+        
+        await ctx.defer()
 
         starboard_entry: star_classes.StarboardEntry = await self.bot.starboard.get(
             msg.id
@@ -425,6 +435,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
         The message either needs to be a message ID of a message in the guild the command is being run in,
         a {channel id}-{message id} format, or the message link itself.
         The message can either be the original message or the starboard variant message."""
+        
+        await ctx.defer()
 
         starboard_entry: star_classes.StarboardEntry = await self.bot.starboard.get(
             msg.id
@@ -503,6 +515,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
         a {channel id}-{message id} format, or the message link itself.
         This message cannot be taken off the starboard unless it is deleted from it manually.
         You must have Manage Server permissions or higher to run this command."""
+        
+        await ctx.defer()
 
         starboard_entry = await self.initial_get(ctx, msg, forced=True)
 
@@ -524,6 +538,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
         The message either needs to be a message ID of a message in the channel the command is being run in,
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
+        
+        await ctx.defer()
 
         starboard_entry = await self.initial_get(ctx, msg)
         starboard_entry.frozen = True
@@ -543,6 +559,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
         The message either needs to be a message ID of a message,
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
+        
+        await ctx.defer()
 
         starboard_entry = await self.initial_get(ctx, msg, do_not_create=True)
 
@@ -580,6 +598,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
         The message either needs to be a message ID of a message
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
+        
+        await ctx.defer()
 
         starboard_entry = await self.initial_get(ctx, msg, do_not_create=True)
         if not starboard_entry.frozen:
@@ -600,6 +620,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
         The message either needs to be a message ID of a message,
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
+        
+        await ctx.defer()
 
         starboard_entry = await self.initial_get(ctx, msg, do_not_create=True)
         if not starboard_entry.trashed:
@@ -622,6 +644,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
         The message either needs to be a message ID of a message,
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
+        
+        await ctx.defer()
 
         starboard_entry = await self.initial_get(
             ctx, msg, do_not_create=True, bypass_int_check=True
@@ -656,6 +680,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
     @commands.command(hidden=True)
     @commands.is_owner()
     async def debug_star_mes(self, ctx, msg: discord.Message):
+        await ctx.defer()
         send_embed = await star_mes.star_generate(self.bot, msg)
         await ctx.reply(embed=send_embed)
 
