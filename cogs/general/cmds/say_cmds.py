@@ -108,15 +108,15 @@ class SayCMDS(commands.Cog, name="Say"):
         wizard.add_question(question_1, chan_convert, chan_action)
 
         question_2 = (
-            "2. If you wish to do so, what color, in hex (ex. #000000), would you like the embed to have. Case-insensitive, "
+            "2. If you wish to do so, what color, in hex (ex. #000000), would you like the embed to have? Case-insensitive, "
             + "does not require '#'.\nIf you just want the default color, say \"skip\"."
         )
 
         async def color_convert(ctx, content):
             if content.lower() == "skip":
                 return None
-            if content.startswith("#"):
-                content = content[1:]
+            if not content.startswith("#"):
+                content = f"#{content}"
             return await commands.ColourConverter().convert(ctx, content.lower())
 
         def color_action(ctx, converted, self):
