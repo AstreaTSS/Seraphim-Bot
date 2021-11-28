@@ -115,6 +115,8 @@ class SayCMDS(commands.Cog, name="Say"):
         async def color_convert(ctx, content):
             if content.lower() == "skip":
                 return None
+            if content.startswith("#"):
+                content = content[1:]
             return await commands.ColourConverter().convert(ctx, content.lower())
 
         def color_action(ctx, converted, self):
