@@ -322,6 +322,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
             discord.Role,
             discord.PartialEmoji,
             discord.PartialMessage,
+            discord.Object,
             None,
         ],
     ):
