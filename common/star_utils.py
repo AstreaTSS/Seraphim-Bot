@@ -22,7 +22,7 @@ def clear_stars(
     new_reactors = set()
     starboard_entry.set_reactors_of_type(type_of, new_reactors)
 
-    bot.starboard.update(starboard_entry)
+    bot.starboard.upsert(starboard_entry)
 
 
 def get_star_emoji(num_stars: int):
@@ -105,7 +105,7 @@ async def modify_stars(
         starboard_entry = star_classes.StarboardEntry.new_entry(
             mes, author_id, reactor_id
         )
-        bot.starboard.add(starboard_entry)
+        bot.starboard.upsert(starboard_entry)
 
         await sync_prev_reactors(bot, author_id, starboard_entry, remove=False)
 
@@ -132,7 +132,7 @@ async def modify_stars(
         ):
             starboard_entry.remove_reactor(reactor_id)
 
-        bot.starboard.update(starboard_entry)
+        bot.starboard.upsert(starboard_entry)
 
     elif bot.config.getattr(mes.guild.id, "remove_reaction"):
         # the previous if confirms this is the author who is reaction (simply by elimination), so...
@@ -184,7 +184,7 @@ async def sync_prev_reactors(
                 for remove_id in remove_ids:
                     starboard_entry.remove_reactor(remove_id)
 
-            bot.starboard.update(starboard_entry)
+            bot.starboard.upsert(starboard_entry)
 
     ori_mes = None
     star_mes = None
@@ -263,7 +263,7 @@ async def star_entry_refresh(
     else:
         starboard_entry.star_var_id = None
         starboard_entry.starboard_id = None
-        bot.starboard.update(starboard_entry)
+        bot.starboard.upsert(starboard_entry)
 
         await star_var_mes.delete()
         bot.star_queue.remove_from_copy(

@@ -187,11 +187,11 @@ class StarboardEntries:
     else:
         _sql_queries: cclass.SetUpdateAsyncQueue = attr.ib()
 
-    def __init__(self, pool: asyncpg.Pool, cache_size: int = 100):
+    def __init__(self, pool: asyncpg.Pool, cache_size: int = 200):
         self._pool = pool
         self._entry_cache = LRU(
             cache_size
-        )  # the 100 should be raised as the bot grows bigger
+        )  # the 200 should be raised as the bot grows bigger
         self._sql_queries = cclass.SetUpdateAsyncQueue()
 
         loop = asyncio.get_event_loop()
@@ -232,24 +232,37 @@ class StarboardEntries:
             entry.trashed,
         )
 
-    def _str_builder_to_insert(self, str_builder, entry):
+    def _str_builder_to_insert(
+        self, str_builder: typing.List[str], entry: StarboardEntry
+    ):
         """Takes data from a string builder list and eventually
         puts the data needed into the _sql_queries variable."""
         query = "".join(str_builder)
         args = self._get_required_from_entry(entry)
         self._sql_queries.put_nowait(StarboardSQLEntry(query, args))
 
-    def add(self, entry: StarboardEntry):
-        """Adds an entry to the collection of entries."""
-        self._entry_cache[entry.ori_mes_id] = entry
-
+    def _handle_upsert(self, entry: StarboardEntry):
+        """Upserts an entry by using an INSERT with an ON CONFLICT cause.
+        This is a PostgreSQL-specific feature, so that's nice!"""
         str_builder = [
             "INSERT INTO starboard(ori_mes_id, ori_chan_id, star_var_id, ",
             "starboard_id, author_id, ori_reactors, var_reactors, ",
             "guild_id, forced, frozen, trashed) VALUES($1, $2, $3, $4, ",
-            "$5, $6, $7, $8, $9, $10, $11)",
+            "$5, $6, $7, $8, $9, $10, $11) ON CONFLICT DO UPDATE",
+            "SET ori_chan_id = $2, star_var_id = $3, starboard_id = $4, ",
+            "author_id = $5, ori_reactors = $6, var_reactors = $7, guild_id = $8, ",
+            "forced = $9, frozen = $10, trashed = $11 WHERE ori_mes_id = $1",
         ]
         self._str_builder_to_insert(str_builder, entry)
+
+    def upsert(self, entry: StarboardEntry):
+        """Either adds or updates an entry in the collection of entries."""
+        temp_dict = {entry.ori_mes_id: entry}
+        if entry.star_var_id:
+            temp_dict[entry.star_var_id] = entry
+
+        self._entry_cache.update(**temp_dict)  # type: ignore this is valid i promise
+        self._handle_upsert(entry)
 
     def delete(self, entry_id: int):
         """Removes an entry from the collection of entries."""
@@ -257,19 +270,6 @@ class StarboardEntries:
         self._sql_queries.put_nowait(
             StarboardSQLEntry("DELETE FROM starboard WHERE ori_mes_id = $1", [entry_id])
         )
-
-    def update(self, entry: StarboardEntry):
-        """Updates an entry in the collection of entries, since the entries
-        cannot update themselves."""
-        entry_id = entry.ori_mes_id  # makes typehinting not complain
-        self._entry_cache.update(entry_id=entry)
-
-        str_builder = [
-            "UPDATE starboard SET ori_chan_id = $2, star_var_id = $3, starboard_id = $4, ",
-            "author_id = $5, ori_reactors = $6, var_reactors = $7, guild_id = $8, ",
-            "forced = $9, frozen = $10, trashed = $11 WHERE ori_mes_id = $1",
-        ]
-        self._str_builder_to_insert(str_builder, entry)
 
     async def get(
         self, entry_id: int, check_for_var: bool = False

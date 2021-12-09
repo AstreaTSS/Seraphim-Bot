@@ -296,7 +296,7 @@ async def send(bot: utils.SeraphimBase, mes: discord.Message):
 
         star_entry.star_var_id = starred.id
         star_entry.starboard_id = starred.channel.id
-        bot.starboard.update(star_entry)
+        bot.starboard.upsert(star_entry)
 
         return starred
 

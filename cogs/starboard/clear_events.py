@@ -53,7 +53,7 @@ class ClearEvents(commands.Cog):
                 star_variant.star_var_id = None
                 star_variant.starboard_id = None
                 star_variant.forced = False
-                self.bot.starboard.update(star_variant)
+                self.bot.starboard.upsert(star_variant)
 
     @commands.Cog.listener()
     async def on_raw_bulk_message_delete(self, payload):
@@ -92,7 +92,7 @@ class ClearEvents(commands.Cog):
                     star_variant.star_var_id = None
                     star_variant.starboard_id = None
                     star_variant.forced = False
-                    self.bot.starboard.update(star_variant)
+                    self.bot.starboard.upsert(star_variant)
 
     @commands.Cog.listener()
     async def on_raw_reaction_clear(self, payload):
