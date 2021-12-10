@@ -1,4 +1,5 @@
 import collections
+import logging
 import typing
 
 import attr
@@ -121,6 +122,11 @@ class GuildConfigManager:
             import_entry = GuildConfig.from_db(db_entry["config"])
             self.entries[guild_id] = import_entry
         else:
+            logging.getLogger("discord").error(
+                f"Huh? Entry {guild_id} already exists:\n"
+                + f"Raw entry data: {db_entry}\n"
+                + f"Entry in config already: {self.entries[guild_id]}"
+            )
             raise Exception(f"Entry {guild_id} already exists.")
 
     def update(self, entry: GuildConfig):
