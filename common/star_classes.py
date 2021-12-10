@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.8
 import asyncio
-import collections
 import enum
+import logging
 import typing
 
 import asyncpg
@@ -211,6 +211,7 @@ class StarboardEntries:
             try:
                 while True:
                     entry = await self._sql_queries.get()
+                    logging.getLogger("discord").debug(f"Running {entry.query}.")
                     await conn.execute(entry.query, timeout=60, *entry.args)
                     self._sql_queries.task_done()
             except asyncio.CancelledError:
