@@ -121,9 +121,7 @@ class GuildConfigManager:
             import_entry = GuildConfig.from_db(db_entry["config"])
             self.entries[guild_id] = import_entry
         else:
-            # we should do something here, but for some reason this can break?
-            pass
-            # raise Exception(f"Entry {guild_id} already exists.")
+            raise Exception(f"Entry {guild_id} already exists.")
 
     def update(self, entry: GuildConfig):
         if self.entries[entry.guild_id]:
