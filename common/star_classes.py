@@ -249,10 +249,10 @@ class StarboardEntries:
             "INSERT INTO starboard(ori_mes_id, ori_chan_id, star_var_id, ",
             "starboard_id, author_id, ori_reactors, var_reactors, ",
             "guild_id, forced, frozen, trashed) VALUES($1, $2, $3, $4, ",
-            "$5, $6, $7, $8, $9, $10, $11) ON CONFLICT DO UPDATE",
+            "$5, $6, $7, $8, $9, $10, $11) ON CONFLICT (ori_mes_id) DO UPDATE ",
             "SET ori_chan_id = $2, star_var_id = $3, starboard_id = $4, ",
             "author_id = $5, ori_reactors = $6, var_reactors = $7, guild_id = $8, ",
-            "forced = $9, frozen = $10, trashed = $11 WHERE ori_mes_id = $1",
+            "forced = $9, frozen = $10, trashed = $11",
         ]
         self._str_builder_to_insert(str_builder, entry)
 
