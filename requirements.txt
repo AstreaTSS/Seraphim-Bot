@@ -1,6 +1,6 @@
 git+https://github.com/iDevision/enhanced-discord.py.git@96153bb177d5a9e0be81f8c05e57d8777f4cd926
 asyncpg==0.25.0
-rapidfuzz==1.8.3
+rapidfuzz==1.9.0
 websockets==10.1
 humanize==3.13.1
 Pillow==8.4.0
