@@ -54,9 +54,9 @@ class SlashCMDS(commands.Cog):
             ):
                 victim_raw = tuple(inter.data["resolved"]["members"].values())[0][
                     "nick"
-                ]
+                ]  # type: ignore
             if (
-                not victim
+                not victim_raw
                 and inter.data["resolved"]["users"]
                 and len(inter.data["resolved"]["users"].keys()) == 1
             ):
