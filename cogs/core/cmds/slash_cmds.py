@@ -42,31 +42,33 @@ class SlashCMDS(commands.Cog):
         if ctx.interaction:
             inter = ctx.interaction
 
-            if inter.data and not inter.data.get("resolved"):
+            if not inter.data or not inter.data.get("resolved", False):
                 victim_str = discord.utils.escape_markdown(target)
+            else:
+                victim_raw: typing.Optional[str] = None
 
-            victim_raw: typing.Optional[str] = None
+                # see if we got any resolved members or users - looks nicer to do
+                if (
+                    inter.data["resolved"]["members"]
+                    and len(inter.data["resolved"]["members"].keys()) == 1
+                ):
+                    victim_raw = tuple(inter.data["resolved"]["members"].values())[0][
+                        "nick"
+                    ]  # type: ignore
+                if (
+                    not victim_raw
+                    and inter.data["resolved"]["users"]
+                    and len(inter.data["resolved"]["users"].keys()) == 1
+                ):
+                    victim_raw = tuple(inter.data["resolved"]["users"].values())[0][
+                        "username"
+                    ]
 
-            # see if we got any resolved members or users - looks nicer to do
-            if (
-                inter.data["resolved"]["members"]
-                and len(inter.data["resolved"]["members"].keys()) == 1
-            ):
-                victim_raw = tuple(inter.data["resolved"]["members"].values())[0][
-                    "nick"
-                ]  # type: ignore
-            if (
-                not victim_raw
-                and inter.data["resolved"]["users"]
-                and len(inter.data["resolved"]["users"].keys()) == 1
-            ):
-                victim_raw = tuple(inter.data["resolved"]["users"].values())[0][
-                    "username"
-                ]
-
-            victim_str = (
-                discord.utils.escape_markdown(target) if not victim_raw else victim_raw
-            )
+                victim_str = (
+                    discord.utils.escape_markdown(target)
+                    if not victim_raw
+                    else victim_raw
+                )
         else:
             try:
                 converter = commands.MemberConverter()
