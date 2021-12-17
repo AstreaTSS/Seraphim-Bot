@@ -89,7 +89,7 @@ async def on_init_load():
 
     # is this overboard for a joke? yes.
     bot.death_messages = ()
-    mc_en_us_url = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.17/assets/minecraft/lang/en_us.json"
+    mc_en_us_url = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.18.1/assets/minecraft/lang/en_us.json"
     async with aiohttp.ClientSession() as session:
         async with session.get(mc_en_us_url) as resp:
             mc_en_us_config = await resp.json(content_type="text/plain")
