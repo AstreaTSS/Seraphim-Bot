@@ -33,7 +33,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
             raise commands.BadArgument("That member did not leave in the last hour!")
 
         member_entry = guild_entry.get(member.id)
-        if member_entry == None:
+        if member_entry is None:
             raise commands.BadArgument("That member did not leave in the last hour!")
 
         now = discord.utils.utcnow()
@@ -50,36 +50,40 @@ class HelperCMDs(commands.Cog, name="Helper"):
         for role in member_entry["roles"]:
             if role.is_default():
                 continue
-            elif role > top_role or not role in ctx.guild.roles or role.managed:
+            elif role > top_role or role not in ctx.guild.roles or role.managed:
                 unadded_roles.append(role)
             elif member.get_role(role.id):
                 continue
             else:
                 added_roles.append(role)
 
-        if added_roles:
-            try:
-                await member.add_roles(
-                    *added_roles,
-                    reason=f"Restoring old roles: done by {str(ctx.author)}.",
-                    atomic=False,
-                )
-            except discord.HTTPException as error:
-                raise utils.CustomCheckFailure(
-                    "Something happened while trying to restore the roles this user had.\n"
-                    + "This shouldn't be happening, and this should have been caught earlier "
-                    + "by the bot. Try contacting the bot owner about it.\n"
+        if not added_roles:
+            raise commands.BadArgument("There were no roles to restore for this user!")
+
+        try:
+            await member.add_roles(
+                *added_roles,
+                reason=f"Restoring old roles: done by {ctx.author}.",
+                atomic=False,
+            )
+
+        except discord.HTTPException as error:
+            raise utils.CustomCheckFailure(
+                (
+                    (
+                        (
+                            "Something happened while trying to restore the roles this user had.\n"
+                            + "This shouldn't be happening, and this should have been caught earlier "
+                        )
+                        + "by the bot. Try contacting the bot owner about it.\n"
+                    )
                     + f"Error: {error}"
                 )
-        else:
-            raise commands.BadArgument("There were no roles to restore for this user!")
+            )
 
         del self.bot.role_rolebacks[ctx.guild.id][member_entry["id"]]
 
-        final_msg = []
-        final_msg.append(
-            f"Roles restored: `{', '.join([r.name for r in added_roles])}`."
-        )
+        final_msg = [f"Roles restored: `{', '.join([r.name for r in added_roles])}`."]
         if unadded_roles:
             final_msg.append(
                 f"Roles not restored: `{', '.join([r.name for r in unadded_roles])}`.\n"
@@ -303,7 +307,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
             raise commands.BadArgument("The argument provided is not a custom emoji!")
 
         if emoji.is_custom_emoji():
-            await ctx.reply(f"URL: {str(emoji.url)}")
+            await ctx.reply(f"URL: {emoji.url}")
         else:
             # this shouldn't happen due to how the PartialEmoji converter works, but you never know
             raise commands.BadArgument("This emoji is not a custom emoji!")
