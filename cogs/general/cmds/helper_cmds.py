@@ -72,8 +72,10 @@ class HelperCMDs(commands.Cog, name="Helper"):
                 (
                     (
                         (
-                            "Something happened while trying to restore the roles this user had.\n"
-                            + "This shouldn't be happening, and this should have been caught earlier "
+                            "Something happened while trying to restore the roles this"
+                            " user had.\n"
+                            + "This shouldn't be happening, and this should have been"
+                            " caught earlier "
                         )
                         + "by the bot. Try contacting the bot owner about it.\n"
                     )
@@ -87,11 +89,13 @@ class HelperCMDs(commands.Cog, name="Helper"):
         if unadded_roles:
             final_msg.append(
                 f"Roles not restored: `{', '.join([r.name for r in unadded_roles])}`.\n"
-                + "This was most likely because these roles are higher than the bot's own role, the roles no longer exist, "
+                + "This was most likely because these roles are higher than the bot's"
+                " own role, the roles no longer exist, "
                 + "or the role is managed by Discord and so the bot cannot add it."
             )
         final_msg.append(
-            "Please wait a bit for the roles to appear; sometimes Discord is a bit slow."
+            "Please wait a bit for the roles to appear; sometimes Discord is a bit"
+            " slow."
         )
 
         final_msg_str = "\n\n".join(final_msg)
@@ -119,8 +123,10 @@ class HelperCMDs(commands.Cog, name="Helper"):
             raise utils.CustomCheckFailure(
                 "".join(
                     (
-                        "I was unable to change this channel's NSFW mode! This might be due to me not having the ",
-                        "permissions to or some other weird funkyness with Discord. Maybe this error will help you.\n",
+                        "I was unable to change this channel's NSFW mode! This might be"
+                        " due to me not having the ",
+                        "permissions to or some other weird funkyness with Discord."
+                        " Maybe this error will help you.\n",
                         f"Error: {e}",
                     )
                 )
@@ -143,8 +149,10 @@ class HelperCMDs(commands.Cog, name="Helper"):
             raise utils.CustomCheckFailure(
                 "".join(
                     (
-                        "I was unable to suppress this message! This might be due to me not having the ",
-                        "permissions to or some other weird funkyness with Discord. Maybe this error will help you.\n",
+                        "I was unable to suppress this message! This might be due to me"
+                        " not having the ",
+                        "permissions to or some other weird funkyness with Discord."
+                        " Maybe this error will help you.\n",
                         f"Error: {e}",
                     )
                 )
@@ -169,8 +177,10 @@ class HelperCMDs(commands.Cog, name="Helper"):
             raise utils.CustomCheckFailure(
                 "".join(
                     (
-                        "I was unable to unsuppress this message! This might be due to me not having the ",
-                        "permissions to or some other weird funkyness with Discord. Maybe this error will help you.\n",
+                        "I was unable to unsuppress this message! This might be due to"
+                        " me not having the ",
+                        "permissions to or some other weird funkyness with Discord."
+                        " Maybe this error will help you.\n",
                         f"Error: {e}",
                     )
                 )
@@ -268,8 +278,10 @@ class HelperCMDs(commands.Cog, name="Helper"):
                 await ctx.reply(
                     "".join(
                         (
-                            "I was unable to add this emoji! This might be due to me not having the ",
-                            "permissions or the name being improper in some way. Maybe this error will help you.\n",
+                            "I was unable to add this emoji! This might be due to me"
+                            " not having the ",
+                            "permissions or the name being improper in some way. Maybe"
+                            " this error will help you.\n",
                             f"Error: {e}",
                         )
                     )
@@ -293,7 +305,8 @@ class HelperCMDs(commands.Cog, name="Helper"):
         add_emoji_cmd = self.bot.get_command("add_emoji")
         if not add_emoji_cmd:  # this should never happen
             raise utils.CustomCheckFailure(
-                "For some reason, I cannot get the add-emoji command, which is needed for this. Join the support server to report this."
+                "For some reason, I cannot get the add-emoji command, which is needed"
+                " for this. Join the support server to report this."
             )
 
         await ctx.invoke(add_emoji_cmd, emoji.name, emoji)
@@ -352,7 +365,8 @@ class HelperCMDs(commands.Cog, name="Helper"):
         allowed_mentions.replied_user = True
 
         await ctx.reply(
-            f"{obj_name} was created on {discord.utils.format_dt(time_format, style='F')}",
+            f"{obj_name} was created on"
+            f" {discord.utils.format_dt(time_format, style='F')}",
             allowed_mentions=allowed_mentions,
         )
 
@@ -448,6 +462,39 @@ class HelperCMDs(commands.Cog, name="Helper"):
             f"{user.mention}'s avatar: {avatar_url}",
             allowed_mentions=utils.deny_mentions(ctx.author),
         )
+
+    @commands.command(aliases=["mute"])
+    @utils.proper_permissions()
+    @utils.bot_proper_perms()
+    async def timeout(
+        self,
+        ctx: commands.Context,
+        user: discord.Member,
+        duration: custom_classes.TimeDurationConverter,
+        *,
+        reason: typing.Optional[str] = None,
+    ):
+        assert isinstance(duration, datetime.timedelta)
+        payload = {}
+        disabled_until = discord.utils.utcnow() + duration
+        payload["communication_disabled_until"] = disabled_until.isoformat()
+
+        try:
+            await self.bot.http.edit_member(
+                ctx.guild.id, user.id, reason=reason, **payload
+            )
+        except discord.HTTPException as e:
+            await ctx.reply(
+                "".join(
+                    (
+                        "I was unable to timeout this user! This might be due to me not"
+                        " having the ",
+                        "permissions to do so or duration being too long. Maybe this"
+                        " error will help you.\n",
+                        f"Error: {e}",
+                    )
+                )
+            )
 
 
 def setup(bot):
