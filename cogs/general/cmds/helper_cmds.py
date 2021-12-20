@@ -476,6 +476,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         The user can be a ping of the user, their ID, or their name.
         The duration can be in seconds, minutes, hours, days, or months (ex. 1s, 1m, 1h20m). \
         It must be less than 28 days - this is a Discord limitation.
+        Timing out a user
         The reason is optional.
         Requires Manage Server permissions or higher.
         """
@@ -493,14 +494,14 @@ class HelperCMDs(commands.Cog, name="Helper"):
             raise commands.BadArgument(
                 "The duration provided is over 28 days, the max Discord allows."
             )
+        elif duration.total_seconds() < 10:
+            raise commands.BadArgument(
+                "The duration provided is below 10 seconds, the minimum Discord allows."
+            )
 
         disabled_until = discord.utils.utcnow() + duration
-        payload = {"communication_disabled_until": disabled_until.isoformat()}
-
         try:
-            await self.bot.http.edit_member(
-                ctx.guild.id, user.id, reason=reason, **payload
-            )
+            await user.edit(timeout_until=disabled_until, reason=reason)
             await ctx.reply(
                 f"Timed out {user.mention} until"
                 f" {discord.utils.format_dt(disabled_until)}.",
@@ -532,9 +533,11 @@ class HelperCMDs(commands.Cog, name="Helper"):
         """Un-timeout out the user specified for the reason specified, if given.
         The user can be a ping of the user, their ID, or their name.
         The reason is optional.
-        This command does nothing if the user was not on timeout already.
         Requires Manage Server permissions or higher.
         """
+
+        if not user.timeout_until:
+            raise commands.BadArgument("This user is not on timeout!")
         if user.top_role >= ctx.guild.me.top_role or ctx.guild.owner_id == user.id:
             raise commands.BadArgument(
                 "I cannot un-timeout this user as their rank is higher than mine!"
@@ -544,11 +547,8 @@ class HelperCMDs(commands.Cog, name="Helper"):
                 "I cannot un-timeout this user as their rank is higher than yours!"
             )
 
-        payload = {"communication_disabled_until": None}
         try:
-            await self.bot.http.edit_member(
-                ctx.guild.id, user.id, reason=reason, **payload
-            )
+            await user.edit(timeout_until=None, reason=reason)
             await ctx.reply(
                 f"Un-timed out {user.mention}.",
                 allowed_mentions=utils.deny_mentions(ctx.author),
