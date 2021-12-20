@@ -474,9 +474,8 @@ class HelperCMDs(commands.Cog, name="Helper"):
     ):
         """Times out the user specified for the duration specified for the reason specified if given (repetitve, huh?).
         The user can be a ping of the user, their ID, or their name.
-        The duration can be in seconds, minutes, hours, days, or months (ex. 1s, 1m, 1h20m). \
+        The duration can be in seconds, minutes, hours, days, or months (ex. 1s, 1m, 1h20m).
         It must be less than 28 days - this is a Discord limitation.
-        Timing out a user
         The reason is optional.
         Requires Manage Server permissions or higher.
         """
