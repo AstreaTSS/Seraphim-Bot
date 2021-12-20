@@ -346,8 +346,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         """Gets the creation date and time of many, MANY Discord related things, like members, emojis, messages, and much more.
         It would be too numberous to list what all can be converted (but usually, anything with a Discord ID will work) and how you input them.
         Names, IDs, mentions... try it out and see.
-        Defaults to getting creation date of the user who runs it if no value is provided.
-        Will return the time in UTC in DD/MM/YY HH:MM:SS in 24-hour time."""
+        Defaults to getting creation date of the user who runs it if no value is provided."""
 
         if argument is None:
             argument = ctx.author
@@ -463,7 +462,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
             allowed_mentions=utils.deny_mentions(ctx.author),
         )
 
-    @commands.command(aliases=["mute"])
+    @commands.command(aliases=["mute", "time_out"])
     @utils.proper_permissions()
     @utils.bot_proper_perms()
     async def timeout(
@@ -474,14 +473,29 @@ class HelperCMDs(commands.Cog, name="Helper"):
         *,
         reason: typing.Optional[str] = None,
     ):
+        """Times out the user specified for the duration specified for the reason specified (repetitve, huh?).
+        The user can be a ping of the user, their ID, or their name.
+        The duration can be in seconds, minutes, hours, days, months, and/or years (ex. 1s, 1m, 1h 20.5m).
+        The reason is optional.
+        Requires Manage Server permissions or higher.
+        """
+        if user.top_role >= ctx.guild.me.top_role or ctx.guild.owner_id == user.id:
+            raise commands.BadArgument(
+                "I cannot timeout this user as their rank is higher than mine!"
+            )
+
         assert isinstance(duration, datetime.timedelta)
-        payload = {}
         disabled_until = discord.utils.utcnow() + duration
-        payload["communication_disabled_until"] = disabled_until.isoformat()
+        payload = {"communication_disabled_until": disabled_until.isoformat()}
 
         try:
             await self.bot.http.edit_member(
                 ctx.guild.id, user.id, reason=reason, **payload
+            )
+            await ctx.reply(
+                f"Timed out {user.mention} until"
+                f" {discord.utils.format_dt(disabled_until)}.",
+                allowed_mentions=utils.deny_mentions(ctx.author),
             )
         except discord.HTTPException as e:
             await ctx.reply(
@@ -492,6 +506,47 @@ class HelperCMDs(commands.Cog, name="Helper"):
                         "permissions to do so or duration being too long. Maybe this"
                         " error will help you.\n",
                         f"Error: {e}",
+                    )
+                )
+            )
+
+    @commands.command(aliases=["unmute", "un_time_out", "untime_out"])
+    @utils.proper_permissions()
+    @utils.bot_proper_perms()
+    async def untimeout(
+        self,
+        ctx: commands.Context,
+        user: discord.Member,
+        *,
+        reason: typing.Optional[str] = None,
+    ):
+        """Un-timeout out the user specified for the reason specified, if given.
+        The user can be a ping of the user, their ID, or their name.
+        The reason is optional.
+        This command does nothing if the user was not on timeout already.
+        Requires Manage Server permissions or higher.
+        """
+        if user.top_role >= ctx.guild.me.top_role or ctx.guild.owner_id == user.id:
+            raise commands.BadArgument(
+                "I cannot timeout this user as their rank is higher than mine!"
+            )
+
+        payload = {"communication_disabled_until": None}
+        try:
+            await self.bot.http.edit_member(
+                ctx.guild.id, user.id, reason=reason, **payload
+            )
+            await ctx.reply(
+                f"Untimed-out out {user.mention}.",
+                allowed_mentions=utils.deny_mentions(ctx.author),
+            )
+        except discord.HTTPException as e:
+            await ctx.reply(
+                "".join(
+                    (
+                        "I was unable to un-timeout this user! This might be due to me"
+                        " not having the permissions to do. Maybe this error will help"
+                        f" you.\n Error: {e}",
                     )
                 )
             )
