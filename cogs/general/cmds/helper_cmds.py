@@ -474,7 +474,8 @@ class HelperCMDs(commands.Cog, name="Helper"):
     ):
         """Times out the user specified for the duration specified for the reason specified if given (repetitve, huh?).
         The user can be a ping of the user, their ID, or their name.
-        The duration can be in seconds, minutes, hours, days, months, and/or years (ex. 1s, 1m, 1h 20.5m).
+        The duration can be in seconds, minutes, hours, days, or months (ex. 1s, 1m, 1h20m). \
+        It must be less than 28 days - this is a Discord limitation.
         The reason is optional.
         Requires Manage Server permissions or higher.
         """
@@ -488,6 +489,11 @@ class HelperCMDs(commands.Cog, name="Helper"):
             )
 
         assert isinstance(duration, datetime.timedelta)
+        if duration.total_seconds() > 2419200:  # 28 days
+            raise commands.BadArgument(
+                "The duration provided is over 28 days, the max Discord allows."
+            )
+
         disabled_until = discord.utils.utcnow() + duration
         payload = {"communication_disabled_until": disabled_until.isoformat()}
 
