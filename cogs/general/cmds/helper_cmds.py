@@ -473,7 +473,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         *,
         reason: typing.Optional[str] = None,
     ):
-        """Times out the user specified for the duration specified for the reason specified (repetitve, huh?).
+        """Times out the user specified for the duration specified for the reason specified if given (repetitve, huh?).
         The user can be a ping of the user, their ID, or their name.
         The duration can be in seconds, minutes, hours, days, months, and/or years (ex. 1s, 1m, 1h 20.5m).
         The reason is optional.
