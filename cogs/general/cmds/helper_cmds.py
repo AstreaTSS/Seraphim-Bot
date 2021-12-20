@@ -483,6 +483,10 @@ class HelperCMDs(commands.Cog, name="Helper"):
             raise commands.BadArgument(
                 "I cannot timeout this user as their rank is higher than mine!"
             )
+        if user.top_role >= ctx.author.top_role:
+            raise commands.BadArgument(
+                "I cannot timeout this user as their rank is higher than yours!"
+            )
 
         assert isinstance(duration, datetime.timedelta)
         disabled_until = discord.utils.utcnow() + duration
@@ -528,7 +532,11 @@ class HelperCMDs(commands.Cog, name="Helper"):
         """
         if user.top_role >= ctx.guild.me.top_role or ctx.guild.owner_id == user.id:
             raise commands.BadArgument(
-                "I cannot timeout this user as their rank is higher than mine!"
+                "I cannot un-timeout this user as their rank is higher than mine!"
+            )
+        if user.top_role >= ctx.author.top_role:
+            raise commands.BadArgument(
+                "I cannot un-timeout this user as their rank is higher than yours!"
             )
 
         payload = {"communication_disabled_until": None}
@@ -537,7 +545,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
                 ctx.guild.id, user.id, reason=reason, **payload
             )
             await ctx.reply(
-                f"Untimed-out out {user.mention}.",
+                f"Un-timed out {user.mention}.",
                 allowed_mentions=utils.deny_mentions(ctx.author),
             )
         except discord.HTTPException as e:
