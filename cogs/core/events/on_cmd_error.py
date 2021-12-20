@@ -12,9 +12,6 @@ class OnCMDError(commands.Cog):
     def __init__(self, bot):
         self.bot: utils.SeraphimBase = bot
 
-    def error_embed_generate(self, error_msg):
-        return discord.Embed(colour=discord.Colour.red(), description=error_msg)
-
     @commands.Cog.listener()
     async def on_command_error(self, ctx: utils.SeraContextBase, error):
         # sourcery skip: remove-pass-elif
@@ -25,7 +22,7 @@ class OnCMDError(commands.Cog):
             await utils.error_handle(self.bot, error, ctx)
         elif isinstance(error, commands.DisabledCommand):
             await ctx.reply(
-                embed=self.error_embed_generate(
+                embed=utils.error_embed_generate(
                     (
                         f"{error}. This was most likely due to "
                         + "it being buggy or broken in some way - please wait for it to be re-enabled."
@@ -35,7 +32,7 @@ class OnCMDError(commands.Cog):
 
         elif isinstance(error, commands.TooManyArguments):
             await ctx.reply(
-                embed=self.error_embed_generate(
+                embed=utils.error_embed_generate(
                     "You passed too many arguments to that command! Please make sure you're "
                     + "passing in a valid argument/subcommand."
                 )
@@ -45,7 +42,7 @@ class OnCMDError(commands.Cog):
                 seconds=error.retry_after
             )
             await ctx.reply(
-                embed=self.error_embed_generate(
+                embed=utils.error_embed_generate(
                     "You're doing that command too fast! "
                     + f"Try again {discord.utils.format_dt(till, style='R')}."
                 )
@@ -54,13 +51,13 @@ class OnCMDError(commands.Cog):
             error,
             (commands.ConversionError, commands.UserInputError, commands.BadArgument),
         ):
-            await ctx.reply(embed=self.error_embed_generate(str(error)))
+            await ctx.reply(embed=utils.error_embed_generate(str(error)))
         elif isinstance(error, (utils.CustomCheckFailure, utils.NotEnoughPerms)):
-            await ctx.reply(embed=self.error_embed_generate(str(error)))
+            await ctx.reply(embed=utils.error_embed_generate(str(error)))
         elif isinstance(error, commands.CheckFailure):
             if ctx.guild:
                 await ctx.reply(
-                    embed=self.error_embed_generate(
+                    embed=utils.error_embed_generate(
                         "You do not have the proper permissions to use that command."
                     )
                 )

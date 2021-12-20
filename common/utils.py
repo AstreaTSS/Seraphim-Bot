@@ -11,6 +11,10 @@ import discord
 from discord.ext import commands
 
 
+def error_embed_generate(error_msg):
+    return discord.Embed(colour=discord.Colour.red(), description=error_msg)
+
+
 def proper_permissions():
     async def predicate(ctx: commands.Context):
         # checks if author has admin or manage guild perms or is the owner
@@ -27,8 +31,8 @@ def bot_proper_perms():
         if not permissions.administrator:
             raise NotEnoughPerms(
                 "The bot does not have the permissions needed to run this command. "
-                + "As the bot is in beta right now, it needs administrative permissions "
-                + "to run its commands."
+                + "As the bot is in beta right now, it needs administrative"
+                " permissions " + "to run its commands."
             )
         return True
 
@@ -60,10 +64,9 @@ async def error_handle(bot, error, ctx: typing.Union[commands.Context, None] = N
     await msg_to_owner(bot, to_send, split)
 
     if ctx:
-        error_embed = discord.Embed(
-            colour=discord.Colour.red(),
-            description="An internal error has occured. The bot owner has been notified.\n"
-            + f"Error (for bot owner purposes): {error}",
+        error_embed = error_embed_generate(
+            "An internal error has occured. The bot owner has been notified.\n"
+            + f"Error (for bot owner purposes): {error}"
         )
 
         await ctx.reply(
@@ -199,18 +202,33 @@ def get_content(message: discord.Message):  # sourcery no-metrics
 
     if message.type is discord.MessageType.recipient_add:
         if message.channel.type is discord.ChannelType.group:
-            return f"{message.author.display_name} added {message.mentions[0].display_name} to the group."
+            return (
+                f"{message.author.display_name} added"
+                f" {message.mentions[0].display_name} to the group."
+            )
         else:
-            return f"{message.author.display_name} added {message.mentions[0].display_name} to the thread."
+            return (
+                f"{message.author.display_name} added"
+                f" {message.mentions[0].display_name} to the thread."
+            )
 
     if message.type is discord.MessageType.recipient_remove:
         if message.channel.type is discord.ChannelType.group:
-            return f"{message.author.display_name} removed {message.mentions[0].display_name} from the group."
+            return (
+                f"{message.author.display_name} removed"
+                f" {message.mentions[0].display_name} from the group."
+            )
         else:
-            return f"{message.author.display_name} removed {message.mentions[0].display_name} from the thread."
+            return (
+                f"{message.author.display_name} removed"
+                f" {message.mentions[0].display_name} from the thread."
+            )
 
     if message.type is discord.MessageType.channel_name_change:
-        return f"{message.author.display_name} changed the channel name: **{message.content}**"
+        return (
+            f"{message.author.display_name} changed the channel name:"
+            f" **{message.content}**"
+        )
 
     if message.type is discord.MessageType.pins_add:
         return f"{message.author.display_name} pinned a message to this channel."
@@ -237,27 +255,54 @@ def get_content(message: discord.Message):  # sourcery no-metrics
 
     if message.type is discord.MessageType.premium_guild_subscription:
         if not message.content:
-            return f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just boosted the server!"
+            return (
+                f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just"
+                " boosted the server!"
+            )
         else:
-            return f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just boosted the server **{message.content}** times!"
+            return (
+                f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just"
+                f" boosted the server **{message.content}** times!"
+            )
 
     if message.type is discord.MessageType.premium_guild_tier_1:
         if not message.content:
-            return f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just boosted the server! {message.guild} has achieved **Level 1!**"
+            return (
+                f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just"
+                f" boosted the server! {message.guild} has achieved **Level 1!**"
+            )
         else:
-            return f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just boosted the server **{message.content}** times! {message.guild} has achieved **Level 1!**"
+            return (
+                f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just"
+                f" boosted the server **{message.content}** times! {message.guild} has"
+                " achieved **Level 1!**"
+            )
 
     if message.type is discord.MessageType.premium_guild_tier_2:
         if not message.content:
-            return f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just boosted the server! {message.guild} has achieved **Level 2!**"
+            return (
+                f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just"
+                f" boosted the server! {message.guild} has achieved **Level 2!**"
+            )
         else:
-            return f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just boosted the server **{message.content}** times! {message.guild} has achieved **Level 2!**"
+            return (
+                f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just"
+                f" boosted the server **{message.content}** times! {message.guild} has"
+                " achieved **Level 2!**"
+            )
 
     if message.type is discord.MessageType.premium_guild_tier_3:
         if not message.content:
-            return f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just boosted the server! {message.guild} has achieved **Level 3!**"
+            return (
+                f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just"
+                f" boosted the server! {message.guild} has achieved **Level 3!**"
+            )
         else:
-            return f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just boosted the server **{message.content}** times! {message.guild} has achieved **Level 3!**"
+            return (
+                f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just"
+                f" boosted the server **{message.content}** times! {message.guild} has"
+                " achieved **Level 3!**"
+            )
 
     if message.type is discord.MessageType.channel_follow_add:
         return (
@@ -265,22 +310,42 @@ def get_content(message: discord.Message):  # sourcery no-metrics
         )
 
     if message.type is discord.MessageType.guild_stream:
-        return f"{message.author.display_name} is live! Now streaming {message.author.activity.name}"
+        return (
+            f"{message.author.display_name} is live! Now streaming"
+            f" {message.author.activity.name}"
+        )
 
     if message.type is discord.MessageType.guild_discovery_disqualified:
-        return "This server has been removed from Server Discovery because it no longer passes all the requirements. Check Server Settings for more details."
+        return (
+            "This server has been removed from Server Discovery because it no longer"
+            " passes all the requirements. Check Server Settings for more details."
+        )
 
     if message.type is discord.MessageType.guild_discovery_requalified:
-        return "This server is eligible for Server Discovery again and has been automatically relisted!"
+        return (
+            "This server is eligible for Server Discovery again and has been"
+            " automatically relisted!"
+        )
 
     if message.type is discord.MessageType.guild_discovery_grace_period_initial_warning:
-        return "This server has failed Discovery activity requirements for 1 week. If this server fails for 4 weeks in a row, it will be automatically removed from Discovery."
+        return (
+            "This server has failed Discovery activity requirements for 1 week. If this"
+            " server fails for 4 weeks in a row, it will be automatically removed from"
+            " Discovery."
+        )
 
     if message.type is discord.MessageType.guild_discovery_grace_period_final_warning:
-        return "This server has failed Discovery activity requirements for 3 weeks in a row. If this server fails for 1 more week, it will be removed from Discovery."
+        return (
+            "This server has failed Discovery activity requirements for 3 weeks in a"
+            " row. If this server fails for 1 more week, it will be removed from"
+            " Discovery."
+        )
 
     if message.type is discord.MessageType.thread_created:
-        return f"{message.author.display_name} started a thread: **{message.content}**. See all **threads**."
+        return (
+            f"{message.author.display_name} started a thread: **{message.content}**."
+            " See all **threads**."
+        )
 
     if message.type is discord.MessageType.reply:
         return message.content
@@ -292,7 +357,10 @@ def get_content(message: discord.Message):  # sourcery no-metrics
         return message.reference.resolved.content  # type: ignore
 
     if message.type is discord.MessageType.guild_invite_reminder:
-        return "Wondering who to invite?\nStart by inviting anyone who can help you build the server!"
+        return (
+            "Wondering who to invite?\nStart by inviting anyone who can help you build"
+            " the server!"
+        )
 
     else:
         raise discord.InvalidArgument("This message has an invalid type!")

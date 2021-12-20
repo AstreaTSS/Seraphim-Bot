@@ -77,9 +77,9 @@ class HelperCMDs(commands.Cog, name="Helper"):
                             + "This shouldn't be happening, and this should have been"
                             " caught earlier "
                         )
-                        + "by the bot. Try contacting the bot owner about it.\n"
+                        + "by the bot. Try contacting the bot owner about it.\n\n"
                     )
-                    + f"Error: {error}"
+                    + f"Error: `{error}`"
                 )
             )
 
@@ -126,8 +126,8 @@ class HelperCMDs(commands.Cog, name="Helper"):
                         "I was unable to change this channel's NSFW mode! This might be"
                         " due to me not having the ",
                         "permissions to or some other weird funkyness with Discord."
-                        " Maybe this error will help you.\n",
-                        f"Error: {e}",
+                        " Maybe this error will help you.\n\n",
+                        f"Error: `{e}`",
                     )
                 )
             )
@@ -152,8 +152,8 @@ class HelperCMDs(commands.Cog, name="Helper"):
                         "I was unable to suppress this message! This might be due to me"
                         " not having the ",
                         "permissions to or some other weird funkyness with Discord."
-                        " Maybe this error will help you.\n",
-                        f"Error: {e}",
+                        " Maybe this error will help you.\n\n",
+                        f"Error: `{e}`",
                     )
                 )
             )
@@ -180,8 +180,8 @@ class HelperCMDs(commands.Cog, name="Helper"):
                         "I was unable to unsuppress this message! This might be due to"
                         " me not having the ",
                         "permissions to or some other weird funkyness with Discord."
-                        " Maybe this error will help you.\n",
-                        f"Error: {e}",
+                        " Maybe this error will help you.\n\n",
+                        f"Error: `{e}`",
                     )
                 )
             )
@@ -275,18 +275,17 @@ class HelperCMDs(commands.Cog, name="Helper"):
                     reason=f"Created by {str(ctx.author)}",
                 )
             except discord.HTTPException as e:
-                await ctx.reply(
+                raise utils.CustomCheckFailure(
                     "".join(
                         (
                             "I was unable to add this emoji! This might be due to me"
                             " not having the ",
                             "permissions or the name being improper in some way. Maybe"
-                            " this error will help you.\n",
-                            f"Error: {e}",
+                            " this error will help you.\n\n",
+                            f"Error: `{e}`",
                         )
                     )
                 )
-                return
             finally:
                 del emoji_data
 
@@ -502,14 +501,14 @@ class HelperCMDs(commands.Cog, name="Helper"):
                 allowed_mentions=utils.deny_mentions(ctx.author),
             )
         except discord.HTTPException as e:
-            await ctx.reply(
+            raise utils.CustomCheckFailure(
                 "".join(
                     (
                         "I was unable to timeout this user! This might be due to me not"
                         " having the ",
                         "permissions to do so or duration being too long. Maybe this"
-                        " error will help you.\n",
-                        f"Error: {e}",
+                        " error will help you.\n\n",
+                        f"Error: `{e}`",
                     )
                 )
             )
@@ -549,12 +548,12 @@ class HelperCMDs(commands.Cog, name="Helper"):
                 allowed_mentions=utils.deny_mentions(ctx.author),
             )
         except discord.HTTPException as e:
-            await ctx.reply(
+            raise utils.CustomCheckFailure(
                 "".join(
                     (
                         "I was unable to un-timeout this user! This might be due to me"
                         " not having the permissions to do. Maybe this error will help"
-                        f" you.\n Error: {e}",
+                        f" you.\n\nError: `{e}`",
                     )
                 )
             )
