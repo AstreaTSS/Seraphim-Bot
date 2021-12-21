@@ -181,11 +181,7 @@ class StarboardEntries:
     # note: entry cache isn't really a dict, but for typehinting purposes this works
     _entry_cache: typing.Dict[int, StarboardEntry] = attr.ib()
     _sql_loop_task: asyncio.Task = attr.ib()
-
-    if typing.TYPE_CHECKING:
-        _sql_queries: cclass.SetUpdateAsyncQueue[StarboardSQLEntry]
-    else:
-        _sql_queries: cclass.SetUpdateAsyncQueue = attr.ib()
+    _sql_queries: cclass.SetUpdateAsyncQueue[StarboardSQLEntry] = attr.ib()
 
     def __init__(self, pool: asyncpg.Pool, cache_size: int = 200):
         self._pool = pool

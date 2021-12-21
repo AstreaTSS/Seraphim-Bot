@@ -34,6 +34,9 @@ logger.addHandler(handler)
 def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
     mention_prefixes = [f"{bot.user.mention} ", f"<@!{bot.user.id}> "]
 
+    if not bot.is_ready():
+        return mention_prefixes
+
     try:
         custom_prefixes = bot.config.getattr(msg.guild.id, "prefixes")
     except AttributeError:
