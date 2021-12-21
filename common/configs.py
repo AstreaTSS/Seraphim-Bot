@@ -117,17 +117,8 @@ class GuildConfigManager:
 
     def import_entry(self, db_entry: dict):
         guild_id = db_entry["guild_id"]
-
-        if not self.entries[guild_id]:
-            import_entry = GuildConfig.from_db(db_entry["config"])
-            self.entries[guild_id] = import_entry
-        else:
-            logging.getLogger("discord").error(
-                f"Huh? Entry {guild_id} already exists:\n"
-                + f"Raw entry data: {db_entry}\n"
-                + f"Entry in config already: {self.entries[guild_id]}"
-            )
-            raise Exception(f"Entry {guild_id} already exists.")
+        import_entry = GuildConfig.from_db(db_entry["config"])
+        self.entries[guild_id] = import_entry
 
     def update(self, entry: GuildConfig):
         if self.entries[entry.guild_id]:

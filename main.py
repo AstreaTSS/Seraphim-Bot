@@ -81,7 +81,6 @@ def global_checks(ctx):  # sourcery skip: return-identity
 async def on_init_load():
     await bot.wait_until_ready()
 
-    bot.config = configs.GuildConfigManager()
     bot.star_queue = custom_classes.SetNoReaddAsyncQueue()
 
     bot.snipes = {"deletes": {}, "edits": {}}
@@ -127,6 +126,8 @@ async def on_init_load():
         bot.starboard = star_classes.StarboardEntries(bot.pool)
 
     bot.load_extension("jishaku")
+
+    bot.config = configs.GuildConfigManager()
     bot.load_extension("cogs.db_handler")
     while not bot.added_db_info:
         await asyncio.sleep(0.1)
