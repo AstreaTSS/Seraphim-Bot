@@ -83,19 +83,14 @@ async def base_generate(
             author = await utils.user_from_id(bot, mes.guild, author_id)
 
         author_str = ""
-        if author is None or author.id in (
-            270904126974590976,
-            499383056822435840,
-            bot.user.id,
-        ):
+        if author is None or author.id == bot.user.id:
             author_str = mes.embeds[0].author.name
         else:
             author_str = f"{author.display_name} ({author})"
 
         icon = (
             snipe_embed.author.icon_url
-            if author is None
-            or author.id in (270904126974590976, 499383056822435840, bot.user.id)
+            if author is None or author.id == bot.user.id
             else utils.get_icon_url(author.display_avatar)
         )
 

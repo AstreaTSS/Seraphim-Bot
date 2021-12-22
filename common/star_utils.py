@@ -46,14 +46,14 @@ def get_author_id(mes: discord.Message, bot: utils.SeraphimBase):
         and mes.embeds[0].author.name != discord.Embed.Empty
         and mes.embeds[0].author.name != bot.user.name
         and mes.embeds[0].type == "rich"
-        and mes.embeds[0].footer != discord.Embed.Empty
-        and mes.embeds[0].footer.text.startswith("Author ID: ")
+        and isinstance(mes.embeds[0].author.icon_url, str)
+        and "&userid=" in mes.embeds[0].author.icon_url
     ):
         # conditions to check if message = sniped message from Seraphim
-        # mostly accurate, as Seraphim doesn't cache usernames (although if message is old, it might not get it)
+        # not perfect by any means, but it works for general use
 
         try:
-            return int(mes.embeds[0].footer.text.replace("Author ID: ", ""))
+            return int(mes.embeds[0].author.icon_url.split("&userid=")[1])
         except ValueError:
             return mes.author.id
     else:

@@ -26,7 +26,8 @@ class SnipeEvents(commands.Cog):
                 return
 
             snipe_embed.color = discord.Colour(0x4378FC)
-            snipe_embed.set_footer(text=f"Author ID: {message.author.id}")
+            new_url = f"{snipe_embed.author.icon_url}&userid={message.author.id}"
+            snipe_embed.set_author(name=snipe_embed.author.name, icon_url=new_url)
             self.bot.snipes["deletes"][message.channel.id].append(
                 custom_classes.SnipedMessage(embed=snipe_embed)
             )
@@ -48,7 +49,8 @@ class SnipeEvents(commands.Cog):
                 return
 
             snipe_embed.color = discord.Colour(0x4378FC)
-            snipe_embed.set_footer(text=f"Author ID: {before.author.id}")
+            new_url = f"{snipe_embed.author.icon_url}&userid={before.author.id}"
+            snipe_embed.set_author(name=snipe_embed.author.name, icon_url=new_url)
             self.bot.snipes["edits"][before.channel.id].append(
                 custom_classes.SnipedMessage(embed=snipe_embed)
             )
