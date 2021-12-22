@@ -52,6 +52,8 @@ class PinCMDs(commands.Cog, name="Pinboard"):
         for pin in pins_subset:
             send_embed = await star_mes.star_generate(self.bot, pin)
             send_embed.color = discord.Colour.default()
+            new_url = f"{send_embed.author.icon_url}&userid={pin.author.id}"
+            send_embed.set_author(name=send_embed.author.name, icon_url=new_url)
 
             await des_chan.send(embed=send_embed)
             await pin.unpin()
