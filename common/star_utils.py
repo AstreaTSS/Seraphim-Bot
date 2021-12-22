@@ -43,9 +43,8 @@ def get_author_id(mes: discord.Message, bot: utils.SeraphimBase):
     if (
         mes.author.id == bot.user.id
         and mes.embeds != []
-        and mes.embeds[0].author.name != discord.Embed.Empty
-        and mes.embeds[0].author.name != bot.user.name
         and mes.embeds[0].type == "rich"
+        and mes.embeds[0].author.name != bot.user.name
         and isinstance(mes.embeds[0].author.icon_url, str)
         and "&userid=" in mes.embeds[0].author.icon_url
     ):

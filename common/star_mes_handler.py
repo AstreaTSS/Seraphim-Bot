@@ -64,13 +64,9 @@ async def base_generate(
     elif (
         mes.embeds != []
         and mes.embeds[0].type == "rich"
-        and (
-            mes.author.id == bot.user.id
-            and mes.embeds[0].author != discord.Embed.Empty
-            and mes.embeds[0].color != discord.Embed.Empty
-            and mes.embeds[0].author.name != bot.user.name
-            and mes.embeds[0].color.value == 0x4378FC
-        )
+        and mes.embeds[0].author.name != bot.user.name
+        and isinstance(mes.embeds[0].author.icon_url, str)
+        and "&userid=" in mes.embeds[0].author.icon_url
     ):  # if message is sniped message that's supported
         snipe_embed = mes.embeds[0]
 
