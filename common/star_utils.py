@@ -41,20 +41,6 @@ def get_author_id(mes: discord.Message, bot: utils.SeraphimBase):
     # gets author id from message
     author_id = None
     if (
-        mes.author.id in (270904126974590976, 499383056822435840)
-        and mes.embeds != []
-        and mes.embeds[0].author.name != discord.Embed.Empty
-    ):
-        # conditions to check if message = sniped message from Dank Memer (and the Beta variant)
-        # not too accurate due to some caching behavior with Dank Memer and username changes in general
-        # but good enough for general use
-
-        dank_embed = mes.embeds[0]
-        basic_author = dank_embed.author.name  # name EX: Sonic49#0121
-        author = mes.guild.get_member_named(basic_author)
-        author_id = mes.author.id if author is None else author.id  # just in case
-
-    elif (
         mes.author.id == bot.user.id
         and mes.embeds != []
         and mes.embeds[0].author.name != discord.Embed.Empty

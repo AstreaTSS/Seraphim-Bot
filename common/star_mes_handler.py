@@ -65,17 +65,11 @@ async def base_generate(
         mes.embeds != []
         and mes.embeds[0].type == "rich"
         and (
-            (
-                mes.author.id in (270904126974590976, 499383056822435840)
-                and mes.embeds[0].author.name != discord.Embed.Empty
-            )
-            or (
-                mes.author.id == bot.user.id
-                and mes.embeds[0].author != discord.Embed.Empty
-                and mes.embeds[0].color != discord.Embed.Empty
-                and mes.embeds[0].author.name != bot.user.name
-                and mes.embeds[0].color.value == 0x4378FC
-            )
+            mes.author.id == bot.user.id
+            and mes.embeds[0].author != discord.Embed.Empty
+            and mes.embeds[0].color != discord.Embed.Empty
+            and mes.embeds[0].author.name != bot.user.name
+            and mes.embeds[0].color.value == 0x4378FC
         )
     ):  # if message is sniped message that's supported
         snipe_embed = mes.embeds[0]
@@ -96,7 +90,7 @@ async def base_generate(
         ):
             author_str = mes.embeds[0].author.name
         else:
-            author_str = f"{author.display_name} ({str(author)})"
+            author_str = f"{author.display_name} ({author})"
 
         icon = (
             snipe_embed.author.icon_url
@@ -127,7 +121,7 @@ async def base_generate(
         )
     ):
 
-        author = f"{mes.author.display_name} ({str(mes.author)})"
+        author = f"{mes.author.display_name} ({mes.author})"
         icon = utils.get_icon_url(mes.author.display_avatar)
 
         send_embed = discord.Embed(
@@ -139,7 +133,7 @@ async def base_generate(
 
     else:
         content = utils.get_content(mes)
-        author = f"{mes.author.display_name} ({str(mes.author)})"
+        author = f"{mes.author.display_name} ({mes.author})"
         icon = utils.get_icon_url(mes.author.display_avatar)
 
         if content:
@@ -247,7 +241,10 @@ async def base_generate(
                     image_url = mes.embeds[0].thumbnail.url
                     send_embed.add_field(
                         name="YouTube:",
-                        value=f"{mes.embeds[0].author.name}: [{mes.embeds[0].title}]({mes.embeds[0].url})",
+                        value=(
+                            f"{mes.embeds[0].author.name}:"
+                            f" [{mes.embeds[0].title}]({mes.embeds[0].url})"
+                        ),
                         inline=False,
                     )
 
@@ -256,7 +253,10 @@ async def base_generate(
                 if mes.stickers[0].format != discord.StickerFormatType.lottie:
                     image_url = str(mes.stickers[0].url)
                 else:  # as of right now, you cannot send content with a sticker, so we might as well
-                    send_embed.description = "*This message has a sticker that I cannot display. Please view the original message to see it.*"
+                    send_embed.description = (
+                        "*This message has a sticker that I cannot display. Please view"
+                        " the original message to see it.*"
+                    )
 
             if not no_attachments and mes.attachments:
                 send_embed = cant_display(send_embed, mes.attachments, 0)
