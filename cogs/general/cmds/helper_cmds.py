@@ -376,10 +376,13 @@ class HelperCMDs(commands.Cog, name="Helper"):
     async def spoiler(
         self, ctx: commands.Context, *, message: typing.Optional[quote_message] = ""
     ):
-        """Allows you to send a message that has a file marked as a spoiler.
+        """This command is deprecated, and will be removed December 31st.
+        Allows you to send a message that has a file marked as a spoiler.
         Just send the message you want to send along with the the file, and you'll be good to go.
         The file must be under 8 MiB. The actual text in the message itself will not be spoiled.
         Useful if you're on mobile, which for some reason does not have the ability to mark a file as a spoiler."""
+
+        await utils.deprecated_cmd(ctx)
 
         file_to_send = None
         file_io = None

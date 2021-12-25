@@ -392,6 +392,17 @@ def generate_default_embed(
     return embed
 
 
+async def deprecated_cmd(ctx: commands.Context):
+    deprecated_embed = discord.Embed(
+        colour=discord.Colour.darker_grey(),
+        description="This feature is deprecated, "
+        + "and will be removed by December 30th."
+        + "\nSorry if that's an issue!",
+    )
+
+    await ctx.reply(embed=deprecated_embed, delete_after=5)
+
+
 class CustomCheckFailure(commands.CheckFailure):
     # custom classs for custom prerequisite failures outside of normal command checks
     # this class is so minor i'm not going to bother to migrate it to classes.py
