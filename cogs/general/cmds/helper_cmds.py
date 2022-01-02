@@ -325,31 +325,40 @@ class HelperCMDs(commands.Cog, name="Helper"):
             # this shouldn't happen due to how the PartialEmoji converter works, but you never know
             raise commands.BadArgument("This emoji is not a custom emoji!")
 
-    @commands.command(aliases=["getfirstemoji"])
-    async def get_first_emoji(
+    @commands.command(
+        aliases=[
+            "getemojis",
+            "get-emojis-from-message",
+            "get-emojis-from-msg",
+            "getemojisfrommessage",
+            "getemojisfrommsg",
+        ]
+    )
+    async def get_emojis(
         self, ctx: commands.Context, msg: typing.Optional[discord.Message]
     ):
-        """Gets the URL of the first emoji in a message specified.
+        """Gets the URLs of the emojis in a message specified.
         The message either needs to be a message ID of a message in the guild the command is being run in,
         a {channel id}-{message id} format, or the message link itself.
         You may also use this command by replying to the message you wish to get the URL from.
-        The emoji does not have to be from the server it's used in, but it does have to be an emoji, not a name or URL.
-        It must be a custom emoji."""
+        The emojis does not have to be from the server it's used in, but it does have to be an emoji, not a name or URL.
+        They must be custom emojis."""
+
         if not msg and ctx.message.type == discord.MessageType.reply:
             if (
-                ctx.message.reference.resolved
-                and isinstance(ctx.message.reference.resolved, discord.Message)
-            ) or ctx.message.reference.cached_message:
+                ctx.message.reference.resolved  # type: ignore
+                and isinstance(ctx.message.reference.resolved, discord.Message)  # type: ignore
+            ) or ctx.message.reference.cached_message:  # type: ignore
                 # saves time fetching messages if possible
                 msg = (
-                    ctx.message.reference.cached_message
-                    or ctx.message.reference.resolved
+                    ctx.message.reference.cached_message  # type: ignore
+                    or ctx.message.reference.resolved  # type: ignore
                 )
             else:
                 chan = self.bot.get_partial_messageable(
-                    ctx.message.reference.channel_id, type=discord.ChannelType.text
+                    ctx.message.reference.channel_id, type=discord.ChannelType.text  # type: ignore
                 )
-                partial_mes = chan.get_partial_message(ctx.message.reference.message_id)
+                partial_mes = chan.get_partial_message(ctx.message.reference.message_id)  # type: ignore
                 try:
                     msg = await partial_mes.fetch()
                 except discord.HTTPException:
@@ -358,19 +367,28 @@ class HelperCMDs(commands.Cog, name="Helper"):
         if not msg:
             raise commands.BadArgument("No message found.")
 
-        match = re.search(r"<(a?):([a-zA-Z0-9\_]{1,32}):([0-9]{15,20})>$", msg.content)
+        matches = re.findall(
+            r"<(a?):([a-zA-Z0-9\_]{1,32}):([0-9]{15,20})>$", msg.content
+        )
 
-        if not match:
-            await ctx.reply("No emoji found in this message!")
-        else:
+        if not matches:
+            raise commands.BadArgument("No emoji found in this message!")
+
+        emoji_urls: list[str] = []
+        for match in matches:
             emoji_animated = bool(match.group(1))
             emoji_name = match.group(2)
             emoji_id = int(match.group(3))
 
-            emoji = discord.PartialEmoji(
-                animated=emoji_animated, name=emoji_name, id=emoji_id
+            emoji_urls.append(
+                discord.PartialEmoji(
+                    animated=emoji_animated, name=emoji_name, id=emoji_id
+                ).url
             )
-            await ctx.reply(f"URL: {emoji.url}")
+
+        # removes dups while preserving order
+        emoji_urls_str = "\n".join(dict.fromkeys(emoji_urls))
+        await ctx.reply(content=f"URL(s): {emoji_urls_str}")
 
     @commands.command(ignore_extra=False)
     async def created(
@@ -615,26 +633,38 @@ class HelperCMDs(commands.Cog, name="Helper"):
             )
 
 
-class GetEmojiFromMessage(discord.MessageCommand, name="Get First Emoji"):
+class GetEmojiFromMessage(discord.MessageCommand, name="Get Emoji URLs"):
     async def callback(self):
         msg = self.message
         inter = self.interaction
 
-        match = re.search(r"<(a?):([a-zA-Z0-9\_]{1,32}):([0-9]{15,20})>$", msg.content)
+        await inter.response.defer(ephemeral=True)
 
-        if not match:
-            await inter.response.send_message(
-                "No emoji found in this message!", ephemeral=True
-            )
+        matches = re.findall(
+            r"<(a?):([a-zA-Z0-9\_]{1,32}):([0-9]{15,20})>$", msg.content
+        )
+
+        if not matches:
+            await inter.edit_original_message(content="No emoji found in this message!")
         else:
-            emoji_animated = bool(match.group(1))
-            emoji_name = match.group(2)
-            emoji_id = int(match.group(3))
+            emoji_urls: typing.List[str] = []
 
-            emoji = discord.PartialEmoji(
-                animated=emoji_animated, name=emoji_name, id=emoji_id
-            )
-            await inter.response.send_message(f"URL: {emoji.url}", ephemeral=True)
+            for match in matches:
+                emoji_animated = bool(match.group(1))
+                emoji_name = match.group(2)
+                emoji_id = int(match.group(3))
+
+                emoji_urls.append(
+                    (
+                        discord.PartialEmoji(
+                            animated=emoji_animated, name=emoji_name, id=emoji_id
+                        )
+                    ).url
+                )
+
+            # removes dups while preserving order
+            emoji_urls_str = "\n".join(dict.fromkeys(emoji_urls))
+            await inter.edit_original_message(content=f"URL(s): {emoji_urls_str}")
 
 
 def setup(bot: commands.Bot):
