@@ -403,6 +403,31 @@ async def deprecated_cmd(ctx: commands.Context):
     await ctx.reply(embed=deprecated_embed, delete_after=5)
 
 
+async def resolve_reply(
+    bot: commands.Bot, msg: discord.Message
+) -> typing.Optional[discord.Message]:
+    reply: typing.Optional[discord.Message] = None
+
+    if msg.reference:
+        if (
+            msg.reference.resolved
+            and isinstance(msg.reference.resolved, discord.Message)
+        ) or msg.reference.cached_message:
+            # saves time fetching messages if possible
+            reply = (
+                msg.reference.cached_message  # type: ignore
+                or msg.reference.resolved
+            )
+        elif guild := bot.get_guild(msg.reference.guild_id):  # type: ignore
+            chan = guild.get_channel_or_thread(msg.reference.channel_id)  # type: ignore
+            try:
+                reply = await chan.fetch_message(msg.reference.message_id)  # type: ignore
+            except discord.HTTPException or AttributeError:
+                pass
+
+    return reply
+
+
 class CustomCheckFailure(commands.CheckFailure):
     # custom classs for custom prerequisite failures outside of normal command checks
     # this class is so minor i'm not going to bother to migrate it to classes.py

@@ -144,37 +144,14 @@ async def base_generate(
         if mes.type == discord.MessageType.reply:
             # checks if message has inline reply
 
-            ref_author = None
-            ref_auth_str = ""
-            ref_mes_url = ""
+            ref_mes_url = mes.reference.jump_url  # type: ignore
 
-            if (
-                mes.reference.resolved
-                and isinstance(mes.reference.resolved, discord.Message)
-            ) or mes.reference.cached_message:
-                # saves time fetching messages if possible
-                reply_mes = mes.reference.cached_message or mes.reference.resolved
-                ref_author = reply_mes.author
-                ref_mes_url = reply_mes.jump_url
-
-            elif mes.reference.message_id:
-                # fetches message from info given by MessageReference
-                # note the message id might not be provided, so we check if it is
-                ref_chan = mes.guild.get_channel_or_thread(mes.reference.channel_id)
-                try:
-                    ref_mes = await ref_chan.fetch_message(mes.reference.message_id)
-                    ref_author = ref_mes.author
-                    ref_mes_url = ref_mes.jump_url
-                except discord.HTTPException or AttributeError:
-                    pass
-
+            reply_msg = await utils.resolve_reply(bot, mes)
+            ref_author = reply_msg.author if reply_msg else None
             ref_auth_str = ref_author.display_name if ref_author else "a message"
-            if not ref_mes_url and mes.reference.message_id and mes.reference.guild_id:
-                ref_mes_url = f"https://discord.com/channels/{mes.reference.guild_id}/{mes.reference.channel_id}/{mes.reference.message_id}"
 
             send_embed.title = f"Replying to {ref_auth_str}:"
-            if ref_mes_url:
-                send_embed.url = ref_mes_url
+            send_embed.url = ref_mes_url
 
         if (
             mes.embeds != []

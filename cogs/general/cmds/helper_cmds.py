@@ -347,24 +347,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         They must be custom emojis."""
 
         if not msg and ctx.message.type == discord.MessageType.reply:
-            if (
-                ctx.message.reference.resolved  # type: ignore
-                and isinstance(ctx.message.reference.resolved, discord.Message)  # type: ignore
-            ) or ctx.message.reference.cached_message:  # type: ignore
-                # saves time fetching messages if possible
-                msg = (
-                    ctx.message.reference.cached_message  # type: ignore
-                    or ctx.message.reference.resolved  # type: ignore
-                )
-            else:
-                chan = self.bot.get_partial_messageable(
-                    ctx.message.reference.channel_id, type=discord.ChannelType.text  # type: ignore
-                )
-                partial_mes = chan.get_partial_message(ctx.message.reference.message_id)  # type: ignore
-                try:
-                    msg = await partial_mes.fetch()
-                except discord.HTTPException:
-                    pass
+            msg = await utils.resolve_reply(self.bot, ctx.message)
 
         if not msg:
             raise commands.BadArgument("No message found.")
@@ -379,14 +362,10 @@ class HelperCMDs(commands.Cog, name="Helper"):
         emoji_urls: list[str] = []
         for match in matches:
             emoji_animated = bool(match[0])
-            emoji_name = match[1]
             emoji_id = int(match[2])
 
-            emoji_urls.append(
-                discord.PartialEmoji(
-                    animated=emoji_animated, name=emoji_name, id=emoji_id
-                ).url
-            )
+            fmt = "gif" if emoji_animated else "png"
+            emoji_urls.append(f"{discord.Asset.BASE}/emojis/{emoji_id}.{fmt}")
 
         # removes dups while preserving order
         emoji_urls_str = "\n".join(dict.fromkeys(emoji_urls))
@@ -600,16 +579,10 @@ class GetEmojiFromMessage(discord.MessageCommand, name="Get Emoji URLs"):
 
             for match in matches:
                 emoji_animated = bool(match[0])
-                emoji_name = match[1]
                 emoji_id = int(match[2])
 
-                emoji_urls.append(
-                    (
-                        discord.PartialEmoji(
-                            animated=emoji_animated, name=emoji_name, id=emoji_id
-                        )
-                    ).url
-                )
+                fmt = "gif" if emoji_animated else "png"
+                emoji_urls.append(f"{discord.Asset.BASE}/emojis/{emoji_id}.{fmt}")
 
             # removes dups while preserving order
             emoji_urls_str = "\n".join(dict.fromkeys(emoji_urls))
@@ -622,10 +595,16 @@ def setup(bot: commands.Bot):
     importlib.reload(custom_classes)
     importlib.reload(fuzzys)
 
-    names = [
-        c._name_ for c in bot._application_command_store.pre_registration.get(None, [])
-    ]
-    if GetEmojiFromMessage._name_ not in names:
-        bot.application_command(GetEmojiFromMessage)
+    if app_cmd := next(
+        (
+            c
+            for c in bot._application_command_store.pre_registration.get(None, [])
+            if c._name_ == GetEmojiFromMessage._name_
+        ),
+        None,
+    ):
+        bot._application_command_store.pre_registration[None].remove(app_cmd)
+
+    bot.application_command(GetEmojiFromMessage)
 
     bot.add_cog(HelperCMDs(bot))
