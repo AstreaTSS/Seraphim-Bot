@@ -1,4 +1,4 @@
-git+https://github.com/Astrea49/enhanced-discord.py.git@a8683f96f0fdc3538bb164ce0af7d1d736989359
+git+https://github.com/Astrea49/enhanced-discord.py.git@b92fc324c8bf426a7cba68372e1193d21093ff87
 asyncpg==0.25.0
 rapidfuzz==1.9.1
 websockets==10.1
