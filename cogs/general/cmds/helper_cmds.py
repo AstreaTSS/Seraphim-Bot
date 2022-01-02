@@ -622,7 +622,9 @@ def setup(bot: commands.Bot):
     importlib.reload(custom_classes)
     importlib.reload(fuzzys)
 
-    names = [c._name_ for c in bot._application_command_store.pre_registration[None]]
+    names = [
+        c._name_ for c in bot._application_command_store.pre_registration.get(None, [])
+    ]
     if GetEmojiFromMessage._name_ not in names:
         bot.application_command(GetEmojiFromMessage)
 
