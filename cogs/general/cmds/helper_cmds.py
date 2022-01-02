@@ -1,6 +1,7 @@
 import datetime
 import importlib
 import io
+import re
 import typing
 
 import discord
@@ -324,6 +325,53 @@ class HelperCMDs(commands.Cog, name="Helper"):
             # this shouldn't happen due to how the PartialEmoji converter works, but you never know
             raise commands.BadArgument("This emoji is not a custom emoji!")
 
+    @commands.command(aliases=["getfirstemoji"])
+    async def get_first_emoji(
+        self, ctx: commands.Context, msg: typing.Optional[discord.Message]
+    ):
+        """Gets the URL of the first emoji in a message specified.
+        The message either needs to be a message ID of a message in the guild the command is being run in,
+        a {channel id}-{message id} format, or the message link itself.
+        You may also use this command by replying to the message you wish to get the URL from.
+        The emoji does not have to be from the server it's used in, but it does have to be an emoji, not a name or URL.
+        It must be a custom emoji."""
+        if not msg and ctx.message.type == discord.MessageType.reply:
+            if (
+                ctx.message.reference.resolved
+                and isinstance(ctx.message.reference.resolved, discord.Message)
+            ) or ctx.message.reference.cached_message:
+                # saves time fetching messages if possible
+                msg = (
+                    ctx.message.reference.cached_message
+                    or ctx.message.reference.resolved
+                )
+            else:
+                chan = self.bot.get_partial_messageable(
+                    ctx.message.reference.channel_id, type=discord.ChannelType.text
+                )
+                partial_mes = chan.get_partial_message(ctx.message.reference.message_id)
+                try:
+                    msg = await partial_mes.fetch()
+                except discord.HTTPException:
+                    pass
+
+        if not msg:
+            raise commands.BadArgument("No message found.")
+
+        match = re.search(r"<(a?):([a-zA-Z0-9\_]{1,32}):([0-9]{15,20})>$", msg.content)
+
+        if not match:
+            await ctx.reply("No emoji found in this message!")
+        else:
+            emoji_animated = bool(match.group(1))
+            emoji_name = match.group(2)
+            emoji_id = int(match.group(3))
+
+            emoji = discord.PartialEmoji(
+                animated=emoji_animated, name=emoji_name, id=emoji_id
+            )
+            await ctx.reply(f"URL: {emoji.url}")
+
     @commands.command(ignore_extra=False)
     async def created(
         # fmt: off
@@ -567,10 +615,33 @@ class HelperCMDs(commands.Cog, name="Helper"):
             )
 
 
-def setup(bot):
+class GetEmojiFromMessage(discord.MessageCommand, name="Get First Emoji"):
+    async def callback(self):
+        msg = self.message
+        inter = self.interaction
+
+        match = re.search(r"<(a?):([a-zA-Z0-9\_]{1,32}):([0-9]{15,20})>$", msg.content)
+
+        if not match:
+            await inter.response.send_message(
+                "No emoji found in this message!", ephemeral=True
+            )
+        else:
+            emoji_animated = bool(match.group(1))
+            emoji_name = match.group(2)
+            emoji_id = int(match.group(3))
+
+            emoji = discord.PartialEmoji(
+                animated=emoji_animated, name=emoji_name, id=emoji_id
+            )
+            await inter.response.send_message(f"URL: {emoji.url}", ephemeral=True)
+
+
+def setup(bot: commands.Bot):
     importlib.reload(utils)
     importlib.reload(image_utils)
     importlib.reload(custom_classes)
     importlib.reload(fuzzys)
 
     bot.add_cog(HelperCMDs(bot))
+    bot.application_command(GetEmojiFromMessage)
