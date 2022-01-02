@@ -436,59 +436,6 @@ class HelperCMDs(commands.Cog, name="Helper"):
             allowed_mentions=allowed_mentions,
         )
 
-    def quote_message(argument: str):
-        return "\n".join(f"> {line}" for line in argument.splitlines())
-
-    @commands.command(aliases=["spoil"])
-    @utils.bot_proper_perms()
-    async def spoiler(
-        self, ctx: commands.Context, *, message: typing.Optional[quote_message] = ""
-    ):
-        """This command is deprecated, and will be removed December 31st.
-        Allows you to send a message that has a file marked as a spoiler.
-        Just send the message you want to send along with the the file, and you'll be good to go.
-        The file must be under 8 MiB. The actual text in the message itself will not be spoiled.
-        Useful if you're on mobile, which for some reason does not have the ability to mark a file as a spoiler."""
-
-        await utils.deprecated_cmd(ctx)
-
-        file_to_send = None
-        file_io = None
-        allowed_mentions = utils.generate_mentions(ctx)
-
-        if not ctx.message.attachments:
-            raise commands.BadArgument("There's no attachment to mark as a spoiler!")
-        elif len(ctx.message.attachments) > 1:
-            raise utils.CustomCheckFailure(
-                "I cannot spoil more than one attachment due to resource limits!"
-            )
-        elif len(message) > 1975:
-            raise commands.BadArgument("This message is too long for me to send!")
-
-        async with ctx.channel.typing():
-            try:
-                image_data = await image_utils.get_file_bytes(
-                    ctx.message.attachments[0].url, 8388608, equal_to=False
-                )  # 8 MiB
-                await ctx.message.delete()
-
-                file_io = io.BytesIO(image_data)
-                file_to_send = discord.File(
-                    file_io, filename=ctx.message.attachments[0].filename, spoiler=True,
-                )
-            except:
-                if file_io:
-                    file_io.close()
-                raise
-            finally:
-                del image_data
-
-        await ctx.send(
-            f"From {ctx.author.mention}:\n{message}",
-            file=file_to_send,
-            allowed_mentions=allowed_mentions,
-        )
-
     class AvatarFlags(commands.FlagConverter):
         guild: bool = True
         animated: bool = True
