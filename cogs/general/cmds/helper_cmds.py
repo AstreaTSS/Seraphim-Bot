@@ -643,5 +643,5 @@ def setup(bot: commands.Bot):
     importlib.reload(custom_classes)
     importlib.reload(fuzzys)
 
-    bot.add_cog(HelperCMDs(bot))
     bot.application_command(GetEmojiFromMessage)
+    bot.add_cog(HelperCMDs(bot))
