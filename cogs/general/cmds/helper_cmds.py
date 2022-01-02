@@ -311,8 +311,8 @@ class HelperCMDs(commands.Cog, name="Helper"):
 
         await ctx.invoke(add_emoji_cmd, emoji.name, emoji)
 
-    @commands.command(aliases=["getemojiurl", "emojiurl", "emoji-url"])
-    async def get_emoji_url(self, ctx, emoji: typing.Union[discord.PartialEmoji, str]):
+    @commands.command(aliases=["getemojiurl", "emojiurl", "get_emoji_url"])
+    async def emoji_url(self, ctx, emoji: typing.Union[discord.PartialEmoji, str]):
         """Gets the emoji URL from an emoji.
         The emoji does not have to be from the server it's used in, but it does have to be an emoji, not a name or URL."""
 
@@ -328,15 +328,15 @@ class HelperCMDs(commands.Cog, name="Helper"):
     @commands.command(
         aliases=[
             "getemojis",
+            "get_emojis",
             "get-emojis-from-message",
             "get-emojis-from-msg",
             "getemojisfrommessage",
             "getemojisfrommsg",
-            "get_emoji_urls",
             "getemojiurls",
         ]
     )
-    async def get_emojis(
+    async def get_emoji_urls(
         self, ctx: commands.Context, msg: typing.Optional[discord.Message]
     ):
         """Gets the URLs of the emojis in a message specified.
@@ -390,7 +390,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
 
         # removes dups while preserving order
         emoji_urls_str = "\n".join(dict.fromkeys(emoji_urls))
-        await ctx.reply(content=f"URL(s): {emoji_urls_str}")
+        await ctx.reply(content=f"URL(s):\n{emoji_urls_str}")
 
     @commands.command(ignore_extra=False)
     async def created(
@@ -613,7 +613,7 @@ class GetEmojiFromMessage(discord.MessageCommand, name="Get Emoji URLs"):
 
             # removes dups while preserving order
             emoji_urls_str = "\n".join(dict.fromkeys(emoji_urls))
-            await inter.edit_original_message(content=f"URL(s): {emoji_urls_str}")
+            await inter.edit_original_message(content=f"URL(s):\n{emoji_urls_str}")
 
 
 def setup(bot: commands.Bot):
@@ -622,5 +622,8 @@ def setup(bot: commands.Bot):
     importlib.reload(custom_classes)
     importlib.reload(fuzzys)
 
-    bot.application_command(GetEmojiFromMessage)
+    names = [c._name_ for c in bot._application_command_store.pre_registration[None]]
+    if GetEmojiFromMessage._name_ not in names:
+        bot.application_command(GetEmojiFromMessage)
+
     bot.add_cog(HelperCMDs(bot))
