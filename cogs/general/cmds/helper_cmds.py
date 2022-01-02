@@ -311,7 +311,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
 
         await ctx.invoke(add_emoji_cmd, emoji.name, emoji)
 
-    @commands.command(aliases=["getemojiurl"])
+    @commands.command(aliases=["getemojiurl", "emojiurl", "emoji-url"])
     async def get_emoji_url(self, ctx, emoji: typing.Union[discord.PartialEmoji, str]):
         """Gets the emoji URL from an emoji.
         The emoji does not have to be from the server it's used in, but it does have to be an emoji, not a name or URL."""
@@ -332,6 +332,8 @@ class HelperCMDs(commands.Cog, name="Helper"):
             "get-emojis-from-msg",
             "getemojisfrommessage",
             "getemojisfrommsg",
+            "get_emoji_urls",
+            "getemojiurls",
         ]
     )
     async def get_emojis(
@@ -368,7 +370,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
             raise commands.BadArgument("No message found.")
 
         matches = re.findall(
-            r"<(a?):([a-zA-Z0-9\_]{1,32}):([0-9]{15,20})>$", msg.content
+            r"<(a?):([a-zA-Z0-9\_]{1,32}):([0-9]{15,20})>", msg.content
         )
 
         if not matches:
@@ -376,9 +378,9 @@ class HelperCMDs(commands.Cog, name="Helper"):
 
         emoji_urls: list[str] = []
         for match in matches:
-            emoji_animated = bool(match.group(1))
-            emoji_name = match.group(2)
-            emoji_id = int(match.group(3))
+            emoji_animated = bool(match[0])
+            emoji_name = match[1]
+            emoji_id = int(match[2])
 
             emoji_urls.append(
                 discord.PartialEmoji(
@@ -641,7 +643,7 @@ class GetEmojiFromMessage(discord.MessageCommand, name="Get Emoji URLs"):
         await inter.response.defer(ephemeral=True)
 
         matches = re.findall(
-            r"<(a?):([a-zA-Z0-9\_]{1,32}):([0-9]{15,20})>$", msg.content
+            r"<(a?):([a-zA-Z0-9\_]{1,32}):([0-9]{15,20})>", msg.content
         )
 
         if not matches:
@@ -650,9 +652,9 @@ class GetEmojiFromMessage(discord.MessageCommand, name="Get Emoji URLs"):
             emoji_urls: typing.List[str] = []
 
             for match in matches:
-                emoji_animated = bool(match.group(1))
-                emoji_name = match.group(2)
-                emoji_id = int(match.group(3))
+                emoji_animated = bool(match[0])
+                emoji_name = match[1]
+                emoji_id = int(match[2])
 
                 emoji_urls.append(
                     (
