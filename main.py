@@ -144,6 +144,10 @@ async def on_init_load():
     application = await bot.application_info()
     bot.owner = application.owner
 
+    # since we load extensions after startup, we have to make sure
+    # applications commands are synced - this is an easy way of doing it
+    await bot.create_slash_commands()
+
 
 class SeraphimBot(utils.SeraphimBase):
     def __init__(
