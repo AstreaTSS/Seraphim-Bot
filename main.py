@@ -10,7 +10,6 @@ import orjson
 import websockets
 from discord.ext import commands
 from discord.ext.commands.bot import _default as bot_default
-from DiscordUtilsMod import InviteTracker
 from dotenv import load_dotenv
 
 import common.classes as custom_classes
@@ -238,7 +237,6 @@ bot = SeraphimBot(
     allowed_mentions=mentions,
     intents=intents,
 )
-bot.tracker = InviteTracker(bot)
 
 try:
     import uvloop

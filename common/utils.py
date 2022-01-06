@@ -9,7 +9,6 @@ from pathlib import Path
 import aiohttp
 import discord
 from discord.ext import commands
-from DiscordUtilsMod import InviteTracker
 
 
 def error_embed_generate(error_msg):
@@ -465,7 +464,6 @@ if typing.TYPE_CHECKING:
         pool: asyncpg.Pool
         starboard: star_classes.StarboardEntries
         owner: discord.User
-        tracker: InviteTracker
 
     class SeraContextBase(commands.Context):
         bot: SeraphimBase

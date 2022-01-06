@@ -16,7 +16,7 @@ class EmptyChannel:
         self.mention = None
 
 
-class JoinLeaveLog(commands.Cog, name="Join and Leave Logging"):
+class JoinLeaveLog(commands.Cog, name="Leave Logging"):
     def __init__(self, bot):
         self.bot: utils.SeraphimBase = bot
 
@@ -28,13 +28,13 @@ class JoinLeaveLog(commands.Cog, name="Join and Leave Logging"):
 
     @commands.command()
     @utils.proper_permissions()
-    async def join_leave_log(
+    async def leave_log(
         self,
         ctx: utils.SeraContextBase,
         chan: typing.Union[cclasses.ValidChannelConverter, CheckForNone],
     ):
-        """Sets (or unsets) the join/leave logs.
-        These logs, as well as tracking what you expect, also track roles and the invite used.
+        """Sets (or unsets) the leave logs.
+        This logs, as well as tracking what you expect, also track the roles a user had.
         Either specify a channel (mention/ID/name in quotes) to set it, or 'none' to unset it.
         The channel must be one the bot can send to.
         Requires Manage Server permissions or higher."""
@@ -93,56 +93,6 @@ class JoinLeaveLog(commands.Cog, name="Join and Leave Logging"):
             )
 
             await chan.send(embed=leave_embed)
-
-    @commands.Cog.listener()
-    async def on_member_join(self, member: discord.Member):
-        if chan := member.guild.get_channel_or_thread(
-            self.bot.config.getattr(member.guild.id, "join_leave_chan_id")
-        ):
-            invite: typing.Optional[
-                discord.Invite
-            ] = await self.bot.tracker.fetch_inviter(member)
-
-            join_embed = discord.Embed(
-                color=discord.Color.green(),
-                description=f"{member} joined",
-                timestamp=discord.utils.utcnow(),
-            )
-            join_embed.add_field(
-                name="User Information",
-                value=f"{member} ({member.id}) {member.mention}",
-                inline=False,
-            )
-            if member.joined_at:
-                join_embed.add_field(
-                    name="Joined At",
-                    value=(
-                        f"{discord.utils.format_dt(member.joined_at, style='F')} ({discord.utils.format_dt(member.joined_at, 'R')})"
-                    ),
-                    inline=False,
-                )
-
-            join_embed.add_field(name="Member Count", value=member.guild.member_count)
-            if invite:
-                join_embed.add_field(
-                    name="Invite Used", value=f"{invite.code} with {invite.uses} uses"
-                )
-            join_embed.add_field(
-                name="ID",
-                value=f"```ini\nMember = {member.id}\nGuild = {member.guild.id}\n```",
-                inline=False,
-            )
-
-            join_embed.set_author(
-                name=str(member),
-                icon_url=utils.get_icon_url(member._user.display_avatar),
-            )
-            join_embed.set_footer(
-                text=str(self.bot.user),
-                icon_url=utils.get_icon_url(member.guild.me.display_avatar),
-            )
-
-            await chan.send(embed=join_embed)
 
 
 def setup(bot):
