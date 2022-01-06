@@ -14,7 +14,7 @@ def default_perms_check_converter(default_perms_check: typing.Optional[bool]):
 
 
 def custom_perm_roles_converter(custom_perm_roles: typing.Optional[typing.List[int]]):
-    return custom_perm_roles if custom_perm_roles != None else []
+    return custom_perm_roles if custom_perm_roles != None else list()
 
 
 @attr.s(slots=True, eq=False)
@@ -36,6 +36,7 @@ class GuildConfig:
     restore_roles_toggle: bool = attr.ib(converter=restore_roles_toggle_converter)
     default_perms_check: bool = attr.ib(converter=default_perms_check_converter)
     custom_perm_roles: typing.List[int] = attr.ib(converter=custom_perm_roles_converter)
+    join_leave_chan_id: int = attr.ib(default=None)
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.guild_id == other.guild_id
@@ -58,6 +59,7 @@ class GuildConfig:
             entry.get("restore_roles_toggle"),  # type: ignore
             entry.get("default_perms_check"),  # type: ignore
             entry.get("custom_perm_roles"),  # type: ignore
+            entry.get("join_leave_chan_id"),  # type: ignore
         )
 
     @classmethod
@@ -78,6 +80,7 @@ class GuildConfig:
                 "restore_roles_toggle": False,
                 "default_perms_check": False,
                 "custom_perm_roles": [],
+                "join_leave_chan_id": None,
                 "guild_id": guild_id,
             }
         )
