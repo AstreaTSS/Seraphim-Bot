@@ -84,7 +84,11 @@ class JoinLeaveLog(commands.Cog, name="Join and Leave Logging"):
             )
 
             leave_embed.set_author(
-                name=str(self.bot.user),
+                name=str(member),
+                icon_url=utils.get_icon_url(member._user.display_avatar),
+            )
+            leave_embed.set_footer(
+                text=str(self.bot.user),
                 icon_url=utils.get_icon_url(member.guild.me.display_avatar),
             )
 
@@ -130,7 +134,11 @@ class JoinLeaveLog(commands.Cog, name="Join and Leave Logging"):
             )
 
             join_embed.set_author(
-                name=str(self.bot.user),
+                name=str(member),
+                icon_url=utils.get_icon_url(member._user.display_avatar),
+            )
+            join_embed.set_footer(
+                text=str(self.bot.user),
                 icon_url=utils.get_icon_url(member.guild.me.display_avatar),
             )
 
