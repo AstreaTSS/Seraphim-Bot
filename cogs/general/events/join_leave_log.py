@@ -50,6 +50,8 @@ class JoinLeaveLog(commands.Cog, name="Join and Leave Logging"):
             role_names = ", ".join(
                 tuple(r.name for r in member.roles if not r.is_default())
             )
+            if not role_names:
+                role_names = "None"
 
             leave_embed = discord.Embed(
                 color=discord.Color.red(),
