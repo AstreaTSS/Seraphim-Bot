@@ -26,9 +26,9 @@ class JoinLeaveLog(commands.Cog, name="Leave Logging"):
                 return EmptyChannel()
             raise commands.BadArgument("Not 'none'!")
 
-    @commands.command()
+    @commands.command(aliases=["leave_log"])
     @utils.proper_permissions()
-    async def leave_log(
+    async def leave_logs(
         self,
         ctx: utils.SeraContextBase,
         chan: typing.Union[cclasses.ValidChannelConverter, CheckForNone],
