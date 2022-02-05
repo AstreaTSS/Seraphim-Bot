@@ -202,16 +202,14 @@ class StarboardEntries:
 
         Saves speed on adding, deleting, and updating by offloading
         this step here."""
-        async with self._pool.acquire() as conn:
-            conn: asyncpg.Connection
-            try:
-                while True:
-                    entry = await self._sql_queries.get()
-                    logging.getLogger("discord").debug(f"Running {entry.query}.")
-                    await conn.execute(entry.query, timeout=60, *entry.args)
-                    self._sql_queries.task_done()
-            except asyncio.CancelledError:
-                pass
+        try:
+            while True:
+                entry = await self._sql_queries.get()
+                logging.getLogger("discord").debug(f"Running {entry.query}.")
+                await self._pool.execute(entry.query, timeout=60, *entry.args)
+                self._sql_queries.task_done()
+        except asyncio.CancelledError:
+            pass
 
     def _get_required_from_entry(self, entry: StarboardEntry):
         """Transforms data into the form needed for databases."""
