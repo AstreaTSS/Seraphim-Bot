@@ -119,7 +119,11 @@ async def on_init_load():
 
         db_url = os.environ.get("DB_URL")
         bot.pool = await asyncpg.create_pool(
-            db_url, min_size=2, max_size=10, init=add_json_converter
+            db_url,
+            min_size=2,
+            max_size=10,
+            max_inactive_connection_lifetime=3,
+            init=add_json_converter,
         )
 
         bot.starboard = star_classes.StarboardEntries(bot.pool)
