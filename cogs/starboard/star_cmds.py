@@ -29,15 +29,11 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
     async def get_star_rankings(self, query: str):
         sorted_entries = await self.bot.starboard.super_raw_query(
-            "SELECT author_id, SUM(array_length((ori_reactors || var_reactors), 1))"
-            f" FROM starboard WHERE {query} GROUP BY author_id ORDER BY sum DESC NULLS"
-            " LAST"
+            "SELECT author_id, SUM(cardinality(ori_reactors || var_reactors)) FROM"
+            f" starboard WHERE {query} AND NOT (ori_reactors = '{{}}' AND"
+            " var_reactors = '{}') GROUP BY author_id ORDER BY sum DESC"
         )
-        return tuple(
-            StarRankEntry(r["author_id"], r["sum"])
-            for r in sorted_entries
-            if r["sum"] is not None
-        )
+        return tuple(StarRankEntry(r["author_id"], r["sum"]) for r in sorted_entries)
 
     def get_user_placing(
         self, user_star_list: typing.Tuple[StarRankEntry, ...], author_id
@@ -149,8 +145,9 @@ class StarCMDs(commands.Cog, name="Starboard"):
             conditions = f"guild_id = {ctx.guild.id}"
 
         guild_entries = await self.bot.starboard.select_query(
-            f"{conditions} ORDER BY array_length((ori_reactors || var_reactors), 1)"
-            " DESC NULLS LAST"
+            f"{conditions} AND star_var_id IS NOT NULL AND NOT (ori_reactors = '{{}}'"
+            " AND var_reactors = '{}') ORDER BY cardinality(ori_reactors ||"
+            " var_reactors) DESC"
         )
 
         if not guild_entries:
