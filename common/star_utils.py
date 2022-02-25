@@ -108,7 +108,7 @@ async def modify_stars(
         # this code probably needs slight rewriting
         type_of = get_reactor_type(mes.id, starboard_entry)
 
-        if starboard_entry.check_reactor(reactor_id) and operation == "ADD":
+        if not starboard_entry.check_reactor(reactor_id) and operation == "ADD":
             starboard_entry.add_reactor(reactor_id, type_of)
 
         elif (
