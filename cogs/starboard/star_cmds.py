@@ -189,7 +189,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
             starboard_id = entry.starboard_id
 
             url = f"https://discordapp.com/channels/{ctx.guild.id}/{starboard_id}/{entry.star_var_id}"
-            num_stars = len(entry.get_reactors())
+            num_stars = entry.num_reactors
 
             if flags.role:
                 member = (
@@ -428,7 +428,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
                 f" {f'<@{starboard_entry.author_id}>' if starboard_entry.author_id else None}",
                 f"**Original Message Link:** [Here!]({ori_url})",
                 "",
-                f"**Total Stars:** {len(starboard_entry.get_reactors())}",
+                f"**Total Stars:** {starboard_entry.num_reactors}",
                 f"**Stars on Original Message:** {len(starboard_entry.ori_reactors)}",
                 f"**Stars on Starred Varient:** {len(starboard_entry.var_reactors)}",
                 "",
