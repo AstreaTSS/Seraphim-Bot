@@ -46,7 +46,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
             lambda e: e.author_id == author_id, user_star_list
         ):
             author_index = user_star_list.index(author_entry)
-            return f"position: #{author_index + 1} with {author_entry[1]} ⭐"
+            return f"position: #{author_index + 1} with {author_entry.stars} ⭐"
         else:
             return "position: N/A - no stars found!"
 
