@@ -314,7 +314,7 @@ class StarboardEntries:
     async def super_raw_query(self, query: str):
         """You want a raw query? You'll get one."""
         async with self._pool.acquire() as conn:
-            return conn.fetch(query)
+            return await conn.fetch(query)
 
     async def query_entries(
         self, seperator: str = "AND", **conditions: typing.Dict[str, str]
