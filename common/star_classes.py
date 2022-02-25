@@ -293,14 +293,28 @@ class StarboardEntries:
 
         return entry
 
-    async def raw_query(self, query: str):
-        """Queries the starboard database directly for entries based on the query."""
+    async def select_query(self, query: str):
+        """Selects the starboard database directly for entries based on the query."""
         async with self._pool.acquire() as conn:
             data = await conn.fetch(f"SELECT * FROM starboard WHERE {query}")
 
             if not data:
                 return None
             return tuple(StarboardEntry.from_row(row) for row in data)
+
+    async def raw_query(self, query: str):
+        """Runs the raw query against the pool, assuming the results are starboard entries."""
+        async with self._pool.acquire() as conn:
+            data = await conn.fetch(query)
+
+            if not data:
+                return None
+            return tuple(StarboardEntry.from_row(row) for row in data)
+
+    async def super_raw_query(self, query: str):
+        """You want a raw query? You'll get one."""
+        async with self._pool.acquire() as conn:
+            return conn.fetch(query)
 
     async def query_entries(
         self, seperator: str = "AND", **conditions: typing.Dict[str, str]

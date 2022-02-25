@@ -1,9 +1,8 @@
 #!/usr/bin/env python3.8
-import collections
 import importlib
-import random
 import typing
 
+import attr
 import discord
 from discord.ext import commands
 
@@ -16,34 +15,36 @@ import common.star_utils as star_utils
 import common.utils as utils
 
 
+@attr.define(slots=True)
+class StarRankEntry:
+    author_id: int
+    stars: int
+
+
 class StarCMDs(commands.Cog, name="Starboard"):
     """Commands for the starboard. See the settings command to set up the starboard."""
 
     def __init__(self, bot):
         self.bot: utils.SeraphimBase = bot
 
-    async def get_star_rankings(self, query: typing.Optional[str] = None, **conditions):
-        user_star_dict = collections.Counter()
+    async def get_star_rankings(self, query: str):
+        sorted_entries = await self.bot.starboard.super_raw_query(
+            "SELECT author_id, SUM(array_length((ori_reactors || var_reactors), 1))"
+            f" FROM starboard WHERE {query} GROUP BY author_id ORDER BY sum DESC NULLS"
+            " LAST"
+        )
+        return tuple(
+            StarRankEntry(r["author_id"], r["sum"])
+            for r in sorted_entries
+            if r["sum"] is not None
+        )
 
-        if query:
-            guild_entries = await self.bot.starboard.raw_query(query=query)
-        else:
-            guild_entries = await self.bot.starboard.query_entries(**conditions)
-
-        if not guild_entries:
-            return None
-
-        for entry in guild_entries:
-            if entry.author_id in user_star_dict.keys():
-                user_star_dict[entry.author_id] += len(entry.get_reactors())
-            else:
-                user_star_dict[entry.author_id] = len(entry.get_reactors())
-
-        return user_star_dict.most_common(None)
-
-    def get_user_placing(self, user_star_list, author_id):
-        author_entry = discord.utils.find(lambda e: e[0] == author_id, user_star_list)
-        if author_entry:
+    def get_user_placing(
+        self, user_star_list: typing.Tuple[StarRankEntry, ...], author_id
+    ):
+        if author_entry := discord.utils.find(
+            lambda e: e.author_id == author_id, user_star_list
+        ):
             author_index = user_star_list.index(author_entry)
             return f"position: #{author_index + 1} with {author_entry[1]} ⭐"
         else:
@@ -68,7 +69,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
         )
         if not sb_setup_cmd:
             raise utils.CustomCheckFailure(
-                "I couldn't find the command `setup starboard`. This should never happen, so join the support server to report this."
+                "I couldn't find the command `setup starboard`. This should never"
+                " happen, so join the support server to report this."
             )
 
         try:
@@ -88,7 +90,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
         base_sb_cmd: typing.Optional[commands.Command] = ctx.bot.get_command("sb")
         if not base_sb_cmd:
             raise utils.CustomCheckFailure(
-                "I was unable to do... something. Join the support server to report this - tell that it's about sb settings."
+                "I was unable to do... something. Join the support server to report"
+                " this - tell that it's about sb settings."
             )
 
         # a bit of a hack, but basically...
@@ -117,7 +120,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         Optional flags:
         user: <user> - allows you to view the top starred messages by the user specified.
         role: <role> - allows you to view the top starred messages by users who have the role specified.
-        :bots <true/false> - if bot messages will be on the leaderboard."""
+        bots: <true/false> - if bot messages will be on the leaderboard."""
 
         if flags.role:
             role_members = frozenset(str(r.id) for r in flags.role.members)
@@ -128,32 +131,40 @@ class StarCMDs(commands.Cog, name="Starboard"):
             )
         if flags.user and flags.role and str(flags.user.id) not in role_members:
             raise commands.BadArgument(
-                "You can't just specify both a user and a role and have that user not have that role."
+                "You can't just specify both a user and a role and have that user not"
+                " have that role."
             )
 
         await ctx.defer()
 
+        conditions = ""
+
         if flags.user:
-            guild_entries = await self.bot.starboard.query_entries(
-                guild_id=ctx.guild.id, author_id=flags.user.id
-            )
+            conditions = f"guild_id = {ctx.guild.id} AND author_id = {flags.user.id}"
         elif flags.role:
-            guild_entries = await self.bot.starboard.raw_query(
-                query=f"guild_id = {ctx.guild.id} AND author_id IN ({','.join(role_members)})"
+            conditions = (
+                f"guild_id = {ctx.guild.id} AND author_id IN ({','.join(role_members)})"
             )
         else:
-            guild_entries = await self.bot.starboard.query_entries(
-                guild_id=ctx.guild.id
-            )
+            conditions = f"guild_id = {ctx.guild.id}"
+
+        guild_entries = await self.bot.starboard.select_query(
+            f"{conditions} ORDER BY array_length((ori_reactors || var_reactors), 1)"
+            " DESC NULLS LAST"
+        )
 
         if not guild_entries:
             raise utils.CustomCheckFailure(
-                "There are no starboard entries for this server, role, and/or for this user!"
+                "There are no starboard entries for this server, role, and/or for this"
+                " user!"
             )
 
         if flags.user:
             top_embed = discord.Embed(
-                title=f"Top starred messages in {ctx.guild.name} by {flags.user.display_name} ({flags.user})",
+                title=(
+                    f"Top starred messages in {ctx.guild.name} by"
+                    f" {flags.user.display_name} ({flags.user})"
+                ),
                 colour=discord.Colour(0xCFCA76),
                 timestamp=discord.utils.utcnow(),
             )
@@ -170,12 +181,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
         )
         top_embed.set_footer(text="As of")
 
-        sorted_entries = sorted(
-            guild_entries, key=lambda e: len(e.get_reactors()), reverse=True
-        )
-
         actual_entry_count = 0
-        for entry in sorted_entries:
+        for entry in guild_entries:
             if actual_entry_count > 9:
                 break
 
@@ -234,10 +241,10 @@ class StarCMDs(commands.Cog, name="Starboard"):
         if optional_role:
             role_members = frozenset(str(r.id) for r in optional_role.members)
             user_star_list = await self.get_star_rankings(
-                query=f"guild_id = {ctx.guild.id} AND author_id IN ({','.join(role_members)})"
+                f"guild_id = {ctx.guild.id} AND author_id IN ({','.join(role_members)})"
             )
         else:
-            user_star_list = await self.get_star_rankings(guild_id=ctx.guild.id)
+            user_star_list = await self.get_star_rankings(f"guild_id = {ctx.guild.id}")
 
         if not user_star_list:
             raise utils.CustomCheckFailure(
@@ -261,17 +268,17 @@ class StarCMDs(commands.Cog, name="Starboard"):
             if actual_entry_count > 9 and flags.bots:
                 break
 
-            member = await utils.user_from_id(self.bot, ctx.guild, entry[0])
+            member = await utils.user_from_id(self.bot, ctx.guild, entry.author_id)
 
             if flags.bots or not member or not member.bot:
                 filtered_star_list.append(entry)
 
                 if actual_entry_count < 10:
-                    num_stars = entry[1]
+                    num_stars = entry.stars
                     author_str = (
                         f"{member.display_name} ({member})"
                         if member != None
-                        else f"User ID: {entry[0]}"
+                        else f"User ID: {entry.author_id}"
                     )
 
                     top_embed.add_field(
@@ -287,7 +294,10 @@ class StarCMDs(commands.Cog, name="Starboard"):
             )
         elif not flags.bots or optional_role:
             top_embed.set_footer(
-                text=f"Your filtered {self.get_user_placing(filtered_star_list, ctx.author.id)}"
+                text=(
+                    "Your filtered"
+                    f" {self.get_user_placing(filtered_star_list, ctx.author.id)}"
+                )
             )
         else:
             top_embed.set_footer(
@@ -309,11 +319,14 @@ class StarCMDs(commands.Cog, name="Starboard"):
         await ctx.defer()
 
         member = ctx.author if not user else user
-        user_star_list = await self.get_star_rankings(guild_id=ctx.guild.id)
+        user_star_list = await self.get_star_rankings(f"guild_id = {ctx.guild.id}")
 
         if user_star_list:
             if user:
-                placing = f"{member.display_name}'s {self.get_user_placing(user_star_list, member.id)}"
+                placing = (
+                    f"{member.display_name}'s"
+                    f" {self.get_user_placing(user_star_list, member.id)}"
+                )
             else:
                 placing = f"Your {self.get_user_placing(user_star_list, member.id)}"
 
@@ -411,7 +424,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
             (
                 f"**Original Message ID:** {starboard_entry.ori_mes_id}",
                 f"**Original Channel:** <#{starboard_entry.ori_chan_id}>",
-                f"**Original Author:** {f'<@{starboard_entry.author_id}>' if starboard_entry.author_id else None}",
+                "**Original Author:**"
+                f" {f'<@{starboard_entry.author_id}>' if starboard_entry.author_id else None}",
                 f"**Original Message Link:** [Here!]({ori_url})",
                 "",
                 f"**Total Stars:** {len(starboard_entry.get_reactors())}",
@@ -420,7 +434,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
                 "",
                 f"**Has Starboard Entry:** {bool(starboard_entry.star_var_id)}",
                 f"**Starboard Message ID:** {starboard_entry.star_var_id}",
-                f"**Starboard Channel:** {f'<#{starboard_entry.starboard_id}>' if starboard_entry.star_var_id else None}",
+                "**Starboard Channel:**"
+                f" {f'<#{starboard_entry.starboard_id}>' if starboard_entry.star_var_id else None}",
                 f"**Starboard Message Link:** {star_url}",
                 "",
                 f"**Forced:** {starboard_entry.forced}",
@@ -662,7 +677,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
             )
         except discord.HTTPException or AttributeError:
             raise utils.CustomCheckFailure(
-                "The starboard message cannot be found! Make sure the bot can see the channel."
+                "The starboard message cannot be found! Make sure the bot can see the"
+                " channel."
             )
 
         ori_chan = msg.guild.get_channel_or_thread(starboard_entry.ori_chan_id)
@@ -670,7 +686,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
             ori_msg = await ori_chan.fetch_message(starboard_entry.ori_mes_id)
         except discord.HTTPException or AttributeError:
             raise utils.CustomCheckFailure(
-                "The original message cannot be found! Make sure the bot can see the channel."
+                "The original message cannot be found! Make sure the bot can see the"
+                " channel."
             )
 
         new_embed = await star_mes.star_generate(self.bot, ori_msg)
