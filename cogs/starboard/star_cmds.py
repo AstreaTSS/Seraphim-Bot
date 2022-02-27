@@ -653,7 +653,11 @@ class StarCMDs(commands.Cog, name="Starboard"):
     @commands.cooldown(1, 5, commands.BucketType.guild)
     @utils.proper_permissions()
     @utils.bot_proper_perms()
-    async def refresh(self, ctx, msg: typing.Union[discord.Message, discord.Object]):
+    async def refresh(
+        self,
+        ctx: utils.SeraContextBase,
+        msg: typing.Union[discord.Message, discord.Object],
+    ):
         """Refreshes a starboard entry, using the internal generator to remake the starboard message.
         Useful if you want to use the new starboard message features or if you want to update the avatar.
         The original message must also still exist.
@@ -667,7 +671,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
             ctx, msg, do_not_create=True, bypass_int_check=True
         )
 
-        starboard_chan = msg.guild.get_channel_or_thread(starboard_entry.starboard_id)
+        starboard_chan = ctx.guild.get_channel_or_thread(starboard_entry.starboard_id)
         try:
             starboard_msg = await starboard_chan.fetch_message(
                 starboard_entry.star_var_id
@@ -678,7 +682,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
                 " channel."
             )
 
-        ori_chan = msg.guild.get_channel_or_thread(starboard_entry.ori_chan_id)
+        ori_chan = ctx.guild.get_channel_or_thread(starboard_entry.ori_chan_id)
         try:
             ori_msg = await ori_chan.fetch_message(starboard_entry.ori_mes_id)
         except discord.HTTPException or AttributeError:
