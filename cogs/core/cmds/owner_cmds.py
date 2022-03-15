@@ -98,7 +98,10 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
 
     @commands.command(hidden=True, aliases=["removeslashcmd"])
     async def remove_slash_cmd(
-        self, ctx, cmd: discord.Object, guild: typing.Optional[discord.Guild],
+        self,
+        ctx,
+        cmd: discord.Object,
+        guild: typing.Optional[discord.Guild],
     ):
         if guild:
             await self.bot.http.delete_guild_command(

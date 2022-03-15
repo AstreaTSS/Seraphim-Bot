@@ -19,7 +19,10 @@ class SayCMDS(commands.Cog, name="Say"):
     @utils.proper_permissions()
     @utils.bot_proper_perms()
     async def say(
-        self, ctx: commands.Context, *, message: str,
+        self,
+        ctx: commands.Context,
+        *,
+        message: str,
     ):
         """Allows people with Manage Server permissions to speak with the bot.
         You can provide a channel and upload any attachments you wish to use."""
@@ -208,7 +211,10 @@ class SayCMDS(commands.Cog, name="Say"):
     @commands.command()
     @utils.proper_permissions()
     async def raw_embed_say(
-        self, ctx: commands.Context, *, data: RawEmbedSayConverter,
+        self,
+        ctx: commands.Context,
+        *,
+        data: RawEmbedSayConverter,
     ):
         """Allows people with Manage Server permissions to speak with the bot with a fancy embed with the JSON provided.
         This is a more low-level alternative to embed-say. If you know Discord Embed JSON, this allows you to use that.

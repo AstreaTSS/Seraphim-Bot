@@ -333,7 +333,12 @@ class ImageCMDs(commands.Cog, name="Image"):
                     new_width,
                     new_height,
                 ) = await self.pil_resize(
-                    ori_image, ext, flags.percent, flags.width, flags.height, filter,
+                    ori_image,
+                    ext,
+                    flags.percent,
+                    flags.width,
+                    flags.height,
+                    filter,
                 )
                 resize_size = self.get_size(resized_image)
 
