@@ -77,6 +77,14 @@ def global_checks(ctx):  # sourcery skip: return-identity
     return True
 
 
+async def on_interaction_error(
+    interaction: discord.Interaction,
+    command,
+    error: discord.app_commands.AppCommandError,
+):
+    await utils.error_handle(interaction.client, error, interaction)
+
+
 class SeraphimBot(utils.SeraphimBase):
     def __init__(
         self, command_prefix, help_command=bot_default, description=None, **options
@@ -250,6 +258,9 @@ try:
     uvloop.install()
 except ImportError:
     pass
+
+# yes, this is dirty.
+bot.__tree.on_error = on_interaction_error
 
 bot.init_load = True
 bot.run(os.environ.get("MAIN_TOKEN"))
