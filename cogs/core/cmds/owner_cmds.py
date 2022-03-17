@@ -40,13 +40,9 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
     ):
         async with ctx.typing():
             if not guild:
-                app_cmds = await ctx.bot.http.get_global_commands(
-                    ctx.bot.application_id
-                )
+                app_cmds = await ctx.bot.tree.fetch_commands()
             else:
-                app_cmds = await ctx.bot.http.get_guild_commands(
-                    ctx.bot.application_id, guild.id
-                )
+                app_cmds = await ctx.bot.tree.fetch_commands(guild=guild)
 
             app_cmd_entries = []
 
@@ -58,30 +54,33 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
             for entry in app_cmds:
                 entry_str_list = []
 
-                if entry["description"]:
-                    entry_str_list.append(entry["description"])
-                else:
-                    cmd_type = entry.get("type")
-                    if not cmd_type or cmd_type == 1:
-                        entry_str_list.append("No description provided.")
-                    elif cmd_type == 2:
-                        entry_str_list.append("A user context menu command.")
-                    elif cmd_type == 3:
-                        entry_str_list.append("A message context menu command.")
+                if entry.options and any(
+                    isinstance(o, discord.app_commands.AppCommandGroup)
+                    for o in entry.options
+                ):
+                    continue
 
-                if options := entry.get("options"):
+                if entry.description:
+                    entry_str_list.append(entry.description)
+                elif entry.type == discord.AppCommandType.chat_input:
+                    entry_str_list.append("No description provided.")
+                elif entry.type == discord.AppCommandType.user:
+                    entry_str_list.append("A user context menu command.")
+                elif entry.type == discord.AppCommandType.message:
+                    entry_str_list.append("A message context menu command.")
+
+                if options := entry.options:
                     entry_str_list.append("__Arguments:__")
 
                     for option in options:
-                        option_type = discord.AppCommandOptionType(option["type"]).name
-                        required_txt = ", required" if option.get("required") else ""
+                        required_txt = ", required" if option.required else ""
                         entry_str_list.append(
-                            f"{option['name']} (type `{option_type}`{required_txt}) -"
-                            f" {option['description']}"
+                            f"{option.name} (type `{option.type.name}`{required_txt}) -"
+                            f" {option.description}"
                         )
 
                 app_cmd_entries.append(
-                    (f"{entry['name']} - ID {entry['id']}", "\n".join(entry_str_list))
+                    (f"{entry.name} - ID {entry.id}", "\n".join(entry_str_list))
                 )
 
         pages = paginator.FieldPages(ctx, entries=app_cmd_entries, per_page=6)
