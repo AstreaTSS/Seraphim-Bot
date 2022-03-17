@@ -33,7 +33,8 @@ class SetupCMD(commands.Cog, name="Setup"):
 
         final_str = "".join(
             (
-                "The setup is done. If you wish to view more options for the starboard, I suggest ",
+                "The setup is done. If you wish to view more options for the starboard,"
+                " I suggest ",
                 f"looking at `{ctx.prefix}settings starboard` command.",
             )
         )
@@ -43,10 +44,13 @@ class SetupCMD(commands.Cog, name="Setup"):
 
         question_str = "".join(
             (
-                "Starboard, the reason why this bot exists in the first place. If you're setting this up, ",
+                "Starboard, the reason why this bot exists in the first place. If"
+                " you're setting this up, ",
                 "I assume you know what it is.\n\n",
-                "First off: what channel do you want the starboard in? This must be a channel the bot can ",
-                "see, send and delete message, and react in. It also must already exist. You can mention it, ",
+                "First off: what channel do you want the starboard in? This must be a"
+                " channel the bot can ",
+                "see, send and delete message, and react in. It also must already"
+                " exist. You can mention it, ",
                 "say the channel name exactly as is, or put the ID of it.",
             )
         )
@@ -60,9 +64,12 @@ class SetupCMD(commands.Cog, name="Setup"):
 
         question_str = "".join(
             (
-                "Well that's done with. Now for a more tricky question: what do you want the star limit to be?\n",
-                "The star limit is how many stars a message needs to be on the starboard. Sometimes, this is called ",
-                "the 'required' amount, as it's the amount required to be on the starboard. Either or. Just type a number.",
+                "Well that's done with. Now for a more tricky question: what do you"
+                " want the star limit to be?\n",
+                "The star limit is how many stars a message needs to be on the"
+                " starboard. Sometimes, this is called ",
+                "the 'required' amount, as it's the amount required to be on the"
+                " starboard. Either or. Just type a number.",
             )
         )
 
@@ -74,7 +81,10 @@ class SetupCMD(commands.Cog, name="Setup"):
 
         wizard.add_question(question_str, int_convert, set_limit)
 
-        question_str = "Final question: do you want to enable the starboard? A simple 'yes' or 'no' will do."
+        question_str = (
+            "Final question: do you want to enable the starboard? A simple 'yes' or"
+            " 'no' will do."
+        )
 
         def bool_convert(ctx, content):
             lowered = content.lower()

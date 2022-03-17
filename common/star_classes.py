@@ -288,7 +288,8 @@ class StarboardEntries:
         if not entry:
             async with self._pool.acquire() as conn:
                 data = await conn.fetchrow(
-                    f"SELECT * FROM starboard WHERE ori_mes_id = {entry_id} OR star_var_id = {entry_id}"
+                    f"SELECT * FROM starboard WHERE ori_mes_id = {entry_id} OR"
+                    f" star_var_id = {entry_id}"
                 )
                 if data:
                     entry = StarboardEntry.from_row(data)

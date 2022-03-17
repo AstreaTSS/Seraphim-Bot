@@ -32,7 +32,8 @@ def bot_proper_perms():
             raise NotEnoughPerms(
                 "The bot does not have the permissions needed to run this command. "
                 + "As the bot is in beta right now, it needs administrative"
-                " permissions " + "to run its commands."
+                " permissions "
+                + "to run its commands."
             )
         return True
 
@@ -70,7 +71,8 @@ async def error_handle(bot, error, ctx: typing.Union[commands.Context, None] = N
         )
 
         await ctx.reply(
-            embed=error_embed, ephemeral=True,
+            embed=error_embed,
+            ephemeral=True,
         )
 
 
@@ -384,10 +386,13 @@ def generate_default_embed(
     guild: discord.Guild, title=discord.Embed.Empty, description=discord.Embed.Empty
 ):
     embed = discord.Embed(
-        title=title, colour=discord.Colour(0x4378FC), description=description,
+        title=title,
+        colour=discord.Colour(0x4378FC),
+        description=description,
     )
     embed.set_author(
-        name=f"{guild.me.name}", icon_url=get_icon_url(guild.me.display_avatar),
+        name=f"{guild.me.name}",
+        icon_url=get_icon_url(guild.me.display_avatar),
     )
     return embed
 
@@ -415,8 +420,7 @@ async def resolve_reply(
         ) or msg.reference.cached_message:
             # saves time fetching messages if possible
             reply = (
-                msg.reference.cached_message  # type: ignore
-                or msg.reference.resolved
+                msg.reference.cached_message or msg.reference.resolved  # type: ignore
             )
         elif guild := bot.get_guild(msg.reference.guild_id):  # type: ignore
             chan = guild.get_channel_or_thread(msg.reference.channel_id)  # type: ignore
@@ -467,7 +471,6 @@ if typing.TYPE_CHECKING:
 
     class SeraContextBase(commands.Context):
         bot: SeraphimBase
-
 
 else:
 

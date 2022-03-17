@@ -58,13 +58,15 @@ async def remove_reaction(ctx, toggle: typing.Optional[bool]):
 
     if toggle is None:
         await ctx.reply(
-            f"Remove self-reactions: **{utils.bool_friendly_str(ctx.bot.config.getattr(ctx.guild.id, 'remove_reaction'))}**"
+            "Remove self-reactions:"
+            f" **{utils.bool_friendly_str(ctx.bot.config.getattr(ctx.guild.id, 'remove_reaction'))}**"
         )
 
     else:
         ctx.bot.config.setattr(ctx.guild.id, remove_reaction=toggle)
         await ctx.reply(
-            f"Toggled remove reaction {utils.bool_friendly_str(toggle)} for this server!"
+            f"Toggled remove reaction {utils.bool_friendly_str(toggle)} for this"
+            " server!"
         )
 
 
@@ -77,7 +79,8 @@ async def toggle(ctx, toggle: typing.Optional[bool]):
 
     if toggle is None:
         await ctx.reply(
-            f"Starboard: **{utils.bool_friendly_str(ctx.bot.config.getattr(ctx.guild.id, 'star_toggle'))}**"
+            "Starboard:"
+            f" **{utils.bool_friendly_str(ctx.bot.config.getattr(ctx.guild.id, 'star_toggle'))}**"
         )
 
     else:
@@ -85,11 +88,13 @@ async def toggle(ctx, toggle: typing.Optional[bool]):
         if guild_config.starboard_id and guild_config.star_limit:
             ctx.bot.config.setattr(ctx.guild.id, star_toggle=toggle)
             await ctx.reply(
-                f"Turned starboard **{utils.bool_friendly_str(toggle)}** for this server!"
+                f"Turned starboard **{utils.bool_friendly_str(toggle)}** for this"
+                " server!"
             )
         else:
             raise utils.CustomCheckFailure(
-                "Either you forgot to set the starboard channel or the star limit. Please try again."
+                "Either you forgot to set the starboard channel or the star limit."
+                " Please try again."
             )
 
 
@@ -103,11 +108,13 @@ async def edit_message(ctx, toggle: typing.Optional[bool]):
     if toggle != None:
         ctx.bot.config.setattr(ctx.guild.id, star_edit_messages=toggle)
         await ctx.reply(
-            f"Toggled starboard message editing **{utils.bool_friendly_str(toggle)}** for this server!"
+            f"Toggled starboard message editing **{utils.bool_friendly_str(toggle)}**"
+            " for this server!"
         )
     else:
         await ctx.reply(
-            f"Starboard message editing: **{utils.bool_friendly_str(ctx.bot.config.getattr(ctx.guild.id, 'star_edit_messages'))}**"
+            "Starboard message editing:"
+            f" **{utils.bool_friendly_str(ctx.bot.config.getattr(ctx.guild.id, 'star_edit_messages'))}**"
         )
 
 

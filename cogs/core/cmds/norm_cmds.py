@@ -28,7 +28,10 @@ class NormCMDs(commands.Cog, name="Normal"):
         ping_personal = round(((end_time - start_time) * 1000), 2)
 
         await mes.edit(
-            content=f"Pong!\n`{ping_discord}` ms from Discord.\n`{ping_personal}` ms personally."
+            content=(
+                f"Pong!\n`{ping_discord}` ms from Discord.\n`{ping_personal}` ms"
+                " personally."
+            )
         )
 
     @commands.command()
@@ -58,18 +61,22 @@ class NormCMDs(commands.Cog, name="Normal"):
 
         msg_list.append("Hi! I'm Seraphim, Astrea's personal bot!")
         msg_list.append(
-            "I was created initially as a starboard bot as other starboard bots had poor uptime, "
+            "I was created initially as a starboard bot as other starboard bots had"
+            " poor uptime, "
             + "but I've since been expanded to other functions, too."
         )
         msg_list.append(
-            "I tend to have features that are either done poorly by other bots, or features of bots "
+            "I tend to have features that are either done poorly by other bots, or"
+            " features of bots "
             + "that tend to be offline/unresponsive for a decent amount of time."
         )
         msg_list.append(
-            "If you want to invite me, you're in luck. The link is: https://discord.com/api/oauth2/authorize?client_id=700857077672706120&permissions=8&scope=bot%20applications.commands"
+            "If you want to invite me, you're in luck. The link is:"
+            " https://discord.com/api/oauth2/authorize?client_id=700857077672706120&permissions=8&scope=bot%20applications.commands"
         )
         msg_list.append(
-            "If you need support for me, maybe take a look at the support server here:\nhttps://discord.gg/NSdetwGjpK"
+            "If you need support for me, maybe take a look at the support server"
+            " here:\nhttps://discord.gg/NSdetwGjpK"
         )
 
         about_embed = discord.Embed(
@@ -87,7 +94,8 @@ class NormCMDs(commands.Cog, name="Normal"):
             "My source code is [here!](https://github.com/Astrea49/Seraphim-Bot)"
         )
         source_list.append(
-            "This code might not be the best code out there, but you may have some use for it."
+            "This code might not be the best code out there, but you may have some use"
+            " for it."
         )
 
         about_embed.add_field(
@@ -101,7 +109,8 @@ class NormCMDs(commands.Cog, name="Normal"):
         """A way of getting all of the prefixes for this server. You can also add and remove prefixes via this command."""
         prefixes = [f"{p}" for p in self.bot.config.getattr(ctx.guild.id, "prefixes")]
         await ctx.reply(
-            f"My prefixes for this server are: `{', '.join(prefixes)}`, but you can also mention me."
+            f"My prefixes for this server are: `{', '.join(prefixes)}`, but you can"
+            " also mention me."
         )
 
     @prefixes.command(ignore_extra=False)

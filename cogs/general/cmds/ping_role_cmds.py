@@ -93,7 +93,8 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
                     role_list.append(
                         (
                             role_obj.name,
-                            f"{humanize.precisedelta(period_delta, format='%0.1f')} cooldown\n{time_text} until next use",
+                            f"{humanize.precisedelta(period_delta, format='%0.1f')} cooldown\n{time_text} until"
+                            " next use",
                         )
                     )
                 else:

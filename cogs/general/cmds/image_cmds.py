@@ -209,8 +209,10 @@ class ImageCMDs(commands.Cog, name="Image"):
 
                 content = (
                     f"Original Size: {humanize.naturalsize(ori_size, binary=True)}\n"
-                    + f"Reduced Size: {humanize.naturalsize(compressed_size, binary=True)}\n"
-                    + f"Size Saved: {round(((1 - (compressed_size / ori_size)) * 100), 2)}%"
+                    + "Reduced Size:"
+                    f" {humanize.naturalsize(compressed_size, binary=True)}\n"
+                    + "Size Saved:"
+                    f" {round(((1 - (compressed_size / ori_size)) * 100), 2)}%"
                 )
             except:
                 compress_image.close()
@@ -333,7 +335,12 @@ class ImageCMDs(commands.Cog, name="Image"):
                     new_width,
                     new_height,
                 ) = await self.pil_resize(
-                    ori_image, ext, flags.percent, flags.width, flags.height, filter,
+                    ori_image,
+                    ext,
+                    flags.percent,
+                    flags.width,
+                    flags.height,
+                    filter,
                 )
                 resize_size = self.get_size(resized_image)
 
@@ -352,8 +359,10 @@ class ImageCMDs(commands.Cog, name="Image"):
                 content = (
                     f"Original Image Dimensions: {ori_width}x{ori_height}\n"
                     + f"New Image Dimensions: {new_width}x{new_height}\n"
-                    + f"Resized To: {flags.percent or round(((new_width / ori_width) * 100), 2)}%\n"
-                    + f"New Image Size: {humanize.naturalsize(resize_size, binary=True)}"
+                    + "Resized To:"
+                    f" {flags.percent or round(((new_width / ori_width) * 100), 2)}%\n"
+                    + "New Image Size:"
+                    f" {humanize.naturalsize(resize_size, binary=True)}"
                 )
             except:
                 resized_image.close()

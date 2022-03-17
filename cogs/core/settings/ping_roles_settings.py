@@ -42,7 +42,8 @@ async def add(
 
     if role > top_role:
         raise utils.CustomCheckFailure(
-            "The role provided is a role that is higher than the roles I can edit. Please move either that role or my role so that "
+            "The role provided is a role that is higher than the roles I can edit."
+            " Please move either that role or my role so that "
             + "my role is higher than the role you want to be pingable."
         )
 

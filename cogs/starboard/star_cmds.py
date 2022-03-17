@@ -376,14 +376,18 @@ class StarCMDs(commands.Cog, name="Starboard"):
         star_embed = star_mes.embeds[0]
 
         star_embed.add_field(
-            name="Starboard Variant", value=f"[Jump]({ori_url})", inline=True,
+            name="Starboard Variant",
+            value=f"[Jump]({ori_url})",
+            inline=True,
         )
 
         await ctx.reply(star_content, embed=star_embed)
 
     @sb.command(aliases=["info", "information"])
     async def stats(
-        self, ctx: commands.Context, msg: typing.Union[discord.Message, discord.Object],
+        self,
+        ctx: commands.Context,
+        msg: typing.Union[discord.Message, discord.Object],
     ):
         """Gets the starboard stats for a message. The message must had at least one star at some point, but does not need to be on the starboard.
         The message either needs to be a message ID of a message in the guild the command is being run in,
@@ -440,7 +444,9 @@ class StarCMDs(commands.Cog, name="Starboard"):
 
     @sb.command()
     async def reactors(
-        self, ctx: commands.Context, msg: typing.Union[discord.Message, discord.Object],
+        self,
+        ctx: commands.Context,
+        msg: typing.Union[discord.Message, discord.Object],
     ):
         """Gets the first 50 star reactors for a message. The message must had at least one star at some point, but does not need to be on the starboard.
         The message either needs to be a message ID of a message in the guild the command is being run in,
@@ -480,7 +486,12 @@ class StarCMDs(commands.Cog, name="Starboard"):
         await ctx.reply(embed=star_embed)
 
     async def initial_get(
-        self, ctx, msg, forced=False, do_not_create=False, bypass_int_check=False,
+        self,
+        ctx,
+        msg,
+        forced=False,
+        do_not_create=False,
+        bypass_int_check=False,
     ) -> star_classes.StarboardEntry:
         if not ctx.bot.config.getattr(ctx.guild.id, "star_toggle"):
             raise utils.CustomCheckFailure(

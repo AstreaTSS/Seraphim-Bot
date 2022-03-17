@@ -73,7 +73,10 @@ def generate_content_str(entry: star_classes.StarboardEntry):
         modifiers.append("frozen")
 
     if modifiers:
-        return f"{star_emoji} **{unique_stars}** ({', '.join(modifiers)}) | {ori_chan_mention}"
+        return (
+            f"{star_emoji} **{unique_stars}** ({', '.join(modifiers)}) |"
+            f" {ori_chan_mention}"
+        )
     else:
         return f"{star_emoji} **{unique_stars}** | {ori_chan_mention}"
 

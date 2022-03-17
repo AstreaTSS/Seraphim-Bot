@@ -25,7 +25,8 @@ class OnCMDError(commands.Cog):
                 embed=utils.error_embed_generate(
                     (
                         f"{error}. This was most likely due to "
-                        + "it being buggy or broken in some way - please wait for it to be re-enabled."
+                        + "it being buggy or broken in some way - please wait for it to"
+                        " be re-enabled."
                     )
                 )
             )
@@ -33,7 +34,8 @@ class OnCMDError(commands.Cog):
         elif isinstance(error, commands.TooManyArguments):
             await ctx.reply(
                 embed=utils.error_embed_generate(
-                    "You passed too many arguments to that command! Please make sure you're "
+                    "You passed too many arguments to that command! Please make sure"
+                    " you're "
                     + "passing in a valid argument/subcommand."
                 )
             )
