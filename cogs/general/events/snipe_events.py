@@ -22,7 +22,7 @@ class SnipeEvents(commands.Cog):
                 snipe_embed = await star_mes.base_generate(
                     self.bot, message, no_attachments=True
                 )
-            except discord.InvalidArgument:
+            except ValueError:
                 return
 
             snipe_embed.color = discord.Colour(0x4378FC)
@@ -45,7 +45,7 @@ class SnipeEvents(commands.Cog):
                 snipe_embed = await star_mes.base_generate(
                     self.bot, before, no_attachments=True
                 )
-            except discord.InvalidArgument:
+            except ValueError:
                 return
 
             snipe_embed.color = discord.Colour(0x4378FC)

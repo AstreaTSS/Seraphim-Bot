@@ -128,7 +128,7 @@ async def modify_stars(
             await mes.remove_reaction("⭐", mes.author)
         except discord.HTTPException:
             pass
-        except discord.InvalidArgument:
+        except TypeError:
             pass
 
 

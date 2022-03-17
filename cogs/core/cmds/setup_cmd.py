@@ -93,7 +93,7 @@ class SetupCMD(commands.Cog, name="Setup"):
             elif lowered in ("no", "n", "false", "f", "0"):
                 return False
             else:
-                raise discord.InvalidArgument
+                raise TypeError
 
         def set_toggle(ctx, converted):
             if converted:

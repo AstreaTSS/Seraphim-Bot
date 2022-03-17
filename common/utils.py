@@ -355,7 +355,7 @@ def get_content(message: discord.Message):  # sourcery no-metrics
             " the server!"
         )
 
-    raise ValueError(f"Invalid MessageType: {message.type}!")
+    raise TypeError(f"Invalid MessageType: {message.type}!")
 
 
 def bool_friendly_str(bool_to_convert: bool):
