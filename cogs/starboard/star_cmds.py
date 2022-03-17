@@ -360,18 +360,13 @@ class StarCMDs(commands.Cog, name="Starboard"):
                 "There are no starboard entries for me to pick!"
             )
 
-        starboard_id = random_entry.starboard_id
-
-        starboard_chan = ctx.guild.get_channel_or_thread(starboard_id)
-        if starboard_chan is None:
-            raise utils.CustomCheckFailure(
-                "I couldn't find the starboard channel for the entry I picked."
-            )
+        ori_url = f"https://discordapp.com/channels/{ctx.guild.id}/{random_entry.ori_chan_id}/{random_entry.ori_mes_id}"
 
         try:
-            star_mes = await starboard_chan.fetch_message(random_entry.star_var_id)
+            star_mes = await self.bot.get_partial_messageable(
+                random_entry.starboard_id
+            ).fetch_message(random_entry.star_var_id)
         except discord.HTTPException:
-            ori_url = f"https://discordapp.com/channels/{ctx.guild.id}/{random_entry.ori_chan_id}/{random_entry.ori_mes_id}"
             raise utils.CustomCheckFailure(
                 "I picked an entry, but I couldn't get the starboard message.\n"
                 + f"This might be the message I was trying to get: {ori_url}"
@@ -381,7 +376,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         star_embed = star_mes.embeds[0]
 
         star_embed.add_field(
-            name="Starboard Variant", value=f"[Jump]({star_mes.jump_url})", inline=True,
+            name="Starboard Variant", value=f"[Jump]({ori_url})", inline=True,
         )
 
         await ctx.reply(star_content, embed=star_embed)
