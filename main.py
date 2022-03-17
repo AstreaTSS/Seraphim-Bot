@@ -259,8 +259,6 @@ try:
 except ImportError:
     pass
 
-# yes, this is dirty.
-bot.__tree.on_error = on_interaction_error
-
+bot.tree.on_error = on_interaction_error
 bot.init_load = True
 bot.run(os.environ.get("MAIN_TOKEN"))
