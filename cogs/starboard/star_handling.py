@@ -201,9 +201,9 @@ class Star(commands.Cog):
                         pass
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(utils)
     importlib.reload(star_utils)
     importlib.reload(star_mes)
 
-    bot.add_cog(Star(bot))
+    await bot.add_cog(Star(bot))

@@ -150,6 +150,6 @@ class NormCMDs(commands.Cog, name="Normal"):
             )
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(utils)
-    bot.add_cog(NormCMDs(bot))
+    await bot.add_cog(NormCMDs(bot))

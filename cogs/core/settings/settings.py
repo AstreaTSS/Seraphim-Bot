@@ -58,7 +58,7 @@ class Settings(commands.Cog, name="Settings"):
         self.bot.remove_command(settings_cmd.name)
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(utils)
     importlib.reload(groups)
-    bot.add_cog(Settings(bot))
+    await bot.add_cog(Settings(bot))

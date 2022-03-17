@@ -247,8 +247,8 @@ class SayCMDS(commands.Cog, name="Say"):
                 await ctx.reply(f"Done! Check out {chan.mention}!")
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(custom_classes)
     importlib.reload(image_utils)
     importlib.reload(utils)
-    bot.add_cog(SayCMDS(bot))
+    await bot.add_cog(SayCMDS(bot))

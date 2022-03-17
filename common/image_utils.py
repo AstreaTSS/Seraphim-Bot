@@ -176,7 +176,7 @@ class URLToImage(commands.Converter[str]):
             elif (
                 ctx.message.embeds != []
                 and ctx.message.embeds[0].type == "image"
-                and ctx.message.embeds[0].thumbnail.url != discord.Embed.Empty
+                and ctx.message.embeds[0].thumbnail.url
             ):
                 return ctx.message.embeds[
                     0

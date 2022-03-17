@@ -10,6 +10,12 @@ class EtcEvents(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    async def cog_load(self):
+        self.rollback_roles_cleanup.start()
+
+    async def cog_unload(self):
+        self.rollback_roles_cleanup.cancel()
+
     @tasks.loop(minutes=7.5)
     async def rollback_roles_cleanup(self):
         now = discord.utils.utcnow()
@@ -34,5 +40,5 @@ class EtcEvents(commands.Cog):
         }
 
 
-def setup(bot):
-    bot.add_cog(EtcEvents(bot))
+async def setup(bot):
+    await bot.add_cog(EtcEvents(bot))

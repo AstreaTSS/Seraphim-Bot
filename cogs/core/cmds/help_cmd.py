@@ -176,8 +176,8 @@ class PaginatedHelpCommand(commands.HelpCommand):
 
             total += len(commands)
             actual_cog = bot.get_cog(cog)
-            # get the description if it exists (and the cog is valid) or return Empty embed.
-            description = (actual_cog and actual_cog.description) or discord.Embed.Empty
+            # get the description if it exists (and the cog is valid) or return None
+            description = (actual_cog and actual_cog.description) or None
             nested_pages.extend(
                 (cog, description, commands[i : i + per_page])
                 for i in range(0, len(commands), per_page)
@@ -249,6 +249,6 @@ class HelpCMD(commands.Cog, name="Help"):
         bot.help_command.cog = self
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(paginator)
-    bot.add_cog(HelpCMD(bot))
+    await bot.add_cog(HelpCMD(bot))

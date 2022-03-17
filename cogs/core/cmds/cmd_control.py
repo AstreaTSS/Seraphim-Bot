@@ -90,6 +90,6 @@ class CmdControl(commands.Cog, name="Command Control"):
             raise commands.BadArgument("This user doesn't have that command disabled!")
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(utils)
-    bot.add_cog(CmdControl(bot))
+    await bot.add_cog(CmdControl(bot))

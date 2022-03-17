@@ -110,7 +110,7 @@ class ClearEvents(commands.Cog):
             await self.auto_clear_stars(payload)
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(utils)
     importlib.reload(star_utils)
-    bot.add_cog(ClearEvents(bot))
+    await bot.add_cog(ClearEvents(bot))

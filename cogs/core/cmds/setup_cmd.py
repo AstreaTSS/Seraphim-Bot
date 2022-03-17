@@ -104,9 +104,9 @@ class SetupCMD(commands.Cog, name="Setup"):
         await wizard.run(ctx)
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(utils)
     importlib.reload(groups)
     importlib.reload(custom_classes)
 
-    bot.add_cog(SetupCMD(bot))
+    await bot.add_cog(SetupCMD(bot))

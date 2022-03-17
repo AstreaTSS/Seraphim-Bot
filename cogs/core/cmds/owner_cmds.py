@@ -5,7 +5,7 @@ from enum import Enum
 
 import discord
 from discord.ext import commands
-from discord.types.interactions import ApplicationCommandOption
+from discord.types.command import ApplicationCommandOption
 
 import common.paginator as paginator
 import common.star_classes as star_classes
@@ -23,7 +23,7 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
     async def reload_all_extensions(self, ctx):
         extensions = [i for i in self.bot.extensions.keys() if i != "cogs.db_handler"]
         for extension in extensions:
-            self.bot.reload_extension(extension)
+            await self.bot.reload_extension(extension)
 
         await ctx.reply("All extensions reloaded!")
 
@@ -45,11 +45,10 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
         MENTIONABLE = 9
         NUMBER = 10
 
-    @commands.command(hidden=True, aliases=["list_slash_commands", "listslashcmds"])
-    async def list_slash_cmds(
+    @commands.command(hidden=True, aliases=["list_application_commands", "listappcmds"])
+    async def list_app_cmds(
         self, ctx: utils.SeraContextBase, guild: typing.Optional[discord.Guild]
     ):
-
         if not guild:
             app_cmds = await ctx.bot.http.get_global_commands(ctx.bot.application_id)
         else:
@@ -79,7 +78,7 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
                     for option in entry["options"]:  # type: ignore
                         option: ApplicationCommandOption
                         option_type = self.OptionTypeEnum(option["type"]).name
-                        required_txt = ", required" if option["required"] else ""
+                        required_txt = ", required" if option.get("required") else ""
                         entry_str_list.append(
                             f"{option['name']} (type {option_type}{required_txt}) -"
                             f" {option['description']}"
@@ -137,9 +136,9 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
         await ctx.reply("Removed all commands.")
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(utils)
     importlib.reload(star_classes)
     importlib.reload(paginator)
 
-    bot.add_cog(OwnerCMDs(bot))
+    await bot.add_cog(OwnerCMDs(bot))

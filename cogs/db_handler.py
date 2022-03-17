@@ -12,9 +12,11 @@ import common.utils as utils
 class DBHandler(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot: utils.SeraphimBase = bot
+
+    async def cog_load(self):
         self.commit_loop.start()
 
-    def cog_unload(self):
+    async def cog_unload(self):
         self.commit_loop.cancel()
 
     async def get_dbs(self):
@@ -80,6 +82,6 @@ class DBHandler(commands.Cog):
                     )
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(utils)
-    bot.add_cog(DBHandler(bot))
+    await bot.add_cog(DBHandler(bot))

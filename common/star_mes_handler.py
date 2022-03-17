@@ -43,8 +43,8 @@ async def base_generate(
         mes.embeds
         and mes.author.id == bot.user.id
         and mes.embeds[0].author.name != bot.user.name
-        and mes.embeds[0].fields != discord.Embed.Empty
-        and mes.embeds[0].footer.text != discord.Embed.Empty
+        and mes.embeds[0].fields
+        and mes.embeds[0].footer.text
         and mes.embeds[0].footer.text.startswith("ID:")
     ):  # all of this... for pinboard support
         send_embed = mes.embeds[
@@ -103,7 +103,7 @@ async def base_generate(
     elif (
         mes.author.bot
         and mes.embeds != []
-        and mes.embeds[0].description != discord.Embed.Empty
+        and mes.embeds[0].description
         and mes.embeds[0].type == "rich"
         and (
             mes.embeds[0].footer.url
@@ -136,7 +136,7 @@ async def base_generate(
         else:
             send_embed = discord.Embed(
                 colour=discord.Colour(0xCFCA76),
-                description=discord.Embed.Empty,
+                description=None,
                 timestamp=mes.created_at,
             )
         send_embed.set_author(name=author, icon_url=icon)
@@ -156,7 +156,7 @@ async def base_generate(
         if (
             mes.embeds != []
             and mes.embeds[0].type == "image"
-            and mes.embeds[0].thumbnail.url != discord.Embed.Empty
+            and mes.embeds[0].thumbnail.url
         ):
             image_url = mes.embeds[0].thumbnail.url
 
@@ -193,7 +193,7 @@ async def base_generate(
                     and mes.embeds != []
                     and mes.embeds[0].type == "gifv"
                 ) and (
-                    mes.embeds[0].thumbnail.url != discord.Embed.Empty
+                    mes.embeds[0].thumbnail.url
                 ):  # if there is a thumbnail url
                     image_url = mes.embeds[0].thumbnail.url
 
@@ -202,8 +202,8 @@ async def base_generate(
                     image_url == ""
                     and mes.embeds
                     and mes.embeds[0].type == "video"
-                    and mes.embeds[0].provider != discord.Embed.Empty
-                    and mes.embeds[0].provider.name != discord.Embed.Empty
+                    and mes.embeds[0].provider
+                    and mes.embeds[0].provider.name
                     and mes.embeds[0].provider.name == "YouTube"
                 ):
                     image_url = mes.embeds[0].thumbnail.url

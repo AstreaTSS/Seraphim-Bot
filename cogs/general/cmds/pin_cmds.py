@@ -62,8 +62,8 @@ class PinCMDs(commands.Cog, name="Pinboard"):
         await ctx.reply("Done!")
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(utils)
     importlib.reload(star_mes)
 
-    bot.add_cog(PinCMDs(bot))
+    await bot.add_cog(PinCMDs(bot))

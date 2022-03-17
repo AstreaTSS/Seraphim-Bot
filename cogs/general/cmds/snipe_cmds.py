@@ -13,9 +13,11 @@ import common.utils as utils
 class SnipeCMDs(commands.Cog, name="Snipe"):
     def __init__(self, bot):
         self.bot: utils.SeraphimBase = bot
+
+    async def cog_load(self):
         self.auto_cleanup.start()
 
-    def cog_unload(self):
+    async def cog_unload(self):
         self.auto_cleanup.cancel()
 
     def snipe_cleanup(self, type_of, chan_id):
@@ -141,6 +143,6 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
             raise commands.BadArgument("Incorrect snipe type!")
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(utils)
-    bot.add_cog(SnipeCMDs(bot))
+    await bot.add_cog(SnipeCMDs(bot))

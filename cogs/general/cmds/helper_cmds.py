@@ -20,6 +20,9 @@ class HelperCMDs(commands.Cog, name="Helper"):
     def __init__(self, bot):
         self.bot: utils.SeraphimBase = bot
 
+    async def cog_load(self):
+        await self.bot.tree.sync()
+
     @commands.command(aliases=["restoreroles"])
     @utils.proper_permissions()
     @utils.bot_proper_perms()
@@ -495,9 +498,9 @@ class HelperCMDs(commands.Cog, name="Helper"):
                 "The duration provided is below 10 seconds, the minimum Discord allows."
             )
 
-        disabled_until = discord.utils.utcnow() + duration
+        disabled_until = ctx.message.created_at + duration
         try:
-            await user.edit(timeout_until=disabled_until, reason=reason)
+            await user.edit(timed_out_until=disabled_until, reason=reason)
             await ctx.reply(
                 f"Timed out {user.mention} until"
                 f" {discord.utils.format_dt(disabled_until)}.",
@@ -532,7 +535,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
         Requires Manage Server permissions or higher.
         """
 
-        if not user.timeout_until:
+        if not user.timed_out_until:
             raise commands.BadArgument("This user is not on timeout!")
         if user.top_role >= ctx.guild.me.top_role or ctx.guild.owner_id == user.id:
             raise commands.BadArgument(
@@ -544,7 +547,7 @@ class HelperCMDs(commands.Cog, name="Helper"):
             )
 
         try:
-            await user.edit(timeout_until=None, reason=reason)
+            await user.edit(timed_out_until=None, reason=reason)
             await ctx.reply(
                 f"Un-timed out {user.mention}.",
                 allowed_mentions=utils.deny_mentions(ctx.author),
@@ -561,20 +564,19 @@ class HelperCMDs(commands.Cog, name="Helper"):
             )
 
 
-class GetEmojiFromMessage(discord.MessageCommand, name="Get Emoji URLs"):
-    async def callback(self):
-        msg = self.message
-        inter = self.interaction
+async def setup(bot: commands.Bot):
+    importlib.reload(utils)
+    importlib.reload(image_utils)
+    importlib.reload(custom_classes)
+    importlib.reload(fuzzys)
 
+    @discord.app_commands.context_menu(name="Get Emoji URLs")  # type: ignore
+    async def react(inter: discord.Interaction, msg: discord.Message):
         await inter.response.defer(ephemeral=True)
 
-        matches = re.findall(
+        if matches := re.findall(
             r"<(a?):([a-zA-Z0-9\_]{1,32}):([0-9]{15,20})>", msg.content
-        )
-
-        if not matches:
-            await inter.edit_original_message(content="No emoji found in this message!")
-        else:
+        ):
             emoji_urls: typing.List[str] = []
 
             for match in matches:
@@ -587,24 +589,8 @@ class GetEmojiFromMessage(discord.MessageCommand, name="Get Emoji URLs"):
             # removes dups while preserving order
             emoji_urls_str = "\n".join(dict.fromkeys(emoji_urls))
             await inter.edit_original_message(content=f"URL(s):\n{emoji_urls_str}")
+        else:
+            await inter.edit_original_message(content="No emoji found in this message!")
 
-
-def setup(bot: commands.Bot):
-    importlib.reload(utils)
-    importlib.reload(image_utils)
-    importlib.reload(custom_classes)
-    importlib.reload(fuzzys)
-
-    if app_cmd := next(
-        (
-            c
-            for c in bot._application_command_store.pre_registration.get(None, [])
-            if c._name_ == GetEmojiFromMessage._name_
-        ),
-        None,
-    ):
-        bot._application_command_store.pre_registration[None].remove(app_cmd)
-
-    bot.application_command(GetEmojiFromMessage)
-
-    bot.add_cog(HelperCMDs(bot))
+    bot.tree.add_command(react, override=True)
+    await bot.add_cog(HelperCMDs(bot))

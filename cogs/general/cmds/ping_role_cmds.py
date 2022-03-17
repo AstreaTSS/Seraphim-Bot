@@ -116,9 +116,9 @@ class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
             raise utils.CustomCheckFailure("There are no roles added!")
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(utils)
     importlib.reload(fuzzys)
     importlib.reload(paginator)
 
-    bot.add_cog(PingRoleCMDs(bot))
+    await bot.add_cog(PingRoleCMDs(bot))

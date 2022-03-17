@@ -268,13 +268,13 @@ class WizardManager:
                 )
             except asyncio.TimeoutError:
                 wizard_embed.description = "Failed to reply. Exiting..."
-                wizard_embed.set_footer(text=discord.Embed.Empty)
+                wizard_embed.set_footer(text=None)
                 await self.ori_mes.edit(embed=wizard_embed)
                 return
             else:
                 if reply.content.lower() == "exit":
                     wizard_embed.description = "Exiting..."
-                    wizard_embed.set_footer(text=discord.Embed.Empty)
+                    wizard_embed.set_footer(text=None)
                     await self.ori_mes.edit(embed=wizard_embed)
                     return
 
@@ -286,7 +286,7 @@ class WizardManager:
                 wizard_embed.description = (
                     f"Invalid input. Exiting...\n\nError: {str(e)}"
                 )
-                wizard_embed.set_footer(text=discord.Embed.Empty)
+                wizard_embed.set_footer(text=None)
                 await self.ori_mes.edit(embed=wizard_embed)
                 return
 
@@ -298,5 +298,5 @@ class WizardManager:
                 )
 
         wizard_embed.description = self.final_text
-        wizard_embed.set_footer(text=discord.Embed.Empty)
+        wizard_embed.set_footer(text=None)
         await self.ori_mes.edit(embed=wizard_embed)

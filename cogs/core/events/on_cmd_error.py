@@ -69,6 +69,6 @@ class OnCMDError(commands.Cog):
             await utils.error_handle(self.bot, error, ctx)
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(utils)
-    bot.add_cog(OnCMDError(bot))
+    await bot.add_cog(OnCMDError(bot))

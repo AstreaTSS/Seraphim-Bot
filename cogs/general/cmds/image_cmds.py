@@ -371,8 +371,8 @@ class ImageCMDs(commands.Cog, name="Image"):
         await ctx.reply(content=content, file=resized_img_file)
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(utils)
     importlib.reload(image_utils)
 
-    bot.add_cog(ImageCMDs(bot))
+    await bot.add_cog(ImageCMDs(bot))

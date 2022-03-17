@@ -215,7 +215,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
                 )
                 actual_entry_count += 1
 
-        if top_embed.fields == discord.Embed.Empty:
+        if not top_embed.fields:
             raise utils.CustomCheckFailure(
                 "There are no non-bot starboard entries for this server/role!"
             )
@@ -285,7 +285,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
                     )
                     actual_entry_count += 1
 
-        if top_embed.fields == discord.Embed.Empty:
+        if not top_embed.fields:
             raise utils.CustomCheckFailure(
                 "There are no non-bot starboard entries for this server!"
             )
@@ -713,7 +713,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         await ctx.reply(embed=send_embed)
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(star_utils)
     importlib.reload(star_mes)
     importlib.reload(utils)
@@ -721,4 +721,4 @@ def setup(bot):
     importlib.reload(groups)
     importlib.reload(custom_classes)
 
-    bot.add_cog(StarCMDs(bot))
+    await bot.add_cog(StarCMDs(bot))

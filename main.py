@@ -7,7 +7,7 @@ import aiohttp
 import asyncpg
 import discord
 import orjson
-import websockets
+import websockets.exceptions
 from discord.ext import commands
 from discord.ext.commands.bot import _default as bot_default
 from dotenv import load_dotenv
@@ -77,81 +77,6 @@ def global_checks(ctx):  # sourcery skip: return-identity
     return True
 
 
-async def on_init_load():
-    await bot.wait_until_ready()
-
-    bot.star_queue = custom_classes.SetNoReaddAsyncQueue()
-
-    bot.snipes = {"deletes": {}, "edits": {}}
-    bot.role_rolebacks = {}
-
-    bot.image_extensions = tuple(("jpg", "jpeg", "png", "gif", "webp"))
-    bot.added_db_info = False
-
-    # is this overboard for a joke? yes.
-    bot.death_messages = ()
-    mc_en_us_url = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.18.1/assets/minecraft/lang/en_us.json"
-    async with aiohttp.ClientSession() as session:
-        async with session.get(mc_en_us_url) as resp:
-            mc_en_us_config = await resp.json(content_type="text/plain")
-
-            death_messages = tuple(
-                value
-                for key, value in mc_en_us_config.items()
-                if key.startswith("death.")
-                and key
-                not in (
-                    "death.attack.message_too_long",
-                    "death.attack.badRespawnPoint.link",
-                )
-            )
-            bot.death_messages = death_messages
-
-    if not hasattr(bot, "pool"):
-
-        async def add_json_converter(conn):
-            await conn.set_type_codec(
-                "jsonb",
-                encoder=discord.utils._to_json,
-                decoder=orjson.loads,
-                schema="pg_catalog",
-            )
-
-        db_url = os.environ.get("DB_URL")
-        bot.pool = await asyncpg.create_pool(
-            db_url,
-            min_size=2,
-            max_size=10,
-            max_inactive_connection_lifetime=3,
-            init=add_json_converter,
-        )
-
-        bot.starboard = star_classes.StarboardEntries(bot.pool)
-
-    bot.load_extension("jishaku")
-
-    bot.config = configs.GuildConfigManager()
-    bot.load_extension("cogs.db_handler")
-    while not bot.added_db_info:
-        await asyncio.sleep(0.1)
-
-    cogs_list = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))
-
-    for cog in cogs_list:
-        if cog != "cogs.db_handler":
-            try:
-                bot.load_extension(cog)
-            except commands.NoEntryPointError:
-                pass
-
-    application = await bot.application_info()
-    bot.owner = application.owner
-
-    # since we load extensions after startup, we have to make sure
-    # applications commands are synced - this is an easy way of doing it
-    await bot.create_slash_commands()
-
-
 class SeraphimBot(utils.SeraphimBase):
     def __init__(
         self, command_prefix, help_command=bot_default, description=None, **options
@@ -163,6 +88,77 @@ class SeraphimBot(utils.SeraphimBase):
             **options,
         )
         self._checks.append(global_checks)
+
+    async def setup_hook(self):
+        bot.star_queue = custom_classes.SetNoReaddAsyncQueue()
+
+        bot.snipes = {"deletes": {}, "edits": {}}
+        bot.role_rolebacks = {}
+
+        bot.image_extensions = tuple(("jpg", "jpeg", "png", "gif", "webp"))
+        bot.added_db_info = False
+
+        # is this overboard for a joke? yes.
+        bot.death_messages = ()
+        mc_en_us_url = "https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.18.1/assets/minecraft/lang/en_us.json"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(mc_en_us_url) as resp:
+                mc_en_us_config = await resp.json(content_type="text/plain")
+
+                death_messages = tuple(
+                    value
+                    for key, value in mc_en_us_config.items()
+                    if key.startswith("death.")
+                    and key
+                    not in (
+                        "death.attack.message_too_long",
+                        "death.attack.badRespawnPoint.link",
+                    )
+                )
+                bot.death_messages = death_messages
+
+        if not hasattr(bot, "pool"):
+
+            async def add_json_converter(conn):
+                await conn.set_type_codec(
+                    "jsonb",
+                    encoder=discord.utils._to_json,
+                    decoder=orjson.loads,
+                    schema="pg_catalog",
+                )
+
+            db_url = os.environ.get("DB_URL")
+            bot.pool = await asyncpg.create_pool(
+                db_url,
+                min_size=2,
+                max_size=10,
+                max_inactive_connection_lifetime=3,
+                init=add_json_converter,
+            )
+
+            bot.starboard = star_classes.StarboardEntries(bot.pool)
+
+        application = await bot.application_info()
+        bot.owner = application.owner
+
+        # a necessary hack to make app commands sync
+        bot._connection.application_id = application.id
+
+        await bot.load_extension("jishaku")
+
+        bot.config = configs.GuildConfigManager()
+        await bot.load_extension("cogs.db_handler")
+        while not bot.added_db_info:
+            await asyncio.sleep(0.1)
+
+        cogs_list = utils.get_all_extensions(os.environ.get("DIRECTORY_OF_FILE"))
+
+        for cog in cogs_list:
+            if cog != "cogs.db_handler":
+                try:
+                    await bot.load_extension(cog)
+                except commands.NoEntryPointError:
+                    pass
 
     async def on_ready(self):
         utcnow = discord.utils.utcnow()
@@ -187,7 +183,7 @@ class SeraphimBot(utils.SeraphimBase):
 
         try:
             await self.change_presence(activity=activity)
-        except websockets.ConnectionClosedOK:
+        except websockets.exceptions.ConnectionClosedOK:
             await utils.msg_to_owner(self, "Reconnecting...")
 
     async def on_resumed(self):
@@ -228,9 +224,15 @@ We need members for their roles and nicknames. Yes, this stuff isn't provided no
 Emojis are for the emoji helper commands, of course.
 Messages run the entire core of the bot itself. Of course we use them here. We might be able to
 turn off DM message intents, but for now they're here for safety.
-Reactions run the starboard of Seraphim, so of course that's here too. See above for why DMs."""
+Reactions run the starboard of Seraphim, so of course that's here too. See above for why DMs.
+Message intents allow message/prefix commands to run correctly."""
 intents = discord.Intents(
-    guilds=True, members=True, emojis=True, messages=True, reactions=True
+    guilds=True,
+    members=True,
+    emojis=True,
+    messages=True,
+    reactions=True,
+    message_content=True,
 )
 
 mentions = discord.AllowedMentions.all()
@@ -250,6 +252,4 @@ except ImportError:
     pass
 
 bot.init_load = True
-
-bot.loop.create_task(on_init_load())
 bot.run(os.environ.get("MAIN_TOKEN"))

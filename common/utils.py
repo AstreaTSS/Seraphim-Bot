@@ -382,9 +382,7 @@ def get_icon_url(asset: discord.Asset, size=128):
         return str(asset.replace(format="png", size=size))
 
 
-def generate_default_embed(
-    guild: discord.Guild, title=discord.Embed.Empty, description=discord.Embed.Empty
-):
+def generate_default_embed(guild: discord.Guild, title=None, description=None):
     embed = discord.Embed(
         title=title,
         colour=discord.Colour(0x4378FC),

@@ -39,8 +39,8 @@ class PinHandler(commands.Cog):
             await entry.unpin()
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(utils)
     importlib.reload(star_mes)
 
-    bot.add_cog(PinHandler(bot))
+    await bot.add_cog(PinHandler(bot))

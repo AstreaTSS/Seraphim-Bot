@@ -56,7 +56,7 @@ class SnipeEvents(commands.Cog):
             )
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(star_mes)
     importlib.reload(custom_classes)
-    bot.add_cog(SnipeEvents(bot))
+    await bot.add_cog(SnipeEvents(bot))

@@ -95,8 +95,8 @@ class JoinLeaveLog(commands.Cog, name="Leave Logging"):
             await chan.send(embed=leave_embed)
 
 
-def setup(bot):
+async def setup(bot):
     importlib.reload(cclasses)
     importlib.reload(utils)
 
-    bot.add_cog(JoinLeaveLog(bot))
+    await bot.add_cog(JoinLeaveLog(bot))

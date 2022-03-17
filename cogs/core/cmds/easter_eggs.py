@@ -38,5 +38,5 @@ class EasterEggs(commands.Cog, name="Easter Egg", command_attrs=dict(hidden=True
         )
 
 
-def setup(bot):
-    bot.add_cog(EasterEggs(bot))
+async def setup(bot):
+    await bot.add_cog(EasterEggs(bot))
