@@ -42,7 +42,9 @@ def bot_proper_perms():
     return commands.check(predicate)
 
 
-async def error_handle(bot, error, ctx: typing.Union[commands.Context, None] = None):
+async def error_handle(
+    bot, error, ctx: typing.Union[commands.Context, discord.Interaction, None] = None
+):
     # handles errors and sends them to owner
     if isinstance(error, aiohttp.ServerDisconnectedError):
         to_send = "Disconnected from server!"
@@ -72,10 +74,21 @@ async def error_handle(bot, error, ctx: typing.Union[commands.Context, None] = N
             + f"Error (for bot owner purposes): {error}"
         )
 
-        await ctx.reply(
-            embed=error_embed,
-            ephemeral=True,
-        )
+        if isinstance(ctx, discord.Interaction):
+            if not ctx.response.is_done():
+                await ctx.response.send_message(
+                    embed=error_embed,
+                    ephemeral=True,
+                )
+            else:
+                await ctx.followup.send(
+                    embed=error_embed,
+                    ephemeral=True,
+                )
+        else:
+            await ctx.reply(
+                embed=error_embed,
+            )
 
 
 async def msg_to_owner(bot, content, split=True):
