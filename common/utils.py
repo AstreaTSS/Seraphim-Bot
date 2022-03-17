@@ -10,6 +10,8 @@ import aiohttp
 import discord
 from discord.ext import commands
 
+BOOST_EMOJI = os.environ.get("BOOST_EMOJI_NAME")
+
 
 def error_embed_generate(error_msg):
     return discord.Embed(colour=discord.Colour.red(), description=error_msg)
@@ -197,34 +199,23 @@ def get_all_extensions(str_path, folder="cogs"):
 
 def get_content(message: discord.Message):  # sourcery no-metrics
     """Because system_content isn't perfect.
-    More or less a copy of system_content with name being swapped with display_name and DM message types removed."""
+    More or less a copy of system_content with name being swapped with \
+    display_name and DM message types removed."""
 
     if message.type is discord.MessageType.default:
         return message.content
 
     if message.type is discord.MessageType.recipient_add:
-        if message.channel.type is discord.ChannelType.group:
-            return (
-                f"{message.author.display_name} added"
-                f" {message.mentions[0].display_name} to the group."
-            )
-        else:
-            return (
-                f"{message.author.display_name} added"
-                f" {message.mentions[0].display_name} to the thread."
-            )
+        return (
+            f"{message.author.display_name} added {message.mentions[0].name} to the"
+            " thread."
+        )
 
     if message.type is discord.MessageType.recipient_remove:
-        if message.channel.type is discord.ChannelType.group:
-            return (
-                f"{message.author.display_name} removed"
-                f" {message.mentions[0].display_name} from the group."
-            )
-        else:
-            return (
-                f"{message.author.display_name} removed"
-                f" {message.mentions[0].display_name} from the thread."
-            )
+        return (
+            f"{message.author.display_name} removed {message.mentions[0].name} from the"
+            " thread."
+        )
 
     if message.type is discord.MessageType.channel_name_change:
         return (
@@ -258,52 +249,52 @@ def get_content(message: discord.Message):  # sourcery no-metrics
     if message.type is discord.MessageType.premium_guild_subscription:
         if not message.content:
             return (
-                f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just"
-                " boosted the server!"
+                f"{BOOST_EMOJI} **{message.author.display_name}** just boosted the"
+                " server!"
             )
         else:
             return (
-                f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just"
-                f" boosted the server **{message.content}** times!"
+                f"{BOOST_EMOJI} **{message.author.display_name}** just boosted the"
+                f" server **{message.content}** times!"
             )
 
     if message.type is discord.MessageType.premium_guild_tier_1:
         if not message.content:
             return (
-                f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just"
-                f" boosted the server! {message.guild} has achieved **Level 1!**"
+                f"{BOOST_EMOJI} **{message.author.display_name}** just boosted the"
+                f" server! {message.guild} has achieved **Level 1!**"
             )
         else:
             return (
-                f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just"
-                f" boosted the server **{message.content}** times! {message.guild} has"
-                " achieved **Level 1!**"
+                f"{BOOST_EMOJI} **{message.author.display_name}** just boosted the"
+                f" server **{message.content}** times! {message.guild} has achieved"
+                " **Level 1!**"
             )
 
     if message.type is discord.MessageType.premium_guild_tier_2:
         if not message.content:
             return (
-                f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just"
-                f" boosted the server! {message.guild} has achieved **Level 2!**"
+                f"{BOOST_EMOJI} **{message.author.display_name}** just boosted the"
+                f" server! {message.guild} has achieved **Level 2!**"
             )
         else:
             return (
-                f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just"
-                f" boosted the server **{message.content}** times! {message.guild} has"
-                " achieved **Level 2!**"
+                f"{BOOST_EMOJI} **{message.author.display_name}** just boosted the"
+                f" server **{message.content}** times! {message.guild} has achieved"
+                " **Level 2!**"
             )
 
     if message.type is discord.MessageType.premium_guild_tier_3:
         if not message.content:
             return (
-                f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just"
-                f" boosted the server! {message.guild} has achieved **Level 3!**"
+                f"{BOOST_EMOJI} **{message.author.display_name}** just boosted the"
+                f" server! {message.guild} has achieved **Level 3!**"
             )
         else:
             return (
-                f"{os.environ.get('BOOST_EMOJI_NAME')} {message.author.display_name} just"
-                f" boosted the server **{message.content}** times! {message.guild} has"
-                " achieved **Level 3!**"
+                f"{BOOST_EMOJI} **{message.author.display_name}** just boosted the"
+                f" server **{message.content}** times! {message.guild} has achieved"
+                " **Level 3!**"
             )
 
     if message.type is discord.MessageType.channel_follow_add:
@@ -314,7 +305,7 @@ def get_content(message: discord.Message):  # sourcery no-metrics
     if message.type is discord.MessageType.guild_stream:
         return (
             f"{message.author.display_name} is live! Now streaming"
-            f" {message.author.activity.name}"
+            f" {message.author.activity.name}"  # type: ignore
         )
 
     if message.type is discord.MessageType.guild_discovery_disqualified:
@@ -364,8 +355,7 @@ def get_content(message: discord.Message):  # sourcery no-metrics
             " the server!"
         )
 
-    else:
-        raise discord.InvalidArgument("This message has an invalid type!")
+    raise ValueError(f"Invalid MessageType: {message.type}!")
 
 
 def bool_friendly_str(bool_to_convert: bool):
