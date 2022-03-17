@@ -97,7 +97,8 @@ class StarboardEntry:
                 updated=True,
             )
 
-    def get_reactors(self) -> typing.Set[int]:
+    @property
+    def total_reactors(self) -> typing.Set[int]:
         """Gets the total reactors, a mix of ori and var reactors."""
         if not isinstance(self.ori_reactors, set):
             self.ori_reactors = set(self.ori_reactors)
@@ -106,6 +107,11 @@ class StarboardEntry:
 
         return self.ori_reactors | self.var_reactors
 
+    @property
+    def num_reactors(self) -> int:
+        """Gets the number of total reactors."""
+        return len(self.total_reactors)
+
     def get_reactors_from_type(self, type_of_reactor: ReactorType) -> typing.Set[int]:
         """Gets the reactors for the type specified. Useful if you want the output to vary."""
         if type_of_reactor == ReactorType.ORI_REACTORS:
@@ -113,7 +119,7 @@ class StarboardEntry:
         elif type_of_reactor == ReactorType.VAR_REACTORS:
             return self.var_reactors
         elif type_of_reactor == ReactorType.ALL_REACTORS:
-            return self.get_reactors()
+            return self.total_reactors
         else:
             raise AttributeError("Invalid reactor type.")
 
@@ -137,13 +143,13 @@ class StarboardEntry:
         elif type_of_reactor == ReactorType.VAR_REACTORS:
             return reactor_id in self.var_reactors
         elif type_of_reactor == ReactorType.ALL_REACTORS:
-            return reactor_id in self.get_reactors()
+            return reactor_id in self.total_reactors
         else:
             raise AttributeError("Invalid reactor type.")
 
     def add_reactor(self, reactor_id: int, type_of_reactor: ReactorType):
         """Adds a reactor to the reactor type specified. Will silently fail if the entry already exists."""
-        if reactor_id not in self.get_reactors():
+        if reactor_id not in self.total_reactors:
             if type_of_reactor == ReactorType.ORI_REACTORS:
                 self.ori_reactors.add(reactor_id)
             elif type_of_reactor == ReactorType.VAR_REACTORS:
@@ -153,7 +159,7 @@ class StarboardEntry:
 
     def remove_reactor(self, reactor_id: int):
         """Removes a reactor from an entry. Will silently fail if the entry does not exists."""
-        if reactor_id in self.get_reactors():
+        if reactor_id in self.total_reactors:
             self.ori_reactors.discard(reactor_id)
             self.var_reactors.discard(reactor_id)
 
@@ -282,7 +288,8 @@ class StarboardEntries:
         if not entry:
             async with self._pool.acquire() as conn:
                 data = await conn.fetchrow(
-                    f"SELECT * FROM starboard WHERE ori_mes_id = {entry_id} OR star_var_id = {entry_id}"
+                    f"SELECT * FROM starboard WHERE ori_mes_id = {entry_id} OR"
+                    f" star_var_id = {entry_id}"
                 )
                 if data:
                     entry = StarboardEntry.from_row(data)
@@ -293,14 +300,28 @@ class StarboardEntries:
 
         return entry
 
-    async def raw_query(self, query: str):
-        """Queries the starboard database directly for entries based on the query."""
+    async def select_query(self, query: str):
+        """Selects the starboard database directly for entries based on the query."""
         async with self._pool.acquire() as conn:
             data = await conn.fetch(f"SELECT * FROM starboard WHERE {query}")
 
             if not data:
                 return None
             return tuple(StarboardEntry.from_row(row) for row in data)
+
+    async def raw_query(self, query: str):
+        """Runs the raw query against the pool, assuming the results are starboard entries."""
+        async with self._pool.acquire() as conn:
+            data = await conn.fetch(query)
+
+            if not data:
+                return None
+            return tuple(StarboardEntry.from_row(row) for row in data)
+
+    async def super_raw_query(self, query: str):
+        """You want a raw query? You'll get one."""
+        async with self._pool.acquire() as conn:
+            return await conn.fetch(query)
 
     async def query_entries(
         self, seperator: str = "AND", **conditions: typing.Dict[str, str]

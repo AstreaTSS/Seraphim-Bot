@@ -28,7 +28,7 @@ class Star(commands.Cog):
             # if the entry for the message exists in the bot and if the entry is above or at the required amount
             # for that server
             if starboard_entry and (
-                len(starboard_entry.get_reactors())
+                starboard_entry.num_reactors
                 >= self.bot.config.getattr(entry[2], "star_limit")
                 or starboard_entry.forced
             ):
@@ -79,7 +79,7 @@ class Star(commands.Cog):
                         if not starboard_entry:
                             return
 
-                        unique_stars = len(starboard_entry.get_reactors())
+                        unique_stars = starboard_entry.num_reactors
 
                         if unique_stars >= self.bot.config.getattr(
                             mes.guild.id, "star_limit"
@@ -90,12 +90,12 @@ class Star(commands.Cog):
                             )
 
                 elif user.id != starboard_entry.author_id:
-                    old_stars = len(starboard_entry.get_reactors())
+                    old_stars = starboard_entry.num_reactors
 
                     await star_utils.modify_stars(self.bot, mes, payload.user_id, "ADD")
 
                     new_entry = await self.bot.starboard.get(mes.id)
-                    new_stars = len(new_entry.get_reactors())
+                    new_stars = new_entry.num_reactors
                     if old_stars != new_stars:  # we don't want to refresh too often
                         await star_utils.star_entry_refresh(
                             self.bot, starboard_entry, mes.guild.id

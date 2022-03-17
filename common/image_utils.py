@@ -116,12 +116,14 @@ async def get_file_bytes(url: str, limit: int, equal_to=True):
                         limit + 1
                     )  # we want this to error out even if the file is exactly the limit
                     raise commands.BadArgument(
-                        f"The file/URL given is over {humanize.naturalsize(limit, binary=True)}!"
+                        "The file/URL given is over"
+                        f" {humanize.naturalsize(limit, binary=True)}!"
                     )
                 else:
                     await resp.content.readexactly(limit)
                     raise commands.BadArgument(
-                        f"The file/URL given is at or over {humanize.naturalsize(limit, binary=True)}!"
+                        "The file/URL given is at or over"
+                        f" {humanize.naturalsize(limit, binary=True)}!"
                     )
 
             except asyncio.IncompleteReadError as e:

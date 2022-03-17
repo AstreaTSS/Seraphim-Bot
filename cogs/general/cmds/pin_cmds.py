@@ -39,7 +39,8 @@ class PinCMDs(commands.Cog, name="Pinboard"):
         des_chan = ctx.guild.get_channel(chan_entry["destination"])
         if des_chan is None:
             raise utils.CustomCheckFailure(
-                "The destination channel doesn't exist anymore! Please fix this in the config."
+                "The destination channel doesn't exist anymore! Please fix this in the"
+                " config."
             )
 
         dif = len(pins) - chan_entry["limit"]

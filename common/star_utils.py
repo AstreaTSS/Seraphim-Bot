@@ -62,7 +62,7 @@ def get_author_id(mes: discord.Message, bot: utils.SeraphimBase):
 
 
 def generate_content_str(entry: star_classes.StarboardEntry):
-    unique_stars = len(entry.get_reactors())
+    unique_stars = entry.num_reactors
     star_emoji = get_star_emoji(unique_stars)
     ori_chan_mention = f"<#{entry.ori_chan_id}>"
 
@@ -73,7 +73,10 @@ def generate_content_str(entry: star_classes.StarboardEntry):
         modifiers.append("frozen")
 
     if modifiers:
-        return f"{star_emoji} **{unique_stars}** ({', '.join(modifiers)}) | {ori_chan_mention}"
+        return (
+            f"{star_emoji} **{unique_stars}** ({', '.join(modifiers)}) |"
+            f" {ori_chan_mention}"
+        )
     else:
         return f"{star_emoji} **{unique_stars}** | {ori_chan_mention}"
 
@@ -108,7 +111,7 @@ async def modify_stars(
         # this code probably needs slight rewriting
         type_of = get_reactor_type(mes.id, starboard_entry)
 
-        if reactor_id not in starboard_entry.get_reactors() and operation == "ADD":
+        if not starboard_entry.check_reactor(reactor_id) and operation == "ADD":
             starboard_entry.add_reactor(reactor_id, type_of)
 
         elif (
@@ -218,7 +221,7 @@ async def star_entry_refresh(
     star_var_chan = guild.get_channel_or_thread(
         starboard_entry.starboard_id
     )  # TODO: ignore cases where bot can't access/use channel
-    unique_stars = len(starboard_entry.get_reactors())
+    unique_stars = starboard_entry.num_reactors
 
     try:
         star_var_mes = await star_var_chan.fetch_message(starboard_entry.star_var_id)

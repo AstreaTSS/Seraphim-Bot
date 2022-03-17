@@ -53,7 +53,8 @@ async def _list(ctx: commands.Context):
                 entry_text = entry
             else:
                 raise utils.CustomCheckFailure(
-                    "Something weird happened when trying to run this command, and I couldn't get something. "
+                    "Something weird happened when trying to run this command, and I"
+                    " couldn't get something. "
                     + "Join the support server to report this."
                 )
 
@@ -64,7 +65,8 @@ async def _list(ctx: commands.Context):
             reversed = pin_config[entry]["reversed"]
 
             entries_list.append(
-                f"{entry_text} -> {des_chan.mention} (Limit: {limit}, reversed: {reversed})"
+                f"{entry_text} -> {des_chan.mention} (Limit: {limit}, reversed:"
+                f" {reversed})"
             )
         else:
             del pin_config[entry]
@@ -99,7 +101,8 @@ async def _map(
             "reversed": False,
         }
         await ctx.reply(
-            f"Overflowing pins from {entry.mention} will now appear in {destination.mention}."
+            f"Overflowing pins from {entry.mention} will now appear in"
+            f" {destination.mention}."
         )
     else:
         pin_config["default"] = {
@@ -108,7 +111,8 @@ async def _map(
             "reversed": False,
         }
         await ctx.reply(
-            f"Overflowing pins from channels that are not mapped to any other channels will now appear in {destination.mention}."
+            "Overflowing pins from channels that are not mapped to any other channels"
+            f" will now appear in {destination.mention}."
         )
     ctx.bot.config.setattr(ctx.guild.id, pin_config=pin_config)
 
@@ -131,7 +135,8 @@ async def pin_limit(
         else:
             pin_config["default"]["limit"] = limit
             await ctx.reply(
-                f"The pin limit for channels that are not mapped to any other channels is now set to {limit}."
+                "The pin limit for channels that are not mapped to any other channels"
+                f" is now set to {limit}."
             )
         ctx.bot.config.setattr(ctx.guild.id, pin_config=pin_config)
     except KeyError:
@@ -175,7 +180,8 @@ async def reverse(
         if isinstance(entry, discord.TextChannel):
             pin_config[str(entry.id)]["reversed"] = value
             await ctx.reply(
-                f"Set if the pin removal is reversed or not for {entry.mention} to: {value}."
+                f"Set if the pin removal is reversed or not for {entry.mention} to:"
+                f" {value}."
             )
         else:
             pin_config["default"]["reversed"] = value

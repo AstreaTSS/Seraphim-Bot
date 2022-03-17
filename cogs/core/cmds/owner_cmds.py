@@ -81,7 +81,8 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
                         option_type = self.OptionTypeEnum(option["type"]).name
                         required_txt = ", required" if option["required"] else ""
                         entry_str_list.append(
-                            f"{option['name']} (type {option_type}{required_txt}) - {option['description']}"
+                            f"{option['name']} (type {option_type}{required_txt}) -"
+                            f" {option['description']}"
                         )
 
                 slash_entries.append(
@@ -98,7 +99,10 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
 
     @commands.command(hidden=True, aliases=["removeslashcmd"])
     async def remove_slash_cmd(
-        self, ctx, cmd: discord.Object, guild: typing.Optional[discord.Guild],
+        self,
+        ctx,
+        cmd: discord.Object,
+        guild: typing.Optional[discord.Guild],
     ):
         if guild:
             await self.bot.http.delete_guild_command(

@@ -31,7 +31,8 @@ class FuzzyConverter(commands.IDConverter[T_co]):
     def norm_embed_gen(self, ctx, list_str):
         description = collections.deque()
         description.append(
-            "Multiple entries found. Please choose one of the following, or type cancel."
+            "Multiple entries found. Please choose one of the following, or type"
+            " cancel."
         )
 
         for n in range(len(list_str)):
@@ -168,7 +169,8 @@ class FuzzyMemberConverter(FuzzyConverter[discord.Member]):
 
         description = collections.deque()
         description.append(
-            "Multiple entries found. Please choose one of the following, or type cancel."
+            "Multiple entries found. Please choose one of the following, or type"
+            " cancel."
         )
 
         for n in range(len(list_str)):

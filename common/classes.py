@@ -31,7 +31,6 @@ if typing.TYPE_CHECKING:
     class SetNoReaddAsyncQueue(asyncio.Queue[_T]):
         ...
 
-
 else:
 
     class SetAsyncQueue(asyncio.Queue):
