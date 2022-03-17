@@ -38,48 +38,51 @@ class OwnerCMDs(commands.Cog, name="Owner", command_attrs=dict(hidden=True)):
     async def list_app_cmds(
         self, ctx: utils.SeraContextBase, guild: typing.Optional[discord.Guild]
     ):
-        if not guild:
-            app_cmds = await ctx.bot.http.get_global_commands(ctx.bot.application_id)
-        else:
-            app_cmds = await ctx.bot.http.get_guild_commands(
-                ctx.bot.application_id, guild.id
-            )
-
-        app_cmd_entries = []
-
-        if not app_cmds:
-            raise commands.BadArgument(
-                "This guild/bot does not have any specific application commands."
-            )
-
-        for entry in app_cmds:
-            entry_str_list = []
-
-            if entry["description"]:
-                entry_str_list.append(entry["description"])
+        async with ctx.typing():
+            if not guild:
+                app_cmds = await ctx.bot.http.get_global_commands(
+                    ctx.bot.application_id
+                )
             else:
-                cmd_type = entry.get("type")
-                if not cmd_type or cmd_type == 1:
-                    entry_str_list.append("No description provided.")
-                elif cmd_type == 2:
-                    entry_str_list.append("A user context menu command.")
-                elif cmd_type == 3:
-                    entry_str_list.append("A message context menu command.")
+                app_cmds = await ctx.bot.http.get_guild_commands(
+                    ctx.bot.application_id, guild.id
+                )
 
-            if options := entry.get("options"):
-                entry_str_list.append("__Arguments:__")
+            app_cmd_entries = []
 
-                for option in options:
-                    option_type = discord.AppCommandOptionType(option["type"]).name
-                    required_txt = ", required" if option.get("required") else ""
-                    entry_str_list.append(
-                        f"{option['name']} (type `{option_type}`{required_txt}) -"
-                        f" {option['description']}"
-                    )
+            if not app_cmds:
+                raise commands.BadArgument(
+                    "This guild/bot does not have any specific application commands."
+                )
 
-            app_cmd_entries.append(
-                (f"{entry['name']} - ID {entry['id']}", "\n".join(entry_str_list))
-            )
+            for entry in app_cmds:
+                entry_str_list = []
+
+                if entry["description"]:
+                    entry_str_list.append(entry["description"])
+                else:
+                    cmd_type = entry.get("type")
+                    if not cmd_type or cmd_type == 1:
+                        entry_str_list.append("No description provided.")
+                    elif cmd_type == 2:
+                        entry_str_list.append("A user context menu command.")
+                    elif cmd_type == 3:
+                        entry_str_list.append("A message context menu command.")
+
+                if options := entry.get("options"):
+                    entry_str_list.append("__Arguments:__")
+
+                    for option in options:
+                        option_type = discord.AppCommandOptionType(option["type"]).name
+                        required_txt = ", required" if option.get("required") else ""
+                        entry_str_list.append(
+                            f"{option['name']} (type `{option_type}`{required_txt}) -"
+                            f" {option['description']}"
+                        )
+
+                app_cmd_entries.append(
+                    (f"{entry['name']} - ID {entry['id']}", "\n".join(entry_str_list))
+                )
 
         pages = paginator.FieldPages(ctx, entries=app_cmd_entries, per_page=6)
         await pages.paginate()
