@@ -131,7 +131,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
                 " have that role."
             )
 
-        await ctx.defer()
+        await ctx.trigger_typing()
 
         conditions = ""
 
@@ -232,7 +232,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         Flags: --role <role>: allows you to filter by the role specified, only counting those who have that role.
         --bots <true/false>: if bot messages will be on the leaderboard."""
 
-        await ctx.defer()
+        await ctx.trigger_typing()
 
         optional_role = flags.role
         if optional_role:
@@ -313,7 +313,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         """Allows you to get either your or whoever you mentioned’s position in the star leaderboard (like the top command, but only for one person).
         The user can be mentioned, searched up by ID, or you can say their name and the bot will attempt to search for that person."""
 
-        await ctx.defer()
+        await ctx.trigger_typing()
 
         member = ctx.author if not user else user
         user_star_list = await self.get_star_rankings(f"guild_id = {ctx.guild.id}")
@@ -351,7 +351,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         """Gets a random starboard entry from the server it's being run in.
         May not work 100% of the time, but it should be reliable enough."""
 
-        await ctx.defer()
+        await ctx.trigger_typing()
 
         random_entry = await self.bot.starboard.get_random(ctx.guild.id)
 
@@ -394,7 +394,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         a {channel id}-{message id} format, or the message link itself.
         The message can either be the original message or the starboard variant message."""
 
-        await ctx.defer()
+        await ctx.trigger_typing()
 
         starboard_entry: star_classes.StarboardEntry = await self.bot.starboard.get(
             msg.id
@@ -453,7 +453,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         a {channel id}-{message id} format, or the message link itself.
         The message can either be the original message or the starboard variant message."""
 
-        await ctx.defer()
+        await ctx.trigger_typing()
 
         starboard_entry: star_classes.StarboardEntry = await self.bot.starboard.get(
             msg.id
@@ -538,7 +538,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         This message cannot be taken off the starboard unless it is deleted from it manually.
         You must have Manage Server permissions or higher to run this command."""
 
-        await ctx.defer()
+        await ctx.trigger_typing()
 
         starboard_entry = await self.initial_get(ctx, msg, forced=True)
 
@@ -561,7 +561,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
 
-        await ctx.defer()
+        await ctx.trigger_typing()
 
         starboard_entry = await self.initial_get(ctx, msg)
         starboard_entry.frozen = True
@@ -582,7 +582,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
 
-        await ctx.defer()
+        await ctx.trigger_typing()
 
         starboard_entry = await self.initial_get(ctx, msg, do_not_create=True)
 
@@ -621,7 +621,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
 
-        await ctx.defer()
+        await ctx.trigger_typing()
 
         starboard_entry = await self.initial_get(ctx, msg, do_not_create=True)
         if not starboard_entry.frozen:
@@ -643,7 +643,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
 
-        await ctx.defer()
+        await ctx.trigger_typing()
 
         starboard_entry = await self.initial_get(ctx, msg, do_not_create=True)
         if not starboard_entry.trashed:
@@ -671,7 +671,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
         a {channel id}-{message id} format, or the message link itself.
         You must have Manage Server permissions or higher to run this command."""
 
-        await ctx.defer()
+        await ctx.trigger_typing()
 
         starboard_entry = await self.initial_get(
             ctx, msg, do_not_create=True, bypass_int_check=True
@@ -708,7 +708,7 @@ class StarCMDs(commands.Cog, name="Starboard"):
     @commands.command(hidden=True)
     @commands.is_owner()
     async def debug_star_mes(self, ctx, msg: discord.Message):
-        await ctx.defer()
+        await ctx.trigger_typing()
         send_embed = await star_mes.star_generate(self.bot, msg)
         await ctx.reply(embed=send_embed)
 
