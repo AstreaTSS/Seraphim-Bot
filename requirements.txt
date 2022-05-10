@@ -5,7 +5,7 @@ rapidfuzz==2.0.11
 websockets==10.2
 humanize==4.1.0
 Pillow==9.0.1
-python-dotenv==0.19.2
+python-dotenv==0.20.0
 python-dateutil~=2.8.1
 orjson>=3.5.4
 lru-dict==1.1.7
