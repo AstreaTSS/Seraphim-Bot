@@ -368,6 +368,9 @@ def get_content(message: discord.Message):  # sourcery no-metrics
             " the server!"
         )
 
+    if message.type is discord.MessageType.application_command:
+        return message.content
+
     raise TypeError(f"Invalid MessageType: {message.type}!")
 
 
