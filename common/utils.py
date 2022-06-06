@@ -85,7 +85,7 @@ async def error_handle(
                     embed=error_embed,
                     ephemeral=True,
                 )
-        elif ctx.channel and ctx.channel.type == discord.VoiceChannel:
+        elif ctx.channel and ctx.channel.type != discord.VoiceChannel:
             await ctx.reply(
                 embed=error_embed,
             )
