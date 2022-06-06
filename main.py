@@ -48,7 +48,7 @@ def seraphim_prefixes(bot: commands.Bot, msg: discord.Message):
     return mention_prefixes + custom_prefixes
 
 
-def global_checks(ctx):  # sourcery skip: return-identity
+def global_checks(ctx: utils.SeraContextBase):  # sourcery skip: return-identity
     if not ctx.bot.is_ready():
         return False
 
@@ -57,6 +57,10 @@ def global_checks(ctx):  # sourcery skip: return-identity
 
     if not ctx.command:
         return True
+
+    if ctx.channel.type == discord.VoiceChannel:
+        # chat in voice isn't quite supported by the version of d.py we use
+        return False
 
     disable_entry = ctx.bot.config.getattr(ctx.guild.id, "disables")["users"].get(
         str(ctx.author.id)

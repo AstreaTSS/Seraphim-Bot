@@ -18,6 +18,10 @@ class OnCMDError(commands.Cog):
         if not ctx.bot.is_ready():
             return
 
+        if ctx.channel.type == discord.VoiceChannel:
+            # chat in voice, unsupported
+            return
+
         if isinstance(error, commands.CommandInvokeError):
             await utils.error_handle(self.bot, error, ctx)
         elif isinstance(error, commands.DisabledCommand):
