@@ -4,7 +4,7 @@ asyncpg==0.25.0
 rapidfuzz==2.0.11
 websockets==10.3
 humanize==4.1.0
-Pillow==9.1.0
+Pillow==9.1.1
 python-dotenv==0.20.0
 python-dateutil~=2.8.1
 orjson>=3.5.4
