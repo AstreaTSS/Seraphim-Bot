@@ -133,7 +133,8 @@ async def get_file_bytes(url: str, limit: int, equal_to=True):
 
 
 def image_from_ctx(ctx: commands.Context):
-    """To be used with URLToImage. Gets image from context, via an embed or via its attachments."""
+    """To be used with URLToImage. Gets image from context, via an embed or via its attachments.
+    """
     if not ctx.message.attachments:
         raise commands.BadArgument("No URL or image given!")
 

@@ -33,7 +33,8 @@ class CmdControl(commands.Cog, name="Command Control"):
     async def disable(self, ctx, member: discord.Member, *, command: CommandConverter):
         """Disables the command specified for the specified user.
         You can disable all commands for a user too by specifing 'all' for a user.
-        Can only be used by those who have Manage Server permissions, and cannot be used on yourself."""
+        Can only be used by those who have Manage Server permissions, and cannot be used on yourself.
+        """
 
         disables = self.bot.config.getattr(ctx.guild.id, "disables")
 
@@ -65,7 +66,8 @@ class CmdControl(commands.Cog, name="Command Control"):
     async def reenable(self, ctx, member: discord.Member, *, command: CommandConverter):
         """Re-enables the command specified for the specified user.
         You can re-eanble all commands for a user too (if they were denied all commands) by specifing 'all' for a user.
-        Can only be used by those who have Manage Server permissions, and cannot be used on yourself."""
+        Can only be used by those who have Manage Server permissions, and cannot be used on yourself.
+        """
 
         if ctx.author == member:
             raise commands.BadArgument("You cannot blacklist yourself!")

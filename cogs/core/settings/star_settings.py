@@ -22,7 +22,8 @@ async def main_cmd(ctx):
 @utils.proper_permissions()
 @utils.bot_proper_perms()
 async def channel(ctx, channel: typing.Optional[cclasses.ValidChannelConverter]):
-    """Allows you to either get the starboard channel (no argument) or set the starboard channel (with argument)."""
+    """Allows you to either get the starboard channel (no argument) or set the starboard channel (with argument).
+    """
 
     if channel:
         ctx.bot.config.setattr(ctx.guild.id, starboard_id=channel.id)
@@ -37,7 +38,8 @@ async def channel(ctx, channel: typing.Optional[cclasses.ValidChannelConverter])
 @utils.proper_permissions()
 @utils.bot_proper_perms()
 async def limit(ctx, limit: typing.Optional[int]):
-    """Allows you to either get the amount of stars needed to get on the starboard (no argument) or set the amount (with argument)."""
+    """Allows you to either get the amount of stars needed to get on the starboard (no argument) or set the amount (with argument).
+    """
     if limit:
         if limit <= 0:
             raise commands.BadArgument("The limit needs to be greater than 0!")
@@ -54,7 +56,8 @@ async def limit(ctx, limit: typing.Optional[int]):
 @utils.proper_permissions()
 @utils.bot_proper_perms()
 async def remove_reaction(ctx, toggle: typing.Optional[bool]):
-    """Allows you to either see if people who react to a star to their messages will have their reactions removed (no argument) or allows you to toggle that (with argument)."""
+    """Allows you to either see if people who react to a star to their messages will have their reactions removed (no argument) or allows you to toggle that (with argument).
+    """
 
     if toggle is None:
         await ctx.reply(
@@ -75,7 +78,8 @@ async def remove_reaction(ctx, toggle: typing.Optional[bool]):
 @utils.bot_proper_perms()
 async def toggle(ctx, toggle: typing.Optional[bool]):
     """Allows you to either see if all starboard-related commands and actions are on or off (no argument) or allows you to toggle that (with argument).
-    If you wish to set the toggle, both the starboard channel and the star limit must be set first."""
+    If you wish to set the toggle, both the starboard channel and the star limit must be set first.
+    """
 
     if toggle is None:
         await ctx.reply(
@@ -103,7 +107,8 @@ async def toggle(ctx, toggle: typing.Optional[bool]):
 @utils.bot_proper_perms()
 async def edit_message(ctx, toggle: typing.Optional[bool]):
     """Controls if the starboard message is edited when the original is. Defaults to being on.
-    Displays the current option if no argument is given, sets the current option to the argument (yes/no) if given."""
+    Displays the current option if no argument is given, sets the current option to the argument (yes/no) if given.
+    """
 
     if toggle != None:
         ctx.bot.config.setattr(ctx.guild.id, star_edit_messages=toggle)
@@ -139,7 +144,8 @@ async def blacklist(ctx):
 @utils.bot_proper_perms()
 @commands.check(star_toggle_check)
 async def _list(ctx: commands.Context):
-    """Returns a list of channels that have been blacklisted. Messages from channels that are blacklisted won’t be starred."""
+    """Returns a list of channels that have been blacklisted. Messages from channels that are blacklisted won’t be starred.
+    """
 
     channel_id_list = ctx.bot.config.getattr(ctx.guild.id, "star_blacklist")
     if channel_id_list:

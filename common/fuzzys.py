@@ -50,7 +50,8 @@ class FuzzyConverter(commands.IDConverter[T_co]):
     async def extract_from_list(
         self, ctx, argument, list_of_items, processors, unsure=False
     ):
-        """Uses multiple scorers and processors for a good mix of accuracy and fuzzy-ness"""
+        """Uses multiple scorers and processors for a good mix of accuracy and fuzzy-ness
+        """
         combined_list = []
 
         scorers = (fuzz.token_set_ratio, fuzz.WRatio)

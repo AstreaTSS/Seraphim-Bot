@@ -85,7 +85,8 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
     @commands.command(aliases=["snipr"])
     async def snipe(self, ctx, chan: typing.Optional[discord.TextChannel], msg_num=1):
         """Allows you to get the last or the nth to last deleted message from the channel mentioned or the channel this was used in.
-        Any message that had been deleted over a minute ago will not be able to be sniped."""
+        Any message that had been deleted over a minute ago will not be able to be sniped.
+        """
 
         await self.snipe_handle(ctx, chan, msg_num, "deletes")
 
@@ -94,7 +95,8 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
         self, ctx, chan: typing.Optional[discord.TextChannel], msg_num=1
     ):
         """Allows you to get either the last or nth lasted edited message from the channel mentioned or the channel this was used in.
-        Any message that has been edited in over a minute will not be able to be sniped."""
+        Any message that has been edited in over a minute will not be able to be sniped.
+        """
 
         await self.snipe_handle(ctx, chan, msg_num, "edits")
 
@@ -104,7 +106,8 @@ class SnipeCMDs(commands.Cog, name="Snipe"):
         self, ctx, snipe_type="both", chan: typing.Optional[discord.TextChannel] = None
     ):
         """Clears all snipes of the type specified from the bot (defaults to both types), making them unable to be sniped. Useful for moderation.
-        Type can be edits, deletes, or both. If no channel is specified, it assumes the current channel."""
+        Type can be edits, deletes, or both. If no channel is specified, it assumes the current channel.
+        """
 
         if chan is None:
             chan = ctx.channel

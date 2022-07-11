@@ -11,14 +11,16 @@ import common.utils as utils
 
 
 class PingRoleCMDs(commands.Cog, name="Pingable Roles"):
-    """Commands for pingable roles. If you wish to add a pingable role, please view the settings command."""
+    """Commands for pingable roles. If you wish to add a pingable role, please view the settings command.
+    """
 
     def __init__(self, bot):
         self.bot: utils.SeraphimBase = bot
 
     @commands.command(aliases=["pingrole", "roleping", "role_ping"])
     async def ping_role(self, ctx, *, role: fuzzys.FuzzyRoleConverter):
-        """Pings the role specified if the role isn't on cooldown and has been added to a list."""
+        """Pings the role specified if the role isn't on cooldown and has been added to a list.
+        """
 
         ping_roles = self.bot.config.getattr(ctx.guild.id, "pingable_roles")
 

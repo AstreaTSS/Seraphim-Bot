@@ -111,7 +111,6 @@ async def base_generate(
             and mes.embeds[0].footer.text != "Twitter"
         )
     ):
-
         author = f"{mes.author.display_name} ({mes.author})"
         icon = utils.get_icon_url(mes.author.display_avatar)
 

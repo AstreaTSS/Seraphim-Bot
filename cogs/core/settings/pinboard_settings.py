@@ -33,7 +33,8 @@ async def main_cmd(ctx):
 @utils.proper_permissions()
 @utils.bot_proper_perms()
 async def _list(ctx: commands.Context):
-    """Returns a list of channels that have their pins mapped to another channel, and the max limit before they overflow to that other channel."""
+    """Returns a list of channels that have their pins mapped to another channel, and the max limit before they overflow to that other channel.
+    """
 
     pin_config = ctx.bot.config.getattr(ctx.guild.id, "pin_config")
 
