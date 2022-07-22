@@ -59,7 +59,6 @@ class Star(commands.Cog):
         if not user.bot and channel.id not in self.bot.config.getattr(
             mes.guild.id, "star_blacklist"
         ):
-
             if mes.author.id != user.id:
                 starboard_entry = await self.bot.starboard.get(mes.id)
 
@@ -132,7 +131,6 @@ class Star(commands.Cog):
             and channel.id
             not in self.bot.config.getattr(mes.guild.id, "star_blacklist")
         ):
-
             star_variant = await self.bot.starboard.get(mes.id)
 
             if star_variant and not star_variant.frozen and not star_variant.trashed:
@@ -162,7 +160,6 @@ class Star(commands.Cog):
         # have to waste API calls on it, but sometimes we do.
         mes = payload.cached_message
         if not mes:
-
             guild = self.bot.get_guild(payload.guild_id)
             if not guild:
                 return

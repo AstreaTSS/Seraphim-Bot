@@ -15,7 +15,8 @@ import common.utils as utils
 
 
 class HelperCMDs(commands.Cog, name="Helper"):
-    """A series of commands made for tasks that are usually difficult to do, especially on mobile."""
+    """A series of commands made for tasks that are usually difficult to do, especially on mobile.
+    """
 
     def __init__(self, bot):
         self.bot: utils.SeraphimBase = bot
@@ -207,7 +208,6 @@ class HelperCMDs(commands.Cog, name="Helper"):
         you want to... take an emoji from another server.
         Requires Manage Server permissions or higher."""
         async with ctx.channel.typing():
-
             if len(emoji_name) < 2:
                 raise commands.BadArgument("Emoji name must at least 2 characters!")
 
@@ -317,7 +317,8 @@ class HelperCMDs(commands.Cog, name="Helper"):
     @commands.command(aliases=["getemojiurl", "emojiurl", "get_emoji_url"])
     async def emoji_url(self, ctx, emoji: typing.Union[discord.PartialEmoji, str]):
         """Gets the emoji URL from an emoji.
-        The emoji does not have to be from the server it's used in, but it does have to be an emoji, not a name or URL."""
+        The emoji does not have to be from the server it's used in, but it does have to be an emoji, not a name or URL.
+        """
 
         if isinstance(emoji, str):
             raise commands.BadArgument("The argument provided is not a custom emoji!")
@@ -395,7 +396,8 @@ class HelperCMDs(commands.Cog, name="Helper"):
         """Gets the creation date and time of many, MANY Discord related things, like members, emojis, messages, and much more.
         It would be too numberous to list what all can be converted (but usually, anything with a Discord ID will work) and how you input them.
         Names, IDs, mentions... try it out and see.
-        Defaults to getting creation date of the user who runs it if no value is provided."""
+        Defaults to getting creation date of the user who runs it if no value is provided.
+        """
 
         if argument is None:
             argument = ctx.author

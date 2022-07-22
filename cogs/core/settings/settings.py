@@ -16,7 +16,8 @@ class Settings(commands.Cog, name="Settings"):
     @groups.group(invoke_without_command=True, aliases=["config", "conf"])
     @utils.proper_permissions()
     async def settings(self, ctx):
-        """Base command for managing all settings for the bot. This is where you set up the starboard, pinboard, and pingable roles."""
+        """Base command for managing all settings for the bot. This is where you set up the starboard, pinboard, and pingable roles.
+        """
         await ctx.send_help(ctx.command)
 
     def custom_setup(self):

@@ -53,13 +53,15 @@ class StarCMDs(commands.Cog, name="Starboard"):
         invoke_without_command=True, aliases=["starboard", "star"], ignore_extra=False
     )
     async def sb(self, ctx):
-        """Base command for running starboard commands. Use the help command for this to get more info."""
+        """Base command for running starboard commands. Use the help command for this to get more info.
+        """
         await ctx.send_help(ctx.command)
 
     @sb.command()
     @utils.proper_permissions()
     async def setup(self, ctx: commands.Context):
-        """An alias for `setup starboard`. Use the help command for that for more information."""
+        """An alias for `setup starboard`. Use the help command for that for more information.
+        """
         sb_setup_cmd: typing.Optional[commands.Command] = ctx.bot.get_command(
             "setup starboard"
         )
@@ -80,7 +82,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
     @utils.proper_permissions()
     @utils.bot_proper_perms()
     async def settings(self, ctx: commands.Context):
-        """An alias for `settings starboard`. Use the help command for that for more information."""
+        """An alias for `settings starboard`. Use the help command for that for more information.
+        """
         msg = ctx.message
 
         base_sb_cmd: typing.Optional[commands.Command] = ctx.bot.get_command("sb")
@@ -311,7 +314,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
         user: typing.Optional[fuzzys.FuzzyMemberConverter],
     ):
         """Allows you to get either your or whoever you mentioned’s position in the star leaderboard (like the top command, but only for one person).
-        The user can be mentioned, searched up by ID, or you can say their name and the bot will attempt to search for that person."""
+        The user can be mentioned, searched up by ID, or you can say their name and the bot will attempt to search for that person.
+        """
 
         await ctx.trigger_typing()
 
@@ -392,7 +396,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
         """Gets the starboard stats for a message. The message must had at least one star at some point, but does not need to be on the starboard.
         The message either needs to be a message ID of a message in the guild the command is being run in,
         a {channel id}-{message id} format, or the message link itself.
-        The message can either be the original message or the starboard variant message."""
+        The message can either be the original message or the starboard variant message.
+        """
 
         await ctx.trigger_typing()
 
@@ -451,7 +456,8 @@ class StarCMDs(commands.Cog, name="Starboard"):
         """Gets the first 50 star reactors for a message. The message must had at least one star at some point, but does not need to be on the starboard.
         The message either needs to be a message ID of a message in the guild the command is being run in,
         a {channel id}-{message id} format, or the message link itself.
-        The message can either be the original message or the starboard variant message."""
+        The message can either be the original message or the starboard variant message.
+        """
 
         await ctx.trigger_typing()
 

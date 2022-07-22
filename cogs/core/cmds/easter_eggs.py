@@ -32,7 +32,8 @@ class EasterEggs(commands.Cog, name="Easter Egg", command_attrs=dict(hidden=True
 
     @commands.command()
     async def gitty(self, ctx):
-        """Gitty (a user, that's all you need to know) won a challenge that I did, so this is part of her reward."""
+        """Gitty (a user, that's all you need to know) won a challenge that I did, so this is part of her reward.
+        """
         await ctx.reply(
             "https://cdn.discordapp.com/attachments/741011094155296780/791382459186937886/hello.png"
         )

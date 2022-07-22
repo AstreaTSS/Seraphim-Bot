@@ -26,7 +26,6 @@ class PinHandler(commands.Cog):
         pins = await msg.channel.pins()
 
         if len(pins) > chan_entry["limit"]:
-
             entry = pins[-1] if not chan_entry["reversed"] else pins[0]
             des_chan = msg.guild.get_channel(chan_entry["destination"])
             if des_chan is None:

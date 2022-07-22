@@ -113,7 +113,8 @@ class StarboardEntry:
         return len(self.total_reactors)
 
     def get_reactors_from_type(self, type_of_reactor: ReactorType) -> typing.Set[int]:
-        """Gets the reactors for the type specified. Useful if you want the output to vary."""
+        """Gets the reactors for the type specified. Useful if you want the output to vary.
+        """
         if type_of_reactor == ReactorType.ORI_REACTORS:
             return self.ori_reactors
         elif type_of_reactor == ReactorType.VAR_REACTORS:
@@ -126,7 +127,8 @@ class StarboardEntry:
     def set_reactors_of_type(
         self, type_of_reactor: ReactorType, input: typing.Set[int]
     ):
-        """Sets the reactors for the type specified. Useful if you want the output to vary."""
+        """Sets the reactors for the type specified. Useful if you want the output to vary.
+        """
         if type_of_reactor == ReactorType.ORI_REACTORS:
             self.ori_reactors = input
         elif type_of_reactor == ReactorType.VAR_REACTORS:
@@ -137,7 +139,8 @@ class StarboardEntry:
     def check_reactor(
         self, reactor_id: int, type_of_reactor=ReactorType.ALL_REACTORS
     ) -> bool:
-        """Sees if the reactor ID provided is in the reactors for the type specified. Useful if you want the output to vary."""
+        """Sees if the reactor ID provided is in the reactors for the type specified. Useful if you want the output to vary.
+        """
         if type_of_reactor == ReactorType.ORI_REACTORS:
             return reactor_id in self.ori_reactors
         elif type_of_reactor == ReactorType.VAR_REACTORS:
@@ -148,7 +151,8 @@ class StarboardEntry:
             raise AttributeError("Invalid reactor type.")
 
     def add_reactor(self, reactor_id: int, type_of_reactor: ReactorType):
-        """Adds a reactor to the reactor type specified. Will silently fail if the entry already exists."""
+        """Adds a reactor to the reactor type specified. Will silently fail if the entry already exists.
+        """
         if reactor_id not in self.total_reactors:
             if type_of_reactor == ReactorType.ORI_REACTORS:
                 self.ori_reactors.add(reactor_id)
@@ -158,7 +162,8 @@ class StarboardEntry:
                 raise AttributeError("Invalid reactor type.")
 
     def remove_reactor(self, reactor_id: int):
-        """Removes a reactor from an entry. Will silently fail if the entry does not exists."""
+        """Removes a reactor from an entry. Will silently fail if the entry does not exists.
+        """
         if reactor_id in self.total_reactors:
             self.ori_reactors.discard(reactor_id)
             self.var_reactors.discard(reactor_id)
@@ -310,7 +315,8 @@ class StarboardEntries:
             return tuple(StarboardEntry.from_row(row) for row in data)
 
     async def raw_query(self, query: str):
-        """Runs the raw query against the pool, assuming the results are starboard entries."""
+        """Runs the raw query against the pool, assuming the results are starboard entries.
+        """
         async with self._pool.acquire() as conn:
             data = await conn.fetch(query)
 

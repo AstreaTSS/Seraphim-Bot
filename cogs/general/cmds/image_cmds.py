@@ -237,7 +237,8 @@ class ImageCMDs(commands.Cog, name="Image"):
         Both the image and the specified image type must be of type GIF, JP(E)G, PNG, or WEBP. The image must also be under 8 MB.
         Flags:
         shrink: <true/false> (specifies to shrink the image - it won't by default)
-        quality: <number> (specifies quality from 0-100, only works with JPG and WEBP files, default is 80)"""
+        quality: <number> (specifies quality from 0-100, only works with JPG and WEBP files, default is 80)
+        """
 
         if not 0 <= flags.quality <= 100:
             raise commands.BadArgument("Quality must be a number between 0-100!")

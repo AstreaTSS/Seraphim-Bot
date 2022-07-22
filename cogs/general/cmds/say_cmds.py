@@ -89,7 +89,8 @@ class SayCMDS(commands.Cog, name="Say"):
     @utils.proper_permissions()
     @utils.bot_proper_perms()
     async def embed_say(self, ctx):
-        """Allows people with Manage Server permissions to speak with the bot with a fancy embed. Will open a wizard-like prompt."""
+        """Allows people with Manage Server permissions to speak with the bot with a fancy embed. Will open a wizard-like prompt.
+        """
 
         wizard = custom_classes.WizardManager(
             "Embed Say Wizard", "Setup complete.", pass_self=True
@@ -228,7 +229,8 @@ class SayCMDS(commands.Cog, name="Say"):
         This is a more low-level alternative to embed-say. If you know Discord Embed JSON, this allows you to use that.
         See https://discord.com/developers/docs/resources/channel#embed-object for the valid format.
         Do not use this if you have no idea what the above means. embed-say works fine.
-        If you mention a channel before the embed data, the bot will send it to that channel."""
+        If you mention a channel before the embed data, the bot will send it to that channel.
+        """
 
         chan: discord.TextChannel = data[0]
         embed: discord.Embed = data[1]

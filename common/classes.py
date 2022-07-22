@@ -56,7 +56,8 @@ else:
 
     class SetNoReaddAsyncQueue(asyncio.Queue):
         """A special type of async queue that uses a set instead of a list.
-        Also ensures entries cannot be re-added (at the expense of using more memory)."""
+        Also ensures entries cannot be re-added (at the expense of using more memory).
+        """
 
         def _init(self, maxsize):
             self._queue = set()
@@ -139,7 +140,6 @@ class TimeDurationConverter(commands.Converter[datetime.timedelta]):
             if (
                 chara.isdigit() or chara == "."
             ):  # if a character is a digit or a '.' - aka if the character is part of a number
-
                 # if the below already exists, that means there was a format before the current number
                 if format_entry:
                     # basically, this number represents the start of a new part of the duration, and we need to add in the old one
@@ -198,7 +198,8 @@ class TimeDurationConverter(commands.Converter[datetime.timedelta]):
 
 
 class ValidChannelConverter(commands.TextChannelConverter):
-    """The text channel converter, but we do a few checks to make sure we can do what we need to do in the channel."""
+    """The text channel converter, but we do a few checks to make sure we can do what we need to do in the channel.
+    """
 
     async def convert(self, ctx: commands.Context, argument: str):
         chan = await super().convert(ctx, argument)
@@ -225,7 +226,8 @@ class WizardQuestion:
 
 @attr.s
 class WizardManager:
-    """A class that allows you to make a wizard of sorts, allowing a more intuitive way of getting multiple inputs from a user."""
+    """A class that allows you to make a wizard of sorts, allowing a more intuitive way of getting multiple inputs from a user.
+    """
 
     embed_title: str = attr.ib()
     final_text: str = attr.ib()

@@ -36,7 +36,8 @@ async def add(
 ):
     """Adds the role to the roles able to be pinged.
     The role can be an ID, a mention, or a name. If it's a name and the name is more than one word, that it must be in quotes.
-    The cooldown can be in seconds, minutes, hours, days, months, and/or years (ex. 1s, 1m, 1h 20.5m)."""
+    The cooldown can be in seconds, minutes, hours, days, months, and/or years (ex. 1s, 1m, 1h 20.5m).
+    """
 
     top_role = ctx.guild.me.top_role
 
@@ -70,7 +71,8 @@ async def cooldown(
 ):
     """Changes the cooldown of the role.
     The role can be an ID, a mention, or a name. If it's a name and the name is more than one word, that it must be in quotes.
-    The cooldown can be in seconds, minutes, hours, days, months, and/or years (ex. 1s, 1m, 1h 20.5m)."""
+    The cooldown can be in seconds, minutes, hours, days, months, and/or years (ex. 1s, 1m, 1h 20.5m).
+    """
 
     pingable_roles = ctx.bot.config.getattr(ctx.guild.id, "pingable_roles")
 
@@ -89,7 +91,8 @@ async def cooldown(
 @utils.proper_permissions()
 async def remove(ctx, *, role: fuzzys.FuzzyRoleConverter):
     """Removes that role from the roles able to be pinged.
-    The role can be an ID, a mention, or a name. If it's a name, it does not need to be in quotes."""
+    The role can be an ID, a mention, or a name. If it's a name, it does not need to be in quotes.
+    """
 
     ping_roles = ctx.bot.config.getattr(ctx.guild.id, "pingable_roles")
 
