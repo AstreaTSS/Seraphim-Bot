@@ -21,7 +21,12 @@ class SlashCMDS(commands.Cog):
         """Reverses the content given."""
         await inter.response.send_message(f"{content[::-1]}", ephemeral=True)
 
-    @discord.app_commands.command()
+    @discord.app_commands.command(
+        description=(
+            "Allows you to kill the victim specified using the iconic Minecraft kill"
+            " command messages."
+        )
+    )
     @discord.app_commands.describe(target="The content to kill.")
     async def kill(
         self,
@@ -29,8 +34,6 @@ class SlashCMDS(commands.Cog):
         *,
         target: str,
     ):
-        "Allows you to kill the victim specified using the iconic Minecraft kill command messages."
-
         if len(target) > 1900:
             raise commands.BadArgument("The target you provided is too large.")
 
