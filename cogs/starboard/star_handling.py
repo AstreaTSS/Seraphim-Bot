@@ -68,9 +68,11 @@ class Star(commands.Cog):
                     return
 
                 if not starboard_entry or not starboard_entry.star_var_id:
-                    if channel.id != self.bot.config.getattr(
-                        mes.guild.id, "starboard_id"
-                    ):
+                    if (
+                        starboard_id := self.bot.config.getattr(
+                            mes.guild.id, "starboard_id"
+                        )
+                    ) and channel.id != starboard_id:
                         await star_utils.modify_stars(
                             self.bot, mes, payload.user_id, "ADD"
                         )

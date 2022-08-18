@@ -102,6 +102,36 @@ async def toggle(ctx, toggle: typing.Optional[bool]):
             )
 
 
+@main_cmd.command()
+@utils.proper_permissions()
+@utils.bot_proper_perms()
+async def display_mode(ctx: utils.SeraContextBase, toggle: typing.Optional[bool]):
+    """Allows you to activate a special mode that doesn't allow new starboard entries, but allows current ones to be interacted with.
+    """
+
+    config = ctx.bot.config.get(ctx.guild.id)
+
+    if toggle is None:
+        await ctx.reply(
+            "Display mode:"
+            f" **{utils.bool_friendly_str(config.star_toggle and not config.star_toggle)}**"
+        )
+        return
+
+    config = ctx.bot.config.get(ctx.guild.id)
+
+    if toggle and not config.star_toggle:
+        raise utils.CustomCheckFailure("You must enable the starboard beforehand!")
+
+    if toggle:
+        ctx.bot.config.setattr(ctx.guild.id, starboard_id=None)
+        await ctx.reply("Turned display mode on for this server!")
+    else:
+        raise utils.CustomCheckFailure(
+            "You can only unset display mode by re-setting the starboard channel."
+        )
+
+
 @main_cmd.command(aliases=["edit_messages, editmessage, editmessages"])
 @utils.proper_permissions()
 @utils.bot_proper_perms()

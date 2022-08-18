@@ -235,6 +235,8 @@ async def star_entry_refresh(
             ori_mes = await ori_chan.fetch_message(starboard_entry.ori_mes_id)
         except discord.HTTPException:
             return
+        except AttributeError:
+            return
 
         import common.star_mes_handler  # very dirty import, i know
 
