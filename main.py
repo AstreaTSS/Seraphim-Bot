@@ -190,19 +190,23 @@ class SeraphimBot(utils.SeraphimBase):
         self.init_load = False
 
         activity = discord.Activity(
-            name="over a couple of servers", type=discord.ActivityType.watching
+            name="Shutting down September 3rd, 2022", type=discord.ActivityType.playing
         )
 
         try:
-            await self.change_presence(activity=activity)
+            await self.change_presence(
+                activity=activity, status=discord.Status.do_not_disturb
+            )
         except websockets.exceptions.ConnectionClosedOK:
             await utils.msg_to_owner(self, "Reconnecting...")
 
     async def on_resumed(self):
         activity = discord.Activity(
-            name="over a couple of servers", type=discord.ActivityType.watching
+            name="Shutting down September 3rd, 2022", type=discord.ActivityType.playing
         )
-        await self.change_presence(activity=activity)
+        await self.change_presence(
+            activity=activity, status=discord.Status.do_not_disturb
+        )
 
     async def on_error(self, event, *args, **kwargs):
         try:
